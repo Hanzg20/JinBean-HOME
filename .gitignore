@@ -1,0 +1,10 @@
+.dart_tool/
+.packages
+.pub/
+build/
+ios/Pods/
+.idea/
+*.iml
+.vscode/
+.DS_Store
+.env
