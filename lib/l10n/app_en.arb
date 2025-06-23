@@ -1,0 +1,31 @@
+{
+    "appTitle": "JinBean App",
+    "homePageTitle": "Home Page",
+    "homePageWelcome": "Welcome to JinBean App Home Page!",
+    "loginPageTitle": "Login",
+    "registerPageTitle": "Register",
+    "usernameHint": "Enter your username",
+    "passwordHint": "Enter your password",
+    "loginButton": "Login",
+    "registerButton": "Register",
+    "noAccountPrompt": "Don't have an account?",
+    "alreadyHaveAccountPrompt": "Already have an account?",
+    "home": "Home",
+    "service": "Service",
+    "community": "Community",
+    "profile": "Profile",
+    "serviceBookingPageTitle": "Service Booking",
+    "availableServices": "Available Services",
+    "bookService": "Book {service}",
+    "selectDateAndTime": "Select Date and Time",
+    "yourBookings": "Your Bookings",
+    "@yourBookings": {
+      "description": "Text for 'Your Bookings'"
+    },
+    "@community_name": {
+      "description": "Name for the Community tab/plugin"
+    },
+    "@profile_name": {
+      "description": "Name for the Profile tab/plugin"
+    }
+} 

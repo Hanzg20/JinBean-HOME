@@ -1,0 +1,31 @@
+{
+    "appTitle": "金豆荚 App",
+    "homePageTitle": "首页",
+    "homePageWelcome": "欢迎来到金豆荚 App 首页！",
+    "loginPageTitle": "登录",
+    "registerPageTitle": "注册",
+    "usernameHint": "请输入用户名",
+    "passwordHint": "请输入密码",
+    "loginButton": "登录",
+    "registerButton": "注册",
+    "noAccountPrompt": "还没有账号？",
+    "alreadyHaveAccountPrompt": "已有账号？",
+    "home": "首页",
+    "service": "服务",
+    "community": "社区",
+    "profile": "我的",
+    "serviceBookingPageTitle": "服务预约",
+    "availableServices": "可用服务",
+    "bookService": "预约 {service}",
+    "selectDateAndTime": "选择日期和时间",
+    "yourBookings": "您的预约",
+    "@yourBookings": {
+      "description": "Text for 'Your Bookings'"
+    },
+    "@community_name": {
+      "description": "社区标签/插件的名称"
+    },
+    "@profile_name": {
+      "description": "我的标签/插件的名称"
+    }
+} 

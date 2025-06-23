@@ -1,0 +1,29 @@
+name: jinbeanpod_83904710_f2f
+description: Figma to Flutter
+version: 0.0.1
+homepage: https://f2f.bostonux.com
+environment:
+  sdk: ">=3.3.3 <4.0.0"
+  flutter: ">=1.17.0"
+dependencies:
+  flutter:
+    sdk: flutter
+  js: ^0.6.4
+  asset_cache: ^2.0.0
+  path_drawing: ^1.0.1
+  google_fonts: ^5.0.0
+  intl: ^0.20.2
+  transparent_pointer: ^1.0.0
+  cached_network_image:
+    git:
+      url: https://github.com/lucasmiranda5/flutter_cached_network_image.git
+      ref: dart3
+      path: cached_network_image
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+flutter:
+  uses-material-design: true
+  assets:
+    - images/

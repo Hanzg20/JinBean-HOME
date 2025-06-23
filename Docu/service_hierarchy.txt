@@ -1,0 +1,107 @@
+# 服务层级结构
+
+## 一、餐饮美食 Dining
+- 家庭餐 Home Meals
+  - 家庭厨房 Home Kitchen
+  - 私厨服务 Private Chef
+  - 家常菜配送 Homestyle Delivery
+- 美食定制 Custom Catering
+  - 聚会宴席 Gathering Meals
+  - 蛋糕定制 Cake Custom
+  - 早餐便当 Breakfast Bento
+- 餐饮多样 Diverse Dining
+  - 中餐/韩餐/东南亚餐 Chinese/Korean/SEA Cuisine
+  - 咖啡茶饮 Coffee & Tea
+  - 异国料理 Exotic Food
+- 其他餐饮 Other Dining
+  - 食材代购配送 Grocery Shop&Delivery
+  - 餐饮配送 Food Delivery
+
+## 二、家居服务 Home Services
+- 清洁维护 Cleaning
+  - 居家清洁 Home Clean
+  - 装修清洁 Post-Reno Clean
+  - 深度清洁 Deep Clean
+  - 管道疏通 Plumbing
+- 家具安装 Furniture
+  - 家具安装 Furniture Assm
+  - 墙修/涂刷 Wall Repair/Paint
+  - 家电装/修 Appliance Install/Repair
+- 园艺户外 Gardening
+  - 割草修剪 Lawn Mowing
+  - 园艺维护 Garden Main
+  - 铲雪服务 Snow Removal
+- 宠物服务 Pet Care
+  - 宠物照料 Pet Sit
+  - 遛宠 Dog Walk
+- 房产空间 Real Estate
+  - 房屋经纪 Real Estate Agent
+  - 家庭娱乐 Home Entertainment
+
+## 三、出行交通 Transportation
+- 日常接送 Daily Shuttle
+  - 机场接送 Airport Transfer
+  - 学校接送 School Shuttle
+  - 拼车 Carpooling
+- 快递代购 Courier & Shop
+  - 同城快递 Same-City Courier
+  - 包裹代收寄 Package Service
+  - 代购 Local/Int'l Shop
+- 移动搬运 Moving
+  - 搬家 Moving
+  - 代驾 Chauffeur
+- 跑腿 Errands
+  - 代办(排队/领物) Errands (Queue/Pickup)
+
+## 四、租赁共享 Rental & Share
+- 工具设备 Tools & Equip
+  - 工具租赁 Tool Rental
+  - 家电租赁 Appliance Rental
+  - 摄影/3D设备 Photo/3D Equip
+- 空间共享 Space Share
+  - 临时办公 Temp Office
+  - 家庭场地 Home Venue
+  - 储物租赁 Storage Rental
+- 儿童家庭 Kids & Family
+  - 儿童游乐 Kids' Play
+  - 婴幼用品 Baby Gear
+- 物品共享 Item Share
+  - 闲置租借 Second-hand Rental
+
+## 五、学习成长 Learning
+- 学科辅导 Academic Tutoring
+  - 小初高课程 K-12 Courses
+  - 英语/法语 English/French
+  - 在线1对1 Online 1-on-1
+- 艺术兴趣 Art & Hobby
+  - 美术手工 Art & Crafts
+  - 乐器/声乐 Instrument/Vocal
+  - 舞蹈/戏剧 Dance/Theatre
+- 技能成长 Skill Growth
+  - 编程/AI/设计 Coding/AI/Design
+  - 成人兴趣班 Adult Hobby
+  - 技能培训 Skill Training
+- 教育服务 Edu Services
+  - 留学申请 Study Abroad Apps
+  - 移民咨询 Immigration Consult
+  - 心理教育 Mental Health Edu
+
+## 六、专业速帮 Pro & Gigs
+- 简单劳务 Simple Labor
+  - 搬物/安装 Help Moving/Assm
+  - 护工/陪护 Caregiver
+  - 保姆/家政 Nanny/Housekeeping
+- 专业服务 Pro Services
+  - IT支持 IT Support
+  - 平面/视频设计 Graphic/Video Design
+  - 摄影摄像 Photo&Video
+  - 翻译/排版 Trans/Typeset
+- 咨询顾问 Consulting
+  - 房产中介 Real Estate
+  - 贷款/保险 Loan/Insurance
+  - 税务/会计 Tax/Accounting
+  - 法律咨询 Legal
+- 健康支持 Health Support
+  - 理疗 Physio
+  - 陪诊 Clinic Accompany
+  - 生活照护 Daily Care 
