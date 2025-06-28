@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import './payment_methods_controller.dart';
 
 class PaymentMethodsPage extends GetView<PaymentMethodsController> {
-  const PaymentMethodsPage({Key? key}) : super(key: key);
+  const PaymentMethodsPage({super.key});
 
   @override
   Widget build(BuildContext context) {

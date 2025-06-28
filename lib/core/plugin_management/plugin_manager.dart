@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'app_plugin.dart';
 import 'package:jinbeanpod_83904710/features/auth/auth_plugin.dart'; // 导入 AuthPlugin
@@ -7,6 +6,7 @@ import 'package:jinbeanpod_83904710/features/home/home_plugin.dart'; // 导入 H
 import 'package:jinbeanpod_83904710/features/service_booking/service_booking_plugin.dart'; // 导入 ServiceBookingPlugin
 import 'package:jinbeanpod_83904710/features/community/community_plugin.dart'; // 导入 CommunityPlugin
 import 'package:jinbeanpod_83904710/features/profile/profile_plugin.dart'; // 导入 ProfilePlugin
+import 'package:jinbeanpod_83904710/features/service_map/service_map_plugin.dart'; // 导入ServiceMapPlugin
 // TODO: 导入实际的插件文件，例如：
 // import '../../features/service_booking/service_booking_plugin.dart';
 
@@ -37,6 +37,7 @@ class PluginManager extends GetxController {
       ServiceBookingPlugin(), // 注册 Service Booking 插件
       CommunityPlugin(), // 注册 Community 插件
       ProfilePlugin(), // 注册 Profile 插件
+      ServiceMapPlugin(), // 新增地图插件
       // TODO: 在这里添加你的其他插件实例
       // ToolRentalPlugin(),
     ]);

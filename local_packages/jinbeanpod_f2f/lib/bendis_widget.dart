@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'dart:async';
 import 'base_painter.dart';
 import 'base_state.dart';

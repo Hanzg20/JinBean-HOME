@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import './language_settings_controller.dart';
 
 class LanguageSettingsPage extends GetView<LanguageSettingsController> {
-  const LanguageSettingsPage({Key? key}) : super(key: key);
+  const LanguageSettingsPage({super.key});
 
   @override
   Widget build(BuildContext context) {

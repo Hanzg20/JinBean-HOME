@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'service_booking_controller.dart';
 import 'package:jinbeanpod_83904710/l10n/generated/app_localizations.dart'; // 导入国际化类
 import 'package:jinbeanpod_83904710/app/theme/app_colors.dart'; // Import AppColors
+import 'package:jinbeanpod_83904710/core/controllers/location_controller.dart'; // 导入LocationController
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ServiceBookingPage extends GetView<ServiceBookingController> {
   const ServiceBookingPage({super.key});
@@ -30,6 +32,8 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
 
   @override
   Widget build(BuildContext context) {
+    final locationController = Get.find<LocationController>();
+    
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface, // Use theme background color
       appBar: AppBar(
@@ -41,6 +45,20 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
           ),
         ),
         backgroundColor: Theme.of(context).colorScheme.primary,
+        actions: [
+          // 位置选择按钮
+          Obx(() => IconButton(
+            icon: Icon(
+              Icons.location_on,
+              color: locationController.isLoading.value 
+                ? Theme.of(context).colorScheme.onPrimary.withOpacity(0.5)
+                : Theme.of(context).colorScheme.onPrimary,
+            ),
+            onPressed: locationController.isLoading.value 
+              ? null 
+              : () => _showLocationDialog(context, locationController),
+          )),
+        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -48,6 +66,67 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // 位置信息显示
+              Obx(() => Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.location_on,
+                      color: Theme.of(context).colorScheme.primary,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '当前位置',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            locationController.effectiveLocation.address,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (locationController.isLoading.value)
+                      const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    else
+                      IconButton(
+                        icon: const Icon(Icons.refresh, size: 20),
+                        onPressed: () => locationController.getCurrentLocation(),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                      ),
+                  ],
+                ),
+              )),
+              const SizedBox(height: 16),
+
               // Global Search Bar
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -250,6 +329,18 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
                                     itemCount: controller.services.length,
                                     itemBuilder: (context, serviceIndex) {
                                       final service = controller.services[serviceIndex];
+                                      
+                                      // 计算距离
+                                      double distance = 0.0;
+                                      String distanceText = '';
+                                      if (service.latitude != null && service.longitude != null) {
+                                        distance = locationController.calculateDistance(
+                                          service.latitude!,
+                                          service.longitude!,
+                                        );
+                                        distanceText = locationController.formatDistance(distance);
+                                      }
+                                      
                                       return Card(
                                         margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                                         elevation: 1,
@@ -258,7 +349,10 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
                                         child: InkWell(
                                           onTap: () {
                                             print('Service ${service.name} tapped');
-                                            // TODO: Navigate to Service Detail Page for service.id
+                                            // Navigate to Service Detail Page
+                                            Get.toNamed('/service_detail', parameters: {
+                                              'serviceId': service.id,
+                                            });
                                           },
                                           borderRadius: BorderRadius.circular(12),
                                           child: Padding(
@@ -299,6 +393,11 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
                                                         children: [
                                                           const Icon(Icons.star, color: AppColors.warningColor, size: 16),
                                                           Text('${service.rating} (${service.reviews} reviews)', style: TextStyle(fontSize: 12, color: Theme.of(context).textTheme.bodySmall?.color)),
+                                                          if (distanceText.isNotEmpty) ...[
+                                                            const SizedBox(width: 8),
+                                                            Icon(Icons.location_on, color: Colors.grey, size: 14),
+                                                            Text(distanceText, style: TextStyle(fontSize: 12, color: Colors.grey)),
+                                                          ],
                                                         ],
                                                       ),
                                                       const SizedBox(height: 5),
@@ -341,6 +440,18 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
                             itemCount: controller.recommendedServices.length,
                             itemBuilder: (context, index) {
                               final recommendation = controller.recommendedServices[index];
+                              
+                              // 计算距离
+                              double distance = 0.0;
+                              String distanceText = '';
+                              if (recommendation.latitude != null && recommendation.longitude != null) {
+                                distance = locationController.calculateDistance(
+                                  recommendation.latitude!,
+                                  recommendation.longitude!,
+                                );
+                                distanceText = locationController.formatDistance(distance);
+                              }
+                              
                               return Card(
                                 margin: const EdgeInsets.symmetric(vertical: 8.0),
                                 elevation: 1.0,
@@ -349,7 +460,10 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
                                 child: InkWell(
                                   onTap: () {
                                     print('Recommended service ${recommendation.name} tapped');
-                                    // TODO: Navigate to Service Detail Page
+                                    // Navigate to Service Detail Page
+                                    Get.toNamed('/service_detail', parameters: {
+                                      'serviceId': recommendation.id,
+                                    });
                                   },
                                   borderRadius: BorderRadius.circular(12.0),
                                   child: Padding(
@@ -396,9 +510,18 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
                                                 overflow: TextOverflow.ellipsis,
                                               ),
                                               const SizedBox(height: 8.0),
-                                              Text(
-                                                recommendation.recommendationReason,
-                                                style: TextStyle(fontSize: 12.0, color: Theme.of(context).colorScheme.primary, fontStyle: FontStyle.italic),
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    recommendation.recommendationReason,
+                                                    style: TextStyle(fontSize: 12.0, color: Theme.of(context).colorScheme.primary, fontStyle: FontStyle.italic),
+                                                  ),
+                                                  if (distanceText.isNotEmpty) ...[
+                                                    const SizedBox(width: 8),
+                                                    Icon(Icons.location_on, color: Colors.grey, size: 14),
+                                                    Text(distanceText, style: TextStyle(fontSize: 12, color: Colors.grey)),
+                                                  ],
+                                                ],
                                               ),
                                             ],
                                           ),
@@ -417,6 +540,158 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
           ),
         ),
       ),
+    );
+  }
+
+  // 显示位置选择对话框
+  void _showLocationDialog(BuildContext context, LocationController locationController) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('选择位置'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.my_location),
+                title: const Text('使用当前位置'),
+                subtitle: const Text('获取GPS定位'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  locationController.getCurrentLocation();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.search),
+                title: const Text('搜索地址'),
+                subtitle: const Text('手动输入地址'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _showAddressSearchDialog(context, locationController);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.location_city),
+                title: const Text('常用城市'),
+                subtitle: const Text('选择常用城市'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _showCitySelectionDialog(context, locationController);
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('取消'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // 显示地址搜索对话框
+  void _showAddressSearchDialog(BuildContext context, LocationController locationController) {
+    final TextEditingController searchController = TextEditingController();
+    
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('搜索地址'),
+          content: TextField(
+            controller: searchController,
+            decoration: const InputDecoration(
+              hintText: '输入地址或地点名称',
+              prefixIcon: Icon(Icons.search),
+            ),
+            autofocus: true,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('取消'),
+            ),
+            TextButton(
+              onPressed: () async {
+                final address = searchController.text.trim();
+                if (address.isNotEmpty) {
+                  Navigator.of(context).pop();
+                  final location = await locationController.searchLocationByAddress(address);
+                  if (location != null) {
+                    await locationController.selectLocation(location);
+                    Get.snackbar('成功', '位置已更新');
+                  } else {
+                    Get.snackbar('错误', '未找到该地址');
+                  }
+                }
+              },
+              child: const Text('搜索'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // 显示城市选择对话框
+  void _showCitySelectionDialog(BuildContext context, LocationController locationController) async {
+    // 动态加载城市列表
+    final supabase = Supabase.instance.client;
+    final locale = Get.locale?.languageCode ?? 'zh';
+    final List<Map<String, dynamic>> cityData = await supabase
+        .from('ref_codes')
+        .select('id, name, code, latitude, longitude')
+        .eq('type_code', 'AREA_CODE')
+        .inFilter('level', [3, 4]) // 3=城市, 4=直辖市/特殊城市
+        .eq('status', 1)
+        .order('sort_order', ascending: true);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('选择城市'),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: cityData.length,
+              itemBuilder: (context, index) {
+                final city = cityData[index];
+                final cityName = (city['name'] as Map<String, dynamic>)[locale] ?? (city['name'] as Map<String, dynamic>)['zh'] ?? (city['name'] as Map<String, dynamic>)['en'] ?? '';
+                return ListTile(
+                  title: Text(cityName),
+                  subtitle: Text(city['code'] ?? ''),
+                  onTap: () async {
+                    Navigator.of(context).pop();
+                    final location = UserLocation(
+                      latitude: city['latitude'] is num ? city['latitude'].toDouble() : 0.0,
+                      longitude: city['longitude'] is num ? city['longitude'].toDouble() : 0.0,
+                      address: cityName,
+                      city: cityName,
+                      district: '',
+                      source: LocationSource.manual,
+                      lastUpdated: DateTime.now(),
+                    );
+                    await locationController.selectLocation(location);
+                    Get.snackbar('成功', '位置已更新为$cityName');
+                  },
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('取消'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

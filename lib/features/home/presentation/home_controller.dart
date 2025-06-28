@@ -103,29 +103,44 @@ class HomeController extends GetxController {
     print('=== Fetching Home Services ===');
     isLoadingServices.value = true;
     try {
+      print('开始查询ref_codes表...');
+      
+      // 首先测试数据库连接
+      final testQuery = await Supabase.instance.client
+          .from('ref_codes')
+          .select('count')
+          .limit(1);
+      print('数据库连接测试成功，返回数据: $testQuery');
+      
+      // 查询一级服务分类
       final data = await Supabase.instance.client
           .from('ref_codes')
-          .select('id, name, extra_data')
+          .select('id, type_code, name, extra_data, level, status, sort_order')
           .eq('type_code', 'SERVICE_TYPE')
           .eq('level', 1)
           .eq('status', 1)
           .order('sort_order', ascending: true);
 
-      print('Fetched services data: ${data.length} items');
+      print('查询完成，原始数据: $data');
+      print('数据长度: ${data.length}');
       
       final List<HomeServiceItem> fetchedServices = [];
       
       for (var item in data as List) {
+        print('处理项目: $item');
         final nameData = Map<String, dynamic>.from(item['name']);
         final extraData = Map<String, dynamic>.from(item['extra_data'] ?? {});
         final id = item['id'] as int;
         
-        print('Processing service: ID=$id, name=$nameData, extraData=$extraData');
+        print('处理服务: ID=$id, name=$nameData, extraData=$extraData');
+        
+        final serviceName = nameData[Get.locale?.languageCode ?? 'zh'] ?? nameData['zh'] ?? nameData['en'] ?? '';
+        print('解析后的服务名称: $serviceName');
         
         fetchedServices.add(HomeServiceItem(
           id: id,
           typeCode: 'SERVICE_TYPE',
-          name: nameData[Get.locale?.languageCode ?? 'zh'] ?? nameData['zh'] ?? nameData['en'] ?? '',
+          name: serviceName,
           icon: _getIconData(extraData['icon'] ?? 'category'),
         ));
       }
@@ -136,13 +151,14 @@ class HomeController extends GetxController {
         HomeServiceItem(id: -2, typeCode: 'FUNCTION', name: '服务地图', icon: Icons.location_on),
       ]);
 
-      print('Final services list: ${fetchedServices.map((s) => '${s.id}: ${s.name}').join(', ')}');
+      print('最终服务列表: ${fetchedServices.map((s) => '${s.id}: ${s.name}').join(', ')}');
       services.assignAll(fetchedServices);
     } catch (e) {
       print('Error fetching home services: $e');
+      print('错误详情: ${e.toString()}');
       Get.snackbar(
         '加载失败',
-        '未能加载服务分类，请稍后再试。',
+        '未能加载服务分类，请稍后再试。错误: ${e.toString()}',
         snackPosition: SnackPosition.BOTTOM,
       );
     } finally {
@@ -197,34 +213,59 @@ class HomeController extends GetxController {
   }
 
   Future<void> _fetchRecommendedServices() async {
+    print('=== Fetching Recommended Services ===');
     isLoadingRecommendations.value = true;
     try {
+      print('开始查询services表...');
+      
       // Step 1: Fetch services data without joining ref_codes
       final List<Map<String, dynamic>> servicesData = await Supabase.instance.client
           .from('services')
-          .select('id, title, description, average_rating, review_count, created_at, category_level1_id')
+          .select('id, title, description, average_rating, review_count, created_at, category_level1_id, status')
+          .eq('status', 'active')
           .order('created_at', ascending: false)
           .limit(8);
 
+      print('services表查询完成，数据长度: ${servicesData.length}');
+      print('services数据: $servicesData');
+
+      if (servicesData.isEmpty) {
+        print('services表为空，没有推荐服务');
+        recommendations.clear();
+        return;
+      }
+
       // Step 2: Fetch ref_codes data for all relevant category_level1_ids
       final List<int> categoryIds = servicesData.map((e) => e['category_level1_id'] as int).toList();
+      print('需要查询的分类ID: $categoryIds');
+      
       final List<Map<String, dynamic>> refCodesData = await Supabase.instance.client
           .from('ref_codes')
           .select('id, extra_data')
           .inFilter('id', categoryIds);
+
+      print('ref_codes查询完成，数据: $refCodesData');
 
       // Create a map for quick lookup of ref_codes extra_data
       final Map<int, Map<String, dynamic>> refCodesMap = {
         for (var refCode in refCodesData) refCode['id'] as int: refCode['extra_data'] as Map<String, dynamic>,
       };
 
+      print('ref_codes映射: $refCodesMap');
+
       recommendations.clear();
       for (var service in servicesData) {
+        print('处理服务: $service');
         final Map<String, dynamic>? titleMap = service['title'] as Map<String, dynamic>?;
         final Map<String, dynamic>? descriptionMap = service['description'] as Map<String, dynamic>?;
         final int categoryLevel1Id = service['category_level1_id'] as int;
         final Map<String, dynamic>? categoryExtraData = refCodesMap[categoryLevel1Id];
         final String iconName = categoryExtraData?['icon'] as String? ?? 'category';
+
+        print('服务标题: $titleMap');
+        print('服务描述: $descriptionMap');
+        print('分类ID: $categoryLevel1Id');
+        print('图标名称: $iconName');
 
         if (titleMap != null && descriptionMap != null) {
           recommendations.add(
@@ -236,13 +277,19 @@ class HomeController extends GetxController {
               recommendationReason: '最新服务',
             ),
           );
+          print('添加推荐服务成功');
+        } else {
+          print('跳过服务，标题或描述为空');
         }
       }
+      
+      print('最终推荐服务数量: ${recommendations.length}');
     } catch (e) {
       print('Error fetching recommended services: $e');
+      print('错误详情: ${e.toString()}');
       Get.snackbar(
         '加载失败',
-        '未能加载推荐服务，请稍后再试。',
+        '未能加载推荐服务，请稍后再试。错误: ${e.toString()}',
         snackPosition: SnackPosition.BOTTOM,
       );
     } finally {

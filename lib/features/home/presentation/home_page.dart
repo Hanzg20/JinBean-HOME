@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'home_controller.dart';
-import 'package:jinbeanpod_83904710/l10n/generated/app_localizations.dart';
-import 'package:jinbeanpod_83904710/app/theme/app_colors.dart'; // Import AppColors
+// Import AppColors
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class HomePage extends GetView<HomeController> {
   const HomePage({super.key});
@@ -46,7 +46,65 @@ class HomePage extends GetView<HomeController> {
           ),
         ),
         actions: [
-          // Removed search icon as per user request
+          // 新增：测试按钮1
+          TextButton(
+            onPressed: () async {
+              try {
+                final data = await Supabase.instance.client
+                    .from('ref_codes')
+                    .select()
+                    .limit(5);
+                showDialog(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: const Text('ref_codes 测试'),
+                    content: Text('返回数量: \\${data.length}\n\\n示例: \\${data.isNotEmpty ? data[0].toString() : '无数据'}'),
+                    actions: [TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('OK'))],
+                  ),
+                );
+              } catch (e) {
+                showDialog(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: const Text('ref_codes 测试'),
+                    content: Text('请求出错: \\${e.toString()}'),
+                    actions: [TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('OK'))],
+                  ),
+                );
+              }
+            },
+            child: const Text('测试ref_codes', style: TextStyle(color: Colors.white)),
+          ),
+          // 新增：测试按钮2
+          TextButton(
+            onPressed: () async {
+              try {
+                final data = await Supabase.instance.client
+                    .from('services')
+                    .select()
+                    .limit(5);
+                showDialog(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: const Text('services 测试'),
+                    content: Text('返回数量: \\${data.length}\n\\n示例: \\${data.isNotEmpty ? data[0].toString() : '无数据'}'),
+                    actions: [TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('OK'))],
+                  ),
+                );
+              } catch (e) {
+                showDialog(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: const Text('services 测试'),
+                    content: Text('请求出错: \\${e.toString()}'),
+                    actions: [TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('OK'))],
+                  ),
+                );
+              }
+            },
+            child: const Text('测试services', style: TextStyle(color: Colors.white)),
+          ),
+          // 原有通知按钮
           IconButton(
             icon: Icon(Icons.notifications_none, color: Theme.of(context).colorScheme.onPrimary), // Changed from AppColors.cardColor
             onPressed: () {
@@ -229,7 +287,7 @@ class HomePage extends GetView<HomeController> {
                               // Get.toNamed('/help');
                               break;
                             case '服务地图':
-                              // Get.toNamed('/service_map');
+                              Get.toNamed('/service_map');
                               break;
                           }
                         }
@@ -371,7 +429,7 @@ class HomePage extends GetView<HomeController> {
                           ),
                         ),
                       ),
-                      Container(
+                      SizedBox(
                         height: 180,
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,

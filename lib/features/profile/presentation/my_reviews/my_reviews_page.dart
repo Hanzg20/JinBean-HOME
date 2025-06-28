@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import './my_reviews_controller.dart';
 
 class MyReviewsPage extends GetView<MyReviewsController> {
-  const MyReviewsPage({Key? key}) : super(key: key);
+  const MyReviewsPage({super.key});
 
   @override
   Widget build(BuildContext context) {

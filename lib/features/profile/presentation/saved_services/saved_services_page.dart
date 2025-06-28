@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import './saved_services_controller.dart';
 
 class SavedServicesPage extends GetView<SavedServicesController> {
-  const SavedServicesPage({Key? key}) : super(key: key);
+  const SavedServicesPage({super.key});
 
   @override
   Widget build(BuildContext context) {

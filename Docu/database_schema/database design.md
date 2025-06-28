@@ -299,8 +299,8 @@
 |---|---|---|---|---|---|
 | id | uuid | PK | 服务ID | PK |
 | provider_id | uuid | FK, NOT NULL | 服务商ID，关联 provider_profiles | FK, INDEX |
-| title | text | NOT NULL | 服务标题 | INDEX |
-| description | text | | 服务详细描述 | |
+| title | jsonb | NOT NULL | 服务标题 | INDEX |
+| description | jsonb | | 服务详细描述 | |
 | category_level1_id | bigint | FK, NOT NULL | 关联一级服务类别 | FK, INDEX |
 | category_level2_id | bigint | FK | 关联二级服务类别 | FK, INDEX |
 | status | text | NOT NULL | 服务状态：draft/active/paused/archived | INDEX |
@@ -308,6 +308,7 @@
 | review_count | integer | | 评价数量（聚合） | |
 | latitude | numeric | | 服务提供地点纬度 | INDEX |
 | longitude | numeric | | 服务提供地点经度 | INDEX |
+| images_url | jsonb | | 服务图片URL列表 | |
 | service_delivery_method | text | NOT NULL | 服务交付方式：on_site/remote/online/pickup | INDEX |
 | created_at | timestamptz | NOT NULL | 创建时间 | |
 | updated_at | timestamptz | NOT NULL | 更新时间 | |
@@ -324,6 +325,7 @@
 - review_count: 服务的评价总数
 - latitude: 服务的纬度坐标
 - longitude: 服务的经度坐标
+- images_url: 服务相关的图片URL列表，jsonb数组，支持多张图片。
 - service_delivery_method: 定义服务如何交付，影响位置信息是否必填和地图展示方式
 - created_at: 服务记录的创建时间
 - updated_at: 服务记录的最后更新时间
@@ -1463,18 +1465,19 @@ CREATE INDEX idx_refunds_created_at ON public.refunds (created_at);
 |---|---|---|---|---|---|
 | id | uuid | 否 | gen_random_uuid() | 服务唯一ID | PK |
 | provider_id | uuid | 否 | | 服务商ID，关联 provider_profiles | FK, INDEX |
-| title | text | 否 | | 服务标题 | INDEX |
-| description | text | 否 | | 服务详细描述 | |
-| category_level1_id | bigint | 否 | | 关联一级服务类别 | FK, INDEX |
-| category_level2_id | bigint | 是 | | 关联二级服务类别 | FK, INDEX |
-| status | text | 否 | 'draft' | 服务状态：draft/active/paused/archived | INDEX |
-| average_rating | numeric | 是 | 0.0 | 平均评分 | |
-| review_count | integer | 是 | 0 | 评论数量 | |
-| latitude | numeric | 是 | | 服务提供地点纬度 | INDEX |
-| longitude | numeric | 是 | | 服务提供地点经度 | INDEX |
-| service_delivery_method | text | 否 | 'on_site' | 服务交付方式：on_site/remote/online/pickup | INDEX |
-| created_at | timestamptz | 否 | now() | 创建时间 | |
-| updated_at | timestamptz | 否 | now() | 更新时间 | |
+| title | jsonb | NOT NULL | 服务标题 | INDEX |
+| description | jsonb | | 服务详细描述 | |
+| category_level1_id | bigint | FK, NOT NULL | 关联一级服务类别 | FK, INDEX |
+| category_level2_id | bigint | FK | 关联二级服务类别 | FK, INDEX |
+| status | text | NOT NULL | 服务状态：draft/active/paused/archived | INDEX |
+| average_rating | numeric | | 平均评分（聚合） | |
+| review_count | integer | | 评价数量（聚合） | |
+| latitude | numeric | | 服务提供地点纬度 | INDEX |
+| longitude | numeric | | 服务提供地点经度 | INDEX |
+| images_url | jsonb | | 服务图片URL列表 | |
+| service_delivery_method | text | NOT NULL | 服务交付方式：on_site/remote/online/pickup | INDEX |
+| created_at | timestamptz | NOT NULL | 创建时间 | |
+| updated_at | timestamptz | NOT NULL | 更新时间 | |
 
 #### service_details（服务详细信息表）
 | 字段名 | 类型 | 可空 | 默认值 | 描述 | 约束/索引 |

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart'; // 导入GetX的MaterialApp
-        import 'package:jinbeanpod_83904710_f2f/figma_to_flutter.dart' as f2f;
 import 'package:jinbeanpod_83904710/core/plugin_management/plugin_manager.dart'; // 导入PluginManager
 import 'package:jinbeanpod_83904710/app/shell_app.dart'; // 导入ShellApp
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:jinbeanpod_83904710/l10n/generated/app_localizations.dart'; // 导入生成的国际化类
 import 'package:get_storage/get_storage.dart'; // 导入GetStorage
 import 'package:jinbeanpod_83904710/features/auth/presentation/auth_controller.dart'; // 导入AuthController
+import 'package:jinbeanpod_83904710/core/controllers/location_controller.dart'; // 导入LocationController
 import 'package:jinbeanpod_83904710/features/splash/presentation/splash_binding.dart';
 import 'package:jinbeanpod_83904710/features/splash/presentation/splash_page.dart';
 import 'package:jinbeanpod_83904710/features/splash/presentation/splash_controller.dart';
@@ -15,7 +15,6 @@ import 'package:jinbeanpod_83904710/features/auth/presentation/login_page.dart';
 import 'package:jinbeanpod_83904710/features/auth/presentation/auth_binding.dart';
 import 'package:jinbeanpod_83904710/features/auth/presentation/register_page.dart'; // Import RegisterPage
 import 'package:jinbeanpod_83904710/features/auth/presentation/register_binding.dart'; // Import RegisterBinding
-import 'package:jinbeanpod_83904710/core/plugin_management/app_plugin.dart';
 import 'package:supabase_flutter/supabase_flutter.dart'; // 导入supabase_flutter
 import 'package:jinbeanpod_83904710/features/profile/presentation/edit_profile_page.dart'; // Import EditProfilePage
 import 'package:jinbeanpod_83904710/features/profile/presentation/edit_profile_binding.dart'; // Import EditProfileBinding
@@ -39,8 +38,10 @@ import 'package:jinbeanpod_83904710/features/profile/presentation/theme_settings
 import 'package:jinbeanpod_83904710/features/profile/presentation/theme_settings/theme_settings_binding.dart';
 import 'package:jinbeanpod_83904710/features/profile/presentation/language_settings/language_settings_page.dart';
 import 'package:jinbeanpod_83904710/features/profile/presentation/language_settings/language_settings_binding.dart';
-import 'package:jinbeanpod_83904710/app/theme/app_colors.dart'; // Import AppColors
+// Import AppColors
 import 'package:jinbeanpod_83904710/app/theme/app_theme_service.dart'; // Import AppThemeService
+import 'package:jinbeanpod_83904710/features/services/presentation/service_detail_page.dart';
+import 'package:jinbeanpod_83904710/features/services/presentation/service_detail_binding.dart';
 
 void main() async {
   // 确保GetX服务在WidgetsBinding初始化前可用
@@ -61,6 +62,9 @@ void main() async {
 
   // AuthController will be initialized globally
   Get.put(AuthController());
+
+  // LocationController will be initialized globally
+  Get.put(LocationController());
 
   // Explicitly put SplashController so it's available when SplashPage is built as home
   Get.put(SplashController());
@@ -143,6 +147,11 @@ void main() async {
       name: '/language_settings',
       page: () => const LanguageSettingsPage(),
       binding: LanguageSettingsBinding(),
+    ),
+    GetPage(
+      name: '/service_detail',
+      page: () => const ServiceDetailPage(),
+      binding: ServiceDetailBinding(),
     ),
     ...pluginManager.getAllPluginRoutes(), // 从PluginManager添加所有插件路由
   ];

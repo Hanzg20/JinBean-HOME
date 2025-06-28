@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import './theme_settings_controller.dart';
 
 class ThemeSettingsPage extends GetView<ThemeSettingsController> {
-  const ThemeSettingsPage({Key? key}) : super(key: key);
+  const ThemeSettingsPage({super.key});
 
   @override
   Widget build(BuildContext context) {

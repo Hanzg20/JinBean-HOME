@@ -8,6 +8,9 @@ class LoginPage extends GetView<AuthController> {
 
   @override
   Widget build(BuildContext context) {
+    // 自动填充测试账号密码
+    controller.emailController.text = '111@111.com';
+    controller.passwordController.text = '111111';
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       body: SafeArea(

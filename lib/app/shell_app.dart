@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import '../core/plugin_management/plugin_manager.dart';
 import '../core/plugin_management/app_plugin.dart';
 import 'package:jinbeanpod_83904710/app/shell_app_controller.dart';
-import 'package:jinbeanpod_83904710/l10n/generated/app_localizations.dart';
 
 class ShellApp extends GetView<ShellAppController> {
   const ShellApp({super.key});

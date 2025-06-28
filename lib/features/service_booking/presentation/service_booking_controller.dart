@@ -46,6 +46,8 @@ class ServiceItem {
   final String imageUrl;
   final double rating;
   final int reviews;
+  final double? latitude;
+  final double? longitude;
 
   ServiceItem({
     required this.id,
@@ -56,6 +58,8 @@ class ServiceItem {
     String? imageUrl,
     required this.rating,
     required this.reviews,
+    this.latitude,
+    this.longitude,
   }) : imageUrl = imageUrl?.isNotEmpty == true && Uri.tryParse(imageUrl!)?.hasScheme == true
           ? imageUrl
           : 'https://via.placeholder.com/80x80?text=No+Image';
@@ -71,6 +75,8 @@ class RecommendedService {
   final double rating;
   final int reviews;
   final String recommendationReason;
+  final double? latitude;
+  final double? longitude;
 
   RecommendedService({
     required this.id,
@@ -81,6 +87,8 @@ class RecommendedService {
     required this.rating,
     required this.reviews,
     required this.recommendationReason,
+    this.latitude,
+    this.longitude,
   }) : imageUrl = imageUrl?.isNotEmpty == true && Uri.tryParse(imageUrl!)?.hasScheme == true
           ? imageUrl
           : 'https://via.placeholder.com/80x80?text=No+Image';
@@ -243,7 +251,7 @@ class ServiceBookingController extends GetxController {
     try {
       final data = await Supabase.instance.client
           .from('services')
-          .select('id, title, description, average_rating, review_count, category_level2_id, status')
+          .select('id, title, description, average_rating, review_count, category_level2_id, status, latitude, longitude')
           .eq('category_level2_id', level2Id)
           .eq('status', 'active');
       final ids = (data as List).map((e) => e['id'] as String).toList();
@@ -269,6 +277,8 @@ class ServiceBookingController extends GetxController {
           imageUrl: imageUrl,
           rating: parseDouble(e['average_rating']),
           reviews: parseInt(e['review_count']),
+          latitude: parseDouble(e['latitude']),
+          longitude: parseDouble(e['longitude']),
         );
       }).toList();
     } catch (e) {
@@ -286,7 +296,7 @@ class ServiceBookingController extends GetxController {
   Future<void> fetchRecommendedServices() async {
     final data = await Supabase.instance.client
         .from('services')
-        .select('id, title, description, average_rating, review_count, status')
+        .select('id, title, description, average_rating, review_count, status, latitude, longitude')
         .eq('status', 'active')
         .order('created_at', ascending: false)
         .limit(5);
@@ -312,6 +322,8 @@ class ServiceBookingController extends GetxController {
         rating: parseDouble(e['average_rating']),
         reviews: parseInt(e['review_count']),
         recommendationReason: '最新服务',
+        latitude: parseDouble(e['latitude']),
+        longitude: parseDouble(e['longitude']),
       );
     }).toList();
   }
