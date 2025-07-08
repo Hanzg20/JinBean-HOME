@@ -10,6 +10,20 @@ class ShellAppController extends GetxController {
     print('ShellAppController: Changed tab to index: $index');
   }
 
+  // 安全设置tab index，防止越界
+  void setTabSafe(int index, int maxTabs) {
+    if (maxTabs <= 0) {
+      _currentIndex.value = 0;
+    } else if (index < 0) {
+      _currentIndex.value = 0;
+    } else if (index >= maxTabs) {
+      _currentIndex.value = 0;
+    } else {
+      _currentIndex.value = index;
+    }
+    print('ShellAppController: setTabSafe to index: \\${_currentIndex.value} (maxTabs: \\${maxTabs})');
+  }
+
   @override
   void onInit() {
     super.onInit();

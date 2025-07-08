@@ -14,6 +14,7 @@ class CommunityPlugin extends AppPlugin {
         order: 3, // Assuming order 3 for Community, after Home (1) and Service Booking (2)
         type: PluginType.bottomTab,
         routeName: '/community',
+        role: 'customer',
       );
 
   @override

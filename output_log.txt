@@ -1,0 +1,150 @@
+Launching lib/main.dart on iPhone 16 in debug mode...
+Running Xcode build...                                          
+ └─Compiling, linking and signing...                         3.1s
+Xcode build done.                                           10.9s
+Syncing files to device iPhone 16...                            
+[ERROR:flutter/shell/platform/darwin/ios/framework/Source/FlutterDartVMServicePublisher.mm(129)] Could not register as server for FlutterDartVMServicePublisher, permission denied. Check your 'Local Network' permissions for this app in the Privacy section of the system Settings.
+[ERROR:flutter/shell/platform/darwin/ios/framework/Source/FlutterDartVMServicePublisher.mm(129)] Could not register as server for FlutterDartVMServicePublisher, permission denied. Check your 'Local Network' permissions for this app in the Privacy section of the system Settings.
+flutter: supabase.supabase_flutter: INFO: ***** Supabase init completed *****
+flutter: AuthController initialized
+flutter: PluginManager constructor hash: \^[[32m\^[[1m\^[[4m\^[[7m\^[[0m73<…>
+flutter: PluginManager onInit hash: \^[[32m\^[[1m\^[[4m\^[[7m7310<…>
+flutter: [PluginManager] _fetchPluginsConfiguration start
+flutter: ShellAppController initialized
+Syncing files to device iPhone 16...                               115ms
+
+Flutter run key commands.
+r Hot reload. 🔥🔥🔥
+R Hot restart.
+h List all available interactive commands.
+d Detach (terminate "flutter run" but leave application running).
+c Clear the screen
+q Quit (terminate the application on the device).
+
+A Dart VM Service on iPhone 16 is available at: http://127.0.0.1:60049/ikRieI_5RVY=/
+The Flutter DevTools debugger and profiler on iPhone 16 is available at: http://127.0.0.1:9101?uri=http://127.0.0.1:60049/ikRieI_5RVY=/
+flutter: [PluginManager] _updateEnabledTabPluginsForCurrentRole skipped: _enabledPluginsMetadata is empty
+flutter: [PluginManager] _updateEnabledTabPluginsForCurrentRole called. currentRole: customer
+flutter: [PluginManager] _enabledPluginsMetadata.length: 12
+flutter: [PluginManager] enabledTabPluginsForCurrentRole.assignAll: home,service_booking,community,profile
+flutter: [PluginManager] enabledTabPluginsForCurrentRole.length: 4
+flutter: [PluginManager] _enabledPluginsMetadata after assignAll: auth,home,provider_home,orders,service_manage,service_booking,order_manage,community,rob_order_hall,profile,message_center,profile
+flutter: [PluginManager] _updateEnabledTabPluginsForCurrentRole called. currentRole: customer
+flutter: [PluginManager] _enabledPluginsMetadata.length: 12
+flutter: [PluginManager] enabledTabPluginsForCurrentRole.assignAll: home,service_booking,community,profile
+flutter: [PluginManager] enabledTabPluginsForCurrentRole.length: 4
+flutter: PluginManager: Initializing plugin: auth
+flutter: AuthPlugin initialized!
+flutter: PluginManager: Binding dependencies called for auth
+flutter: PluginManager: Initializing plugin: home
+flutter: HomePlugin initialized!
+flutter: HomeBinding: dependencies called
+flutter: === HomeController onInit ===
+flutter: === Fetching Home Services ===
+flutter: 开始查询ref_codes表...
+flutter: === Fetching Recommended Services ===
+flutter: 开始查询services表...
+flutter: PluginManager: Binding dependencies called for home
+flutter: PluginManager: Initializing plugin: provider_home
+flutter: ProviderHomePlugin initialized
+flutter: PluginManager: Binding dependencies called for provider_home
+flutter: PluginManager: Initializing plugin: orders
+flutter: Orders plugin initialized
+flutter: PluginManager: Binding dependencies called for orders
+flutter: PluginManager: Initializing plugin: service_manage
+flutter: PluginManager: Binding dependencies called for service_manage
+flutter: PluginManager: Initializing plugin: service_booking
+flutter: ServiceBookingPlugin initialized!
+flutter: ServiceBookingBinding: dependencies called
+flutter: === ServiceBookingController onInit ===
+flutter: === Fetching Level 1 Categories ===
+flutter: PluginManager: Binding dependencies called for service_booking
+flutter: PluginManager: Initializing plugin: order_manage
+flutter: PluginManager: Binding dependencies called for order_manage
+flutter: PluginManager: Initializing plugin: community
+flutter: CommunityPlugin initialized
+flutter: CommunityBinding: dependencies called
+flutter: CommunityController initialized
+flutter: PluginManager: Binding dependencies called for community
+flutter: PluginManager: Initializing plugin: rob_order_hall
+flutter: PluginManager: Binding dependencies called for rob_order_hall
+flutter: PluginManager: Initializing plugin: profile
+flutter: ProfilePlugin initialized
+flutter: ProfileBinding: dependencies called
+flutter: ProfileController initialized
+flutter: [ProfileController] No authenticated user or user ID found. Returning.
+flutter: PluginManager: Binding dependencies called for profile
+flutter: PluginManager: Initializing plugin: message_center
+flutter: PluginManager: Binding dependencies called for message_center
+flutter: PluginManager: Initializing plugin: profile
+flutter: ProfilePlugin initialized
+flutter: ProfileBinding: dependencies called
+flutter: PluginManager: Binding dependencies called for profile
+flutter: PluginManager: About to set _isInitialized to true
+flutter: PluginManager: _isInitialized set to true
+flutter: PluginManager: 当前role: customer
+flutter: PluginManager: enabledPluginsMetadataForCurrentRole: auth,home,orders,service_booking,community,profile
+flutter: PluginManager: id=auth, type=PluginType.standalonePage, type.runtimeType=PluginType
+flutter: PluginManager: id=home, type=PluginType.bottomTab, type.runtimeType=PluginType
+flutter: PluginManager: id=orders, type=PluginType.standalonePage, type.runtimeType=PluginType
+flutter: PluginManager: id=service_booking, type=PluginType.bottomTab, type.runtimeType=PluginType
+flutter: PluginManager: id=community, type=PluginType.bottomTab, type.runtimeType=PluginType
+flutter: PluginManager: id=profile, type=PluginType.bottomTab, type.runtimeType=PluginType
+flutter: === ServiceBookingController onReady ===
+flutter: Processed categories: 0 items
+flutter: services表查询完成，数据长度: 0
+flutter: services数据: []
+flutter: services表为空，没有推荐服务
+flutter: 数据库连接测试成功，返回数据: [{count: 0}]
+flutter: 查询完成，原始数据: []
+flutter: 数据长度: 0
+flutter: 最终服务列表: -1: 求助, -2: 服务地图
+flutter: [AuthController] _handleSuccessfulLogin: Original avatar_url from DB: null
+flutter: [AuthController] _handleSuccessfulLogin: Cleaned avatar_url before storing:
+flutter: User profile loaded successfully
+flutter: User 4d639519-c607-48af-af3d-6c8c3e9c1c50 has role customer+provider. Navigating to role select page.
+flutter: [ShellApp] PluginManager hash: \^[[36m\^[[1m\^[[4m\^[[7m7310<…>
+flutter: [ShellApp] Obx build, enabledTabPluginsRx.hashCode: 814908137, .length: 4, ids: home,service_booking,community,profile
+flutter: [ShellApp] 当前role: customer
+flutter: [ShellApp] enabledTabPlugins.length: 4
+flutter: [ShellApp] enabledTabPlugin: id=home, route=/home, role=customer
+flutter: [ShellApp] enabledTabPlugin: id=service_booking, route=/service_booking, role=customer
+flutter: [ShellApp] enabledTabPlugin: id=community, route=/community, role=customer
+flutter: [ShellApp] enabledTabPlugin: id=profile, route=/profile, role=customer
+flutter: [ShellApp] BottomNavigationBar build, items: home,service,community,profile
+flutter: === Level 1 Categories Build ===
+flutter: Loading state: false
+flutter: Categories count: 0
+flutter: Selected category ID: null
+flutter: [ProviderIdentityService] 当前用户ID: \4d639519-c607-48af-af3d-6c8c3e9c1c50
+flutter: [ProfilePage] CircleAvatar imageUrl before use:
+flutter: ShellAppController: Changed tab to index: 3
+flutter: [ShellApp] PluginManager hash: \^[[36m\^[[1m\^[[4m\^[[7m7310<…>
+flutter: [ShellApp] Obx build, enabledTabPluginsRx.hashCode: 814908137, .length: 4, ids: home,service_booking,community,profile
+flutter: [ShellApp] 当前role: customer
+flutter: [ShellApp] enabledTabPlugins.length: 4
+flutter: [ShellApp] enabledTabPlugin: id=home, route=/home, role=customer
+flutter: [ShellApp] enabledTabPlugin: id=service_booking, route=/service_booking, role=customer
+flutter: [ShellApp] enabledTabPlugin: id=community, route=/community, role=customer
+flutter: [ShellApp] enabledTabPlugin: id=profile, route=/profile, role=customer
+flutter: [ShellApp] BottomNavigationBar build, items: home,service,community,profile
+flutter: [AuthController] logout: Resetting ProfileController states.
+flutter: [AuthController] logout: ProfileController avatarUrl after reset:
+flutter: Local storage userId and userProfile cleared.
+flutter: supabase.auth: INFO: Signing out user with scope: SignOutScope.local
+flutter: [ProfilePage] CircleAvatar imageUrl before use:
+flutter: User signed out successfully from Supabase.
+flutter: Logout error: Null check operator used on a null value
+flutter: [AuthController] logout: Resetting ProfileController states.
+flutter: [AuthController] logout: ProfileController avatarUrl after reset:
+flutter: Local storage userId and userProfile cleared.
+flutter: supabase.auth: INFO: Signing out user with scope: SignOutScope.local
+flutter: User signed out successfully from Supabase.
+flutter: Logout error: Null check operator used on a null value
+flutter: [AuthController] logout: Resetting ProfileController states.
+flutter: [AuthController] logout: ProfileController avatarUrl after reset:
+flutter: Local storage userId and userProfile cleared.
+flutter: supabase.auth: INFO: Signing out user with scope: SignOutScope.local
+flutter: User signed out successfully from Supabase.
+flutter: Logout error: Null check operator used on a null value
+Lost connection to device.

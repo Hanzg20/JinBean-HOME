@@ -21,6 +21,14 @@ class _ServiceMapPageState extends State<ServiceMapPage> {
   @override
   Widget build(BuildContext context) {
     final locale = Get.locale?.languageCode ?? 'zh';
+    // 检查定位信息是否可用
+    final userLocation = LocationController.instance.selectedLocation.value;
+    if (userLocation == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('服务地图')),
+        body: const Center(child: Text('定位信息缺失，请先允许定位或选择位置。')),
+      );
+    }
     return Scaffold(
       appBar: AppBar(
         title: const Text('服务地图'),

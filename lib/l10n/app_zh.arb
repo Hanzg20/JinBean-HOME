@@ -14,6 +14,7 @@
     "service": "服务",
     "community": "社区",
     "profile": "我的",
+    "provider_home": "服务商首页",
     "serviceBookingPageTitle": "服务预约",
     "availableServices": "可用服务",
     "bookService": "预约 {service}",
@@ -27,5 +28,7 @@
     },
     "@profile_name": {
       "description": "我的标签/插件的名称"
-    }
+    },
+    "provider_switch_button": "切换到服务商端",
+    "provider_register_button": "注册服务商"
 } 

@@ -17,6 +17,7 @@ class PluginMetadata {
   final int order; // 显示顺序
   final PluginType type; // 插件类型
   final String? routeName; // 如果是页面插件，对应的路由名
+  final String role; // 新增字段
 
   PluginMetadata({
     required this.id,
@@ -26,6 +27,7 @@ class PluginMetadata {
     required this.order,
     required this.type,
     this.routeName,
+    required this.role,
   });
 
   // 从后端JSON数据反序列化
@@ -33,12 +35,45 @@ class PluginMetadata {
     return PluginMetadata(
       id: json['id'],
       nameKey: json['nameKey'],
-      // 从字符串解析IconData，可能需要一个工具函数
       icon: _parseIconData(json['iconName']),
       enabled: json['enabled'],
       order: json['order'],
-      type: PluginType.values.firstWhere((e) => e.toString().split('.').last == json['type']),
+      type: json['type'] as PluginType, // 直接用枚举对象
       routeName: json['routeName'],
+      role: json['role'] ?? 'customer',
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'nameKey': nameKey,
+    'iconName': icon.codePoint, // 这里只是示例，实际项目需映射
+    'enabled': enabled,
+    'order': order,
+    'type': type.toString().split('.').last,
+    'routeName': routeName,
+    'role': role,
+  };
+
+  PluginMetadata copyWith({
+    String? id,
+    String? nameKey,
+    IconData? icon,
+    bool? enabled,
+    int? order,
+    PluginType? type,
+    String? routeName,
+    String? role,
+  }) {
+    return PluginMetadata(
+      id: id ?? this.id,
+      nameKey: nameKey ?? this.nameKey,
+      icon: icon ?? this.icon,
+      enabled: enabled ?? this.enabled,
+      order: order ?? this.order,
+      type: type ?? this.type,
+      routeName: routeName ?? this.routeName,
+      role: role ?? this.role,
     );
   }
 

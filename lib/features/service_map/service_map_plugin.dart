@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../core/plugin_management/app_plugin.dart';
+import 'package:jinbeanpod_83904710/core/plugin_management/app_plugin.dart';
 import 'service_map_page.dart';
 
 class ServiceMapPlugin implements AppPlugin {
@@ -11,8 +11,9 @@ class ServiceMapPlugin implements AppPlugin {
         icon: Icons.map,
         enabled: true,
         order: 5, // 可根据实际顺序调整
-        type: PluginType.bottomTab,
+        type: PluginType.standalonePage, // Changed from bottomTab to standalonePage
         routeName: '/service_map',
+        role: 'customer',
       );
 
   @override

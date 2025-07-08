@@ -18,6 +18,7 @@ CREATE TABLE public.user_profiles (
     language text DEFAULT 'en',
     timezone text DEFAULT 'UTC',
     bio text,
+    role text NOT NULL DEFAULT 'customer',
     preferences jsonb DEFAULT '{
         "notification": {
             "push_enabled": true,
@@ -50,6 +51,7 @@ CREATE TABLE public.user_profiles (
 CREATE INDEX idx_user_profiles_user_id ON public.user_profiles (user_id);
 CREATE INDEX idx_user_profiles_display_name ON public.user_profiles (display_name);
 CREATE INDEX idx_user_profiles_created_at ON public.user_profiles (created_at);
+CREATE INDEX idx_user_profiles_role ON public.user_profiles (role);
 
 -- Enable Row Level Security (RLS)
 ALTER TABLE public.user_profiles ENABLE ROW LEVEL SECURITY;

@@ -10,6 +10,9 @@ class AppThemeService extends GetxService {
   // Observable for the current theme
   Rx<ThemeData> currentTheme = ThemeData.light().obs; // Default to light theme
 
+  // 获取当前主题名
+  String get currentThemeName => _box.read(_themeKey) ?? 'dark_teal';
+
   @override
   void onInit() {
     super.onInit();
@@ -112,6 +115,14 @@ class AppThemeService extends GetxService {
         hintStyle: TextStyle(color: colorScheme.onSurface),
         prefixIconColor: colorScheme.primary,
         suffixIconColor: colorScheme.primary,
+      ),
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: Colors.white,
+        selectedItemColor: Colors.teal,
+        unselectedItemColor: Colors.grey,
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
+        elevation: 8,
       ),
     );
   }

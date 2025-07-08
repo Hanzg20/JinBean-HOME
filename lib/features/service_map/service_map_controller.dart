@@ -37,21 +37,47 @@ class ServiceMapController extends GetxController {
     print('[ServiceMapController] 金豆marker图标已加载');
   }
 
-  Future<void> fetchMarkers({double? latMin, double? latMax, double? lngMin, double? lngMax, String? category}) async {
+  Future<void> fetchMarkers(
+      {double? latMin,
+      double? latMax,
+      double? lngMin,
+      double? lngMax,
+      String? category}) async {
     isLoading.value = true;
     try {
+      final userLocation = LocationController.instance.selectedLocation.value;
+      if (userLocation == null) {
+        isLoading.value = false;
+        Get.dialog(
+          AlertDialog(
+            title: const Text('定位信息缺失'),
+            content: const Text('请先选择或允许定位后再使用服务地图。'),
+            actions: [
+              TextButton(
+                onPressed: () => Get.back(),
+                child: const Text('确定'),
+              ),
+            ],
+          ),
+        );
+        return;
+      }
       var query = Supabase.instance.client
           .from('services')
-          .select('id, title, description, latitude, longitude, category_level1_id, average_rating, review_count, images_url')
+          .select(
+              'id, title, description, latitude, longitude, category_level1_id, average_rating, review_count, images_url')
           .eq('status', 'active');
-      final userLocation = LocationController.instance.selectedLocation.value;
-      if (userLocation != null) {
-        print('[ServiceMapController] 当前定位点: lat=${userLocation.latitude}, lng=${userLocation.longitude}');
-      } else {
-        print('[ServiceMapController] 当前定位点: null');
-      }
-      if (latMin != null && latMax != null && lngMin != null && lngMax != null) {
-        query = query.gte('latitude', latMin).lte('latitude', latMax).gte('longitude', lngMin).lte('longitude', lngMax);
+      print(
+          '[ServiceMapController] 当前定位点: lat=${userLocation.latitude}, lng=${userLocation.longitude}');
+      if (latMin != null &&
+          latMax != null &&
+          lngMin != null &&
+          lngMax != null) {
+        query = query
+            .gte('latitude', latMin)
+            .lte('latitude', latMax)
+            .gte('longitude', lngMin)
+            .lte('longitude', lngMax);
       }
       if (category != null && category.isNotEmpty) {
         query = query.eq('category_level1_id', category);
@@ -66,12 +92,14 @@ class ServiceMapController extends GetxController {
         final lat = (e['latitude'] as num?)?.toDouble() ?? 0.0;
         final lng = (e['longitude'] as num?)?.toDouble() ?? 0.0;
         double? distance;
-        if (userLocation != null) {
-          distance = userLocation.distanceToCoordinates(lat, lng);
-        }
-        final titleMap = (e['title'] is Map) ? Map<String, dynamic>.from(e['title']) : null;
-        final descMap = (e['description'] is Map) ? Map<String, dynamic>.from(e['description']) : null;
-        print('[ServiceMapController] 服务点: id=${e['id']} lat=$lat lng=$lng 距离=${distance?.toStringAsFixed(2) ?? '未知'}km');
+        distance = userLocation.distanceToCoordinates(lat, lng);
+        final titleMap =
+            (e['title'] is Map) ? Map<String, dynamic>.from(e['title']) : null;
+        final descMap = (e['description'] is Map)
+            ? Map<String, dynamic>.from(e['description'])
+            : null;
+        print(
+            '[ServiceMapController] 服务点: id=${e['id']} lat=$lat lng=$lng 距离=${distance?.toStringAsFixed(2) ?? '未知'}km');
         return ServiceMarkerModel(
           id: e['id'],
           name: titleMap?['zh'] ?? titleMap?['en'] ?? '',
@@ -81,17 +109,23 @@ class ServiceMapController extends GetxController {
           category: e['category_level1_id']?.toString() ?? '',
           rating: (e['average_rating'] as num?)?.toDouble() ?? 0.0,
           reviewCount: e['review_count'] ?? 0,
-          imageUrl: (e['images_url'] is List && (e['images_url'] as List).isNotEmpty)
-            ? e['images_url'][0]
-            : 'https://via.placeholder.com/80x80?text=No+Image',
+          imageUrl:
+              (e['images_url'] is List && (e['images_url'] as List).isNotEmpty)
+                  ? e['images_url'][0]
+                  : 'https://via.placeholder.com/80x80?text=No+Image',
           titleMap: titleMap,
           descriptionMap: descMap,
           distanceInKm: distance,
         );
       }).toList();
       print('[ServiceMapController] 原始 marker 数量: ${allMarkers.length}');
-      final filteredMarkers = allMarkers.where((m) => m.distanceInKm == null || m.distanceInKm! <= serviceRadiusKm.value).toList();
-      print('[ServiceMapController] 距离筛选后 marker 数量: ${filteredMarkers.length} (半径: ${serviceRadiusKm.value}km)');
+      final filteredMarkers = allMarkers
+          .where((m) =>
+              m.distanceInKm == null ||
+              m.distanceInKm! <= serviceRadiusKm.value)
+          .toList();
+      print(
+          '[ServiceMapController] 距离筛选后 marker 数量: ${filteredMarkers.length} (半径: ${serviceRadiusKm.value}km)');
       if (filteredMarkers.isEmpty) {
         print('[ServiceMapController] ⚠️ 当前范围内无服务点，请调整定位或扩大搜索半径');
       }
@@ -110,7 +144,8 @@ class ServiceMapController extends GetxController {
       }
       final List<ServiceMarkerModel> clusteredMarkers = [];
       gridMap.forEach((key, list) {
-        print('[ServiceMapController] 分组 $key 数量: ${list.length}，包含id: ${list.map((m) => m.id).join(',')}');
+        print(
+            '[ServiceMapController] 分组 $key 数量: ${list.length}，包含id: ${list.map((m) => m.id).join(',')}');
         if (list.length == 1) {
           clusteredMarkers.add(list.first);
         } else {
@@ -134,7 +169,8 @@ class ServiceMapController extends GetxController {
       });
       markers.value = clusteredMarkers;
       // ===== end 聚合分组 =====
-      print('[ServiceMapController] 聚合前 marker 数量: ${gridMap.values.fold<int>(0, (p, e) => p + e.length)}');
+      print(
+          '[ServiceMapController] 聚合前 marker 数量: ${gridMap.values.fold<int>(0, (p, e) => p + e.length)}');
       print('[ServiceMapController] 聚合后 marker 数量: ${clusteredMarkers.length}');
       print('[ServiceMapController] 聚合分组数: ${gridMap.length}');
 
@@ -157,4 +193,4 @@ class ServiceMapController extends GetxController {
     if (zoom >= 10) return 10;
     return 5;
   }
-} 
+}

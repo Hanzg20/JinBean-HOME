@@ -7,7 +7,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  get: ^4.6.6
+  get: ^4.6.5
   get_storage: ^2.1.1
   flutter_localizations:
     sdk: flutter
@@ -17,9 +17,21 @@ dependencies:
   crypto: ^3.0.3
   supabase_flutter: ^2.3.4
   intl: ^0.20.2
-  geolocator: ^14.0.1
+  geolocator: ^10.1.0
   geocoding: ^4.0.0
-  google_maps_flutter: ^2.12.3
+  google_maps_flutter: ^2.5.3
+  cached_network_image:
+    git:
+      url: https://github.com/lucasmiranda5/flutter_cached_network_image.git
+      ref: dart3
+      path: cached_network_image
+  image_picker: ^1.0.7
+  image: ^4.1.7
+  uuid: ^4.3.3
+  path: ^1.8.3
+  flutter_phoenix: ^1.1.1
+  flutter_switch: ^0.3.2
+  animated_toggle_switch: ^0.8.5
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -36,6 +48,7 @@ flutter:
     - assets/images/onboarding_3.png
     - assets/images/jinbean_logo.png
     - assets/images/jinbean_logo-1.png
+    - assets/images/default_avatar.png
 
 flutter_launcher_icons:
   android: "launcher_icon"

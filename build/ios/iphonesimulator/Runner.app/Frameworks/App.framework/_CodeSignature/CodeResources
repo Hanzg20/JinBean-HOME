@@ -10,11 +10,11 @@
 		</data>
 		<key>flutter_assets/AssetManifest.bin</key>
 		<data>
-		oLQPgMhqdGx4gxAM8CTbMHqKuBY=
+		CX0KIXrNMG9UI9KEH5Wc1HrRs9k=
 		</data>
 		<key>flutter_assets/AssetManifest.json</key>
 		<data>
-		d00omlb6jHWViy6nvLNdc4vfM00=
+		td4tgF/Z8bE6thcSFIYZHKeH2jo=
 		</data>
 		<key>flutter_assets/FontManifest.json</key>
 		<data>
@@ -22,11 +22,15 @@
 		</data>
 		<key>flutter_assets/NOTICES.Z</key>
 		<data>
-		FvIc66cfE6S1sj1Mv44Hb8pTGZA=
+		mObW4gspogT5/ZdUkEhUCWu337E=
 		</data>
 		<key>flutter_assets/NativeAssetsManifest.json</key>
 		<data>
 		re4p7E8rPLLsN+wzaPN/+AVpXTY=
+		</data>
+		<key>flutter_assets/assets/images/default_avatar.png</key>
+		<data>
+		bWD6n9eXXYaiMg3zgXprBll7DKM=
 		</data>
 		<key>flutter_assets/assets/images/jinbean_logo-1.png</key>
 		<data>
@@ -62,7 +66,7 @@
 		</data>
 		<key>flutter_assets/kernel_blob.bin</key>
 		<data>
-		FIa85vu5dCeH9roP09lUugvi0cc=
+		TazMJcQ/Jh3vwibD2HpvVjtxmc4=
 		</data>
 		<key>flutter_assets/packages/cupertino_icons/assets/CupertinoIcons.ttf</key>
 		<data>
@@ -143,14 +147,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			7GJ+736993lg6ZoKCGA8wJGhBB5xdCmhbdug1oRp/T8=
+			aulQ35gESEua9O67DEDCYoHZuuKWoxRQbo7Znm9o6Ag=
 			</data>
 		</dict>
 		<key>flutter_assets/AssetManifest.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			BxCxq1cQ9GwGHT3PiqBKkR+u+J+5xeWi2XgSkdAzrcE=
+			QTIXAYBxx6aRZ/DbcCpEGJMfxMvc3i5PV3cIZRsHbcg=
 			</data>
 		</dict>
 		<key>flutter_assets/FontManifest.json</key>
@@ -164,7 +168,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			VQHLjf4h27duIghnjCY2ZPJ0Nhf5ZFz5WFEg0FethaE=
+			xfihkg81fPNreMv0d9stW4KkbcIOJentbCpqn4JZQc8=
 			</data>
 		</dict>
 		<key>flutter_assets/NativeAssetsManifest.json</key>
@@ -172,6 +176,13 @@
 			<key>hash2</key>
 			<data>
 			lUijHkoEgTXB2U+Rkyi/tirix7s8q5ZVfHlB2ql3dss=
+			</data>
+		</dict>
+		<key>flutter_assets/assets/images/default_avatar.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			pz9W3ZnrW7bYOtEYGSKNivFOwDXVvb3QXZ0ztPvgXng=
 			</data>
 		</dict>
 		<key>flutter_assets/assets/images/jinbean_logo-1.png</key>
@@ -234,7 +245,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			GIHlfwsq1eQhqfFQpk2C3UBedJpQzCRCqcVB5J/2EZE=
+			4GZYsCbHH3LLlxfVSsebXUjFlKuyFiac2b+Sl/xWVjU=
 			</data>
 		</dict>
 		<key>flutter_assets/packages/cupertino_icons/assets/CupertinoIcons.ttf</key>
