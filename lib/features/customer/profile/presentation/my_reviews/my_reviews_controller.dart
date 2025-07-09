@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
 
 class Review {
   final String id;
@@ -23,10 +24,12 @@ class MyReviewsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    AppLogger.info('MyReviewsController initialized', tag: 'MyReviewsController');
     loadReviews();
   }
 
   Future<void> loadReviews() async {
+    AppLogger.info('MyReviewsController: loadReviews called', tag: 'MyReviewsController');
     isLoading.value = true;
     try {
       // TODO: Implement actual API call to fetch reviews
@@ -55,18 +58,15 @@ class MyReviewsController extends GetxController {
           date: '2024-03-25',
         ),
       ];
-    } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to load reviews',
-        snackPosition: SnackPosition.BOTTOM,
-      );
+    } catch (e, stack) {
+      AppLogger.error('MyReviewsController: Failed to load reviews', error: e, stackTrace: stack, tag: 'MyReviewsController');
     } finally {
       isLoading.value = false;
     }
   }
 
   Future<void> refreshReviews() async {
+    AppLogger.info('MyReviewsController: refreshReviews called', tag: 'MyReviewsController');
     await loadReviews();
   }
 } 

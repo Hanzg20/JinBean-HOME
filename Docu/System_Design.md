@@ -1,4 +1,62 @@
+# System Design Document
+
+> 本文件为 JinBean 系统设计主文档，详见项目根目录 README.md 的文档使用规范。
+
+## 1. 简介
+- 设计目标：为 JinBean 超级应用提供高可扩展性、可维护性、国际化的技术架构。
+- 范围：客户端架构、插件机制、状态管理、路由、国际化、数据流、部署等。
+- 术语：Super App、Plugin、GetX、ARB 等。
+
+## 2. 总体架构
+- 技术栈：Flutter 3.x、GetX、Supabase（Postgres/Auth/Storage）、Stripe、CI/CD。
+- 分层架构：UI 层、业务逻辑层、数据层、插件层。
+- 主要模块图：见附录。
+
+## 3. 核心模块设计
+### 3.1 插件系统
+- 插件注册、动态加载、底部导航挂载、独立控制器与状态。
+### 3.2 认证与权限
+- Supabase Auth 集成、角色模型、权限判断。
+### 3.3 主应用壳
+- ShellApp（客户）、ProviderShellApp（服务商），导航彻底隔离。
+### 3.4 业务模块
+- 服务预约、订单、工具租赁、社区、个人资料等。
+
+## 4. 数据流与交互
+- 主要流程图、时序图、数据流说明（见附录）。
+- 插件间数据共享、全局状态管理（GetX）。
+
+## 5. 数据库与API设计（简要）
+- 主要表结构、关系模型、API 设计原则。
+- 详细见 database_schema.md、api_rest_spec.md。
+
+## 6. 国际化与多语言
+- 静态文本国际化（arb/json）、动态内容多语言字段（jsonb）。
+- 多语言内容 fallback、后台多语言录入、自动翻译。
+
+## 7. 角色与权限模型
+- 用户/服务商/多角色支持，角色切换、权限判断、表结构设计。
+
+## 8. 主题与UI/UX设计
+- 主题 per-role 记忆与切换，动态响应 UI 颜色。
+- 动画、交互、响应式布局、无硬编码色值。
+
+## 9. 部署与运维
+- 环境配置、CI/CD、iOS/Android 配置、监控、日志。
+
+## 10. 其它
+- ID 编码规则（服务分类、地区编码等）。
+- 统一地址输入组件设计。
+- FAQ、设计讨论、特殊业务说明等。
+
+---
+
+## 附录
+- 架构图、流程图、数据模型、详细设计见原文档后续章节。
+
 # System Design Document for JinBean App
+
+> 本文件为 JinBean 系统设计主文档，详见项目根目录 README.md 的文档使用规范。
 
 ## Table of Contents
 1. Introduction
@@ -12,6 +70,7 @@
 9. Design Discussion & Q&A
 10. Category ID Encoding Rules
 11. 统一地址输入组件设计文档
+12. 角色切换与导航隔离设计
 
 ---
 
@@ -270,7 +329,7 @@ docu/
 
 ### 4.2 动态内容多语言
 - 数据库字段（如 title、description）采用 jsonb 结构，每种语言一个 key。
-- 查询时根据当前语言动态取值，无对应语言时自动 fallback 到主语言。
+- 查询时根据当前语言动态取值，无对应语言时自动fallback 到主语言。
 - 后台支持多语言录入，或主语言+自动翻译补全。
 
 ### 4.3 方案优点与未来扩展
@@ -1193,7 +1252,7 @@ role = customer+provider → 跳转 LoginPage，显示角色选项
 进入 LoginPage
 用户输入账号密码
 如果 profile.role = customer+provider，显示角色选项
-用户点击“登录”
+用户点击"登录"
 登录成功后，自动根据所选角色跳转主页面（无需再点按钮）
 登出
 清理 session、本地存储
@@ -1269,3 +1328,173 @@ role = 'customer+provider' → 多角色用户，需要选择角色
 如果 user_profiles.role = 'provider' 或 'customer+provider' → 显示"切换到服务商"
 这样的设计更加清晰和合理。现在 ProviderIdentityService 直接查询 user_profiles.role，避免了复杂的 provider_profiles 表查询。
 你觉得这个重新设计的流程如何？需要我进一步调整吗？
+
+
+
+# 系统设计文档
+
+## 地址管理策略与实现方案
+
+### 1. 设计原则
+
+#### 1.1 按需动态插入策略
+- **不一次性导入全量地址库**：避免存储大量无用数据，节省存储空间和维护成本
+- **用户输入时动态创建**：根据用户实际输入的地址，按需插入到 `addresses` 表
+- **智能去重机制**：基于邮编和街道名进行去重，避免重复地址记录
+
+#### 1.2 标准化地址结构
+- 采用加拿大 Civic Address 标准
+- 支持结构化字段：国家、省/地区、城市、区/社区、门牌号、街道名、街道类型、邮编、经纬度等
+- 便于地理分析、距离计算、服务区域匹配等业务需求
+
+### 2. 数据库设计
+
+#### 2.1 addresses 表结构
+```sql
+CREATE TABLE public.addresses (
+    id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+    standard_address_id text,                       -- 标准地址唯一编码
+    country text DEFAULT 'Canada',                  -- 国家
+    province text,                                  -- 省/地区
+    city text,                                      -- 城市
+    district text,                                  -- 区/社区
+    street_number text,                             -- 门牌号
+    street_name text,                               -- 街道名
+    street_type text,                               -- 街道类型
+    street_direction text,                          -- 街道方向
+    suite_unit text,                                -- 单元/房间号
+    postal_code text,                               -- 邮编
+    latitude numeric,                               -- 纬度
+    longitude numeric,                              -- 经度
+    geonames_id integer,                            -- GeoNames/官方地址库ID
+    extra jsonb,                                    -- 其它补充信息
+    created_at timestamptz NOT NULL DEFAULT now(),
+    updated_at timestamptz NOT NULL DEFAULT now()
+);
+```
+
+#### 2.2 provider_profiles 表关联
+```sql
+-- 使用 address_id 外键关联
+address_id uuid REFERENCES public.addresses(id)
+```
+
+### 3. 实现方案
+
+#### 3.1 地址服务类 (AddressService)
+- **统一地址处理逻辑**：解析、验证、去重、数据库操作
+- **加拿大地址格式支持**：邮编格式 A1A 1A1、省份缩写、城市解析
+- **智能去重机制**：基于邮编和街道名的唯一性检查
+
+#### 3.2 地址解析功能
+- **邮编提取**：正则匹配加拿大邮编格式
+- **街道名提取**：去除邮编、城市、省份信息，提取纯街道名
+- **城市提取**：从逗号分隔的地址中提取城市名
+- **省份提取**：匹配加拿大省份缩写
+
+#### 3.3 用户体验优化
+- **实时地址解析显示**：用户输入时实时显示解析结果
+- **格式验证**：确保地址包含必要信息（邮编、城市、街道）
+- **输入提示**：提供标准格式示例和说明
+
+### 4. 工作流程
+
+#### 4.1 地址处理流程
+1. 用户输入地址
+2. 前端实时解析并显示结果
+3. 提交时调用 AddressService.getOrCreateAddress()
+4. 检查地址是否已存在（基于邮编+街道名）
+5. 如存在则复用 address_id，如不存在则创建新记录
+6. 返回 address_id 用于业务表关联
+
+#### 4.2 去重策略
+- **唯一性检查**：邮编 + 街道名组合
+- **避免重复插入**：相同地址只创建一条记录
+- **数据一致性**：所有业务表引用同一个 address_id
+
+### 5. 扩展性设计
+
+#### 5.1 地理信息扩展
+- 预留经纬度字段，支持地图定位
+- 预留 geonames_id，支持与权威地址库对接
+- 支持服务半径计算、距离排序等功能
+
+#### 5.2 地址库集成
+- 可后续集成 Google Places API 自动补全
+- 可集成 Canada Post AddressComplete API
+- 可批量导入高频地址（如主要城市中心区域）
+
+#### 5.3 多表复用
+- user_profiles 表可复用 address_id
+- orders 表可复用 address_id
+- 其他需要地址信息的表均可复用
+
+### 6. 最佳实践
+
+#### 6.1 地址输入规范
+- 要求用户输入完整地址：门牌号 + 街道 + 城市 + 省份 + 邮编
+- 提供标准格式示例：`123 Bank St, Ottawa, ON K2P 1L4`
+- 实时验证和提示，确保数据质量
+
+#### 6.2 性能优化
+- 地址查询使用索引：postal_code, street_name
+- 避免重复解析，缓存解析结果
+- 批量操作时考虑事务处理
+
+#### 6.3 错误处理
+- 地址格式验证失败时的友好提示
+- 网络异常时的重试机制
+- 数据库操作异常时的回滚处理
+
+### 7. 后续优化方向
+
+#### 7.1 地址自动补全
+- 集成 Google Places API
+- 集成 Canada Post AddressComplete API
+- 本地地址库缓存
+
+#### 7.2 地理分析功能
+- 服务半径计算
+- 距离排序
+- 地理围栏
+- 热力图分析
+
+#### 7.3 数据质量提升
+- 地址标准化
+- 错误地址检测
+- 地址验证服务集成
+
+---
+
+**总结**：本方案采用按需动态插入策略，既保证了数据标准化和一致性，又避免了全量导入的存储和维护成本。通过 AddressService 统一管理地址逻辑，提供了良好的用户体验和扩展性。
+
+## 地址库管理与使用原则
+
+### 1. 标准化地址结构
+- 采用加拿大Civic Address标准，address表字段包括：国家、省/地区、城市、区/社区、门牌号、街道名、街道类型、街道方向、单元/房间号、邮编、经纬度、标准地址ID等，支持结构化和地理信息扩展。
+
+### 2. 按需动态插入，避免全量导入
+- address表仅存实际业务用到的地址。
+- 不一次性导入全国所有标准地址，避免无用数据和高维护成本。
+
+### 3. 用户输入时自动补全与标准化
+- 前端集成Google Places、Canada Post AddressComplete等自动补全API。
+- 用户输入时实时获取标准化地址，提升输入速度和准确性。
+
+### 4. 后端唯一性校验与去重
+- 后端收到地址后，先查address表是否已有该标准地址（可用标准地址ID、经纬度、邮编等做唯一性校验）。
+- 如无则插入，并返回address_id，业务表引用该address_id。
+- 如已有则复用，避免重复插入。
+
+### 5. 统一外键引用
+- 所有业务表（如provider_profiles、user_profiles、orders等）统一用address_id外键引用address表，保证数据一致性和扩展性。
+
+### 6. 地理分析与批量导入扩展
+- 如需地理分析或批量运营，可后续分区域导入高频标准地址。
+- 支持与GeoNames、Canada Post等权威地址库对接。
+
+### 7. 优点总结
+- 节省存储空间和维护成本。
+- 数据标准化、唯一性强，便于统计和分析。
+- 用户输入体验好，减少错误和重复。
+- 易于后续扩展和与第三方地理服务集成。 

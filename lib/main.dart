@@ -32,6 +32,12 @@ import 'package:jinbeanpod_83904710/features/provider/clients/presentation/clien
 import 'package:jinbeanpod_83904710/features/provider/plugins/service_manage/presentation/service_manage_page.dart';
 import 'package:jinbeanpod_83904710/features/provider/plugins/message_center/presentation/message_center_page.dart';
 import 'package:jinbeanpod_83904710/features/customer/splash/presentation/splash_controller.dart';
+import 'package:jinbeanpod_83904710/features/customer/auth/presentation/register_page.dart';
+import 'package:jinbeanpod_83904710/features/customer/auth/presentation/register_binding.dart';
+import 'package:jinbeanpod_83904710/features/service_map/service_map_page.dart';
+import 'features/provider/settings/settings_routes.dart';
+import 'features/customer/profile/presentation/theme_settings/theme_settings_page.dart';
+import 'features/customer/profile/presentation/theme_settings/theme_settings_binding.dart';
 
 void main() async {
   print('[main] App starting...');
@@ -44,6 +50,8 @@ void main() async {
   );
   print('[main] Supabase initialized.');
 
+  // 注入 AppThemeService，确保全局主题可用
+  Get.put(AppThemeService());
   // 注入 AuthController，确保 LoginPage 可用
   Get.put(AuthController());
   print('[main] AuthController put.');
@@ -106,18 +114,15 @@ void main() async {
     Phoenix(
       child: Obx(() {
         final role = Get.find<PluginManager>().currentRole.value;
-        final themeName = AppThemeService().currentThemeName;
+        final themeService = AppThemeService();
+        final themeName = themeService.getThemeForRole(role) ?? themeService.currentThemeName;
         print('Current Role: $role');
         print('Current Theme Name: $themeName');
         return GetMaterialApp(
           debugShowCheckedModeBanner: false,
-          theme: role == 'provider'
-              ? (themeName == 'golden'
-                  ? AppThemeService().darkTealTheme
-                  : AppThemeService().goldenTheme)
-              : (themeName == 'golden'
-                  ? AppThemeService().goldenTheme
-                  : AppThemeService().darkTealTheme),
+          theme: themeName == 'golden'
+              ? themeService.goldenTheme
+              : themeService.darkTealTheme,
           themeMode: ThemeMode.system,
           localizationsDelegates: const [
             AppLocalizations.delegate,
@@ -133,12 +138,16 @@ void main() async {
           home: const SplashPage(), // Always start with SplashPage
           getPages: [
             GetPage(name: '/auth', page: () => const LoginPage()),
+            GetPage(name: '/register', page: () => RegisterPage(), binding: RegisterBinding()),
             GetPage(name: '/main_shell', page: () => ShellApp()),
             GetPage(name: '/address_demo', page: () => const AddressInputDemoPage()),
             GetPage(name: '/provider_home', page: () => const ProviderShellApp()),
             GetPage(name: '/settings', page: () => const SettingsPage()),
             GetPage(name: '/splash', page: () => const SplashPage(), binding: SplashBinding()),
+            GetPage(name: '/service_map', page: () => const ServiceMapPage()),
+            GetPage(name: '/theme_settings', page: () => const ThemeSettingsPage(), binding: ThemeSettingsBinding()),
             // 只保留 ProviderShellApp 相关静态路由，其它 provider 插件式页面全部移除
+            ...providerSettingsRoutes,
           ],
         );
       }),

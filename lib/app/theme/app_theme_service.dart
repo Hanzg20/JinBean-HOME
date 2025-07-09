@@ -130,13 +130,13 @@ class AppThemeService extends GetxService {
   // Define the Golden Theme
   ThemeData get goldenTheme {
     const colorScheme = ColorScheme(
-      primary: AppColors.goldenPrimaryColor,
-      onPrimary: AppColors.textColor,
-      secondary: AppColors.goldenAccentColor,
-      onSecondary: AppColors.textColor,
+      primary: AppColors.providerPrimaryColor,
+      onPrimary: AppColors.providerOnPrimary,
+      secondary: AppColors.providerAccentColor,
+      onSecondary: AppColors.providerOnPrimary,
       error: AppColors.errorColor,
       onError: AppColors.cardColor,
-      surface: AppColors.cardColor,
+      surface: AppColors.providerBackground,
       onSurface: AppColors.textColor,
       brightness: Brightness.light,
     );
@@ -207,6 +207,26 @@ class AppThemeService extends GetxService {
         prefixIconColor: colorScheme.primary,
         suffixIconColor: colorScheme.primary,
       ),
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: AppColors.providerBackground,
+        selectedItemColor: AppColors.providerPrimaryColor,
+        unselectedItemColor: Colors.grey,
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
+        elevation: 8,
+      ),
     );
+  }
+
+  // 新增：为指定角色保存主题名
+  void setThemeForRole(String role, String themeName) {
+    final key = 'theme_' + role;
+    _box.write(key, themeName);
+  }
+
+  // 新增：获取指定角色的主题名
+  String? getThemeForRole(String role) {
+    final key = 'theme_' + role;
+    return _box.read(key);
   }
 } 

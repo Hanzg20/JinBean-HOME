@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'home_controller.dart';
 // Import AppColors
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
 
 class HomePage extends GetView<HomeController> {
   const HomePage({super.key});
@@ -41,7 +42,7 @@ class HomePage extends GetView<HomeController> {
         title: Padding(
           padding: const EdgeInsets.only(left: 8.0),
           child: Text(
-            'JinBeanPod',
+            AppLocalizations.of(context)!.homePageTitle,
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: Theme.of(context).colorScheme.onPrimary, // Changed from AppColors.cardColor
@@ -239,7 +240,7 @@ class HomePage extends GetView<HomeController> {
                 padding: const EdgeInsets.symmetric(horizontal: 0.0), // Match overall padding
                 child: TextField(
                   decoration: InputDecoration(
-                    hintText: 'Search for services...',
+                    hintText: AppLocalizations.of(context)!.searchForServices,
                     hintStyle: TextStyle(color: Theme.of(context).textTheme.bodySmall?.color), // Changed from AppColors.lightTextColor
                     prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.primary), // Changed from AppColors.primaryColor
                     border: OutlineInputBorder(
@@ -324,7 +325,7 @@ class HomePage extends GetView<HomeController> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                '社区热点',
+                                AppLocalizations.of(context)!.community,
                                 style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Theme.of(context).textTheme.titleLarge?.color),
                               ),
                               GestureDetector(
@@ -332,7 +333,7 @@ class HomePage extends GetView<HomeController> {
                                   // TODO: Navigate to Community Hotspots List Page
                                 },
                                 child: Text(
-                                  '查看全部',
+                                  AppLocalizations.of(context)!.viewAll,
                                   style: TextStyle(color: Theme.of(context).colorScheme.primary),
                                 ),
                               ),
@@ -368,7 +369,7 @@ class HomePage extends GetView<HomeController> {
                                             Icon(_getIconData(hotspot.type == 'NEWS' ? 'newspaper' : (hotspot.type == 'JOB' ? 'work' : 'card_giftcard')), size: 18.0, color: Colors.grey[600]),
                                             const SizedBox(width: 4.0),
                                             Text(
-                                              hotspot.type == 'NEWS' ? '新闻' : (hotspot.type == 'JOB' ? '招聘' : '福利'),
+                                              hotspot.type == 'NEWS' ? AppLocalizations.of(context)!.news : (hotspot.type == 'JOB' ? AppLocalizations.of(context)!.job : AppLocalizations.of(context)!.welfare),
                                               style: TextStyle(fontSize: 12.0, color: Colors.grey[600]),
                                             ),
                                           ],
@@ -406,7 +407,7 @@ class HomePage extends GetView<HomeController> {
                 } else if (controller.recommendations.isEmpty) {
                   return const Padding(
                     padding: EdgeInsets.all(16.0),
-                    child: Text('暂无推荐服务', style: TextStyle(color: Colors.grey)),
+                    child: Text(AppLocalizations.of(context)!.noRecommendations, style: TextStyle(color: Colors.grey)),
                   );
                 } else {
                   return Column(
@@ -415,7 +416,7 @@ class HomePage extends GetView<HomeController> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                         child: Text(
-                          '推荐服务',
+                          AppLocalizations.of(context)!.recommendations,
                           style: Get.textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: Theme.of(context).colorScheme.onSurface,

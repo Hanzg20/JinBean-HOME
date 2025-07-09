@@ -30,4 +30,10 @@ class AppColors {
   static const Color goldenDarkColor = Color(0xFFFF8F00);   // Amber 800 - Darker Gold
   static const Color goldenLightColor = Color(0xFFFFECB3);  // Amber 100 - Lighter Gold
   static const Color goldenAccentColor = Color(0xFFFFD54F); // Amber 300 - Accent Gold
+
+  // Provider 端深金色主题
+  static const Color providerPrimaryColor = Color(0xFFFFB300); // Amber 700
+  static const Color providerAccentColor = Color(0xFFFFA000);  // Amber 800
+  static const Color providerBackground = Color(0xFFFFF8E1);   // Amber 50
+  static const Color providerOnPrimary = Colors.black;
 } 

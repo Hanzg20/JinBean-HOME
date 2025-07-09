@@ -30,5 +30,15 @@
       "description": "我的标签/插件的名称"
     },
     "provider_switch_button": "切换到服务商端",
-    "provider_register_button": "注册服务商"
+    "provider_register_button": "注册服务商",
+    "welcomeBack": "欢迎回来！",
+    "signInToContinue": "请登录以继续",
+    "continueText": "继续",
+    "searchForServices": "搜索服务...",
+    "viewAll": "查看全部",
+    "news": "新闻",
+    "job": "招聘",
+    "welfare": "福利",
+    "noRecommendations": "暂无推荐服务",
+    "recommendations": "推荐服务"
 } 

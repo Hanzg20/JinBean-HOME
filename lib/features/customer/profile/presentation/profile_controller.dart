@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:jinbeanpod_83904710/features/customer/auth/presentation/auth_controller.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
 
 class ProfileMenuItem {
   final String title;
@@ -81,6 +82,7 @@ class ProfileController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    AppLogger.info('ProfileController initialized', tag: 'ProfileController');
     _authController = Get.find<AuthController>();
     print('ProfileController initialized');
 
@@ -154,16 +156,16 @@ class ProfileController extends GetxController {
   }
 
   Future<void> loadUserProfile() async {
+    AppLogger.info('ProfileController: loadUserProfile called', tag: 'ProfileController');
     isLoading.value = true;
     final user = Supabase.instance.client.auth.currentUser;
     if (user == null) {
       // Added user.id == null check for robustness
-      print(
-          '[ProfileController] No authenticated user or user ID found. Returning.');
+      print('[ProfileController] No authenticated user or user ID found. Returning. user: \\${user}');
       isLoading.value = false;
       return;
     }
-    print('[ProfileController] Loading profile for user ID: ${user.id}');
+    print('[ProfileController] Loading profile for user ID: \\${user.id}');
 
     try {
       // Load user profile from Supabase
@@ -234,8 +236,8 @@ class ProfileController extends GetxController {
         userName.value = user.email?.split('@')[0] ?? 'User';
         memberSince.value = 'Member since ${DateTime.now().year}';
       }
-    } catch (e) {
-      print('Error loading user profile: $e');
+    } catch (e, stack) {
+      AppLogger.error('ProfileController: Failed to load user profile', error: e, stackTrace: stack, tag: 'ProfileController');
       Get.snackbar(
         'Error',
         'Failed to load user profile',
@@ -330,6 +332,7 @@ class ProfileController extends GetxController {
 
   @override
   void onClose() {
+    AppLogger.info('ProfileController disposed', tag: 'ProfileController');
     print('[ProfileController] onClose called.');
     userName.close();
     memberSince.close();

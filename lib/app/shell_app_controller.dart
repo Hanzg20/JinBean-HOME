@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
 
 class ShellAppController extends GetxController {
   final RxInt _currentIndex = 0.obs;
@@ -7,7 +8,7 @@ class ShellAppController extends GetxController {
 
   void changeTab(int index) {
     _currentIndex.value = index;
-    print('ShellAppController: Changed tab to index: $index');
+    AppLogger.info('ShellAppController: Changed tab to index: $index', tag: 'ShellAppController');
   }
 
   // 安全设置tab index，防止越界
@@ -21,18 +22,18 @@ class ShellAppController extends GetxController {
     } else {
       _currentIndex.value = index;
     }
-    print('ShellAppController: setTabSafe to index: \\${_currentIndex.value} (maxTabs: \\${maxTabs})');
+    AppLogger.info('ShellAppController: setTabSafe to index: \\${_currentIndex.value} (maxTabs: \\${maxTabs})', tag: 'ShellAppController');
   }
 
   @override
   void onInit() {
     super.onInit();
-    print('ShellAppController initialized');
+    AppLogger.info('ShellAppController initialized', tag: 'ShellAppController');
   }
 
   @override
   void onClose() {
-    print('ShellAppController disposed');
+    AppLogger.info('ShellAppController disposed', tag: 'ShellAppController');
     _currentIndex.close();
     super.onClose();
   }

@@ -1,4 +1,386 @@
-# Ref Codes Data (全量分类数据维护)
+# Database Design Document
+
+> 本文件为 JinBean 数据库主设计文档，详细内容见本目录 README.md。
+
+## 目录
+1. 概述与设计原则
+2. ER 图
+3. 表结构与关系说明
+4. 地址管理策略
+5. 用户认证与权限模型
+6. 字典与地区/分类编码
+7. 其它说明
+8. 附录
+
+---
+
+## 1. 概述与设计原则
+// ... 合并原 database design.md 概述、设计原则 ...
+
+## 2. ER 图
+// ... 合并 ER图.md 内容，可用 mermaid 或图片 ...
+
+## 3. 表结构与关系说明
+// ... 合并原 database design.md 表结构章节 ...
+
+## 4. 地址管理策略
+// ... 合并 address_management_strategy.md ...
+
+## 5. 用户认证与权限模型
+// ... 合并 user_auth_schema.md ...
+
+## 6. 字典与地区/分类编码
+// ... 合并 ref_codes_data.md ...
+
+## 7. 其它说明
+// ... 其它相关设计说明 ...
+
+## 8. 附录
+// ... 迁移脚本、历史变更、特殊说明等 ... # 地址管理策略与实现方案
+
+## 1. 设计原则
+
+### 1.1 按需动态插入策略
+- **不一次性导入全量地址库**：避免存储大量无用数据，节省存储空间和维护成本
+- **用户输入时动态创建**：根据用户实际输入的地址，按需插入到 `addresses` 表
+- **智能去重机制**：基于邮编和街道名进行去重，避免重复地址记录
+
+### 1.2 标准化地址结构
+- 采用加拿大 Civic Address 标准
+- 支持结构化字段：国家、省/地区、城市、区/社区、门牌号、街道名、街道类型、邮编、经纬度等
+- 便于地理分析、距离计算、服务区域匹配等业务需求
+
+## 2. 数据库设计
+
+### 2.1 addresses 表结构
+```sql
+CREATE TABLE public.addresses (
+    id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+    standard_address_id text,                       -- 标准地址唯一编码
+    country text DEFAULT 'Canada',                  -- 国家
+    province text,                                  -- 省/地区
+    city text,                                      -- 城市
+    district text,                                  -- 区/社区
+    street_number text,                             -- 门牌号
+    street_name text,                               -- 街道名
+    street_type text,                               -- 街道类型
+    street_direction text,                          -- 街道方向
+    suite_unit text,                                -- 单元/房间号
+    postal_code text,                               -- 邮编
+    latitude numeric,                               -- 纬度
+    longitude numeric,                              -- 经度
+    geonames_id integer,                            -- GeoNames/官方地址库ID
+    extra jsonb,                                    -- 其它补充信息
+    created_at timestamptz NOT NULL DEFAULT now(),
+    updated_at timestamptz NOT NULL DEFAULT now()
+);
+```
+
+### 2.2 provider_profiles 表关联
+```sql
+-- 使用 address_id 外键关联
+address_id uuid REFERENCES public.addresses(id)
+```
+
+## 3. 实现方案
+
+### 3.1 地址服务类 (AddressService)
+- **统一地址处理逻辑**：解析、验证、去重、数据库操作
+- **加拿大地址格式支持**：邮编格式 A1A 1A1、省份缩写、城市解析
+- **智能去重机制**：基于邮编和街道名的唯一性检查
+
+### 3.2 地址解析功能
+- **邮编提取**：正则匹配加拿大邮编格式
+- **街道名提取**：去除邮编、城市、省份信息，提取纯街道名
+- **城市提取**：从逗号分隔的地址中提取城市名
+- **省份提取**：匹配加拿大省份缩写
+
+### 3.3 用户体验优化
+- **实时地址解析显示**：用户输入时实时显示解析结果
+- **格式验证**：确保地址包含必要信息（邮编、城市、街道）
+- **输入提示**：提供标准格式示例和说明
+
+## 4. 工作流程
+
+### 4.1 地址处理流程
+1. 用户输入地址
+2. 前端实时解析并显示结果
+3. 提交时调用 AddressService.getOrCreateAddress()
+4. 检查地址是否已存在（基于邮编+街道名）
+5. 如存在则复用 address_id，如不存在则创建新记录
+6. 返回 address_id 用于业务表关联
+
+### 4.2 去重策略
+- **唯一性检查**：邮编 + 街道名组合
+- **避免重复插入**：相同地址只创建一条记录
+- **数据一致性**：所有业务表引用同一个 address_id
+
+## 5. 扩展性设计
+
+### 5.1 地理信息扩展
+- 预留经纬度字段，支持地图定位
+- 预留 geonames_id，支持与权威地址库对接
+- 支持服务半径计算、距离排序等功能
+
+### 5.2 地址库集成
+- 可后续集成 Google Places API 自动补全
+- 可集成 Canada Post AddressComplete API
+- 可批量导入高频地址（如主要城市中心区域）
+
+### 5.3 多表复用
+- user_profiles 表可复用 address_id
+- orders 表可复用 address_id
+- 其他需要地址信息的表均可复用
+
+## 6. 最佳实践
+
+### 6.1 地址输入规范
+- 要求用户输入完整地址：门牌号 + 街道 + 城市 + 省份 + 邮编
+- 提供标准格式示例：`123 Bank St, Ottawa, ON K2P 1L4`
+- 实时验证和提示，确保数据质量
+
+### 6.2 性能优化
+- 地址查询使用索引：postal_code, street_name
+- 避免重复解析，缓存解析结果
+- 批量操作时考虑事务处理
+
+### 6.3 错误处理
+- 地址格式验证失败时的友好提示
+- 网络异常时的重试机制
+- 数据库操作异常时的回滚处理
+
+## 7. 后续优化方向
+
+### 7.1 地址自动补全
+- 集成 Google Places API
+- 集成 Canada Post AddressComplete API
+- 本地地址库缓存
+
+### 7.2 地理分析功能
+- 服务半径计算
+- 距离排序
+- 地理围栏
+- 热力图分析
+
+### 7.3 数据质量提升
+- 地址标准化
+- 错误地址检测
+- 地址验证服务集成
+
+---
+
+**总结**：本方案采用按需动态插入策略，既保证了数据标准化和一致性，又避免了全量导入的存储和维护成本。通过 AddressService 统一管理地址逻辑，提供了良好的用户体验和扩展性。 # 用户认证与个人中心数据结构设计
+
+## 1. 用户认证表设计
+
+### 1.1 users 集合
+```javascript
+{
+  "id": "string",                    // Firebase Auth UID
+  "email": "string",                 // 邮箱
+  "phone": "string",                 // 手机号
+  "username": "string",              // 用户名
+  "created_at": "timestamp",         // 创建时间
+  "updated_at": "timestamp",         // 更新时间
+  "last_login": "timestamp",         // 最后登录时间
+  "status": "string",                // 账户状态：active/disabled/banned
+  "auth_providers": [{               // 第三方登录信息
+    "provider": "string",            // 提供商：google/apple/wechat
+    "provider_uid": "string",        // 第三方 UID
+    "email": "string",               // 第三方邮箱
+    "connected_at": "timestamp"      // 关联时间
+  }],
+  "device_info": {                   // 设备信息
+    "last_device": "string",         // 最后使用设备
+    "push_token": "string",          // 推送令牌
+    "app_version": "string"          // APP版本
+  }
+}
+```
+
+### 1.2 user_profiles 集合
+```javascript
+{
+  "user_id": "string",              // 关联 users.id
+  "avatar_url": "string",           // 头像URL
+  "display_name": "string",         // 显示名称
+  "gender": "string",               // 性别
+  "birthday": "date",               // 生日
+  "language": "string",             // 首选语言
+  "timezone": "string",             // 时区
+  "bio": "string",                  // 个人简介
+  "preferences": {                  // 用户偏好设置
+    "notification": {               // 通知设置
+      "push_enabled": "boolean",    // 推送开关
+      "email_enabled": "boolean",   // 邮件开关
+      "sms_enabled": "boolean"      // 短信开关
+    },
+    "privacy": {                    // 隐私设置
+      "profile_visible": "boolean", // 个人资料可见性
+      "show_online": "boolean"      // 在线状态可见性
+    }
+  }
+}
+```
+
+### 1.3 user_addresses 集合
+```javascript
+{
+  "id": "string",
+  "user_id": "string",              // 关联 users.id
+  "name": "string",                 // 地址名称
+  "recipient": "string",            // 收件人
+  "phone": "string",               // 联系电话
+  "country": "string",             // 国家
+  "state": "string",               // 州/省
+  "city": "string",                // 城市
+  "street": "string",              // 街道
+  "postal_code": "string",         // 邮编
+  "is_default": "boolean",         // 是否默认地址
+  "location": {                    // 地理位置
+    "latitude": "number",
+    "longitude": "number"
+  },
+  "created_at": "timestamp",
+  "updated_at": "timestamp"
+}
+```
+
+### 1.4 user_payment_methods 集合
+```javascript
+{
+  "id": "string",
+  "user_id": "string",              // 关联 users.id
+  "type": "string",                 // 支付方式类型：card/bank/wallet
+  "provider": "string",             // 支付提供商
+  "token": "string",               // 支付令牌（加密存储）
+  "last_4": "string",              // 卡号后4位
+  "is_default": "boolean",         // 是否默认支付方式
+  "expires_at": "timestamp",       // 过期时间
+  "billing_address": {             // 账单地址
+    "address_id": "string"         // 关联 user_addresses.id
+  },
+  "created_at": "timestamp",
+  "updated_at": "timestamp"
+}
+```
+
+### 1.5 user_wallet 集合
+```javascript
+{
+  "user_id": "string",              // 关联 users.id
+  "balance": "number",              // 金豆余额
+  "points": "number",               // 积分
+  "currency": "string",             // 货币类型
+  "frozen_amount": "number",        // 冻结金额
+  "updated_at": "timestamp"         // 更新时间
+}
+```
+
+### 1.6 user_coupons 集合
+```javascript
+{
+  "id": "string",
+  "user_id": "string",              // 关联 users.id
+  "coupon_id": "string",            // 优惠券模板ID
+  "status": "string",               // 状态：valid/used/expired
+  "amount": "number",               // 优惠金额
+  "min_order_amount": "number",     // 最低使用金额
+  "valid_from": "timestamp",        // 生效时间
+  "valid_until": "timestamp",       // 过期时间
+  "used_at": "timestamp",           // 使用时间
+  "order_id": "string"              // 关联订单ID（如果已使用）
+}
+```
+
+## 2. 索引设计
+
+### 2.1 users 集合索引
+```javascript
+// 主索引
+- user_id (ASC)
+
+// 复合索引
+- email, status
+- phone, status
+- created_at, status
+```
+
+### 2.2 user_profiles 集合索引
+```javascript
+// 主索引
+- user_id (ASC)
+
+// 复合索引
+- display_name, user_id
+```
+
+### 2.3 user_addresses 集合索引
+```javascript
+// 复合索引
+- user_id, is_default
+- user_id, created_at
+```
+
+### 2.4 user_payment_methods 集合索引
+```javascript
+// 复合索引
+- user_id, is_default
+- user_id, type
+```
+
+## 3. 安全规则设计
+
+### 3.1 Firestore 安全规则
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 用户文档访问规则
+    match /users/{userId} {
+      allow read: if request.auth.uid == userId;
+      allow write: if request.auth.uid == userId;
+    }
+    
+    // 用户配置文件访问规则
+    match /user_profiles/{profileId} {
+      allow read: if request.auth.uid == resource.data.user_id;
+      allow write: if request.auth.uid == request.resource.data.user_id;
+    }
+    
+    // 地址访问规则
+    match /user_addresses/{addressId} {
+      allow read, write: if request.auth.uid == resource.data.user_id;
+    }
+  }
+}
+```
+
+## 4. 数据迁移考虑
+
+### 4.1 未来可扩展字段
+```javascript
+// user_profiles 集合可扩展字段
+{
+  "verification": {                 // 身份验证信息
+    "is_verified": "boolean",
+    "documents": [{
+      "type": "string",            // 证件类型
+      "number": "string",          // 证件号码
+      "verified_at": "timestamp"
+    }]
+  },
+  "service_preferences": {         // 服务偏好
+    "favorite_categories": ["string"],
+    "preferred_providers": ["string"]
+  },
+  "social_links": {               // 社交媒体链接
+    "facebook": "string",
+    "twitter": "string",
+    "instagram": "string"
+  }
+}
+``` # Ref Codes Data (全量分类数据维护)
 
 本文件用于维护 JinBean 项目 ref_codes 表的所有分类数据，便于多语言、层级、图标等批量管理。
 

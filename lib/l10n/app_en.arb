@@ -30,5 +30,15 @@
       "description": "Name for the Profile tab/plugin"
     },
     "provider_switch_button": "Switch to Provider",
-    "provider_register_button": "Register as Provider"
+    "provider_register_button": "Register as Provider",
+    "welcomeBack": "Welcome Back!",
+    "signInToContinue": "Sign in to continue",
+    "continueText": "Continue",
+    "searchForServices": "Search for services...",
+    "viewAll": "View All",
+    "news": "News",
+    "job": "Job",
+    "welfare": "Welfare",
+    "noRecommendations": "No recommendations available",
+    "recommendations": "Recommendations"
 } 

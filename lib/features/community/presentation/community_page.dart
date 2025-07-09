@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/features/community/presentation/community_controller.dart';
 import 'package:jinbeanpod_83904710/app/theme/app_colors.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
 
 class CommunityPage extends StatefulWidget {
   const CommunityPage({super.key});
@@ -17,11 +18,11 @@ class _CommunityPageState extends State<CommunityPage> with SingleTickerProvider
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this); // Use 'this' as TickerProvider
-
-    // Listen to tab changes to update the controller's selectedPostType
+    AppLogger.info('CommunityPage initState', tag: 'CommunityPage');
+    _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
+        AppLogger.info('CommunityPage tab changed to index: ${_tabController.index}', tag: 'CommunityPage');
         switch (_tabController.index) {
           case 0:
             controller.selectPostType(CommunityPostType.event);
@@ -33,14 +34,13 @@ class _CommunityPageState extends State<CommunityPage> with SingleTickerProvider
             controller.selectPostType(CommunityPostType.announcement);
             break;
           default:
-            controller.selectPostType(null); // 'All' or default
+            controller.selectPostType(null);
             break;
         }
       }
     });
-
-    // Initialize tab based on controller's initial selectedPostType
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      AppLogger.info('CommunityPage post frame callback, selectedPostType: ${controller.selectedPostType.value}', tag: 'CommunityPage');
       if (controller.selectedPostType.value == CommunityPostType.event) {
         _tabController.index = 0;
       } else if (controller.selectedPostType.value == CommunityPostType.subsidy) {
@@ -48,7 +48,7 @@ class _CommunityPageState extends State<CommunityPage> with SingleTickerProvider
       } else if (controller.selectedPostType.value == CommunityPostType.announcement) {
         _tabController.index = 2;
       } else {
-        _tabController.index = 0; // Default to Events tab if no specific type is selected
+        _tabController.index = 0;
       }
     });
   }
@@ -61,6 +61,7 @@ class _CommunityPageState extends State<CommunityPage> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
+    AppLogger.debug('CommunityPage build called', tag: 'CommunityPage');
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       appBar: AppBar(

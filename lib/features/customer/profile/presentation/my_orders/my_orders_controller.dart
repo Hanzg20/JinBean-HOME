@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
 
 class Order {
   final String id;
@@ -25,10 +26,12 @@ class MyOrdersController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    AppLogger.info('MyOrdersController initialized', tag: 'MyOrdersController');
     loadOrders();
   }
 
   Future<void> loadOrders() async {
+    AppLogger.info('MyOrdersController: loadOrders called', tag: 'MyOrdersController');
     isLoading.value = true;
     try {
       // TODO: Implement actual API call to fetch orders
@@ -60,18 +63,15 @@ class MyOrdersController extends GetxController {
           status: 'Cancelled',
         ),
       ];
-    } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to load orders',
-        snackPosition: SnackPosition.BOTTOM,
-      );
+    } catch (e, stack) {
+      AppLogger.error('MyOrdersController: Failed to load orders', error: e, stackTrace: stack, tag: 'MyOrdersController');
     } finally {
       isLoading.value = false;
     }
   }
 
   Future<void> refreshOrders() async {
+    AppLogger.info('MyOrdersController: refreshOrders called', tag: 'MyOrdersController');
     await loadOrders();
   }
 } 

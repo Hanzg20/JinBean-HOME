@@ -5,6 +5,7 @@ import 'package:jinbeanpod_83904710/app/theme/app_colors.dart';
 import 'package:jinbeanpod_83904710/core/plugin_management/plugin_manager.dart';
 import 'package:jinbeanpod_83904710/features/provider/plugins/provider_identity/provider_identity_service.dart';
 import 'package:jinbeanpod_83904710/features/provider/plugins/provider_registration/provider_registration_plugin.dart';
+import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
 
 class ProfilePage extends GetView<ProfileController> {
   const ProfilePage({super.key});

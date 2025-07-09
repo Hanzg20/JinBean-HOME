@@ -24,11 +24,12 @@ class ThemeSettingsController extends GetxController {
 
   // Method to switch themes
   void selectTheme(String themeName) {
-    _themeService.setThemeByName(themeName);
+    _themeService.setThemeForRole('customer', themeName); // 只影响customer端
+    _themeService.setThemeByName(themeName); // 立即切换主题
     selectedThemeName.value = themeName;
     Get.snackbar(
-      'Theme Changed',
-      'Theme set to ${themeName == 'golden' ? 'Golden' : 'Dark Teal'}',
+      '主题已切换',
+      themeName == 'golden' ? '已切换为金色主题' : '已切换为深青色主题',
       snackPosition: SnackPosition.BOTTOM,
     );
   }

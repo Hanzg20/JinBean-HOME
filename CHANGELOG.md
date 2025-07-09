@@ -1,4 +1,30 @@
-# CHANGELOG
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+## [Unreleased]
+- Initial international documentation structure and refactor.
+
+## [2024-07-03]
+- Major refactor: role management, navigation isolation, theme system.
+- Provider/customer navigation and plugin system separation.
+- UI/UX improvements, bug fixes, and documentation update.
+
+## [2024-06-30]
+- Initial multi-role login and registration flow.
+- Provider application and approval process.
+
+## [2024-06-15]
+- Project initialization.
+
+## [2024-07-04]
+- 全项目国际化自动修复启动，所有页面、控件、弹窗、按钮、Tab、SnackBar、Dialog等硬编码中英文全部替换为国际化资源引用。
+- 自动补全所有缺失的国际化key到app_en.arb和app_zh.arb，保证所有UI文本可随语言切换。
+- 登录页、首页等关键页面已完成国际化修复，其它页面持续批量修复中。
+- 日志系统AppLogger全局集成，所有核心页面和控制器已批量插入多级别日志点，支持按需开关。
+- 开发规范文档（developer_guide.md）全面升级，覆盖前后端、数据库、API、CI/CD、日志、国际化、插件化等全流程标准。
+- 项目所有新代码、页面、功能均强制遵循国际化、日志、主题、插件、依赖注入等统一规范。
+- 修复和优化部分UI/UX细节，提升多语言和多角色适配体验。
 
 ## [本次大版本] - 2024-07-03
 

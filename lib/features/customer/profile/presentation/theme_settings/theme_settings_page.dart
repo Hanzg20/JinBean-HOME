@@ -26,16 +26,16 @@ class ThemeSettingsPage extends GetView<ThemeSettingsController> {
           children: [
             Text(
               'Choose your app theme:',
-              style: TextStyle(color: theme.textTheme.titleMedium?.color ?? onSurface),
+              style: TextStyle(color: onSurface),
             ),
             Obx(() => RadioListTile<String>(
-                  title: Text('Deep Teal Theme', style: TextStyle(color: theme.textTheme.bodyMedium?.color ?? onSurface)),
+                  title: Text('Deep Teal Theme', style: TextStyle(color: onSurface)),
                   value: 'dark_teal',
                   groupValue: controller.selectedThemeName.value,
                   onChanged: (value) => controller.selectTheme(value!),
                 )),
             Obx(() => RadioListTile<String>(
-                  title: Text('Golden JinBean Theme', style: TextStyle(color: theme.textTheme.bodyMedium?.color ?? onSurface)),
+                  title: Text('Golden JinBean Theme', style: TextStyle(color: onSurface)),
                   value: 'golden',
                   groupValue: controller.selectedThemeName.value,
                   onChanged: (value) => controller.selectTheme(value!),

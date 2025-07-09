@@ -9,6 +9,7 @@ import 'package:jinbeanpod_83904710/features/customer/profile/profile_plugin.dar
 import 'package:jinbeanpod_83904710/features/service_map/service_map_plugin.dart'; // Import ServiceMapPlugin
 import 'package:jinbeanpod_83904710/features/customer/orders/orders_plugin.dart';
 import 'package:jinbeanpod_83904710/app/shell_app_controller.dart';
+import 'package:jinbeanpod_83904710/app/theme/app_theme_service.dart';
 // TODO: 导入实际的插件文件，例如：
 // import '../../features/service_booking/service_booking_plugin.dart';
 
@@ -264,8 +265,10 @@ class PluginManager extends GetxController {
       }
       reloadPlugins();
       _updateEnabledTabPluginsForCurrentRole();
-      // 在setRole('provider')时，Get.offAll(() => ProviderShellApp());
-      // 这样Provider端始终用极简底部导航壳。
+      // === 新增：切换 per-role 主题 ===
+      final themeService = Get.find<AppThemeService>();
+      final themeName = themeService.getThemeForRole(role) ?? (role == 'provider' ? 'golden' : 'dark_teal');
+      themeService.setThemeByName(themeName);
     }
   }
 }

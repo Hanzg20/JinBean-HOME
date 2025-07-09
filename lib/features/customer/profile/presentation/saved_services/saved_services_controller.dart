@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
 
 class SavedService {
   final String id;
@@ -19,10 +20,12 @@ class SavedServicesController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    AppLogger.info('SavedServicesController initialized', tag: 'SavedServicesController');
     loadSavedServices();
   }
 
   Future<void> loadSavedServices() async {
+    AppLogger.info('SavedServicesController: loadSavedServices called', tag: 'SavedServicesController');
     isLoading.value = true;
     try {
       // TODO: Implement actual API call to fetch saved services
@@ -45,12 +48,8 @@ class SavedServicesController extends GetxController {
           description: 'Routine maintenance to keep your AC running smoothly.',
         ),
       ];
-    } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to load saved services',
-        snackPosition: SnackPosition.BOTTOM,
-      );
+    } catch (e, stack) {
+      AppLogger.error('SavedServicesController: Failed to load saved services', error: e, stackTrace: stack, tag: 'SavedServicesController');
     } finally {
       isLoading.value = false;
     }
@@ -67,6 +66,7 @@ class SavedServicesController extends GetxController {
   }
 
   Future<void> refreshSavedServices() async {
+    AppLogger.info('SavedServicesController: refreshSavedServices called', tag: 'SavedServicesController');
     await loadSavedServices();
   }
 } 

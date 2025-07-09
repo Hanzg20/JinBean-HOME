@@ -1,3 +1,31 @@
+# Database Schema Documentation
+
+本目录包含 JinBean 项目的所有数据库设计文档、建表脚本、迁移脚本及相关说明。
+
+## 目录结构
+- `database_design.md`：主设计文档，包含ER图、表结构、地址/认证/字典等说明
+- `data_dictionary.md`：字段/表详细说明（如有）
+- `create_all_tables.sql`：全量建表脚本，推荐初始化数据库时使用
+- `users.sql`、`user_profiles.sql` 等：各表单独建表脚本
+- `migration_scripts/`：所有数据库结构变更/升级/迁移脚本
+- `sample_data.sql`：测试/样例数据（如有）
+- `security_guidelines.md`：安全与合规说明（如有）
+
+## 数据库初始化
+1. 推荐使用 `create_all_tables.sql` 一键初始化所有表结构。
+2. 如需单独维护/升级某表，可使用对应的 `xxx.sql`。
+3. 所有历史/增量迁移脚本请见 `migration_scripts/`。
+
+## 文档阅读顺序
+1. 建议先阅读 `database_design.md` 了解整体结构与设计原则。
+2. 需要字段/表详细信息时查阅 `data_dictionary.md`。
+3. 变更历史请查阅 `CHANGELOG.md` 或 `migration_scripts/`。
+
+## 其它注意事项
+- `.DS_Store` 等无关文件可删除，不纳入版本管理。
+- ER 图建议以图片或 markdown/mermaid 格式嵌入主设计文档。
+- 如涉及敏感数据，务必查阅 `security_guidelines.md`。
+
 # 金豆荚数据库设计文档
 
 ## 目录

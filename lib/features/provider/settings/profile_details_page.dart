@@ -8,6 +8,7 @@ class ProfileDetailsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(ProviderProfileController());
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(title: const Text('个人资料')),
       body: Obx(() {
@@ -37,10 +38,11 @@ class ProfileDetailsPage extends StatelessWidget {
               child: Chip(
                 label: Text('认证状态：${controller.certificationStatus.value}'),
                 backgroundColor: controller.certificationStatus.value == 'approved'
-                    ? Colors.green[100]
+                    ? theme.primaryColor.withOpacity(0.15)
                     : controller.certificationStatus.value == 'pending'
-                        ? Colors.orange[100]
-                        : Colors.red[100],
+                        ? theme.colorScheme.secondary.withOpacity(0.15)
+                        : theme.colorScheme.error.withOpacity(0.15),
+                labelStyle: TextStyle(color: theme.primaryColor),
               ),
             ),
             const SizedBox(height: 16),

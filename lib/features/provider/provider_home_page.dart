@@ -5,6 +5,7 @@ import 'package:jinbeanpod_83904710/features/provider/settings/settings_page.dar
 // Import the new shell pages
 import 'package:jinbeanpod_83904710/features/provider/orders/presentation/orders_shell_page.dart'; // Orders Shell Page
 import 'package:jinbeanpod_83904710/features/provider/clients/presentation/client_page.dart'; // Client Page
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
 
 class ProviderShellApp extends StatefulWidget {
   const ProviderShellApp({super.key});
@@ -27,20 +28,20 @@ class _ProviderShellAppState extends State<ProviderShellApp> {
   @override
   void initState() {
     super.initState();
-    print('[ProviderShellApp] initState called');
+    AppLogger.info('[ProviderShellApp] initState called', tag: 'ProviderShellApp');
     _pages = [
       ProviderHomePage(onNavigateToTab: _onNavigateToTab), // Dashboard
       OrdersShellPage(), // Orders (包含了订单管理和抢单大厅)
       ClientPage(), // Clients
       SettingsPage(), // Settings/My - Updated to use the new SettingsPage
     ];
-    print('[ProviderShellApp] _pages initialized: '
-      '${_pages.map((w) => w.runtimeType).join(', ')}');
+    AppLogger.info('[ProviderShellApp] _pages initialized: '
+      '${_pages.map((w) => w.runtimeType).join(', ')}', tag: 'ProviderShellApp');
   }
 
   @override
   Widget build(BuildContext context) {
-    print('[ProviderShellApp] build called, _currentIndex: \\$_currentIndex');
+    AppLogger.debug('[ProviderShellApp] build called, _currentIndex: $_currentIndex', tag: 'ProviderShellApp');
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
@@ -48,15 +49,20 @@ class _ProviderShellAppState extends State<ProviderShellApp> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (i) => setState(() => _currentIndex = i),
+        onTap: (i) {
+          setState(() {
+            _currentIndex = i;
+          });
+          AppLogger.info('[ProviderShellApp] BottomNavigationBar tapped, index: $i', tag: 'ProviderShellApp');
+        },
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Dashboard'),
-          BottomNavigationBarItem(icon: Icon(Icons.list_alt), label: 'Orders'),
-          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Clients'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: '首页'),
+          BottomNavigationBarItem(icon: Icon(Icons.list_alt), label: '订单'),
+          BottomNavigationBarItem(icon: Icon(Icons.people), label: '客户'),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: '设置'),
         ],
         type: BottomNavigationBarType.fixed,
-        selectedItemColor: Theme.of(context).primaryColor,
+        selectedItemColor: Theme.of(context).colorScheme.primary,
         unselectedItemColor: Colors.grey,
       ),
     );
@@ -78,35 +84,32 @@ class ProviderHomePage extends StatelessWidget {
       appBar: AppBar(
         title: Row(
           children: [
-            // 金豆荚 Logo / 服务者专属标识 - 更接近图片风格
             Text(
               'JinBeanPod',
               style: TextStyle(color: theme.colorScheme.onPrimary, fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(width: 4),
             Text(
-              'Services Poviter',
+              'Services Provider',
               style: TextStyle(color: theme.colorScheme.onPrimary.withOpacity(0.8), fontSize: 14),
             ),
           ],
         ),
         actions: [
-          // 通知中心 (Placeholder) - 放在左侧靠近 Logo
           IconButton(
             icon: Icon(Icons.notifications_none, color: theme.colorScheme.onPrimary),
             onPressed: () {
               Get.toNamed('/notifications');
             },
           ),
-          // 在线/离线状态切换 (Placeholder) - 放在右侧
           Obx(() {
-            final isOnline = true.obs; // Placeholder for actual online status
+            final isOnline = true.obs;
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: IconButton(
-                icon: Icon(Icons.power_settings_new, color: isOnline.value ? Colors.greenAccent : Colors.grey[400]),
+                icon: Icon(Icons.power_settings_new, color: isOnline.value ? theme.colorScheme.secondary : Colors.grey[400]),
                 onPressed: () {
-                  isOnline.value = !isOnline.value; // Toggle placeholder status
+                  isOnline.value = !isOnline.value;
                   Get.snackbar(
                     '状态切换',
                     isOnline.value ? '您已上线，开始接收订单！' : '您已离线，将不再接收新订单。',
@@ -120,7 +123,7 @@ class ProviderHomePage extends StatelessWidget {
           }),
           const SizedBox(width: 8),
         ],
-        backgroundColor: theme.primaryColor, // Use the dynamically set theme color
+        backgroundColor: theme.primaryColor,
         elevation: 0,
         centerTitle: false,
       ),
@@ -129,13 +132,12 @@ class ProviderHomePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 数据概览
             Text(
-              '核心 dussE 画覆合', // Placeholder text for Data Overview
+              '核心数据总览',
               style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
             Text(
-              'Dan Data made available to you.', // Subtitle
+              '核心数据一览无余',
               style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey.shade600),
             ),
             const SizedBox(height: 16),
@@ -148,37 +150,21 @@ class ProviderHomePage extends StatelessWidget {
               children: [
                 _buildOverviewCard(context, '核心区块货', '186', '3', 'assets/images/chart_placeholder_1.png', theme.primaryColor),
                 _buildOverviewCard(context, '电灯信息表', '16%', '6小时/天', 'assets/images/chart_placeholder_2.png', theme.primaryColor),
-                // You can add more cards here if needed
               ],
             ),
             const SizedBox(height: 32),
-
-            // 快捷入口
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Servics 工作流 Awsteter', // Placeholder text for Quick Access
-                  style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                TextButton(
-                  onPressed: () {
-                    // TODO: Navigate to all services/quick access items
-                  },
-                  child: Text(
-                    '所有功能 >',
-                    style: TextStyle(color: theme.primaryColor.withOpacity(0.7)),
-                  ),
-                ),
-              ],
+            Text(
+              '服务工作流中心',
+              style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             GridView.count(
-              crossAxisCount: 3, // Changed from 4 to 3 to provide more space for labels
+              crossAxisCount: 4,
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
+              childAspectRatio: 0.8,
               children: [
                 _buildQuickAccessItem(context, Icons.build, '服务', () { Get.toNamed('/service_manage'); }),
                 _buildQuickAccessItem(context, Icons.chat_bubble_outline, '消息', () { Get.toNamed('/message_center'); }),
@@ -191,10 +177,8 @@ class ProviderHomePage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 32),
-
-            // 最新订单
             Text(
-              'Indtrame 任务/最新in 活动', // Placeholder text for Latest Orders
+              '最新任务与活动',
               style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
@@ -273,26 +257,26 @@ class ProviderHomePage extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Card(
-        elevation: 1, // Reduced elevation slightly
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)), // Slightly smaller border radius
-        margin: const EdgeInsets.all(4), // Add a small margin to reduce overall size
+        elevation: 1,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        margin: const EdgeInsets.all(2),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0), // Reduced padding
+          padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 2.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               CircleAvatar(
-                radius: 24, // Reduced radius
+                radius: 18,
                 backgroundColor: theme.primaryColor.withOpacity(0.1),
-                child: Icon(icon, size: 26, color: theme.primaryColor), // Reduced icon size
+                child: Icon(icon, size: 20, color: theme.primaryColor),
               ),
-              const SizedBox(height: 6), // Reduced spacing
+              const SizedBox(height: 2),
               Text(
                 label,
-                style: theme.textTheme.bodySmall,
+                style: theme.textTheme.bodySmall?.copyWith(fontSize: 11),
                 textAlign: TextAlign.center,
-                maxLines: 2, // Allow up to 2 lines
-                overflow: TextOverflow.ellipsis, // Add ellipsis if text overflows
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),

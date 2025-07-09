@@ -74,8 +74,8 @@ class ClientPage extends StatelessWidget {
                         // TODO: Switch to Potential Clients
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey.shade200,
-                        foregroundColor: Colors.grey.shade700,
+                        backgroundColor: theme.colorScheme.surface,
+                        foregroundColor: theme.colorScheme.onSurface,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
                       child: const Text('潜在客户'), // Potential Clients

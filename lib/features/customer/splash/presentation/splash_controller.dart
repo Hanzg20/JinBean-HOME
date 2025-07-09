@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:jinbeanpod_83904710/core/plugin_management/plugin_manager.dart'; // Corrected import for PluginManager
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
 
 class OnboardingPageModel {
   final String imagePath;
@@ -38,17 +39,17 @@ class SplashController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    print('[SplashController] onInit called.');
+    AppLogger.info('[SplashController] onInit called.', tag: 'SplashController');
     pageController = PageController();
-    print('[SplashController] PageController initialized.');
-    print('[SplashController] Initializing. Checking login status...');
+    AppLogger.info('[SplashController] PageController initialized.', tag: 'SplashController');
+    AppLogger.info('[SplashController] Initializing. Checking login status...', tag: 'SplashController');
     _initializeApp();
   }
 
   Future<void> _initializeApp() async {
-    print('[SplashController] _initializeApp called.');
+    AppLogger.info('[SplashController] _initializeApp called.', tag: 'SplashController');
     final session = Supabase.instance.client.auth.currentSession;
-    print('[SplashController] Supabase session: $session');
+    AppLogger.debug('[SplashController] Supabase session: $session', tag: 'SplashController');
     if (session != null) {
       // 拉取 profile
       final user = Supabase.instance.client.auth.currentUser;
@@ -58,19 +59,19 @@ class SplashController extends GetxController {
           .eq('id', user?.id ?? '')
           .maybeSingle();
       final role = profile?['role'] ?? 'customer';
-      print('[SplashController] User profile role: $role');
+      AppLogger.info('[SplashController] User profile role: $role', tag: 'SplashController');
       if (role == 'customer+provider') {
-        print('[SplashController] User is customer+provider, navigating to /auth with showRoleSwitch');
+        AppLogger.info('[SplashController] User is customer+provider, navigating to /auth with showRoleSwitch', tag: 'SplashController');
         Get.offAllNamed('/auth', arguments: {'showRoleSwitch': true});
       } else if (role == 'provider') {
-        print('[SplashController] Navigating to /provider_home');
+        AppLogger.info('[SplashController] Navigating to /provider_home', tag: 'SplashController');
         Get.offAllNamed('/provider_home');
       } else {
-        print('[SplashController] Navigating to /main_shell');
+        AppLogger.info('[SplashController] Navigating to /main_shell', tag: 'SplashController');
         Get.offAllNamed('/main_shell');
       }
     } else {
-      print('[SplashController] No session, staying on splash.');
+      AppLogger.info('[SplashController] No session, staying on splash.', tag: 'SplashController');
       isReadyToNavigate.value = true;
     }
   }
@@ -89,19 +90,19 @@ class SplashController extends GetxController {
   }
 
   void navigateToLogin() {
-    print('SplashController: Navigating to /auth');
+    AppLogger.info('SplashController: Navigating to /auth', tag: 'SplashController');
     Get.offAllNamed('/auth');
   }
 
   void navigateToRegister() {
-    print('SplashController: Navigating to /register');
+    AppLogger.info('SplashController: Navigating to /register', tag: 'SplashController');
     Get.offAllNamed('/register');
   }
 
   @override
   void onClose() {
     pageController.dispose();
-    print('SplashController disposed');
+    AppLogger.info('SplashController disposed', tag: 'SplashController');
     super.onClose();
   }
 } 
