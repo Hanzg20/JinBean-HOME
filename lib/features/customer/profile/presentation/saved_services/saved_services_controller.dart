@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
+import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
+import 'package:jinbeanpod_83904710/l10n/app_localizations_en.dart';
 
 class SavedService {
   final String id;
@@ -59,8 +61,8 @@ class SavedServicesController extends GetxController {
     savedServices.removeWhere((service) => service.id == id);
     // TODO: Implement API call to remove service from backend
     Get.snackbar(
-      'Removed',
-      'Service removed from saved list.',
+      (AppLocalizations.of(Get.context() ?? navigatorKey.currentContext) ?? AppLocalizationsEn()).removed,
+      (AppLocalizations.of(Get.context() ?? navigatorKey.currentContext) ?? AppLocalizationsEn()).serviceRemovedFromSavedList,
       snackPosition: SnackPosition.BOTTOM,
     );
   }

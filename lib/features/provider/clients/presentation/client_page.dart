@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/features/provider/clients/presentation/client_controller.dart';
+import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
+import 'package:jinbeanpod_83904710/l10n/app_localizations_en.dart';
 
 class ClientPage extends StatelessWidget {
   const ClientPage({super.key});
@@ -13,7 +15,7 @@ class ClientPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          '客户管理', // Client Management
+          (AppLocalizations.of(context) ?? AppLocalizationsEn()).clients,
           style: TextStyle(color: theme.colorScheme.onPrimary),
         ),
         backgroundColor: theme.primaryColor,
@@ -64,7 +66,7 @@ class ClientPage extends StatelessWidget {
                         foregroundColor: theme.primaryColor,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
-                      child: const Text('已服务客户'), // Served Clients
+                      child: Text((AppLocalizations.of(context) ?? AppLocalizationsEn()).servedClients),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -78,7 +80,7 @@ class ClientPage extends StatelessWidget {
                         foregroundColor: theme.colorScheme.onSurface,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
-                      child: const Text('潜在客户'), // Potential Clients
+                      child: Text((AppLocalizations.of(context) ?? AppLocalizationsEn()).potentialClients),
                     ),
                   ),
                 ],
@@ -87,7 +89,7 @@ class ClientPage extends StatelessWidget {
 
             // Client List Placeholder
             Text(
-              '客户列表', // Client List
+              (AppLocalizations.of(context) ?? AppLocalizationsEn()).clientList,
               style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
@@ -100,7 +102,7 @@ class ClientPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '暂无客户数据', // No client data yet
+                      (AppLocalizations.of(context) ?? AppLocalizationsEn()).clientListPlaceholder,
                       style: theme.textTheme.titleMedium?.copyWith(color: Colors.grey.shade600),
                     ),
                     // TODO: Populate with actual client list
@@ -112,7 +114,7 @@ class ClientPage extends StatelessWidget {
 
             // Client Statistics Placeholder
             Text(
-              '客户统计', // Client Statistics
+              (AppLocalizations.of(context) ?? AppLocalizationsEn()).clientStatistics,
               style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
@@ -125,7 +127,7 @@ class ClientPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '统计数据待补充', // Statistics to be added
+                      (AppLocalizations.of(context) ?? AppLocalizationsEn()).statisticsToBeAdded,
                       style: theme.textTheme.titleMedium?.copyWith(color: Colors.grey.shade600),
                     ),
                     // TODO: Implement charts/stats for client data

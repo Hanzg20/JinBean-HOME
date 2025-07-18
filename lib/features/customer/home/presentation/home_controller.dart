@@ -232,6 +232,17 @@ class HomeController extends GetxController {
     return '';
   }
 
+  // 新增：兼容 Map 和 String 的多语言安全取值方法
+  String getSafeLocalizedText(dynamic value) {
+    if (value is Map<String, dynamic>) {
+      final lang = Get.locale?.languageCode ?? 'zh';
+      return value[lang] ?? value['zh'] ?? value['en'] ?? '';
+    } else if (value is String) {
+      return value;
+    }
+    return '';
+  }
+
   // New method to fetch recommended services
   Future<void> _fetchRecommendedServices() async {
     print('=== Fetching Recommended Services ===');
@@ -267,7 +278,9 @@ class HomeController extends GetxController {
       for (var service in data) {
         print('处理服务: $service');
         final serviceTitle = service['title'];
+        final safeServiceTitle = serviceTitle is Map<String, dynamic> ? serviceTitle : {'zh': serviceTitle ?? ''};
         final serviceDescription = service['description'];
+        final safeServiceDescription = serviceDescription is Map<String, dynamic> ? serviceDescription : {'zh': serviceDescription ?? ''};
         final categoryLevel1Id = service['category_level1_id'] as int;
         final iconData = refCodesMap[categoryLevel1Id]?['icon'] ?? 'category';
 
@@ -278,8 +291,8 @@ class HomeController extends GetxController {
 
         processedServices.add(ServiceRecommendation(
           serviceId: service['id'],
-          serviceName: Map<String, dynamic>.from(serviceTitle),
-          serviceDescription: Map<String, dynamic>.from(serviceDescription),
+          serviceName: safeServiceTitle,
+          serviceDescription: safeServiceDescription,
           serviceIcon: iconData,
           recommendationReason: '为您推荐', // Placeholder for now
         ));

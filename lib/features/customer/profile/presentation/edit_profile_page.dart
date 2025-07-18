@@ -28,228 +28,164 @@ class EditProfilePage extends GetView<ProfileController> {
         if (controller.isLoading.value) {
           return const Center(child: CircularProgressIndicator());
         }
-        
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Avatar Section
-              _buildAvatarSection(),
-              const SizedBox(height: 24),
-              
-              // Profile Information Section
-              _buildProfileInfoSection(),
-              const SizedBox(height: 24),
-              
-              // Bio Section
-              _buildBioSection(),
-            ],
-          ),
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final isWide = constraints.maxWidth > 500;
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(12),
+              child: Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // 头像与基本信息横向并排
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Stack(
+                            children: [
+                              CircleAvatar(
+                                radius: 36,
+                                backgroundImage: controller.avatarUrl.value.isNotEmpty
+                                    ? NetworkImage(controller.avatarUrl.value)
+                                    : null,
+                                child: controller.avatarUrl.value.isEmpty
+                                    ? const Icon(Icons.person, size: 36, color: Colors.grey)
+                                    : null,
+                              ),
+                              Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: GestureDetector(
+                                  onTap: _changeAvatar,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(3),
+                                    decoration: const BoxDecoration(
+                                      color: Colors.blue,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.camera_alt,
+                                      color: Colors.white,
+                                      size: 16,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(width: 18),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: TextField(
+                                        controller: TextEditingController(text: controller.userName.value),
+                                        onChanged: (v) => controller.userName.value = v,
+                                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                        decoration: const InputDecoration(
+                                          labelText: 'Display Name',
+                                          isDense: true,
+                                          border: InputBorder.none,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: Colors.amber.shade100,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Text(
+                                        controller.userLevel.value,
+                                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 2),
+                                Row(
+                                  children: [
+                                    Icon(Icons.card_giftcard, size: 16, color: Colors.grey.shade600),
+                                    const SizedBox(width: 4),
+                                    Text('${controller.userPoints.value}', style: const TextStyle(fontSize: 13)),
+                                    const SizedBox(width: 12),
+                                    Icon(Icons.calendar_today, size: 16, color: Colors.grey.shade600),
+                                    const SizedBox(width: 4),
+                                    Text(controller.memberSince.value, style: const TextStyle(fontSize: 13)),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Divider(height: 32),
+                      // 资料编辑表单（卡片分组，紧凑）
+                      _buildCompactField(
+                        label: 'Bio',
+                        icon: Icons.info_outline,
+                        initialValue: controller.userBio.value,
+                        onChanged: (v) => controller.userBio.value = v,
+                        maxLines: 3,
+                      ),
+                      const SizedBox(height: 12),
+                      // 悬浮保存按钮
+                      const SizedBox(height: 24),
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: ElevatedButton.icon(
+                          icon: const Icon(Icons.save),
+                          label: const Text('Save'),
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: const Size.fromHeight(44),
+                            textStyle: const TextStyle(fontSize: 16),
+                          ),
+                          onPressed: _saveProfile,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
         );
       }),
     );
   }
 
-  Widget _buildAvatarSection() {
-    return Center(
-      child: Column(
-        children: [
-          Stack(
-            children: [
-              CircleAvatar(
-                radius: 50,
-                backgroundImage: controller.avatarUrl.value.isNotEmpty
-                    ? NetworkImage(controller.avatarUrl.value)
-                    : null,
-                child: controller.avatarUrl.value.isEmpty
-                    ? const Icon(Icons.person, size: 50, color: Colors.grey)
-                    : null,
-              ),
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: const BoxDecoration(
-                    color: Colors.blue,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.camera_alt,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          TextButton(
-            onPressed: () => _changeAvatar(),
-            child: const Text('Change Avatar'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProfileInfoSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildCompactField({
+    required String label,
+    required IconData icon,
+    required String initialValue,
+    required ValueChanged<String> onChanged,
+    int maxLines = 1,
+  }) {
+    return Row(
+      crossAxisAlignment: maxLines > 1 ? CrossAxisAlignment.start : CrossAxisAlignment.center,
       children: [
-        const Text(
-          'Profile Information',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 16),
-        
-        // Display Name
-        _buildTextField(
-          label: 'Display Name',
-          value: controller.userName.value,
-          onChanged: (value) => controller.userName.value = value,
-          icon: Icons.person_outline,
-        ),
-        const SizedBox(height: 16),
-        
-        // Member Since (Read-only)
-        _buildReadOnlyField(
-          label: 'Member Since',
-          value: controller.memberSince.value,
-          icon: Icons.calendar_today,
-        ),
-        const SizedBox(height: 16),
-        
-        // User Level (Read-only)
-        _buildReadOnlyField(
-          label: 'User Level',
-          value: controller.userLevel.value,
-          icon: Icons.star,
-        ),
-        const SizedBox(height: 16),
-        
-        // Points (Read-only)
-        _buildReadOnlyField(
-          label: 'Points',
-          value: '${controller.userPoints.value}',
-          icon: Icons.card_giftcard,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBioSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'About Me',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 16),
-        
-        Container(
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey.shade300),
-            borderRadius: BorderRadius.circular(8),
-          ),
+        Icon(icon, color: Colors.grey.shade600, size: 18),
+        const SizedBox(width: 8),
+        Expanded(
           child: TextField(
-            controller: TextEditingController(text: controller.userBio.value),
-            onChanged: (value) => controller.userBio.value = value,
-            maxLines: 4,
-            decoration: const InputDecoration(
-              hintText: 'Tell us about yourself...',
+            controller: TextEditingController(text: initialValue),
+            onChanged: onChanged,
+            maxLines: maxLines,
+            style: const TextStyle(fontSize: 14),
+            decoration: InputDecoration(
+              labelText: label,
+              isDense: true,
               border: InputBorder.none,
-              contentPadding: EdgeInsets.all(16),
+              contentPadding: const EdgeInsets.symmetric(vertical: 6),
             ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTextField({
-    required String label,
-    required String value,
-    required Function(String) onChanged,
-    required IconData icon,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: Colors.grey,
-          ),
-        ),
-        const SizedBox(height: 8),
-        TextField(
-          controller: TextEditingController(text: value),
-          onChanged: onChanged,
-          decoration: InputDecoration(
-            prefixIcon: Icon(icon, color: Colors.grey),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 12,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildReadOnlyField({
-    required String label,
-    required String value,
-    required IconData icon,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: Colors.grey,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 12,
-          ),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey.shade300),
-            borderRadius: BorderRadius.circular(8),
-            color: Colors.grey.shade50,
-          ),
-          child: Row(
-            children: [
-              Icon(icon, color: Colors.grey, size: 20),
-              const SizedBox(width: 12),
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.black87,
-                ),
-              ),
-            ],
           ),
         ),
       ],

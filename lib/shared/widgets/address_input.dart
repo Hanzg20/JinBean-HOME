@@ -188,30 +188,33 @@ class _AddressInputState extends State<AddressInput> {
 
         // 门牌号和街道
         if (placemark.subThoroughfare != null &&
-            placemark.subThoroughfare!.isNotEmpty) {
+            (placemark.subThoroughfare?.isNotEmpty ?? false)) {
           address += '${placemark.subThoroughfare} ';
         }
         if (placemark.thoroughfare != null &&
-            placemark.thoroughfare!.isNotEmpty) {
+            (placemark.thoroughfare?.isNotEmpty ?? false)) {
           address += '${placemark.thoroughfare}';
         }
 
         // 城市和省份
-        if (placemark.locality != null && placemark.locality!.isNotEmpty) {
+        if (placemark.locality != null &&
+            (placemark.locality?.isNotEmpty ?? false)) {
           address += ', ${placemark.locality}';
         }
         if (placemark.administrativeArea != null &&
-            placemark.administrativeArea!.isNotEmpty) {
+            (placemark.administrativeArea?.isNotEmpty ?? false)) {
           address += ', ${placemark.administrativeArea}';
         }
 
         // 邮编
-        if (placemark.postalCode != null && placemark.postalCode!.isNotEmpty) {
+        if (placemark.postalCode != null &&
+            (placemark.postalCode?.isNotEmpty ?? false)) {
           address += ' ${placemark.postalCode}';
         }
 
         // 国家
-        if (placemark.country != null && placemark.country!.isNotEmpty) {
+        if (placemark.country != null &&
+            (placemark.country?.isNotEmpty ?? false)) {
           address += ', ${placemark.country}';
         }
 
@@ -497,7 +500,7 @@ class _AddressInputState extends State<AddressInput> {
                 Wrap(
                   spacing: 8,
                   runSpacing: 4,
-                  children: _parsedComponents!.entries.map((entry) {
+                  children: (_parsedComponents?.entries ?? []).map((entry) {
                     return Chip(
                       label: Text('${entry.key}: ${entry.value}'),
                       backgroundColor: Colors.white,

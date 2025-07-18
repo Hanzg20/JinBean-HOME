@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../provider_registration_controller.dart';
+import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
 
 class StepBasicInfo extends StatelessWidget {
   final ProviderRegistrationController controller;
@@ -10,16 +11,16 @@ class StepBasicInfo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('选择服务商类型', style: TextStyle(fontWeight: FontWeight.bold)),
+        Text((AppLocalizations.of(context) ?? AppLocalizationsEn()).selectProviderType, style: TextStyle(fontWeight: FontWeight.bold)),
         Row(
           children: ProviderType.values
               .map((type) => Expanded(
                     child: RadioListTile<ProviderType>(
                       title: Text(type == ProviderType.individual
-                          ? '个人'
+                          ? (AppLocalizations.of(context) ?? AppLocalizationsEn()).individual
                           : type == ProviderType.team
-                              ? '团队'
-                              : '企业'),
+                              ? (AppLocalizations.of(context) ?? AppLocalizationsEn()).team
+                              : (AppLocalizations.of(context) ?? AppLocalizationsEn()).enterprise),
                       value: type,
                       groupValue: controller.providerType,
                       onChanged: (val) => controller.setProviderType(val!),
@@ -28,21 +29,21 @@ class StepBasicInfo extends StatelessWidget {
               .toList(),
         ),
         TextField(
-          decoration: const InputDecoration(labelText: '服务商名称'),
+          decoration: InputDecoration(labelText: (AppLocalizations.of(context) ?? AppLocalizationsEn()).providerName),
           onChanged: (v) => controller.displayName = v,
         ),
         TextField(
-          decoration: const InputDecoration(labelText: '手机号'),
+          decoration: InputDecoration(labelText: (AppLocalizations.of(context) ?? AppLocalizationsEn()).phoneNumber),
           keyboardType: TextInputType.phone,
           onChanged: (v) => controller.phone = v,
         ),
         TextField(
-          decoration: const InputDecoration(labelText: '邮箱'),
+          decoration: InputDecoration(labelText: (AppLocalizations.of(context) ?? AppLocalizationsEn()).email),
           keyboardType: TextInputType.emailAddress,
           onChanged: (v) => controller.email = v,
         ),
         TextField(
-          decoration: const InputDecoration(labelText: '设置密码'),
+          decoration: InputDecoration(labelText: (AppLocalizations.of(context) ?? AppLocalizationsEn()).setPassword),
           obscureText: true,
           onChanged: (v) => controller.password = v,
         ),

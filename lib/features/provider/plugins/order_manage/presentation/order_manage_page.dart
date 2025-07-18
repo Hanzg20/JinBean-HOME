@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
 
 class OrderManagePage extends StatelessWidget {
   const OrderManagePage({super.key});
@@ -10,7 +11,7 @@ class OrderManagePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          '订单管理', // Order Management
+          AppLocalizations.of(context)!.orderManagement,
           style: TextStyle(color: theme.colorScheme.onPrimary),
         ),
         backgroundColor: theme.primaryColor,
@@ -20,7 +21,7 @@ class OrderManagePage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              '这里是订单管理页面，可以查看、处理所有订单。',
+              AppLocalizations.of(context)!.orderManagementDescription,
               style: theme.textTheme.titleLarge?.copyWith(color: Colors.grey.shade600),
               textAlign: TextAlign.center,
             ),

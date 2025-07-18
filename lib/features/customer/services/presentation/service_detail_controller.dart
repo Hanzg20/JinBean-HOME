@@ -174,7 +174,7 @@ class ServiceDetailController extends GetxController {
       
       // 加载服务商信息
       if (service.value != null) {
-        await loadProviderProfile(service.value!.providerId);
+        await loadProviderProfile(service.value?.providerId ?? '');
       }
         } catch (e) {
       print('Error loading service detail: $e');
@@ -279,12 +279,23 @@ class ServiceDetailController extends GetxController {
 
     // 导航到预订页面
     Get.toNamed('/create_order', arguments: {
-      'serviceId': service.value!.id,
-      'serviceName': service.value!.title,
-      'providerId': service.value!.providerId,
+      'serviceId': service.value?.id ?? '',
+      'serviceName': service.value?.title ?? '',
+      'providerId': service.value?.providerId ?? '',
       'price': serviceDetail.value?.price,
       'pricingType': serviceDetail.value?.pricingType,
     });
+  }
+
+  // 新增：兼容 Map 和 String 的多语言安全取值方法
+  String getSafeLocalizedText(dynamic value) {
+    if (value is Map<String, dynamic>) {
+      final lang = Get.locale?.languageCode ?? 'zh';
+      return value[lang] ?? value['zh'] ?? value['en'] ?? '';
+    } else if (value is String) {
+      return value;
+    }
+    return '';
   }
 
   @override

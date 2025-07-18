@@ -5,6 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'service_map_controller.dart';
 import 'service_marker_model.dart';
 import '../../core/controllers/location_controller.dart';
+import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
 
 class ServiceMapPage extends StatefulWidget {
   const ServiceMapPage({super.key});
@@ -25,8 +26,8 @@ class _ServiceMapPageState extends State<ServiceMapPage> {
     final userLocation = LocationController.instance.selectedLocation.value;
     if (userLocation == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('服务地图')),
-        body: const Center(child: Text('定位信息缺失，请先允许定位或选择位置。')),
+        appBar: AppBar(title: Text(AppLocalizations.of(context)!.serviceMap)),
+        body: Center(child: Text(AppLocalizations.of(context)!.locationMissing)),
       );
     }
     return Scaffold(

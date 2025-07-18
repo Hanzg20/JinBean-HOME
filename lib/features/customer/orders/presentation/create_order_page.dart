@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'create_order_controller.dart';
 import '../../../../shared/widgets/smart_address_input.dart';
+import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
 
 class CreateOrderPage extends GetView<CreateOrderController> {
   const CreateOrderPage({super.key});
@@ -10,7 +11,7 @@ class CreateOrderPage extends GetView<CreateOrderController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create Order'),
+        title: Text(AppLocalizations.of(context)!.createOrder),
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
@@ -23,23 +24,23 @@ class CreateOrderPage extends GetView<CreateOrderController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // 服务信息卡片
-              _buildServiceInfoCard(),
+              _buildServiceInfoCard(context),
               const SizedBox(height: 24),
               
               // 服务商信息
-              _buildProviderInfoCard(),
+              _buildProviderInfoCard(context),
               const SizedBox(height: 24),
               
               // 订单详情表单
-              _buildOrderDetailsForm(),
+              _buildOrderDetailsForm(context),
               const SizedBox(height: 24),
               
               // 价格信息
-              _buildPriceInfo(),
+              _buildPriceInfo(context),
               const SizedBox(height: 32),
               
               // 创建订单按钮
-              _buildCreateOrderButton(),
+              _buildCreateOrderButton(context),
             ],
           ),
         );
@@ -47,57 +48,29 @@ class CreateOrderPage extends GetView<CreateOrderController> {
     );
   }
 
-  Widget _buildServiceInfoCard() {
+  Widget _buildServiceInfoCard(BuildContext context) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Icon(Icons.work, color: Colors.blue[600]),
-                const SizedBox(width: 8),
-                const Text(
-                  'Service Information',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
+            Text(
+              AppLocalizations.of(context)!.serviceInformation,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 12),
-            Text(
-              controller.serviceName.value,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 8),
-            if (controller.serviceDescription.value.isNotEmpty) ...[
-              Text(
-                controller.serviceDescription.value,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                ),
-              ),
-              const SizedBox(height: 8),
-            ],
             Row(
               children: [
-                Icon(Icons.attach_money, color: Colors.green[600], size: 16),
-                const SizedBox(width: 4),
-                Text(
-                  controller.pricingType.value == 'negotiable'
-                      ? 'Price: Negotiable'
-                      : 'Price: \$${(controller.price?.value ?? 0.0).toStringAsFixed(2)}',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.green[600],
+                Icon(Icons.category, color: Colors.blue),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    controller.serviceName.value.isNotEmpty ? controller.serviceName.value : AppLocalizations.of(context)!.noServiceSelected,
+                    style: const TextStyle(fontSize: 16),
                   ),
                 ),
               ],
@@ -108,44 +81,29 @@ class CreateOrderPage extends GetView<CreateOrderController> {
     );
   }
 
-  Widget _buildProviderInfoCard() {
+  Widget _buildProviderInfoCard(BuildContext context) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Icon(Icons.business, color: Colors.orange[600]),
-                const SizedBox(width: 8),
-                const Text(
-                  'Provider Information',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
             Text(
-              controller.providerName.value,
+              AppLocalizations.of(context)!.providerInformation,
               style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             Row(
               children: [
-                Icon(Icons.phone, color: Colors.grey[600], size: 16),
-                const SizedBox(width: 4),
-                Text(
-                  controller.providerPhone.value,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
+                Icon(Icons.person, color: Colors.green),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    controller.providerName.value.isNotEmpty ? controller.providerName.value : AppLocalizations.of(context)!.noProviderSelected,
+                    style: const TextStyle(fontSize: 16),
                   ),
                 ),
               ],
@@ -156,259 +114,150 @@ class CreateOrderPage extends GetView<CreateOrderController> {
     );
   }
 
-  Widget _buildOrderDetailsForm() {
+  Widget _buildOrderDetailsForm(BuildContext context) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Icon(Icons.edit, color: Colors.purple[600]),
-                const SizedBox(width: 8),
-                const Text(
-                  'Order Details',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
+            Text(
+              AppLocalizations.of(context)!.orderDetails,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            const SizedBox(height: 16),
-            
-            // 服务日期选择
-            _buildDateField(),
-            const SizedBox(height: 16),
-            
-            // 服务时间选择
-            _buildTimeField(),
             const SizedBox(height: 16),
             
             // 服务地址
-            _buildAddressField(),
+            TextField(
+              controller: controller.addressController,
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.serviceAddress,
+                border: const OutlineInputBorder(),
+              ),
+            ),
             const SizedBox(height: 16),
             
-            // 用户备注
-            _buildNotesField(),
+            // 服务日期
+            InkWell(
+              onTap: () => controller.selectDate(),
+              child: InputDecorator(
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.serviceDate,
+                  border: const OutlineInputBorder(),
+                ),
+                child: Text(
+                  controller.selectedDate?.value ?? AppLocalizations.of(context)!.selectDate,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            
+            // 服务时间
+            InkWell(
+              onTap: () => controller.selectTime(),
+              child: InputDecorator(
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.serviceTime,
+                  border: const OutlineInputBorder(),
+                ),
+                child: Text(
+                  controller.selectedTime?.value ?? AppLocalizations.of(context)!.selectTime,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            
+            // 服务描述
+            TextField(
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.serviceDescription,
+                border: const OutlineInputBorder(),
+                hintText: AppLocalizations.of(context)!.serviceDescriptionHint,
+              ),
+              maxLines: 3,
+              onChanged: (value) => controller.serviceDescription.value = value,
+            ),
+            const SizedBox(height: 16),
+            
+            // 定价类型
+            Text(
+              AppLocalizations.of(context)!.pricingType,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Obx(() => Row(
+              children: [
+                Radio<String>(
+                  value: 'fixed',
+                  groupValue: controller.pricingType.value,
+                  onChanged: (value) => controller.pricingType.value = value!,
+                ),
+                Text(AppLocalizations.of(context)!.fixedPrice),
+                const SizedBox(width: 16),
+                Radio<String>(
+                  value: 'negotiable',
+                  groupValue: controller.pricingType.value,
+                  onChanged: (value) => controller.pricingType.value = value!,
+                ),
+                Text(AppLocalizations.of(context)!.negotiablePrice),
+              ],
+            )),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildDateField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Service Date',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: 8),
-        InkWell(
-          onTap: () => controller.selectDate(),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey[300]!),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.calendar_today, color: Colors.grey[600], size: 20),
-                const SizedBox(width: 8),
-                Text(
-                  controller.selectedDate?.value ?? 'Select date',
-                  style: TextStyle(
-                    color: controller.selectedDate?.value != null 
-                        ? Colors.black 
-                        : Colors.grey[600],
-                  ),
-                ),
-                const Spacer(),
-                Icon(Icons.arrow_drop_down, color: Colors.grey[600]),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTimeField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Service Time',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: 8),
-        InkWell(
-          onTap: () => controller.selectTime(),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey[300]!),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.access_time, color: Colors.grey[600], size: 20),
-                const SizedBox(width: 8),
-                Text(
-                  controller.selectedTime?.value ?? 'Select time',
-                  style: TextStyle(
-                    color: controller.selectedTime?.value != null 
-                        ? Colors.black 
-                        : Colors.grey[600],
-                  ),
-                ),
-                const Spacer(),
-                Icon(Icons.arrow_drop_down, color: Colors.grey[600]),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAddressField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Service Address',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: 8),
-        SmartAddressInput(
-          initialValue: controller.addressController.text,
-          onAddressChanged: (address) {
-            controller.addressController.text = address;
-            controller.addressController.selection = TextSelection.fromPosition(
-              TextPosition(offset: address.length),
-            );
-          },
-          onAddressParsed: (parsedData) {
-            print('[CreateOrderPage] Address parsed: $parsedData');
-            if (parsedData['position'] != null) {
-              print('[CreateOrderPage] Location: ${parsedData['position']}');
-            }
-          },
-          labelText: '服务地址',
-          hintText: '点击定位图标自动获取地址，或手动输入',
-          isRequired: true,
-          showSuggestions: true,
-          showMapButton: true,
-          showHelpButton: true,
-          enableLocationDetection: true,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildNotesField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Special Requirements',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: 8),
-        TextField(
-          controller: controller.notesController,
-          maxLines: 3,
-          decoration: InputDecoration(
-            hintText: 'Any special requirements or notes...',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 12,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPriceInfo() {
+  Widget _buildPriceInfo(BuildContext context) {
     return Card(
-      color: Colors.blue[50],
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Icon(Icons.receipt, color: Colors.blue[600]),
-                const SizedBox(width: 8),
-                const Text(
-                  'Price Summary',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
+            Text(
+              AppLocalizations.of(context)!.priceInformation,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Service Price'),
-                Text(
-                  controller.pricingType.value == 'negotiable'
-                      ? 'TBD'
-                      : '\$${(controller.price?.value ?? 0.0).toStringAsFixed(2)}',
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
+                Text(AppLocalizations.of(context)!.basePrice),
+                Text('\$' + (controller.price?.value ?? 0.0).toStringAsFixed(2)),
               ],
             ),
             const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Platform Fee'),
-                Text(
-                  '\$${controller.platformFee.value.toStringAsFixed(2)}',
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
+                Text(AppLocalizations.of(context)!.serviceFee),
+                Text('\$' + (controller.platformFee.value ?? 0.0).toStringAsFixed(2)),
               ],
             ),
             const Divider(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Total',
-                  style: TextStyle(
+                Text(
+                  AppLocalizations.of(context)!.total,
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
                   controller.pricingType.value == 'negotiable'
-                      ? 'TBD'
+                      ? AppLocalizations.of(context)!.tbd
                       : '\$${controller.totalPrice.value.toStringAsFixed(2)}',
                   style: const TextStyle(
                     fontSize: 16,
@@ -424,7 +273,7 @@ class CreateOrderPage extends GetView<CreateOrderController> {
     );
   }
 
-  Widget _buildCreateOrderButton() {
+  Widget _buildCreateOrderButton(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
@@ -436,8 +285,8 @@ class CreateOrderPage extends GetView<CreateOrderController> {
         ),
         child: Text(
           controller.pricingType.value == 'negotiable'
-              ? 'Request Quote'
-              : 'Create Order',
+              ? AppLocalizations.of(context)!.requestQuote
+              : AppLocalizations.of(context)!.createOrder,
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,

@@ -4,6 +4,7 @@ import 'home_controller.dart';
 // Import AppColors
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
+import 'package:jinbeanpod_83904710/l10n/app_localizations_en.dart';
 
 class HomePage extends GetView<HomeController> {
   const HomePage({super.key});
@@ -42,7 +43,7 @@ class HomePage extends GetView<HomeController> {
         title: Padding(
           padding: const EdgeInsets.only(left: 8.0),
           child: Text(
-            AppLocalizations.of(context)!.homePageTitle,
+            (AppLocalizations.of(context) ?? AppLocalizationsEn()).homePageTitle,
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: Theme.of(context).colorScheme.onPrimary, // Changed from AppColors.cardColor
@@ -61,23 +62,23 @@ class HomePage extends GetView<HomeController> {
                 showDialog(
                   context: context,
                   builder: (ctx) => AlertDialog(
-                    title: const Text('ref_codes 测试'),
-                    content: Text('返回数量: ${data.length}\n\n示例: ${data.isNotEmpty ? data[0].toString() : '无数据'}'),
-                    actions: [TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('OK'))],
+                    title: Text((AppLocalizations.of(context) ?? AppLocalizationsEn()).refCodesTest),
+                    content: Text('${(AppLocalizations.of(context) ?? AppLocalizationsEn()).returnCount}: ${data.length}\n\n${(AppLocalizations.of(context) ?? AppLocalizationsEn()).example}: ${data.isNotEmpty ? data[0].toString() : (AppLocalizations.of(context) ?? AppLocalizationsEn()).noData}'),
+                    actions: [TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text((AppLocalizations.of(context) ?? AppLocalizationsEn()).ok))],
                   ),
                 );
               } catch (e) {
                 showDialog(
                   context: context,
                   builder: (ctx) => AlertDialog(
-                    title: const Text('ref_codes 测试'),
-                    content: Text('请求出错: ${e.toString()}'),
-                    actions: [TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('OK'))],
+                    title: Text((AppLocalizations.of(context) ?? AppLocalizationsEn()).refCodesTest),
+                    content: Text('${(AppLocalizations.of(context) ?? AppLocalizationsEn()).requestError}: ${e.toString()}'),
+                    actions: [TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text((AppLocalizations.of(context) ?? AppLocalizationsEn()).ok))],
                   ),
                 );
               }
             },
-            child: const Text('测试ref_codes', style: TextStyle(color: Colors.white)),
+            child: Text((AppLocalizations.of(context) ?? AppLocalizationsEn()).testRefCodes, style: TextStyle(color: Colors.white)),
           ),
           // 新增：测试按钮2
           TextButton(
@@ -186,7 +187,7 @@ class HomePage extends GetView<HomeController> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  item.title,
+                                  controller.getSafeLocalizedText(item.title),
                                   style: TextStyle(
                                     color: Theme.of(context).colorScheme.onSurface, // Changed from AppColors.cardColor
                                     fontSize: 18,
@@ -197,7 +198,7 @@ class HomePage extends GetView<HomeController> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  item.description,
+                                  controller.getSafeLocalizedText(item.description),
                                   style: TextStyle(
                                     color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7), // Changed from AppColors.cardColor.withOpacity(0.7)
                                     fontSize: 12,
@@ -240,7 +241,7 @@ class HomePage extends GetView<HomeController> {
                 padding: const EdgeInsets.symmetric(horizontal: 0.0), // Match overall padding
                 child: TextField(
                   decoration: InputDecoration(
-                    hintText: AppLocalizations.of(context)!.searchForServices,
+                    hintText: 'Search for services',
                     hintStyle: TextStyle(color: Theme.of(context).textTheme.bodySmall?.color), // Changed from AppColors.lightTextColor
                     prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.primary), // Changed from AppColors.primaryColor
                     border: OutlineInputBorder(
@@ -325,7 +326,7 @@ class HomePage extends GetView<HomeController> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                AppLocalizations.of(context)!.community,
+                                (AppLocalizations.of(context) ?? AppLocalizationsEn()).community,
                                 style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Theme.of(context).textTheme.titleLarge?.color),
                               ),
                               GestureDetector(
@@ -333,7 +334,7 @@ class HomePage extends GetView<HomeController> {
                                   // TODO: Navigate to Community Hotspots List Page
                                 },
                                 child: Text(
-                                  AppLocalizations.of(context)!.viewAll,
+                                  'View All',
                                   style: TextStyle(color: Theme.of(context).colorScheme.primary),
                                 ),
                               ),
@@ -369,14 +370,14 @@ class HomePage extends GetView<HomeController> {
                                             Icon(_getIconData(hotspot.type == 'NEWS' ? 'newspaper' : (hotspot.type == 'JOB' ? 'work' : 'card_giftcard')), size: 18.0, color: Colors.grey[600]),
                                             const SizedBox(width: 4.0),
                                             Text(
-                                              hotspot.type == 'NEWS' ? AppLocalizations.of(context)!.news : (hotspot.type == 'JOB' ? AppLocalizations.of(context)!.job : AppLocalizations.of(context)!.welfare),
+                                              hotspot.type == 'NEWS' ? 'News' : (hotspot.type == 'JOB' ? 'Job' : 'Welfare'),
                                               style: TextStyle(fontSize: 12.0, color: Colors.grey[600]),
                                             ),
                                           ],
                                         ),
                                         const SizedBox(height: 8.0),
                                         Text(
-                                          hotspot.title,
+                                          controller.getSafeLocalizedText(hotspot.title),
                                           style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w600, color: Theme.of(context).textTheme.bodyMedium?.color),
                                           maxLines: 2,
                                           overflow: TextOverflow.ellipsis,
@@ -405,9 +406,9 @@ class HomePage extends GetView<HomeController> {
                 if (controller.isLoadingRecommendations.value) {
                   return const Center(child: CircularProgressIndicator());
                 } else if (controller.recommendations.isEmpty) {
-                  return const Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Text(AppLocalizations.of(context)!.noRecommendations, style: TextStyle(color: Colors.grey)),
+                  return Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text('No recommendations', style: const TextStyle(color: Colors.grey)),
                   );
                 } else {
                   return Column(
@@ -416,7 +417,7 @@ class HomePage extends GetView<HomeController> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                         child: Text(
-                          AppLocalizations.of(context)!.recommendations,
+                          'Recommendations',
                           style: Get.textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: Theme.of(context).colorScheme.onSurface,
@@ -448,7 +449,7 @@ class HomePage extends GetView<HomeController> {
                                     ),
                                     const SizedBox(height: 8),
                                     Text(
-                                      controller.getLocalizedText(service.serviceName),
+                                      controller.getSafeLocalizedText(service.serviceName),
                                       style: Get.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
@@ -456,7 +457,7 @@ class HomePage extends GetView<HomeController> {
                                     const SizedBox(height: 4),
                                     Expanded(
                                       child: Text(
-                                        controller.getLocalizedText(service.serviceDescription),
+                                        controller.getSafeLocalizedText(service.serviceDescription),
                                         style: Get.textTheme.bodySmall,
                                         maxLines: 3,
                                         overflow: TextOverflow.ellipsis,

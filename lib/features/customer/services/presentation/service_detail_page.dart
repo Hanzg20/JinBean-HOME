@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/features/customer/services/presentation/service_detail_controller.dart';
+import 'package:jinbeanpod_83904710/generated/app_localizations.dart';
 
 class ServiceDetailPage extends GetView<ServiceDetailController> {
   const ServiceDetailPage({super.key});
@@ -175,7 +176,7 @@ class ServiceDetailPage extends GetView<ServiceDetailController> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          service.title,
+          controller.getSafeLocalizedText(service.title),
           style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -320,7 +321,7 @@ class ServiceDetailPage extends GetView<ServiceDetailController> {
         ),
         const SizedBox(height: 12),
         Text(
-          service.description,
+          controller.getSafeLocalizedText(service.description),
           style: TextStyle(
             fontSize: 16,
             color: Colors.grey[700],
@@ -483,7 +484,7 @@ class ServiceDetailPage extends GetView<ServiceDetailController> {
           height: 120,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            itemCount: serviceDetail!.images.length,
+            itemCount: serviceDetail?.images.length ?? 0,
             itemBuilder: (context, index) {
               return Container(
                 width: 120,
@@ -495,7 +496,7 @@ class ServiceDetailPage extends GetView<ServiceDetailController> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: Image.network(
-                    serviceDetail.images[index],
+                    serviceDetail?.images[index] ?? '',
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
@@ -534,7 +535,7 @@ class ServiceDetailPage extends GetView<ServiceDetailController> {
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: serviceDetail!.serviceAreaCodes.map((area) {
+          children: (serviceDetail?.serviceAreaCodes ?? []).map((area) {
             return Container(
               padding: const EdgeInsets.symmetric(
                 horizontal: 12,

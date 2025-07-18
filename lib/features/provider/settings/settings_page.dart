@@ -56,6 +56,12 @@ class SettingsPage extends StatelessWidget {
             title: '主题设置',
             onTap: () => Get.toNamed('/provider/theme_settings'),
           ),
+          _buildSettingsTile(
+            context,
+            icon: Icons.language,
+            title: '语言设置',
+            onTap: () => Get.toNamed('/provider/language_settings'),
+          ),
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.red),
             title: const Text('退出登录', style: TextStyle(color: Colors.red)),

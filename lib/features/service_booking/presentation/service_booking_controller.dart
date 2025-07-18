@@ -40,8 +40,8 @@ class ServiceCategoryLevel2 {
 class ServiceItem {
   final String id;
   final int parentId; // category_level2_id
-  final String name;
-  final String description;
+  final dynamic name; // 支持 String 或 Map<String, dynamic>
+  final dynamic description;
   final String price;
   final String imageUrl;
   final double rating;
@@ -68,8 +68,8 @@ class ServiceItem {
 // Updated model for Recommended Services
 class RecommendedService {
   final String id;
-  final String name;
-  final String description;
+  final dynamic name;
+  final dynamic description;
   final String price;
   final String imageUrl;
   final double rating;
@@ -263,8 +263,8 @@ class ServiceBookingController extends GetxController {
       final detailsMap = {for (var d in details) d['service_id']: d};
       services.value = (data as List).map((e) {
         final detail = detailsMap[e['id']];
-        final title = (e['title'] as Map?)?['zh'] ?? (e['title'] as Map?)?['en'] ?? '';
-        final desc = (e['description'] as Map?)?['zh'] ?? (e['description'] as Map?)?['en'] ?? '';
+        final title = e['title'];
+        final desc = e['description'];
         final price = detail != null && detail['price'] != null ? '${detail['price']}${detail['currency'] ?? ''}' : '';
         final imageUrl = (detail != null && detail['images_url'] != null && (detail['images_url'] as List).isNotEmpty)
           ? detail['images_url'][0] : '';
@@ -308,8 +308,8 @@ class ServiceBookingController extends GetxController {
     final detailsMap = {for (var d in details) d['service_id']: d};
     recommendedServices.value = (data as List).map((e) {
       final detail = detailsMap[e['id']];
-      final title = (e['title'] as Map?)?['zh'] ?? (e['title'] as Map?)?['en'] ?? '';
-      final desc = (e['description'] as Map?)?['zh'] ?? (e['description'] as Map?)?['en'] ?? '';
+      final title = e['title'];
+      final desc = e['description'];
       final price = detail != null && detail['price'] != null ? '${detail['price']}${detail['currency'] ?? ''}' : '';
       final imageUrl = (detail != null && detail['images_url'] != null && (detail['images_url'] as List).isNotEmpty)
         ? detail['images_url'][0] : '';
@@ -362,5 +362,16 @@ class ServiceBookingController extends GetxController {
   void onClose() {
     print('=== ServiceBookingController onClose ===');
     super.onClose();
+  }
+
+  // 新增：兼容 Map 和 String 的多语言安全取值方法
+  String getSafeLocalizedText(dynamic value) {
+    if (value is Map<String, dynamic>) {
+      final lang = Get.locale?.languageCode ?? 'zh';
+      return value[lang] ?? value['zh'] ?? value['en'] ?? '';
+    } else if (value is String) {
+      return value;
+    }
+    return '';
   }
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
+import 'package:jinbeanpod_83904710/l10n/app_localizations_en.dart';
 
 class MessageCenterPage extends StatelessWidget {
   const MessageCenterPage({super.key});
@@ -10,7 +12,7 @@ class MessageCenterPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          '消息中心', // Message Center
+          (AppLocalizations.of(context) ?? AppLocalizationsEn()).messageCenter,
           style: TextStyle(color: theme.colorScheme.onPrimary),
         ),
         backgroundColor: theme.primaryColor,
@@ -20,7 +22,7 @@ class MessageCenterPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              '这里是消息中心，可以查看所有通知和聊天记录。',
+              (AppLocalizations.of(context) ?? AppLocalizationsEn()).messageCenterDescription,
               style: theme.textTheme.titleLarge?.copyWith(color: Colors.grey.shade600),
               textAlign: TextAlign.center,
             ),

@@ -265,7 +265,7 @@ void openAppPage(String name) {
     if(componentType == 'popups'){
       //final GlobalKey<NavigatorState> navigatorKey = new GlobalKey<NavigatorState>();
       showGeneralDialog(
-                    context: navigatorKey.currentState!.context,
+                    context: navigatorKey.currentState?.context,
                     useRootNavigator:false,
                     barrierLabel:'Discard',
                     barrierDismissible:true,
@@ -276,7 +276,7 @@ void openAppPage(String name) {
                     }
                 );
     }else{
-      // if(navigatorKey.currentState!.canPop()){
+      // if(navigatorKey.currentState?.canPop() ?? false){
       //   navigatorKey.currentState?.pop();
       // }
       navigatorKey.currentState?.pushReplacement(
@@ -374,7 +374,7 @@ int subscribeToEvent(String eventName, Function(Event) callback) {
 int subscribeToEventOnce(String eventName, Function(Event) callback) {
   int evtId = 0;
   evtId = subscribeToEvent(eventName, (Event evt){
-    if(simpleEvents[eventName]!.length > evtId) simpleEvents[eventName]?.removeAt(evtId);
+    if((simpleEvents[eventName]?.length ?? 0) > evtId) simpleEvents[eventName]?.removeAt(evtId);
     callback(evt);
   });
   return evtId;

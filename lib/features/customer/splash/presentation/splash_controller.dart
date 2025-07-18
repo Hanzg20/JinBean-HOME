@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:jinbeanpod_83904710/core/plugin_management/plugin_manager.dart'; // Corrected import for PluginManager
 import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
+import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
 
 class OnboardingPageModel {
   final String imagePath;
@@ -97,6 +98,17 @@ class SplashController extends GetxController {
   void navigateToRegister() {
     AppLogger.info('SplashController: Navigating to /register', tag: 'SplashController');
     Get.offAllNamed('/register');
+  }
+
+  // 新增：兼容 Map 和 String 的多语言安全取值方法
+  String getSafeLocalizedText(dynamic value) {
+    if (value is Map<String, dynamic>) {
+      final lang = Get.locale?.languageCode ?? 'zh';
+      return value[lang] ?? value['zh'] ?? value['en'] ?? '';
+    } else if (value is String) {
+      return value;
+    }
+    return '';
   }
 
   @override

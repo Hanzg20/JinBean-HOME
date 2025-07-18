@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
 
 class ServiceManagePage extends StatelessWidget {
   const ServiceManagePage({super.key});
@@ -10,7 +11,7 @@ class ServiceManagePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          '服务管理', // Service Management
+          AppLocalizations.of(context)!.serviceManagement,
           style: TextStyle(color: theme.colorScheme.onPrimary),
         ),
         backgroundColor: theme.primaryColor,
@@ -20,7 +21,7 @@ class ServiceManagePage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              '这里是服务管理页面，即将推出更详细功能。',
+              AppLocalizations.of(context)!.serviceManagementDescription,
               style: theme.textTheme.titleLarge?.copyWith(color: Colors.grey.shade600),
               textAlign: TextAlign.center,
             ),

@@ -38,6 +38,10 @@ import 'package:jinbeanpod_83904710/features/service_map/service_map_page.dart';
 import 'features/provider/settings/settings_routes.dart';
 import 'features/customer/profile/presentation/theme_settings/theme_settings_page.dart';
 import 'features/customer/profile/presentation/theme_settings/theme_settings_binding.dart';
+import 'package:jinbeanpod_83904710/features/customer/profile/presentation/language_settings/language_settings_page.dart';
+import 'package:jinbeanpod_83904710/features/customer/profile/presentation/language_settings/language_settings_binding.dart';
+import 'package:jinbeanpod_83904710/features/provider/settings/language_settings_page.dart';
+import 'package:jinbeanpod_83904710/features/provider/settings/language_settings_binding.dart';
 
 void main() async {
   print('[main] App starting...');
@@ -94,6 +98,16 @@ void main() async {
   final lastRole = box.read('lastRole');
   print('[main] Last role from GetStorage: $lastRole');
 
+  String? preferredLocaleCode = box.read('preferredLocale');
+  Locale? initialLocale;
+  if (preferredLocaleCode != null) {
+    initialLocale = Locale(preferredLocaleCode);
+    print('[main] Preferred locale from storage: \\$preferredLocaleCode');
+  } else {
+    initialLocale = null;
+    print('[main] No preferred locale found, will use system default.');
+  }
+
   // Simplified: Always start at SplashPage, which handles routing based on login and role.
   // The previous complex if/else if logic for 'home' is now handled by SplashController.
   // Widget home; // Removed
@@ -134,7 +148,7 @@ void main() async {
             Locale('en', ''), // English
             Locale('zh', ''), // Chinese
           ],
-          locale: const Locale('zh', ''), // 默认语言设置为中文
+          locale: initialLocale, // 优先用本地持久化语言，否则用系统
           home: const SplashPage(), // Always start with SplashPage
           getPages: [
             GetPage(name: '/auth', page: () => const LoginPage()),
@@ -146,6 +160,8 @@ void main() async {
             GetPage(name: '/splash', page: () => const SplashPage(), binding: SplashBinding()),
             GetPage(name: '/service_map', page: () => const ServiceMapPage()),
             GetPage(name: '/theme_settings', page: () => const ThemeSettingsPage(), binding: ThemeSettingsBinding()),
+            GetPage(name: '/language_settings', page: () => const LanguageSettingsPage(), binding: LanguageSettingsBinding()),
+            GetPage(name: '/provider/language_settings', page: () => const ProviderLanguageSettingsPage(), binding: ProviderLanguageSettingsBinding()),
             // 只保留 ProviderShellApp 相关静态路由，其它 provider 插件式页面全部移除
             ...providerSettingsRoutes,
           ],

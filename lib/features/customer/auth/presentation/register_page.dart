@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/features/customer/auth/presentation/auth_controller.dart';
 import 'package:jinbeanpod_83904710/l10n/generated/app_localizations.dart'; // 导入国际化类
 import 'package:jinbeanpod_83904710/app/theme/app_colors.dart'; // Import AppColors
+import 'package:jinbeanpod_83904710/l10n/app_localizations_en.dart';
 
 class RegisterPage extends GetView<AuthController> {
   const RegisterPage({super.key});
@@ -12,7 +13,7 @@ class RegisterPage extends GetView<AuthController> {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor, // Use global background color
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.registerPageTitle),
+        title: Text(((AppLocalizations.of(context) ?? AppLocalizationsEn()) as AppLocalizations).registerPageTitle),
         backgroundColor: Theme.of(context).colorScheme.primary, // Changed from AppColors.primaryColor
         foregroundColor: Theme.of(context).colorScheme.onPrimary, // Changed from AppColors.cardColor
       ),
@@ -24,7 +25,7 @@ class RegisterPage extends GetView<AuthController> {
             TextField(
               controller: controller.emailController,
               decoration: InputDecoration(
-                labelText: AppLocalizations.of(context)!.usernameHint,
+                labelText: ((AppLocalizations.of(context) ?? AppLocalizationsEn()) as AppLocalizations).usernameHint,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12), // Apply consistent border radius
                 ),
@@ -37,7 +38,7 @@ class RegisterPage extends GetView<AuthController> {
               controller: controller.passwordController,
               obscureText: true,
               decoration: InputDecoration(
-                labelText: AppLocalizations.of(context)!.passwordHint,
+                labelText: ((AppLocalizations.of(context) ?? AppLocalizationsEn()) as AppLocalizations).passwordHint,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12), // Apply consistent border radius
                 ),
@@ -87,7 +88,7 @@ class RegisterPage extends GetView<AuthController> {
                   ),
                   child: controller.isLoading.value
                       ? CircularProgressIndicator(color: Theme.of(context).colorScheme.onPrimary) // Changed color to onPrimary
-                      : Text(AppLocalizations.of(context)!.registerButton),
+                      : Text(((AppLocalizations.of(context) ?? AppLocalizationsEn()) as AppLocalizations).registerButton),
                 )),
             const SizedBox(height: 16),
             TextButton(
@@ -96,7 +97,7 @@ class RegisterPage extends GetView<AuthController> {
                 Get.back();
               },
               child: Text(
-                AppLocalizations.of(context)!.alreadyHaveAccountPrompt,
+                ((AppLocalizations.of(context) ?? AppLocalizationsEn()) as AppLocalizations).alreadyHaveAccountPrompt,
                 style: TextStyle(color: Theme.of(context).colorScheme.primary), // Changed to primary
               ),
             ),

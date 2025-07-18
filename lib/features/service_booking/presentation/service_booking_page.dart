@@ -251,7 +251,7 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
-                                    category.displayName(),
+                                    controller.getSafeLocalizedText(category.name),
                                     style: TextStyle(
                                       fontSize: 16,
                                       color: isSelected
@@ -295,7 +295,7 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
 
                         return ExpansionTile(
                           key: ValueKey('category_${level2Category.id}'),
-                          title: Text(level2Category.displayName(), style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.titleMedium?.color)),
+                          title: Text(controller.getSafeLocalizedText(level2Category.name), style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.titleMedium?.color)),
                           leading: Icon(level2Category.icon, color: Theme.of(context).colorScheme.primary),
                           onExpansionChanged: (isExpanded) {
                             if (isExpanded && controller.selectedLevel2CategoryId.value != level2Category.id) {
@@ -385,9 +385,17 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
                                                   child: Column(
                                                     crossAxisAlignment: CrossAxisAlignment.start,
                                                     children: [
-                                                      Text(service.name, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.titleMedium?.color)),
+                                                      Text(
+                                                        controller.getSafeLocalizedText(service.name),
+                                                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.titleMedium?.color),
+                                                      ),
                                                       const SizedBox(height: 5),
-                                                      Text(service.description, style: TextStyle(fontSize: 12, color: Theme.of(context).textTheme.bodyMedium?.color), maxLines: 2, overflow: TextOverflow.ellipsis),
+                                                      Text(
+                                                        controller.getSafeLocalizedText(service.description),
+                                                        style: TextStyle(fontSize: 12, color: Theme.of(context).textTheme.bodyMedium?.color),
+                                                        maxLines: 2,
+                                                        overflow: TextOverflow.ellipsis,
+                                                      ),
                                                       const SizedBox(height: 5),
                                                       Row(
                                                         children: [

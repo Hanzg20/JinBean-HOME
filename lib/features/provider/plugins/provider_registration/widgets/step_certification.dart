@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../provider_registration_controller.dart';
+import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
 
 class StepCertification extends StatelessWidget {
   final ProviderRegistrationController controller;
@@ -10,12 +11,12 @@ class StepCertification extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('资质/证照上传', style: TextStyle(fontWeight: FontWeight.bold)),
+        Text((AppLocalizations.of(context) ?? AppLocalizationsEn()).certificationUpload, style: TextStyle(fontWeight: FontWeight.bold)),
         ElevatedButton(
           onPressed: () {
             // TODO: 实现文件选择与上传逻辑
           },
-          child: const Text('上传资质/证照'),
+          child: Text((AppLocalizations.of(context) ?? AppLocalizationsEn()).uploadCertification),
         ),
         const SizedBox(height: 8),
         if (controller.certificationFiles.isNotEmpty)
@@ -29,7 +30,7 @@ class StepCertification extends StatelessWidget {
                 ),
               )),
         const SizedBox(height: 8),
-        Text('当前状态：${controller.certificationStatus}'),
+        Text('${(AppLocalizations.of(context) ?? AppLocalizationsEn()).currentStatus}: ${controller.certificationStatus}'),
       ],
     );
   }

@@ -77,7 +77,7 @@ class _SmartAddressInputState extends State<SmartAddressInput> {
     _focusNode.addListener(_onFocusChange);
     _controller.addListener(_onTextChanged);
 
-    if (widget.initialValue == null || widget.initialValue!.isEmpty) {
+    if (widget.initialValue == null || (widget.initialValue ?? '').isEmpty) {
       if (widget.enableLocationDetection) {
         _getCurrentLocation();
       }

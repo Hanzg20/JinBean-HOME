@@ -76,7 +76,7 @@ class AuthController extends GetxController {
       );
 
       if (response.user != null) {
-        print('[AuthController] Login successful for user: ${response.user!.id}');
+        print('[AuthController] Login successful for user: ${response.user?.id ?? ''}');
         
         // 立即检查并打印 provider 角色状态
         try {
@@ -90,7 +90,7 @@ class AuthController extends GetxController {
         final profile = await Supabase.instance.client
             .from('user_profiles')
             .select('role')
-            .eq('id', response.user!.id)
+            .eq('id', response.user?.id ?? '')
             .maybeSingle();
         print('[AuthController] User profile fetched: $profile');
         final String userProfileRoleFromDb = profile?['role'] ?? 'customer';
@@ -100,7 +100,7 @@ class AuthController extends GetxController {
           finalRole = selectedLoginRole.value;
         }
         Get.find<PluginManager>().currentRole.value = finalRole;
-        print('User ${response.user!.id} logged in with final role: $finalRole');
+        print('User ${response.user?.id ?? ''} logged in with final role: $finalRole');
         return true;
       } else {
         errorMessage.value = 'Login failed. Please check your credentials.';

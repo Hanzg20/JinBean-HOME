@@ -7,6 +7,9 @@ import 'package:jinbeanpod_83904710/app/shell_app_controller.dart';
 import 'package:jinbeanpod_83904710/features/provider/provider_home_page.dart';
 import 'package:jinbeanpod_83904710/app/shell_app.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
+import 'package:jinbeanpod_83904710/core/controllers/shell_app_controller.dart';
+import 'package:phoenix/phoenix.dart';
+import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
 // 如有 provider_home_plugin 也可 import
 // import '../../provider/plugins/provider_home/provider_home_plugin.dart';
 
@@ -21,7 +24,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('个人中心')),
+      appBar: AppBar(title: Text((AppLocalizations.of(context) ?? AppLocalizationsEn()).profile)),
       body: Column(
         children: [
           // ... 其它 profile 信息 ...
@@ -46,27 +49,22 @@ class _ProfilePageState extends State<ProfilePage> {
                     // 热重启App，彻底切换到provider端
                     Phoenix.rebirth(context);
                   },
-                  child: const Text('切换到服务商'),
+                  child: Text((AppLocalizations.of(context) ?? AppLocalizationsEn()).switchToProvider),
                 );
               } else if (status == ProviderStatus.pending) {
                 print('[ProfilePage] 显示"等待审核中"按钮');
                 return ElevatedButton(
                   onPressed: null,
-                  child: const Text('等待审核中'),
+                  child: Text((AppLocalizations.of(context) ?? AppLocalizationsEn()).waitingForApproval),
                 );
               } else {
                 print('[ProfilePage] 显示"注册服务商"按钮');
                 return ElevatedButton(
-                  onPressed: () async {
+                  onPressed: () {
                     print('[ProfilePage] 用户点击"注册服务商"');
-                    final result = await Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => ProviderRegistrationPlugin().entryPage,
-                      ),
-                    );
-                    if (result == true) setState(() {});
+                    Get.toNamed('/provider_registration');
                   },
-                  child: const Text('注册服务商'),
+                  child: Text((AppLocalizations.of(context) ?? AppLocalizationsEn()).registerAsProvider),
                 );
               }
             },

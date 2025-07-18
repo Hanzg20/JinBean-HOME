@@ -51,7 +51,7 @@ class SplashPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          page.title,
+                          controller.getSafeLocalizedText(page.title),
                           style: TextStyle(
                             fontSize: titleFontSize,
                             fontWeight: FontWeight.bold,
@@ -67,7 +67,7 @@ class SplashPage extends StatelessWidget {
                         ),
                         SizedBox(height: size.height * 0.02), // 2% of screen height
                         Text(
-                          page.description,
+                          controller.getSafeLocalizedText(page.description),
                           style: TextStyle(
                             fontSize: descriptionFontSize,
                             color: Theme.of(context).colorScheme.onSurface.withOpacity(0.9),

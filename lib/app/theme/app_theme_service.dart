@@ -130,14 +130,14 @@ class AppThemeService extends GetxService {
   // Define the Golden Theme
   ThemeData get goldenTheme {
     const colorScheme = ColorScheme(
-      primary: AppColors.providerPrimaryColor,
-      onPrimary: AppColors.providerOnPrimary,
-      secondary: AppColors.providerAccentColor,
-      onSecondary: AppColors.providerOnPrimary,
+      primary: Color(0xFFFFA000), // 更深金色
+      onPrimary: Colors.black,    // 文字更黑
+      secondary: Color(0xFFFFB300),
+      onSecondary: Colors.black,
       error: AppColors.errorColor,
-      onError: AppColors.cardColor,
-      surface: AppColors.providerBackground,
-      onSurface: AppColors.textColor,
+      onError: Colors.black,
+      surface: Color(0xFFFFFDE7), // 更浅背景
+      onSurface: Colors.black,    // 文字更黑
       brightness: Brightness.light,
     );
 
@@ -208,8 +208,8 @@ class AppThemeService extends GetxService {
         suffixIconColor: colorScheme.primary,
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: AppColors.providerBackground,
-        selectedItemColor: AppColors.providerPrimaryColor,
+        backgroundColor: Color(0xFFFFFDE7),
+        selectedItemColor: Color(0xFFFFA000),
         unselectedItemColor: Colors.grey,
         showSelectedLabels: true,
         showUnselectedLabels: true,
@@ -224,9 +224,12 @@ class AppThemeService extends GetxService {
     _box.write(key, themeName);
   }
 
-  // 新增：获取指定角色的主题名
+  // 新增：获取指定角色的主题名，若无则 provider 返回 golden，customer 返回 dark_teal
   String? getThemeForRole(String role) {
     final key = 'theme_' + role;
-    return _box.read(key);
+    final theme = _box.read(key);
+    if (theme != null) return theme;
+    if (role == 'provider') return 'golden';
+    return 'dark_teal';
   }
 } 

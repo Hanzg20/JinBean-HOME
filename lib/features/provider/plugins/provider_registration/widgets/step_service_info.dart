@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../provider_registration_controller.dart';
+import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
 
 class StepServiceInfo extends StatelessWidget {
   final ProviderRegistrationController controller;
@@ -10,19 +11,19 @@ class StepServiceInfo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('服务信息', style: TextStyle(fontWeight: FontWeight.bold)),
+        Text((AppLocalizations.of(context) ?? AppLocalizationsEn()).serviceInformation, style: TextStyle(fontWeight: FontWeight.bold)),
         TextField(
-          decoration: const InputDecoration(labelText: '主营服务类别（逗号分隔）'),
+          decoration: InputDecoration(labelText: (AppLocalizations.of(context) ?? AppLocalizationsEn()).mainServiceCategories),
           onChanged: (v) => controller.serviceCategories =
               v.split(',').map((e) => e.trim()).toList(),
         ),
         TextField(
-          decoration: const InputDecoration(labelText: '服务区域（逗号分隔）'),
+          decoration: InputDecoration(labelText: (AppLocalizations.of(context) ?? AppLocalizationsEn()).serviceAreas),
           onChanged: (v) => controller.serviceAreas =
               v.split(',').map((e) => e.trim()).toList(),
         ),
         TextField(
-          decoration: const InputDecoration(labelText: '起步价/上门费'),
+          decoration: InputDecoration(labelText: (AppLocalizations.of(context) ?? AppLocalizationsEn()).basePrice),
           keyboardType: TextInputType.number,
           onChanged: (v) => controller.basePrice = double.tryParse(v),
         ),

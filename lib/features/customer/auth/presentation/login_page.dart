@@ -8,6 +8,7 @@ import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 import 'package:jinbeanpod_83904710/app/theme/app_theme_service.dart';
 import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
 import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
+import 'package:jinbeanpod_83904710/l10n/app_localizations_en.dart';
 
 const Color customerColor = Color(0xFF006D77); // dark teal
 const Color providerColor = Color(0xFFFFC300); // golden
@@ -70,7 +71,7 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 40),
                 // Welcome Text
                 Text(
-                  AppLocalizations.of(context)!.welcomeBack,
+                  (AppLocalizations.of(context) ?? AppLocalizationsEn()).welcomeBack,
                   style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
@@ -79,7 +80,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  AppLocalizations.of(context)!.signInToContinue,
+                  (AppLocalizations.of(context) ?? AppLocalizationsEn()).signInToContinue,
                   style: TextStyle(
                     fontSize: 16,
                     color: Theme.of(context).textTheme.bodySmall?.color,
@@ -91,7 +92,7 @@ class _LoginPageState extends State<LoginPage> {
                 TextField(
                   controller: controller.emailController,
                   decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context)!.usernameHint,
+                    labelText: (AppLocalizations.of(context) ?? AppLocalizationsEn()).usernameHint,
                     prefixIcon: Icon(Icons.email_outlined, color: Theme.of(context).colorScheme.primary),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -104,7 +105,7 @@ class _LoginPageState extends State<LoginPage> {
                   controller: controller.passwordController,
                   obscureText: !controller.isPasswordVisible.value,
                   decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context)!.passwordHint,
+                    labelText: (AppLocalizations.of(context) ?? AppLocalizationsEn()).passwordHint,
                     prefixIcon: Icon(Icons.lock_outline, color: Theme.of(context).colorScheme.primary),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -226,7 +227,7 @@ class _LoginPageState extends State<LoginPage> {
                               ? Colors.black
                               : Colors.white,
                         )
-                      : Text(_showRoleSwitch ? AppLocalizations.of(context)!.continueText : AppLocalizations.of(context)!.loginButton),
+                      : Text(_showRoleSwitch ? (AppLocalizations.of(context) ?? AppLocalizationsEn()).continueText : (AppLocalizations.of(context) ?? AppLocalizationsEn()).loginButton),
                 )),
                 const SizedBox(height: 16),
                 // Register Link
@@ -236,7 +237,7 @@ class _LoginPageState extends State<LoginPage> {
                     Get.toNamed('/register');
                   },
                   child: Text(
-                    AppLocalizations.of(context)!.noAccountPrompt,
+                    (AppLocalizations.of(context) ?? AppLocalizationsEn()).noAccountPrompt,
                     style: TextStyle(color: Theme.of(context).colorScheme.primary),
                   ),
                 ),
