@@ -37,453 +37,651 @@ class HomePage extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface, // Changed from AppColors.backgroundColor
-      appBar: AppBar(
-        automaticallyImplyLeading: false, // Remove back button
-        title: Padding(
-          padding: const EdgeInsets.only(left: 8.0),
-          child: Text(
-            (AppLocalizations.of(context) ?? AppLocalizationsEn()).homePageTitle,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.onPrimary, // Changed from AppColors.cardColor
-            ),
-          ),
-        ),
-        actions: [
-          // 新增：测试按钮1
-          TextButton(
-            onPressed: () async {
-              try {
-                final data = await Supabase.instance.client
-                    .from('ref_codes')
-                    .select()
-                    .limit(5);
-                showDialog(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    title: Text((AppLocalizations.of(context) ?? AppLocalizationsEn()).refCodesTest),
-                    content: Text('${(AppLocalizations.of(context) ?? AppLocalizationsEn()).returnCount}: ${data.length}\n\n${(AppLocalizations.of(context) ?? AppLocalizationsEn()).example}: ${data.isNotEmpty ? data[0].toString() : (AppLocalizations.of(context) ?? AppLocalizationsEn()).noData}'),
-                    actions: [TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text((AppLocalizations.of(context) ?? AppLocalizationsEn()).ok))],
-                  ),
-                );
-              } catch (e) {
-                showDialog(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    title: Text((AppLocalizations.of(context) ?? AppLocalizationsEn()).refCodesTest),
-                    content: Text('${(AppLocalizations.of(context) ?? AppLocalizationsEn()).requestError}: ${e.toString()}'),
-                    actions: [TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text((AppLocalizations.of(context) ?? AppLocalizationsEn()).ok))],
-                  ),
-                );
-              }
-            },
-            child: Text((AppLocalizations.of(context) ?? AppLocalizationsEn()).testRefCodes, style: TextStyle(color: Colors.white)),
-          ),
-          // 新增：测试按钮2
-          TextButton(
-            onPressed: () async {
-              try {
-                final data = await Supabase.instance.client
-                    .from('services')
-                    .select()
-                    .limit(5);
-                showDialog(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    title: const Text('services 测试'),
-                    content: Text('返回数量: ${data.length}\n\n示例: ${data.isNotEmpty ? data[0].toString() : '无数据'}'),
-                    actions: [TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('OK'))],
-                  ),
-                );
-              } catch (e) {
-                showDialog(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    title: const Text('services 测试'),
-                    content: Text('请求出错: ${e.toString()}'),
-                    actions: [TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('OK'))],
-                  ),
-                );
-              }
-            },
-            child: const Text('测试services', style: TextStyle(color: Colors.white)),
-          ),
-          // 原有通知按钮
-          IconButton(
-            icon: Icon(Icons.notifications_none, color: Theme.of(context).colorScheme.onPrimary), // Changed from AppColors.cardColor
-            onPressed: () {
-              // TODO: Implement navigation to a dedicated notifications page
-            },
-          ),
-        ],
-        backgroundColor: Theme.of(context).colorScheme.primary, // Changed from AppColors.primaryColor
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0), // Adjusted overall padding
+      backgroundColor: Colors.grey[50],
+      appBar: _buildAppBar(context),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await controller.fetchHomeServices();
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // User Info Card (Removed as per user request)
-              // Obx(() => Card(...)),
-              // SizedBox(height: 16), // Removed corresponding SizedBox
-
-              // Carousel for Ads and Hot Events
-              SizedBox(
-                height: 180, // Increased height for better visual impact
-                child: Obx(() => PageView.builder(
-                  controller: controller.pageController,
-                  itemCount: controller.carouselItems.length,
-                  onPageChanged: controller.onCarouselPageChanged,
-                  itemBuilder: (context, index) {
-                    final item = controller.carouselItems[index];
-                    return Card(
-                      margin: const EdgeInsets.symmetric(horizontal: 5), // Added horizontal margin
-                      clipBehavior: Clip.antiAlias,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      elevation: 3,
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          Image.network(
-                            item.imageUrl,
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                            errorBuilder: (context, error, stackTrace) {
-                              return const Center(
-                                child: Icon(
-                                  Icons.broken_image, 
-                                  color: Colors.grey, 
-                                  size: 48
-                                ),
-                              );
-                            },
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return Center(
-                                child: CircularProgressIndicator(
-                                  value: loadingProgress.expectedTotalBytes != null
-                                      ? loadingProgress.cumulativeBytesLoaded /
-                                          loadingProgress.expectedTotalBytes!
-                                      : null,
-                                ),
-                              );
-                            },
-                          ),
-                          Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.bottomCenter,
-                                end: Alignment.topCenter,
-                                colors: [Theme.of(context).colorScheme.onSurface.withOpacity(0.7), Colors.transparent], // Changed from AppColors.textColor
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  controller.getSafeLocalizedText(item.title),
-                                  style: TextStyle(
-                                    color: Theme.of(context).colorScheme.onSurface, // Changed from AppColors.cardColor
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  controller.getSafeLocalizedText(item.description),
-                                  style: TextStyle(
-                                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7), // Changed from AppColors.cardColor.withOpacity(0.7)
-                                    fontSize: 12,
-                                  ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                )),
-              ),
-              const SizedBox(height: 10),
-              Center(
-                child: Obx(() => Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(controller.carouselItems.length, (index) {
-                    return Container(
-                      width: 8.0,
-                      height: 8.0,
-                      margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 2.0),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: controller.currentCarouselIndex.value == index
-                            ? Theme.of(context).colorScheme.primary // Changed from AppColors.primaryColor
-                            : Theme.of(context).textTheme.bodySmall?.color, // Changed from AppColors.lightTextColor
-                      ),
-                    );
-                  }),
-                )),
-              ),
-              const SizedBox(height: 20),
-
-              // Search Bar (New position)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 0.0), // Match overall padding
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Search for services',
-                    hintStyle: TextStyle(color: Theme.of(context).textTheme.bodySmall?.color), // Changed from AppColors.lightTextColor
-                    prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.primary), // Changed from AppColors.primaryColor
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    filled: true,
-                    fillColor: Theme.of(context).colorScheme.surface, // Changed from AppColors.cardColor
-                  ),
-                  style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color), // Changed from AppColors.textColor
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Services Grid Section (updated for 2x4 layout, title removed)
-              // Text('Categories & Functions', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Theme.of(context).textTheme.titleLarge?.color)),
-              // const SizedBox(height: 10),
-              Obx(() {
-                return GridView.count(
-                  primary: false,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  crossAxisCount: 3, // Changed from 4 to 3 for better layout
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                  childAspectRatio: 0.8, // Reverted to a fixed aspect ratio for simplicity
-                  children: controller.services.map((service) {
-                    return Card(
-                      elevation: 1,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      color: Theme.of(context).colorScheme.surface,
-                      child: InkWell(
-                        onTap: () {
-                          if (service.typeCode == 'SERVICE_TYPE') {
-                            Get.toNamed('/service_booking', arguments: {'level1CategoryId': service.id});
-                          } else if (service.typeCode == 'FUNCTION') {
-                            // Handle function-specific navigation
-                            switch (service.name) {
-                              case '求助':
-                                // Get.toNamed('/help');
-                                break;
-                              case '服务地图':
-                                Get.toNamed(controller.getServiceMapRoute()); // Use dynamic route from controller
-                                break;
-                            }
-                          }
-                        },
-                        borderRadius: BorderRadius.circular(12),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(service.icon, size: 36, color: Theme.of(context).colorScheme.primary),
-                              const SizedBox(height: 8),
-                              Text(
-                                service.name,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(fontSize: 12, color: Theme.of(context).textTheme.bodyMedium?.color),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                );
-              }),
-              const SizedBox(height: 20),
-
-              // Community Hotspots Section
-              Obx(() => controller.hotspots.isEmpty
-                  ? const SizedBox.shrink()
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 0.0), // Consistent padding
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                (AppLocalizations.of(context) ?? AppLocalizationsEn()).community,
-                                style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Theme.of(context).textTheme.titleLarge?.color),
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  // TODO: Navigate to Community Hotspots List Page
-                                },
-                                child: Text(
-                                  'View All',
-                                  style: TextStyle(color: Theme.of(context).colorScheme.primary),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        SizedBox(
-                          height: 120.0, // Height for horizontal cards
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: controller.hotspots.length,
-                            itemBuilder: (context, index) {
-                              final hotspot = controller.hotspots[index];
-                              return Card(
-                                margin: const EdgeInsets.only(right: 10.0),
-                                elevation: 1.0,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
-                                color: Theme.of(context).colorScheme.surface,
-                                child: InkWell(
-                                  onTap: () {
-                                    // TODO: Navigate to Hotspot Detail Page
-                                  },
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  child: Container(
-                                    width: 200.0,
-                                    padding: const EdgeInsets.all(12.0),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Icon(_getIconData(hotspot.type == 'NEWS' ? 'newspaper' : (hotspot.type == 'JOB' ? 'work' : 'card_giftcard')), size: 18.0, color: Colors.grey[600]),
-                                            const SizedBox(width: 4.0),
-                                            Text(
-                                              hotspot.type == 'NEWS' ? 'News' : (hotspot.type == 'JOB' ? 'Job' : 'Welfare'),
-                                              style: TextStyle(fontSize: 12.0, color: Colors.grey[600]),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 8.0),
-                                        Text(
-                                          controller.getSafeLocalizedText(hotspot.title),
-                                          style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w600, color: Theme.of(context).textTheme.bodyMedium?.color),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        if (hotspot.time != null) ...[
-                                          const SizedBox(height: 4.0),
-                                          Text(
-                                            hotspot.time!,
-                                            style: TextStyle(fontSize: 10.0, color: Colors.grey[500]),
-                                          ),
-                                        ],
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    )),
-              const SizedBox(height: 20),
-
-              // Recommended Services Section
-              Obx(() {
-                if (controller.isLoadingRecommendations.value) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (controller.recommendations.isEmpty) {
-                  return Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text('No recommendations', style: const TextStyle(color: Colors.grey)),
-                  );
-                } else {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                        child: Text(
-                          'Recommendations',
-                          style: Get.textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 180,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                          itemCount: controller.recommendations.length,
-                          itemBuilder: (context, index) {
-                            final service = controller.recommendations[index];
-                            return Card(
-                              margin: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 4.0),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                              elevation: 4,
-                              child: Container(
-                                width: 150,
-                                padding: const EdgeInsets.all(10.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Icon(
-                                      _getIconData(service.serviceIcon),
-                                      color: Theme.of(context).colorScheme.primary,
-                                      size: 30,
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      controller.getSafeLocalizedText(service.serviceName),
-                                      style: Get.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Expanded(
-                                      child: Text(
-                                        controller.getSafeLocalizedText(service.serviceDescription),
-                                        style: Get.textTheme.bodySmall,
-                                        maxLines: 3,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      service.recommendationReason,
-                                      style: Get.textTheme.bodySmall?.copyWith(color: Colors.grey),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  );
-                }
-              }),
+              // 搜索栏
+              _buildSearchBar(),
+              
+              // 轮播图
+              _buildCarouselSection(),
+              
+              // 服务分类网格
+              _buildServicesGrid(),
+              
+              // 推荐服务
+              _buildRecommendationsSection(),
+              
+              // 社区热点
+              _buildCommunitySection(),
+              
               const SizedBox(height: 20),
             ],
           ),
         ),
       ),
     );
+  }
+
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
+    return AppBar(
+      automaticallyImplyLeading: false,
+      elevation: 0,
+      backgroundColor: Colors.white,
+      title: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: Colors.blue,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(
+              Icons.home_repair_service,
+              color: Colors.white,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'JinBean',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              Text(
+                'Home Services',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+      actions: [
+        IconButton(
+          icon: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(Icons.notifications_outlined, color: Colors.grey[700], size: 20),
+          ),
+          onPressed: () {
+            // TODO: Navigate to notifications
+          },
+        ),
+        const SizedBox(width: 8),
+      ],
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      child: Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: TextField(
+          decoration: InputDecoration(
+            hintText: 'What service do you need?',
+            hintStyle: TextStyle(color: Colors.grey[500], fontSize: 16),
+            prefixIcon: Container(
+              margin: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.blue[50],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(Icons.search, color: Colors.blue[600], size: 20),
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            filled: true,
+            fillColor: Colors.white,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          ),
+          style: const TextStyle(fontSize: 16),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCarouselSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Featured Services',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              TextButton(
+                onPressed: () {},
+                child: Text(
+                  'View All',
+                  style: TextStyle(
+                    color: Colors.blue[600],
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          height: 200,
+          child: Obx(() => PageView.builder(
+            controller: controller.pageController,
+            itemCount: controller.carouselItems.length,
+            onPageChanged: controller.onCarouselPageChanged,
+            itemBuilder: (context, index) {
+              final item = controller.carouselItems[index];
+              return Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                child: Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        Image.network(
+                          item.imageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              color: Colors.grey[300],
+                              child: const Icon(Icons.image, size: 60, color: Colors.grey),
+                            );
+                          },
+                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.transparent,
+                                Colors.black.withOpacity(0.7),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 16,
+                          left: 16,
+                          right: 16,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                controller.getSafeLocalizedText(item.title),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                controller.getSafeLocalizedText(item.description),
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.9),
+                                  fontSize: 14,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          )),
+        ),
+        const SizedBox(height: 16),
+        Center(
+          child: Obx(() => Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(controller.carouselItems.length, (index) {
+              return Container(
+                width: 8,
+                height: 8,
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: controller.currentCarouselIndex.value == index
+                      ? Colors.blue[600]
+                      : Colors.grey[300],
+                ),
+              );
+            }),
+          )),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildServicesGrid() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Text(
+            'Service Categories',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Obx(() => GridView.builder(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 0.9,
+          ),
+          itemCount: controller.services.length,
+          itemBuilder: (context, index) {
+            final service = controller.services[index];
+            return Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              child: InkWell(
+                onTap: () {
+                  if (service.typeCode == 'SERVICE_TYPE') {
+                    Get.toNamed('/service_booking', arguments: {'level1CategoryId': service.id});
+                  } else if (service.typeCode == 'FUNCTION') {
+                    switch (service.name) {
+                      case '求助':
+                        break;
+                      case '服务地图':
+                        Get.toNamed(controller.getServiceMapRoute());
+                        break;
+                    }
+                  }
+                },
+                borderRadius: BorderRadius.circular(12),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: Colors.blue[50],
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          service.icon,
+                          size: 24,
+                          color: Colors.blue[600],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        service.name,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        )),
+        const SizedBox(height: 24),
+      ],
+    );
+  }
+
+  Widget _buildRecommendationsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Recommended for You',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              TextButton(
+                onPressed: () {},
+                child: Text(
+                  'See All',
+                  style: TextStyle(
+                    color: Colors.blue[600],
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        Obx(() {
+          if (controller.isLoadingRecommendations.value) {
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(32),
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+          
+          if (controller.recommendations.isEmpty) {
+            return Container(
+              margin: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(32),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey[200]!),
+              ),
+              child: Column(
+                children: [
+                  Icon(Icons.recommend, size: 48, color: Colors.grey[400]),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No recommendations yet',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Browse services to get personalized recommendations',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[500],
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            );
+          }
+          
+          return SizedBox(
+            height: 200,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: controller.recommendations.length,
+              itemBuilder: (context, index) {
+                final service = controller.recommendations[index];
+                return Container(
+                  width: 160,
+                  margin: const EdgeInsets.only(right: 12),
+                  child: Card(
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: Colors.blue[50],
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(
+                              _getIconData(service.serviceIcon),
+                              color: Colors.blue[600],
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            controller.getSafeLocalizedText(service.serviceName),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 8),
+                          Expanded(
+                            child: Text(
+                              controller.getSafeLocalizedText(service.serviceDescription),
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[600],
+                              ),
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.green[50],
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              service.recommendationReason,
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: Colors.green[700],
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          );
+        }),
+        const SizedBox(height: 24),
+      ],
+    );
+  }
+
+  Widget _buildCommunitySection() {
+    return Obx(() => controller.hotspots.isEmpty
+        ? const SizedBox.shrink()
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Community Updates',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {},
+                      child: Text(
+                        'View All',
+                        style: TextStyle(
+                          color: Colors.blue[600],
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                height: 140,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: controller.hotspots.length,
+                  itemBuilder: (context, index) {
+                    final hotspot = controller.hotspots[index];
+                    return Container(
+                      width: 220,
+                      margin: const EdgeInsets.only(right: 12),
+                      child: Card(
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        child: InkWell(
+                          onTap: () {
+                            // TODO: Navigate to Hotspot Detail Page
+                          },
+                          borderRadius: BorderRadius.circular(12),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: _getTypeColor(hotspot.type),
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Text(
+                                        _getTypeLabel(hotspot.type),
+                                        style: const TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    if (hotspot.time != null)
+                                      Text(
+                                        hotspot.time!,
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color: Colors.grey[500],
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                Expanded(
+                                  child: Text(
+                                    controller.getSafeLocalizedText(hotspot.title),
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black87,
+                                    ),
+                                    maxLines: 3,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ));
+  }
+
+  Color _getTypeColor(String type) {
+    switch (type) {
+      case 'NEWS':
+        return Colors.blue[600]!;
+      case 'JOB':
+        return Colors.green[600]!;
+      case 'WELFARE':
+        return Colors.orange[600]!;
+      default:
+        return Colors.grey[600]!;
+    }
+  }
+
+  String _getTypeLabel(String type) {
+    switch (type) {
+      case 'NEWS':
+        return 'News';
+      case 'JOB':
+        return 'Job';
+      case 'WELFARE':
+        return 'Welfare';
+      default:
+        return 'Other';
+    }
   }
 } 

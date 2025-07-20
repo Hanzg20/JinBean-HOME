@@ -35,671 +35,562 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
     final locationController = Get.find<LocationController>();
     
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface, // Use theme background color
-      appBar: AppBar(
-        title: Text(
-          AppLocalizations.of(context)!.serviceBookingPageTitle, // Use localized title
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onPrimary,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        actions: [
-          // 位置选择按钮
-          Obx(() => IconButton(
-            icon: Icon(
-              Icons.location_on,
-              color: locationController.isLoading.value 
-                ? Theme.of(context).colorScheme.onPrimary.withOpacity(0.5)
-                : Theme.of(context).colorScheme.onPrimary,
-            ),
-            onPressed: locationController.isLoading.value 
-              ? null 
-              : () => _showLocationDialog(context, locationController),
-          )),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
+      backgroundColor: Colors.grey[50],
+      appBar: _buildAppBar(context, locationController),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await controller.fetchLevel1Categories();
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 位置信息显示
-              Obx(() => Container(
-                padding: const EdgeInsets.all(12),
+              // 位置信息卡片
+              _buildLocationCard(locationController),
+              
+              // 搜索栏
+              _buildSearchBar(),
+              
+              // 一级分类选择
+              _buildLevel1Categories(),
+              
+              // 二级分类网格
+              _buildLevel2Categories(),
+              
+              // 推荐服务
+              _buildRecommendedServices(),
+              
+              const SizedBox(height: 20),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  PreferredSizeWidget _buildAppBar(BuildContext context, LocationController locationController) {
+    return AppBar(
+      elevation: 0,
+      backgroundColor: Colors.white,
+      title: const Text(
+        'Service Booking',
+        style: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: Colors.black87,
+        ),
+      ),
+      actions: [
+        Obx(() => IconButton(
+          icon: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: locationController.isLoading.value ? Colors.grey[100] : Colors.blue[50],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              Icons.location_on,
+              color: locationController.isLoading.value ? Colors.grey[400] : Colors.blue[600],
+              size: 20,
+            ),
+          ),
+          onPressed: locationController.isLoading.value 
+            ? null 
+            : () => _showLocationDialog(context, locationController),
+        )),
+        const SizedBox(width: 8),
+      ],
+    );
+  }
+
+  Widget _buildLocationCard(LocationController locationController) {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      child: Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
-                  ),
+                  color: Colors.blue[50],
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                child: Row(
+                child: Icon(
+                  Icons.location_on,
+                  color: Colors.blue[600],
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(
-                      Icons.location_on,
-                      color: Theme.of(context).colorScheme.primary,
-                      size: 20,
+                    Text(
+                      'Service Location',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
+                    const SizedBox(height: 4),
+                    Obx(() => Text(
+                      locationController.effectiveLocation.address,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    )),
+                  ],
+                ),
+              ),
+              Obx(() => locationController.isLoading.value
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : IconButton(
+                    icon: Icon(Icons.refresh, color: Colors.grey[600], size: 20),
+                    onPressed: () => locationController.getCurrentLocation(),
+                  )),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      child: Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: TextField(
+          decoration: InputDecoration(
+            hintText: 'Search for services...',
+            hintStyle: TextStyle(color: Colors.grey[500], fontSize: 16),
+            prefixIcon: Container(
+              margin: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.blue[50],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(Icons.search, color: Colors.blue[600], size: 20),
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            filled: true,
+            fillColor: Colors.white,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          ),
+          style: const TextStyle(fontSize: 16),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLevel1Categories() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Text(
+            'Service Categories',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Obx(() {
+          if (controller.isLoadingLevel1.value) {
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(32),
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+          
+          if (controller.level1Categories.isEmpty) {
+            return Container(
+              margin: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(32),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey[200]!),
+              ),
+              child: Column(
+                children: [
+                  Icon(Icons.category_outlined, size: 48, color: Colors.grey[400]),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No service categories available',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return SizedBox(
+            height: 80,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: controller.level1Categories.length,
+              itemBuilder: (context, index) {
+                final category = controller.level1Categories[index];
+                final isSelected = controller.selectedLevel1CategoryId.value == category.id;
+                
+                return Container(
+                  margin: const EdgeInsets.only(right: 12),
+                  child: InkWell(
+                    onTap: () => controller.selectLevel1Category(category.id),
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      width: 100,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: isSelected ? Colors.blue[600] : Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isSelected ? Colors.blue[600]! : Colors.grey[200]!,
+                          width: 1,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
+                          Icon(
+                            _getIconData(category.icon),
+                            color: isSelected ? Colors.white : Colors.grey[700],
+                            size: 24,
+                          ),
+                          const SizedBox(height: 8),
                           Text(
-                            '当前位置',
+                            category.displayName(),
                             style: TextStyle(
                               fontSize: 12,
-                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                              fontWeight: FontWeight.w600,
+                              color: isSelected ? Colors.white : Colors.black87,
                             ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            locationController.effectiveLocation.address,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
+                            textAlign: TextAlign.center,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),
                     ),
-                    if (locationController.isLoading.value)
-                      const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    else
-                      IconButton(
-                        icon: const Icon(Icons.refresh, size: 20),
-                        onPressed: () => locationController.getCurrentLocation(),
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                      ),
-                  ],
-                ),
-              )),
-              const SizedBox(height: 16),
-
-              // Global Search Bar
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Theme.of(context).colorScheme.outline.withOpacity(0.3)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Theme.of(context).colorScheme.shadow.withOpacity(0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: '搜索服务...',
-                    hintStyle: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
-                      fontSize: 16,
-                    ),
-                    border: InputBorder.none,
-                    prefixIcon: Icon(
-                      Icons.search,
-                      color: Theme.of(context).colorScheme.primary,
-                      size: 24,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  ),
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Level 1 Categories
-              Obx(() {
-                print('=== Level 1 Categories Build ===');
-                print('Loading state: ${controller.isLoadingLevel1.value}');
-                print('Categories count: ${controller.level1Categories.length}');
-                print('Selected category ID: ${controller.selectedLevel1CategoryId.value}');
-                
-                if (controller.isLoadingLevel1.value) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                
-                if (controller.level1Categories.isEmpty) {
-                  return Center(
-                    child: Column(
-                      children: [
-                        const Icon(Icons.category_outlined, size: 48, color: Colors.grey),
-                        const SizedBox(height: 8),
-                        Text('暂无服务分类', style: TextStyle(color: Colors.grey)),
-                      ],
-                    ),
-                  );
-                }
-
-                return Container(
-                  height: 64,
-                  margin: const EdgeInsets.only(bottom: 8),
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: controller.level1Categories.length,
-                    itemBuilder: (context, index) {
-                      final category = controller.level1Categories[index];
-                      final isSelected = controller.selectedLevel1CategoryId.value == category.id;
-                      
-                      print('=== Category Item Build ===');
-                      print('Category: ${category.id} - ${category.displayName()}');
-                      print('Is Selected: $isSelected');
-                      print('Current Theme: ${Theme.of(context).colorScheme.primary}');
-                      print('Selected Color: ${isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surface}');
-                      
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 12.0),
-                        child: Material(
-                          elevation: isSelected ? 4 : 0,
-                          color: Colors.transparent,
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: isSelected 
-                                ? Theme.of(context).colorScheme.primary
-                                : Theme.of(context).colorScheme.surface,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: isSelected
-                                  ? Theme.of(context).colorScheme.primary
-                                  : Theme.of(context).colorScheme.outline.withOpacity(0.3),
-                                width: isSelected ? 2.0 : 1.0,
-                              ),
-                              boxShadow: isSelected ? [
-                                BoxShadow(
-                                  color: Theme.of(context).colorScheme.shadow.withOpacity(0.1),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ] : null,
-                            ),
-                            child: InkWell(
-                              onTap: () {
-                                print('=== Category Tap ===');
-                                print('Tapped category: ${category.id} - ${category.displayName()}');
-                                print('Current selected ID: ${controller.selectedLevel1CategoryId.value}');
-                                controller.selectLevel1Category(category.id);
-                              },
-                              borderRadius: BorderRadius.circular(16),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    category.icon,
-                                    size: 24,
-                                    color: isSelected
-                                      ? Theme.of(context).colorScheme.onPrimary
-                                      : Theme.of(context).colorScheme.primary,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    controller.getSafeLocalizedText(category.name),
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: isSelected
-                                        ? Theme.of(context).colorScheme.onPrimary
-                                        : Theme.of(context).colorScheme.onSurface,
-                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
                   ),
                 );
-              }),
-              const SizedBox(height: 20),
-
-              // Level 2 Categories and Services List (Accordion style)
-              Obx(() => controller.isLoadingLevel2.value
-                ? const Center(child: CircularProgressIndicator())
-                : controller.level2Categories.isEmpty
-                  ? Center(
-                      child: Column(
-                        children: [
-                          const Icon(Icons.category_outlined, size: 48, color: Colors.grey),
-                          const SizedBox(height: 8),
-                          Text('请选择一个服务分类', style: TextStyle(color: Colors.grey)),
-                        ],
-                      ),
-                    )
-                  : ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: controller.level2Categories.length,
-                      itemBuilder: (context, index) {
-                        final level2Category = controller.level2Categories[index];
-                        final isLevel2Selected = controller.selectedLevel2CategoryId.value == level2Category.id;
-
-                        return ExpansionTile(
-                          key: ValueKey('category_${level2Category.id}'),
-                          title: Text(controller.getSafeLocalizedText(level2Category.name), style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.titleMedium?.color)),
-                          leading: Icon(level2Category.icon, color: Theme.of(context).colorScheme.primary),
-                          onExpansionChanged: (isExpanded) {
-                            if (isExpanded && controller.selectedLevel2CategoryId.value != level2Category.id) {
-                              controller.selectLevel2Category(level2Category.id);
-                            }
-                          },
-                          initiallyExpanded: isLevel2Selected,
-                          maintainState: true,
-                          children: [
-                            Obx(() => controller.isLoadingServices.value
-                              ? const Center(child: Padding(
-                                  padding: EdgeInsets.all(16.0),
-                                  child: CircularProgressIndicator(),
-                                ))
-                              : controller.services.isEmpty
-                                ? const Padding(
-                                    padding: EdgeInsets.all(16.0),
-                                    child: Center(
-                                      child: Column(
-                                        children: [
-                                          Icon(Icons.info_outline, size: 48, color: Colors.grey),
-                                          SizedBox(height: 8),
-                                          Text('该分类下暂无服务', style: TextStyle(color: Colors.grey)),
-                                        ],
-                                      ),
-                                    ),
-                                  )
-                                : ListView.builder(
-                                    shrinkWrap: true,
-                                    physics: const NeverScrollableScrollPhysics(),
-                                    itemCount: controller.services.length,
-                                    itemBuilder: (context, serviceIndex) {
-                                      final service = controller.services[serviceIndex];
-                                      
-                                      // 计算距离
-                                      double distance = 0.0;
-                                      String distanceText = '';
-                                      if (service.latitude != null && service.longitude != null) {
-                                        distance = locationController.calculateDistance(
-                                          service.latitude!,
-                                          service.longitude!,
-                                        );
-                                        distanceText = locationController.formatDistance(distance);
-                                      }
-                                      
-                                      return Card(
-                                        margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                                        elevation: 1,
-                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                        color: Theme.of(context).colorScheme.surface,
-                                        child: InkWell(
-                                          onTap: () {
-                                            print('Service ${service.name} tapped');
-                                            // Navigate to Service Detail Page
-                                            Get.toNamed('/service_detail', parameters: {
-                                              'serviceId': service.id,
-                                            });
-                                          },
-                                          borderRadius: BorderRadius.circular(12),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(12.0),
-                                            child: Row(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Container(
-                                                  width: 80,
-                                                  height: 80,
-                                                  decoration: BoxDecoration(
-                                                    borderRadius: BorderRadius.circular(8),
-                                                  ),
-                                                  child: ClipRRect(
-                                                    borderRadius: BorderRadius.circular(8.0),
-                                                    child: Image.network(
-                                                      service.imageUrl,
-                                                      width: 80,
-                                                      height: 80,
-                                                      fit: BoxFit.cover,
-                                                      errorBuilder: (context, error, stackTrace) => 
-                                                        const Icon(Icons.broken_image, size: 40, color: Colors.grey),
-                                                      loadingBuilder: (context, child, progress) =>
-                                                        progress == null ? child : const Center(child: CircularProgressIndicator()),
-                                                    ),
-                                                  ),
-                                                ),
-                                                const SizedBox(width: 15),
-                                                Expanded(
-                                                  child: Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                    children: [
-                                                      Text(
-                                                        controller.getSafeLocalizedText(service.name),
-                                                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.titleMedium?.color),
-                                                      ),
-                                                      const SizedBox(height: 5),
-                                                      Text(
-                                                        controller.getSafeLocalizedText(service.description),
-                                                        style: TextStyle(fontSize: 12, color: Theme.of(context).textTheme.bodyMedium?.color),
-                                                        maxLines: 2,
-                                                        overflow: TextOverflow.ellipsis,
-                                                      ),
-                                                      const SizedBox(height: 5),
-                                                      Row(
-                                                        children: [
-                                                          const Icon(Icons.star, color: AppColors.warningColor, size: 16),
-                                                          Text('${service.rating} (${service.reviews} reviews)', style: TextStyle(fontSize: 12, color: Theme.of(context).textTheme.bodySmall?.color)),
-                                                          if (distanceText.isNotEmpty) ...[
-                                                            const SizedBox(width: 8),
-                                                            Icon(Icons.location_on, color: Colors.grey, size: 14),
-                                                            Text(distanceText, style: TextStyle(fontSize: 12, color: Colors.grey)),
-                                                          ],
-                                                        ],
-                                                      ),
-                                                      const SizedBox(height: 5),
-                                                      Text(service.price, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary)),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                ),
-                const SizedBox(height: 20),
-
-                // Recommended Services Section
-                Obx(() => controller.recommendedServices.isEmpty
-                    ? const SizedBox.shrink()
-                    : Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 0.0), // Consistent padding
-                            child: Text(
-                              '为您推荐',
-                              style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Theme.of(context).textTheme.titleLarge?.color),
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: controller.recommendedServices.length,
-                            itemBuilder: (context, index) {
-                              final recommendation = controller.recommendedServices[index];
-                              
-                              // 计算距离
-                              double distance = 0.0;
-                              String distanceText = '';
-                              if (recommendation.latitude != null && recommendation.longitude != null) {
-                                distance = locationController.calculateDistance(
-                                  recommendation.latitude!,
-                                  recommendation.longitude!,
-                                );
-                                distanceText = locationController.formatDistance(distance);
-                              }
-                              
-                              return Card(
-                                margin: const EdgeInsets.symmetric(vertical: 8.0),
-                                elevation: 1.0,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-                                color: Theme.of(context).colorScheme.surface,
-                                child: InkWell(
-                                  onTap: () {
-                                    print('Recommended service ${recommendation.name} tapped');
-                                    // Navigate to Service Detail Page
-                                    Get.toNamed('/service_detail', parameters: {
-                                      'serviceId': recommendation.id,
-                                    });
-                                  },
-                                  borderRadius: BorderRadius.circular(12.0),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(16.0),
-                                    child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Container(
-                                          width: 80,
-                                          height: 80,
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(8),
-                                          ),
-                                          child: ClipRRect(
-                                            borderRadius: BorderRadius.circular(8.0),
-                                            child: Image.network(
-                                              recommendation.imageUrl,
-                                              width: 80,
-                                              height: 80,
-                                              fit: BoxFit.cover,
-                                              errorBuilder: (context, error, stackTrace) => 
-                                                const Icon(Icons.broken_image, size: 40, color: Colors.grey),
-                                              loadingBuilder: (context, child, progress) =>
-                                                progress == null ? child : const Center(child: CircularProgressIndicator()),
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 12.0),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                recommendation.name,
-                                                style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyMedium?.color),
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                              const SizedBox(height: 4.0),
-                                              Text(
-                                                recommendation.description,
-                                                style: TextStyle(fontSize: 14.0, color: Colors.grey[700]),
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                              const SizedBox(height: 8.0),
-                                              Row(
-                                                children: [
-                                                  Text(
-                                                    recommendation.recommendationReason,
-                                                    style: TextStyle(fontSize: 12.0, color: Theme.of(context).colorScheme.primary, fontStyle: FontStyle.italic),
-                                                  ),
-                                                  if (distanceText.isNotEmpty) ...[
-                                                    const SizedBox(width: 8),
-                                                    Icon(Icons.location_on, color: Colors.grey, size: 14),
-                                                    Text(distanceText, style: TextStyle(fontSize: 12, color: Colors.grey)),
-                                                  ],
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                ),
-              ],
-          ),
-        ),
-      ),
+              },
+            ),
+          );
+        }),
+        const SizedBox(height: 24),
+      ],
     );
   }
 
-  // 显示位置选择对话框
-  void _showLocationDialog(BuildContext context, LocationController locationController) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('选择位置'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
+  Widget _buildLevel2Categories() {
+    return Obx(() {
+      if (controller.selectedLevel1CategoryId.value == null) {
+        return const SizedBox.shrink();
+      }
+      
+      if (controller.isLoadingLevel2.value) {
+        return const Center(
+          child: Padding(
+            padding: EdgeInsets.all(32),
+            child: CircularProgressIndicator(),
+          ),
+        );
+      }
+      
+      if (controller.level2Categories.isEmpty) {
+        return Container(
+          margin: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(32),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey[200]!),
+          ),
+          child: Column(
             children: [
-              ListTile(
-                leading: const Icon(Icons.my_location),
-                title: const Text('使用当前位置'),
-                subtitle: const Text('获取GPS定位'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  locationController.getCurrentLocation();
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.search),
-                title: const Text('搜索地址'),
-                subtitle: const Text('手动输入地址'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _showAddressSearchDialog(context, locationController);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.location_city),
-                title: const Text('常用城市'),
-                subtitle: const Text('选择常用城市'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _showCitySelectionDialog(context, locationController);
-                },
+              Icon(Icons.grid_view, size: 48, color: Colors.grey[400]),
+              const SizedBox(height: 16),
+              Text(
+                'No subcategories available',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[600],
+                ),
               ),
             ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('取消'),
-            ),
-          ],
         );
-      },
-    );
-  }
+      }
 
-  // 显示地址搜索对话框
-  void _showAddressSearchDialog(BuildContext context, LocationController locationController) {
-    final TextEditingController searchController = TextEditingController();
-    
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('搜索地址'),
-          content: TextField(
-            controller: searchController,
-            decoration: const InputDecoration(
-              hintText: '输入地址或地点名称',
-              prefixIcon: Icon(Icons.search),
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  controller.level1Categories.firstWhereOrNull((c) => c.id == controller.selectedLevel1CategoryId.value)?.displayName() ?? 'Subcategories',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {},
+                  child: Text(
+                    'View All',
+                    style: TextStyle(
+                      color: Colors.blue[600],
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
             ),
-            autofocus: true,
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('取消'),
+          const SizedBox(height: 12),
+          GridView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1.2,
             ),
-            TextButton(
-              onPressed: () async {
-                final address = searchController.text.trim();
-                if (address.isNotEmpty) {
-                  Navigator.of(context).pop();
-                  final location = await locationController.searchLocationByAddress(address);
-                  if (location != null) {
-                    await locationController.selectLocation(location);
-                    Get.snackbar('成功', '位置已更新');
-                  } else {
-                    Get.snackbar('错误', '未找到该地址');
-                  }
-                }
-              },
-              child: const Text('搜索'),
-            ),
-          ],
-        );
-      },
-    );
+            itemCount: controller.level2Categories.length,
+            itemBuilder: (context, index) {
+              final category = controller.level2Categories[index];
+              return Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                child: InkWell(
+                  onTap: () => controller.selectLevel2Category(category.id),
+                  borderRadius: BorderRadius.circular(12),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: Colors.blue[50],
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            category.icon,
+                            color: Colors.blue[600],
+                            size: 24,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          category.displayName(),
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 24),
+        ],
+      );
+    });
   }
 
-  // 显示城市选择对话框
-  void _showCitySelectionDialog(BuildContext context, LocationController locationController) async {
-    // 动态加载城市列表
-    final supabase = Supabase.instance.client;
-    final locale = Get.locale?.languageCode ?? 'zh';
-    final List<Map<String, dynamic>> cityData = await supabase
-        .from('ref_codes')
-        .select('id, name, code, latitude, longitude')
-        .eq('type_code', 'AREA_CODE')
-        .inFilter('level', [3, 4]) // 3=城市, 4=直辖市/特殊城市
-        .eq('status', 1)
-        .order('sort_order', ascending: true);
+  Widget _buildRecommendedServices() {
+    return Obx(() {
+      if (controller.recommendedServices.isEmpty) {
+        return const SizedBox.shrink();
+      }
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('选择城市'),
-          content: SizedBox(
-            width: double.maxFinite,
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Text(
+              'Recommended Services',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 200,
             child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: cityData.length,
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: controller.recommendedServices.length,
               itemBuilder: (context, index) {
-                final city = cityData[index];
-                final cityName = (city['name'] as Map<String, dynamic>)[locale] ?? (city['name'] as Map<String, dynamic>)['zh'] ?? (city['name'] as Map<String, dynamic>)['en'] ?? '';
-                return ListTile(
-                  title: Text(cityName),
-                  subtitle: Text(city['code'] ?? ''),
-                  onTap: () async {
-                    Navigator.of(context).pop();
-                    final location = UserLocation(
-                      latitude: city['latitude'] is num ? city['latitude'].toDouble() : 0.0,
-                      longitude: city['longitude'] is num ? city['longitude'].toDouble() : 0.0,
-                      address: cityName,
-                      city: cityName,
-                      district: '',
-                      source: LocationSource.manual,
-                      lastUpdated: DateTime.now(),
-                    );
-                    await locationController.selectLocation(location);
-                    Get.snackbar('成功', '位置已更新为$cityName');
-                  },
+                final service = controller.recommendedServices[index];
+                return Container(
+                  width: 180,
+                  margin: const EdgeInsets.only(right: 12),
+                  child: Card(
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    child: InkWell(
+                      onTap: () => controller.selectService(service.id),
+                      borderRadius: BorderRadius.circular(12),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: Colors.blue[50],
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(
+                                _getIconData(service.icon),
+                                color: Colors.blue[600],
+                                size: 20,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              service.name,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 8),
+                            Expanded(
+                              child: Text(
+                                service.description,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[600],
+                                ),
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Icon(Icons.star, size: 16, color: Colors.amber[600]),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '${service.rating}',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey[700],
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const Spacer(),
+                                Text(
+                                  'From \$${service.price}',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.green[700],
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                 );
               },
             ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('取消'),
-            ),
-          ],
-        );
-      },
+          const SizedBox(height: 24),
+        ],
+      );
+    });
+  }
+
+  void _showLocationDialog(BuildContext context, LocationController locationController) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Select Location'),
+        content: const Text('Location selection dialog will be implemented here.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Confirm'),
+          ),
+        ],
+      ),
     );
   }
 }
