@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/features/customer/services/presentation/service_detail_controller.dart';
-import 'package:jinbeanpod_83904710/generated/app_localizations.dart';
+import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
 
 class ServiceDetailPage extends GetView<ServiceDetailController> {
   const ServiceDetailPage({super.key});
@@ -28,43 +28,43 @@ class ServiceDetailPage extends GetView<ServiceDetailController> {
         return Scaffold(
           body: CustomScrollView(
             slivers: [
-              // 自定义AppBar
+              // 优化的SliverAppBar
               _buildSliverAppBar(context),
               
-              // 内容区域
+              // 内容区域 - 卡片化布局
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // 服务标题和评分
-                      _buildServiceHeader(),
-                      const SizedBox(height: 24),
+                      // 服务标题和评分卡片
+                      _buildServiceHeaderCard(),
+                      const SizedBox(height: 16),
                       
-                      // 服务提供商信息
-                      _buildProviderInfo(),
-                      const SizedBox(height: 24),
+                      // 服务提供商信息卡片
+                      _buildProviderInfoCard(),
+                      const SizedBox(height: 16),
                       
-                      // 服务详情
-                      _buildServiceDetails(),
-                      const SizedBox(height: 24),
+                      // 价格和规格选择卡片
+                      _buildPricingCard(),
+                      const SizedBox(height: 16),
                       
-                      // 价格和规格选择
-                      _buildPricingSection(),
-                      const SizedBox(height: 24),
+                      // 服务详情卡片
+                      _buildServiceDetailsCard(),
+                      const SizedBox(height: 16),
                       
-                      // 服务图片
-                      _buildServiceImages(),
-                      const SizedBox(height: 24),
+                      // 服务图片卡片
+                      _buildServiceImagesCard(),
+                      const SizedBox(height: 16),
                       
-                      // 服务区域
-                      _buildServiceArea(),
-                      const SizedBox(height: 24),
+                      // 服务区域卡片
+                      _buildServiceAreaCard(),
+                      const SizedBox(height: 16),
                       
-                      // 用户留言区域
-                      _buildMessageSection(),
-                      const SizedBox(height: 24),
+                      // 用户留言区域卡片
+                      _buildMessageCard(),
+                      const SizedBox(height: 80), // 为底部操作栏留空间
                     ],
                   ),
                 ),
@@ -79,62 +79,30 @@ class ServiceDetailPage extends GetView<ServiceDetailController> {
 
   Widget _buildSliverAppBar(BuildContext context) {
     return SliverAppBar(
-      expandedHeight: 300,
+      expandedHeight: 250.0,
+      floating: false,
       pinned: true,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
-        onPressed: () {
-          if (Navigator.of(context).canPop()) {
-            Get.back();
-          } else {
-            Get.offAllNamed('/home');
-          }
-        },
-      ),
+      backgroundColor: Theme.of(context).colorScheme.primary,
       flexibleSpace: FlexibleSpaceBar(
         background: Stack(
           fit: StackFit.expand,
           children: [
-            // 服务图片 - 从 serviceDetail 获取
-            Obx(() {
-              final images = controller.serviceDetail.value?.images ?? [];
-              if (images.isNotEmpty) {
-                return Image.network(
-                  images.first,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    print('[ServiceDetailPage] Image load error: $error');
-                    return Container(
-                      color: Colors.grey[300],
-                      child: const Icon(
-                        Icons.image_not_supported,
-                        size: 100,
-                        color: Colors.grey,
-                      ),
-                    );
-                  },
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return Container(
-                      color: Colors.grey[300],
-                      child: const Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    );
-                  },
-                );
-              } else {
-                return Container(
-                  color: Colors.grey[300],
-                  child: const Icon(
-                    Icons.image_not_supported,
-                    size: 100,
-                    color: Colors.grey,
-                  ),
-                );
-              }
-            }),
-            
+            // 服务图片
+            Obx(() => controller.serviceDetail.value?.images.isNotEmpty == true
+                ? Image.network(
+                    controller.serviceDetail.value!.images.first,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: Colors.grey[300],
+                        child: const Icon(Icons.image, size: 80, color: Colors.grey),
+                      );
+                    },
+                  )
+                : Container(
+                    color: Colors.grey[300],
+                    child: const Icon(Icons.image, size: 80, color: Colors.grey),
+                  )),
             // 渐变遮罩
             Container(
               decoration: BoxDecoration(
@@ -148,546 +116,629 @@ class ServiceDetailPage extends GetView<ServiceDetailController> {
                 ),
               ),
             ),
-            
-            // 分享按钮
+            // 操作按钮
             Positioned(
               top: 50,
               right: 16,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.5),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: IconButton(
-                  icon: const Icon(Icons.share, color: Colors.white),
-                  onPressed: () => controller.shareService(),
-                ),
+              child: Row(
+                children: [
+                  _buildActionButton(
+                    icon: Icons.share,
+                    onTap: controller.shareService,
+                  ),
+                  const SizedBox(width: 8),
+                  _buildActionButton(
+                    icon: Icons.favorite_border,
+                    onTap: controller.addToFavorites,
+                  ),
+                ],
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildServiceHeader() {
-    final service = controller.service.value!;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          controller.getSafeLocalizedText(service.title),
+        title: Obx(() => Text(
+          controller.service.value?.title ?? 'Service',
           style: const TextStyle(
-            fontSize: 24,
+            color: Colors.white,
+            fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            Icon(Icons.star, color: Colors.amber, size: 20),
-            const SizedBox(width: 4),
-            Text(
-              '${service.averageRating}',
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              '(${service.reviewCount} reviews)',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
-            ),
-          ],
-        ),
-      ],
+        )),
+      ),
     );
   }
 
-  Widget _buildProviderInfo() {
-    final provider = controller.provider.value;
-    if (provider == null) return const SizedBox.shrink();
-
+  Widget _buildActionButton({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
     return Container(
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[200]!),
+        color: Colors.black.withOpacity(0.5),
+        borderRadius: BorderRadius.circular(20),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 25,
-                backgroundColor: Colors.blue[100],
-                child: Text(
-                  provider.companyName.substring(0, 1).toUpperCase() ?? 'P',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue[700],
-                  ),
+      child: IconButton(
+        icon: Icon(icon, color: Colors.white, size: 20),
+        onPressed: onTap,
+      ),
+    );
+  }
+
+  Widget _buildServiceHeaderCard() {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Obx(() => Text(
+                    controller.service.value?.title ?? 'Service Name',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  )),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Row(
                   children: [
-                    Text(
-                      provider.companyName ?? 'Provider',
-                      style: const TextStyle(
+                    const Icon(Icons.star, color: Colors.amber, size: 20),
+                    const SizedBox(width: 4),
+                    Obx(() => Text(
+                      '${controller.service.value?.averageRating ?? 0.0}',
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
+                        color: Colors.grey[700],
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Icon(Icons.star, color: Colors.amber, size: 16),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${provider.ratingsAvg}',
-                          style: const TextStyle(fontSize: 14),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          '${provider.reviewCount} reviews',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.phone),
-                onPressed: () => controller.contactProvider(),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          if (provider.description != null) ...[
-            Text(
-              provider.description!,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[700],
-              ),
-            ),
-            const SizedBox(height: 8),
-          ],
-          Row(
-            children: [
-              Icon(Icons.location_on, size: 16, color: Colors.grey[600]),
-              const SizedBox(width: 4),
-              Expanded(
-                child: Text(
-                  provider.businessAddress ?? 'Address not available',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildServiceDetails() {
-    final service = controller.service.value!;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Service Details',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 12),
-        Text(
-          controller.getSafeLocalizedText(service.description),
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.grey[700],
-            height: 1.5,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPricingSection() {
-    final serviceDetail = controller.serviceDetail.value;
-    if (serviceDetail == null) return const SizedBox.shrink();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Pricing & Options',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 16),
-        
-        // 定价类型选择
-        if (serviceDetail.pricingType == 'negotiable') ...[
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.orange[50],
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.orange[200]!),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.info_outline, color: Colors.orange[700]),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'Price is negotiable. Contact provider for quote.',
-                    style: TextStyle(
-                      color: Colors.orange[700],
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ] else ...[
-          // 固定价格显示
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.blue[50],
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.blue[200]!),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Price',
+                    )),
+                    Obx(() => Text(
+                      ' (${controller.service.value?.reviewCount ?? 0})',
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey[600],
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '\$${serviceDetail.price?.toStringAsFixed(2) ?? '0.00'}',
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue,
-                      ),
-                    ),
+                    )),
                   ],
                 ),
-                if (serviceDetail.duration != null) ...[
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+              ],
+            ),
+            const SizedBox(height: 8),
+            Obx(() => Text(
+              controller.service.value?.description ?? 'Service description',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[600],
+                height: 1.4,
+              ),
+            )),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProviderInfoCard() {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.business, color: Colors.blue, size: 20),
+                const SizedBox(width: 8),
+                const Text(
+                  'Service Provider',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Obx(() => Row(
+              children: [
+                CircleAvatar(
+                  radius: 25,
+                  backgroundColor: Colors.grey[300],
+                  child: const Icon(Icons.person, size: 30, color: Colors.grey),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Duration',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        serviceDetail.duration.toString(),
+                        controller.provider.value?.companyName ?? 'Provider Name',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const Icon(Icons.star, color: Colors.amber, size: 16),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${controller.provider.value?.ratingsAvg ?? 0.0}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                          Text(
+                            ' • ${controller.provider.value?.reviewCount ?? 0} reviews',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
-                ],
+                ),
+                _buildContactButton(),
+              ],
+            )),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContactButton() {
+    return ElevatedButton.icon(
+      icon: const Icon(Icons.phone, size: 16),
+      label: const Text('Contact'),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      ),
+      onPressed: controller.contactProvider,
+    );
+  }
+
+  Widget _buildPricingCard() {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.attach_money, color: Colors.green, size: 20),
+                const SizedBox(width: 8),
+                const Text(
+                  'Pricing',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ],
             ),
-          ),
-        ],
-        
-        const SizedBox(height: 16),
-        
-        // 服务标签
-        if (serviceDetail.tags.isNotEmpty) ...[
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: serviceDetail.tags.map((tag) {
-              return Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Text(
-                  tag,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[700],
+            const SizedBox(height: 12),
+            Obx(() {
+              final serviceDetail = controller.serviceDetail.value;
+              if (serviceDetail?.pricingType == 'negotiable') {
+                return Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.orange[50],
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.orange[200]!),
                   ),
-                ),
-              );
-            }).toList(),
-          ),
-        ],
-      ],
-    );
-  }
-
-  Widget _buildServiceImages() {
-    final serviceDetail = controller.serviceDetail.value;
-    if (serviceDetail?.images.isEmpty != false) return const SizedBox.shrink();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Service Images',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 12),
-        SizedBox(
-          height: 120,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: serviceDetail?.images.length ?? 0,
-            itemBuilder: (context, index) {
-              return Container(
-                width: 120,
-                margin: const EdgeInsets.only(right: 12),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey[300]!),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.network(
-                    serviceDetail?.images[index] ?? '',
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: Colors.grey[300],
-                        child: const Icon(
-                          Icons.image_not_supported,
-                          color: Colors.grey,
+                  child: Row(
+                    children: [
+                      Icon(Icons.info_outline, color: Colors.orange[700]),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Price is negotiable. Contact provider for quote.',
+                          style: TextStyle(
+                            color: Colors.orange[700],
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      );
-                    },
+                      ),
+                    ],
                   ),
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildServiceArea() {
-    final serviceDetail = controller.serviceDetail.value;
-    if (serviceDetail?.serviceAreaCodes.isEmpty != false) return const SizedBox.shrink();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Service Area',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 12),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: (serviceDetail?.serviceAreaCodes ?? []).map((area) {
-            return Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 6,
-              ),
-              decoration: BoxDecoration(
-                color: Colors.green[50],
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.green[200]!),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.location_on, size: 16, color: Colors.green[700]),
-                  const SizedBox(width: 4),
-                  Text(
-                    area,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.green[700],
-                      fontWeight: FontWeight.w500,
+                );
+              } else {
+                return Row(
+                  children: [
+                    Text(
+                      '\$',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green[700],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMessageSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Message Provider',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 12),
-        TextField(
-          controller: controller.messageController,
-          maxLines: 3,
-          decoration: InputDecoration(
-            hintText: 'Ask about this service, request a quote, or discuss details...',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            contentPadding: const EdgeInsets.all(12),
-          ),
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () => controller.sendMessage(),
-                icon: const Icon(Icons.message),
-                label: const Text('Send Message'),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: ElevatedButton.icon(
-                onPressed: () => controller.startChat(),
-                icon: const Icon(Icons.chat),
-                label: const Text('Start Chat'),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                ),
+                    Text(
+                      '${serviceDetail?.price?.toStringAsFixed(2) ?? '75'}',
+                      style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green[700],
+                      ),
+                    ),
+                    Text(
+                      '/hour',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    const Spacer(),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.green[50],
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: Colors.green[200]!),
+                      ),
+                      child: Text(
+                        'Best Value',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.green[700],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }
+            }),
+            const SizedBox(height: 8),
+            Text(
+              'Free consultation • No hidden fees • Satisfaction guaranteed',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey[600],
               ),
             ),
           ],
         ),
-      ],
+      ),
     );
   }
 
-  Widget _buildBottomBar() {
-    final serviceDetail = controller.serviceDetail.value;
-    if (serviceDetail == null) return const SizedBox.shrink();
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            spreadRadius: 1,
-            blurRadius: 5,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          // 价格显示
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
+  Widget _buildServiceDetailsCard() {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               children: [
-                Text(
-                  'Total Price',
+                const Icon(Icons.info_outline, color: Colors.blue, size: 20),
+                const SizedBox(width: 8),
+                const Text(
+                  'Service Details',
                   style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
-                ),
-                Text(
-                  serviceDetail.pricingType == 'negotiable'
-                      ? 'Contact for quote'
-                      : '\$${serviceDetail.price?.toStringAsFixed(2) ?? '0.00'}',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
             ),
+            const SizedBox(height: 12),
+            Obx(() {
+              final serviceDetail = controller.serviceDetail.value;
+              return Column(
+                children: [
+                  _buildDetailRow('Duration', serviceDetail?.duration?.toString() ?? '2-3 hours'),
+                  _buildDetailRow('Service Type', serviceDetail?.durationType ?? 'On-site'),
+                  _buildDetailRow('Availability', 'Mon-Sun, 8AM-8PM'),
+                  _buildDetailRow('Response Time', 'Within 2 hours'),
+                ],
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[600],
+            ),
           ),
-          
-          // 操作按钮
-          Row(
-            children: [
-              OutlinedButton(
-                onPressed: () => controller.addToFavorites(),
-                child: const Text('Save'),
-              ),
-              const SizedBox(width: 12),
-              ElevatedButton(
-                onPressed: () => controller.bookService(),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 12,
-                  ),
-                ),
-                child: const Text('Book Now'),
-              ),
-            ],
+          const Spacer(),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildServiceImagesCard() {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.photo_library, color: Colors.purple, size: 20),
+                const SizedBox(width: 8),
+                const Text(
+                  'Service Photos',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Obx(() {
+              final images = controller.serviceDetail.value?.images ?? [];
+              if (images.isEmpty) {
+                return Container(
+                  height: 120,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    color: Colors.grey[200],
+                  ),
+                  child: const Center(
+                    child: Icon(Icons.image, size: 40, color: Colors.grey),
+                  ),
+                );
+              }
+              return SizedBox(
+                height: 120,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: images.length,
+                  itemBuilder: (context, index) {
+                    return Container(
+                      width: 120,
+                      margin: const EdgeInsets.only(right: 8),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: Colors.grey[300],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.network(
+                          images[index],
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(Icons.image, size: 40, color: Colors.grey);
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildServiceAreaCard() {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.location_on, color: Colors.red, size: 20),
+                const SizedBox(width: 8),
+                const Text(
+                  'Service Area',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Container(
+              height: 120,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: Colors.grey[200],
+              ),
+              child: const Center(
+                child: Icon(Icons.map, size: 40, color: Colors.grey),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Obx(() {
+              final areas = controller.serviceDetail.value?.serviceAreaCodes ?? [];
+              if (areas.isEmpty) {
+                return Text(
+                  'Serving Toronto, Mississauga, Brampton, and surrounding areas',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                  ),
+                );
+              }
+              return Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                children: areas.map((area) => Chip(
+                  label: Text(area),
+                  backgroundColor: Colors.blue[50],
+                  side: BorderSide(color: Colors.blue[200]!),
+                )).toList(),
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMessageCard() {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.message, color: Colors.orange, size: 20),
+                const SizedBox(width: 8),
+                const Text(
+                  'Send Message',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: controller.messageController,
+              maxLines: 3,
+              decoration: InputDecoration(
+                hintText: 'Ask about availability, pricing, or special requirements...',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                contentPadding: const EdgeInsets.all(12),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    icon: const Icon(Icons.chat, size: 16),
+                    label: const Text('Start Chat'),
+                    style: OutlinedButton.styleFrom(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    onPressed: controller.startChat,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.send, size: 16),
+                    label: const Text('Send'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    onPressed: controller.sendMessage,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBottomBar() {
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        child: Row(
+          children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.favorite_border),
+                label: const Text('Save'),
+                style: OutlinedButton.styleFrom(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                onPressed: controller.addToFavorites,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              flex: 2,
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.calendar_today),
+                label: const Text('Book Now'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                onPressed: () {
+                  // TODO: Navigate to booking page
+                  Get.snackbar(
+                    'Booking',
+                    'Redirecting to booking page...',
+                    snackPosition: SnackPosition.BOTTOM,
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
