@@ -6,6 +6,7 @@ import 'package:jinbeanpod_83904710/app/theme/app_colors.dart';
 class AppThemeService extends GetxService {
   final _box = GetStorage();
   final String _themeKey = 'currentTheme';
+  final String _themeModeKey = 'themeMode';
 
   // Observable for the current theme
   Rx<ThemeData> currentTheme = ThemeData.light().obs; // Default to light theme
@@ -13,10 +14,20 @@ class AppThemeService extends GetxService {
   // 获取当前主题名
   String get currentThemeName => _box.read(_themeKey) ?? 'dark_teal';
 
+  // 获取当前ThemeMode
+  ThemeMode get themeMode {
+    final mode = _box.read(_themeModeKey);
+    if (mode == 'light') return ThemeMode.light;
+    if (mode == 'dark') return ThemeMode.dark;
+    return ThemeMode.system;
+  }
+
   @override
   void onInit() {
     super.onInit();
     loadTheme();
+    // 设置ThemeMode
+    Get.changeThemeMode(themeMode);
   }
 
   // Load saved theme preference
@@ -231,5 +242,14 @@ class AppThemeService extends GetxService {
     if (theme != null) return theme;
     if (role == 'provider') return 'golden';
     return 'dark_teal';
+  }
+
+  // 设置ThemeMode
+  void setThemeMode(ThemeMode mode) {
+    String modeStr = 'system';
+    if (mode == ThemeMode.light) modeStr = 'light';
+    if (mode == ThemeMode.dark) modeStr = 'dark';
+    _box.write(_themeModeKey, modeStr);
+    Get.changeThemeMode(mode);
   }
 } 

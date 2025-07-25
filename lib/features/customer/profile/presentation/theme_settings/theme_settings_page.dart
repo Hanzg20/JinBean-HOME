@@ -13,7 +13,7 @@ class ThemeSettingsPage extends GetView<ThemeSettingsController> {
     final onSurface = theme.colorScheme.onSurface;
     return Scaffold(
       appBar: AppBar(
-        title: Text(((AppLocalizations.of(context) ?? AppLocalizationsEn()) as AppLocalizations).themeSettings),
+        title: const Text('Appearance'),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: theme.colorScheme.onPrimary),
           onPressed: () => Get.back(),
@@ -26,21 +26,24 @@ class ThemeSettingsPage extends GetView<ThemeSettingsController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              ((AppLocalizations.of(context) ?? AppLocalizationsEn()) as AppLocalizations).chooseAppTheme,
-              style: TextStyle(color: onSurface),
-            ),
-            Obx(() => RadioListTile<String>(
-                  title: Text(((AppLocalizations.of(context) ?? AppLocalizationsEn()) as AppLocalizations).deepTealTheme, style: TextStyle(color: onSurface)),
-                  value: 'dark_teal',
-                  groupValue: controller.selectedThemeName.value,
-                  onChanged: (value) => controller.selectTheme(value!),
+            Text('Choose App Appearance', style: TextStyle(color: onSurface)),
+            Obx(() => RadioListTile<ThemeMode>(
+                  title: Text('Follow System', style: TextStyle(color: onSurface)),
+                  value: ThemeMode.system,
+                  groupValue: controller.selectedMode.value,
+                  onChanged: (value) => controller.selectMode(value!),
                 )),
-            Obx(() => RadioListTile<String>(
-                  title: Text(((AppLocalizations.of(context) ?? AppLocalizationsEn()) as AppLocalizations).goldenJinBeanTheme, style: TextStyle(color: onSurface)),
-                  value: 'golden',
-                  groupValue: controller.selectedThemeName.value,
-                  onChanged: (value) => controller.selectTheme(value!),
+            Obx(() => RadioListTile<ThemeMode>(
+                  title: Text('Light', style: TextStyle(color: onSurface)),
+                  value: ThemeMode.light,
+                  groupValue: controller.selectedMode.value,
+                  onChanged: (value) => controller.selectMode(value!),
+                )),
+            Obx(() => RadioListTile<ThemeMode>(
+                  title: Text('Dark', style: TextStyle(color: onSurface)),
+                  value: ThemeMode.dark,
+                  groupValue: controller.selectedMode.value,
+                  onChanged: (value) => controller.selectMode(value!),
                 )),
           ],
         ),

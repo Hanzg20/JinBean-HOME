@@ -293,7 +293,7 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
-                            _getIconData(category.icon),
+                            _getIconData(category.extraData['icon'] ?? 'category'),
                             color: isSelected ? Colors.white : Colors.grey[700],
                             size: 24,
                           ),
@@ -411,7 +411,10 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
                 elevation: 2,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 child: InkWell(
-                  onTap: () => controller.selectLevel2Category(category.id),
+                  onTap: () {
+                    // TODO: Navigate to service detail page
+                    Get.snackbar('Service', 'Opening service details...', snackPosition: SnackPosition.BOTTOM);
+                  },
                   borderRadius: BorderRadius.circular(12),
                   child: Padding(
                     padding: const EdgeInsets.all(16),
@@ -426,9 +429,9 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Icon(
-                            category.icon,
+                            Icons.category,
                             color: Colors.blue[600],
-                            size: 24,
+                            size: 20,
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -492,7 +495,10 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
                     elevation: 2,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     child: InkWell(
-                      onTap: () => controller.selectService(service.id),
+                      onTap: () {
+                        // TODO: Navigate to service detail page
+                        Get.snackbar('Service', 'Opening service details...', snackPosition: SnackPosition.BOTTOM);
+                      },
                       borderRadius: BorderRadius.circular(12),
                       child: Padding(
                         padding: const EdgeInsets.all(16),
@@ -507,7 +513,7 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Icon(
-                                _getIconData(service.icon),
+                                Icons.category,
                                 color: Colors.blue[600],
                                 size: 20,
                               ),

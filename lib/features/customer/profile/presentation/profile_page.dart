@@ -6,6 +6,7 @@ import 'package:jinbeanpod_83904710/core/plugin_management/plugin_manager.dart';
 import 'package:jinbeanpod_83904710/features/provider/plugins/provider_identity/provider_identity_service.dart';
 import 'package:jinbeanpod_83904710/features/provider/plugins/provider_registration/provider_registration_plugin.dart';
 import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
+import 'package:jinbeanpod_83904710/features/customer/auth/presentation/auth_controller.dart';
 
 class ProfilePage extends GetView<ProfileController> {
   const ProfilePage({super.key});
@@ -45,22 +46,22 @@ class ProfilePage extends GetView<ProfileController> {
                       children: [
                         // 头像和用户信息横向布局
                         Row(
-                          children: [
+                            children: [
                             // 头像
-                            GestureDetector(
+                                  GestureDetector(
                               onTap: () => _showAvatarOptions(context),
-                              child: Container(
+                                      child: Container(
                                 width: 80,
                                 height: 80,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
                                   border: Border.all(color: Colors.white, width: 3),
                                   boxShadow: [
                                     BoxShadow(
                                       color: Colors.black.withOpacity(0.2),
                                       blurRadius: 8,
                                       offset: const Offset(0, 2),
-                                    ),
+                                      ),
                                   ],
                                 ),
                                 child: CircleAvatar(
@@ -72,9 +73,9 @@ class ProfilePage extends GetView<ProfileController> {
                                   child: controller.avatarUrl.value.isEmpty
                                       ? const Icon(Icons.person, size: 40, color: Colors.grey)
                                       : null,
-                                ),
+                                      ),
                               ),
-                            ),
+                              ),
                             const SizedBox(width: 16),
                             // 用户信息
                             Expanded(
@@ -96,7 +97,7 @@ class ProfilePage extends GetView<ProfileController> {
                                       fontSize: 14,
                                       color: Colors.white.withOpacity(0.8),
                                     ),
-                                  ),
+                                    ),
                                   const SizedBox(height: 8),
                                   // 用户统计信息
                                   Row(
@@ -125,7 +126,7 @@ class ProfilePage extends GetView<ProfileController> {
                       ],
                     ),
                   );
-                }),
+                  }),
               ),
             ),
           ),
@@ -196,7 +197,7 @@ class ProfilePage extends GetView<ProfileController> {
 
   Widget _buildSectionTitle(String title) {
     return Text(
-      title,
+          title,
       style: const TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.w600,
@@ -302,10 +303,17 @@ class ProfilePage extends GetView<ProfileController> {
           ),
           _buildDivider(),
           _buildMenuItem(
-            icon: Icons.help_outline,
-            title: 'About',
-            subtitle: 'App version and information',
-            onTap: () => Get.toNamed('/about'),
+            icon: Icons.palette_outlined,
+            title: 'Theme Settings',
+            subtitle: 'Switch app color theme',
+            onTap: () => Get.toNamed('/theme_settings'),
+          ),
+          _buildDivider(),
+          _buildMenuItem(
+            icon: Icons.logout,
+            title: 'Sign Out',
+            subtitle: 'Log out of your account',
+            onTap: () => Get.find<AuthController>().logout(),
           ),
         ],
       ),
@@ -337,7 +345,7 @@ class ProfilePage extends GetView<ProfileController> {
             title: 'Terms of Service',
             subtitle: 'Read our terms and conditions',
             onTap: () => Get.toNamed('/terms'),
-          ),
+        ),
           _buildDivider(),
           _buildMenuItem(
             icon: Icons.privacy_tip_outlined,
@@ -351,10 +359,10 @@ class ProfilePage extends GetView<ProfileController> {
   }
 
   Widget _buildRoleSwitchCard() {
-    return Card(
-      elevation: 2,
+            return Card(
+              elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
+                child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: FutureBuilder<ProviderStatus>(
           future: ProviderIdentityService.getProviderStatus(),
@@ -368,7 +376,7 @@ class ProfilePage extends GetView<ProfileController> {
                       const Icon(Icons.switch_account, color: Colors.blue, size: 24),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: Column(
+                  child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
@@ -473,12 +481,12 @@ class ProfilePage extends GetView<ProfileController> {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
+                          ),
+                        ),
+                      const SizedBox(height: 4),
+                      Text(
                               'Start offering your services',
-                              style: TextStyle(
+                        style: TextStyle(
                                 fontSize: 14,
                                 color: Colors.grey[600],
                               ),
@@ -590,7 +598,7 @@ class ProfilePage extends GetView<ProfileController> {
             ),
           ],
         ),
-      ),
+            ),
     );
   }
 
