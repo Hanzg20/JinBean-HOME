@@ -554,124 +554,396 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
   }
 
   Widget _buildRecommendedServices() {
-    return Obx(() {
-      if (controller.recommendedServices.isEmpty) {
-        return const SizedBox.shrink();
-      }
-
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Text(
-              'Recommended Services',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Recommended Services',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
               ),
-            ),
+              TextButton(
+                onPressed: () {},
+                child: Text(
+                  'View All',
+                  style: TextStyle(
+                    color: Colors.blue[600],
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 12),
-          SizedBox(
-            height: 200,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: controller.recommendedServices.length,
-              itemBuilder: (context, index) {
-                final service = controller.recommendedServices[index];
-                return Container(
-                  width: 180,
-                  margin: const EdgeInsets.only(right: 12),
-                  child: Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    child: InkWell(
-                      onTap: () {
-                        // TODO: Navigate to service detail page
-                        Get.snackbar('Service', 'Opening service details...', snackPosition: SnackPosition.BOTTOM);
-                      },
-                      borderRadius: BorderRadius.circular(12),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: Colors.blue[50],
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Icon(
-                                Icons.category,
-                                color: Colors.blue[600],
-                                size: 20,
-                              ),
+        ),
+        const SizedBox(height: 12),
+        Obx(() {
+          if (controller.isLoadingSearch.value) {
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(32),
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+          
+          if (controller.services.isNotEmpty) {
+            return SizedBox(
+              height: 280,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: controller.services.length,
+                itemBuilder: (context, index) {
+                  final service = controller.services[index];
+                  return _buildEnhancedServiceCard(service);
+                },
+              ),
+            );
+          } else if (controller.recommendedServices.isNotEmpty) {
+            return SizedBox(
+              height: 280,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: controller.recommendedServices.length,
+                itemBuilder: (context, index) {
+                  final service = controller.recommendedServices[index];
+                  return _buildEnhancedRecommendedServiceCard(service);
+                },
+              ),
+            );
+          } else {
+            return _buildEmptyServicesState();
+          }
+        }),
+      ],
+    );
+  }
+
+  Widget _buildEnhancedServiceCard(ServiceItem service) {
+    return Container(
+      width: 200,
+      margin: const EdgeInsets.only(right: 12),
+      child: Card(
+        elevation: 3,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: InkWell(
+          onTap: () {
+            Get.toNamed('/service_detail', arguments: {'serviceId': service.id});
+          },
+          borderRadius: BorderRadius.circular(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Service Image
+              ClipRRect(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                child: Container(
+                  height: 120,
+                  width: double.infinity,
+                  child: Image.network(
+                    service.imageUrl,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: Colors.grey[200],
+                        child: Icon(
+                          Icons.home_repair_service,
+                          size: 40,
+                          color: Colors.grey[400],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Service Name
+                      Text(
+                        controller.getSafeLocalizedText(service.name),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      
+                      // Service Description
+                      Text(
+                        controller.getSafeLocalizedText(service.description),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const Spacer(),
+                      
+                      // Rating and Reviews
+                      Row(
+                        children: [
+                          Icon(Icons.star, color: Colors.amber, size: 14),
+                          const SizedBox(width: 2),
+                          Text(
+                            '${service.rating}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[700],
                             ),
-                            const SizedBox(height: 12),
-                            Text(
-                              service.name,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black87,
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            ' (${service.reviews})',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.grey[500],
                             ),
-                            const SizedBox(height: 8),
-                            Expanded(
-                              child: Text(
-                                service.description,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey[600],
-                                ),
-                                maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
-                              ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      
+                      // Price and Action
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '\$${service.price}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue[600],
                             ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Icon(Icons.star, size: 16, color: Colors.amber[600]),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '${service.rating}',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey[700],
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                const Spacer(),
-                                Text(
-                                  'From \$${service.price}',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.green[700],
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
+                          ),
+                          Icon(
+                            Icons.arrow_forward_ios,
+                            size: 12,
+                            color: Colors.grey[400],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEnhancedRecommendedServiceCard(RecommendedService service) {
+    return Container(
+      width: 200,
+      margin: const EdgeInsets.only(right: 12),
+      child: Card(
+        elevation: 3,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: InkWell(
+          onTap: () {
+            Get.toNamed('/service_detail', arguments: {'serviceId': service.id});
+          },
+          borderRadius: BorderRadius.circular(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Service Image with Recommendation Badge
+              Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                    child: Container(
+                      height: 120,
+                      width: double.infinity,
+                      child: Image.network(
+                        service.imageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            color: Colors.grey[200],
+                            child: Icon(
+                              Icons.home_repair_service,
+                              size: 40,
+                              color: Colors.grey[400],
                             ),
-                          ],
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.orange,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text(
+                        'Recommended',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
                   ),
-                );
-              },
+                ],
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Service Name
+                      Text(
+                        controller.getSafeLocalizedText(service.name),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      
+                      // Recommendation Reason
+                      Text(
+                        service.recommendationReason,
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.orange[700],
+                          fontStyle: FontStyle.italic,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const Spacer(),
+                      
+                      // Rating and Reviews
+                      Row(
+                        children: [
+                          Icon(Icons.star, color: Colors.amber, size: 14),
+                          const SizedBox(width: 2),
+                          Text(
+                            '${service.rating}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                          Text(
+                            ' (${service.reviews})',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.grey[500],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      
+                      // Price and Action
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '\$${service.price}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue[600],
+                            ),
+                          ),
+                          Icon(
+                            Icons.arrow_forward_ios,
+                            size: 12,
+                            color: Colors.grey[400],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyServicesState() {
+    return Container(
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        children: [
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(40),
+            ),
+            child: Icon(
+              Icons.search_off,
+              size: 40,
+              color: Colors.grey[400],
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
+          Text(
+            'No Services Found',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey[700],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Try adjusting your search or browse our categories',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[500],
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton.icon(
+            onPressed: () {
+              controller.clearSearch();
+            },
+            icon: const Icon(Icons.refresh),
+            label: const Text('Browse Categories'),
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            ),
+          ),
         ],
-      );
-    });
+      ),
+    );
   }
 
   void _showLocationDialog(BuildContext context, LocationController locationController) {
