@@ -54,6 +54,10 @@ class HomeServiceItem {
 
 class HomeController extends GetxController {
   final _storage = GetStorage();
+  
+  // 添加搜索控制器
+  final TextEditingController searchController = TextEditingController();
+  final RxString searchQuery = ''.obs;
 
   // New states for Carousel
   late PageController pageController;
@@ -217,6 +221,7 @@ class HomeController extends GetxController {
   @override
   void onClose() {
     pageController.dispose();
+    searchController.dispose();
     super.onClose();
   }
 
@@ -312,5 +317,31 @@ class HomeController extends GetxController {
       isLoadingRecommendations.value = false;
       print('Recommended services fetch finished. isLoadingRecommendations: ${isLoadingRecommendations.value}'); // Added print
     }
+  }
+
+  // 新增：搜索功能
+  void onSearchSubmitted(String query) {
+    if (query.trim().isEmpty) {
+      Get.snackbar(
+        'Search',
+        'Please enter a search term',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+    
+    // 跳转到Service Booking页并传递搜索关键词
+    Get.toNamed('/service_booking', arguments: {
+      'searchQuery': query.trim(),
+    });
+  }
+
+  void onSearchChanged(String query) {
+    searchQuery.value = query;
+  }
+
+  void clearSearch() {
+    searchController.clear();
+    searchQuery.value = '';
   }
 } 

@@ -216,7 +216,181 @@ class ServiceDetailPage extends GetView<ServiceDetailController> {
                 height: 1.4,
               ),
             )),
+            const SizedBox(height: 12),
+            // 添加写点评按钮
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () => _showWriteReviewDialog(),
+                icon: const Icon(Icons.edit, size: 18),
+                label: const Text('Write a Review'),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+            ),
           ],
+        ),
+      ),
+    );
+  }
+
+  void _showWriteReviewDialog() {
+    final TextEditingController reviewController = TextEditingController();
+    final RxDouble rating = 5.0.obs;
+    final RxBool isAnonymous = false.obs;
+    final RxList<String> selectedTags = <String>[].obs;
+    
+    final availableTags = [
+      'Professional', 'On Time', 'Fair Price', 'Quality Work',
+      'Friendly', 'Clean', 'Fast', 'Reliable', 'Recommended'
+    ];
+
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          constraints: const BoxConstraints(maxWidth: 400),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.rate_review, color: Colors.blue[600]),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'Write Review',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    onPressed: () => Get.back(),
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              
+              // Rating Stars
+              const Text(
+                'Rating',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Obx(() => Row(
+                children: List.generate(5, (index) {
+                  return GestureDetector(
+                    onTap: () => rating.value = index + 1.0,
+                    child: Icon(
+                      index < rating.value ? Icons.star : Icons.star_border,
+                      color: Colors.amber,
+                      size: 32,
+                    ),
+                  );
+                }),
+              )),
+              const SizedBox(height: 20),
+              
+              // Review Text
+              const Text(
+                'Your Review',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: reviewController,
+                maxLines: 4,
+                decoration: InputDecoration(
+                  hintText: 'Share your experience with this service...',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              
+              // Tags
+              const Text(
+                'Tags (Optional)',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: availableTags.map((tag) {
+                  return Obx(() => FilterChip(
+                    label: Text(tag),
+                    selected: selectedTags.contains(tag),
+                    onSelected: (selected) {
+                      if (selected) {
+                        selectedTags.add(tag);
+                      } else {
+                        selectedTags.remove(tag);
+                      }
+                    },
+                  ));
+                }).toList(),
+              ),
+              const SizedBox(height: 20),
+              
+              // Anonymous Option
+              Obx(() => CheckboxListTile(
+                title: const Text('Post anonymously'),
+                value: isAnonymous.value,
+                onChanged: (value) => isAnonymous.value = value ?? false,
+                controlAffinity: ListTileControlAffinity.leading,
+                contentPadding: EdgeInsets.zero,
+              )),
+              const SizedBox(height: 20),
+              
+              // Action Buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Get.back(),
+                      child: const Text('Cancel'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // TODO: Submit review
+                        Get.back();
+                        Get.snackbar(
+                          'Review Submitted',
+                          'Thank you for your feedback!',
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor: Colors.green[100],
+                          colorText: Colors.green[800],
+                        );
+                      },
+                      child: const Text('Submit'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

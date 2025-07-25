@@ -95,6 +95,12 @@ class RecommendedService {
 }
 
 class ServiceBookingController extends GetxController {
+  // 添加搜索相关属性
+  final TextEditingController searchController = TextEditingController();
+  final RxString searchQuery = ''.obs;
+  final RxList<String> searchHistory = <String>[].obs;
+  final RxList<String> hotSearches = <String>['Cleaning', 'Plumbing', 'Electrician', 'Gardening'].obs;
+
   // New states for service categorization
   final RxList<ServiceCategoryLevel1> level1Categories = <ServiceCategoryLevel1>[].obs;
   final RxList<ServiceCategoryLevel2> level2Categories = <ServiceCategoryLevel2>[].obs; // Filtered by level 1 selection
@@ -108,6 +114,7 @@ class ServiceBookingController extends GetxController {
   final RxBool isLoadingLevel1 = false.obs;
   final RxBool isLoadingLevel2 = false.obs;
   final RxBool isLoadingServices = false.obs;
+  final RxBool isLoadingSearch = false.obs;
 
   static IconData iconFromString(String? iconName) {
     switch (iconName) {
@@ -133,6 +140,34 @@ class ServiceBookingController extends GetxController {
   void onInit() {
     super.onInit();
     print('=== ServiceBookingController onInit ===');
+    
+    // 处理从首页传来的参数
+    final arguments = Get.arguments as Map<String, dynamic>?;
+    if (arguments != null) {
+      // 处理level1CategoryId参数（已有功能）
+      if (arguments.containsKey('level1CategoryId')) {
+        final categoryId = arguments['level1CategoryId'] as int?;
+        if (categoryId != null) {
+          selectedLevel1CategoryId.value = categoryId;
+          print('=== Auto-selecting Level 1 Category: $categoryId ===');
+        }
+      }
+      
+      // 处理搜索查询参数（新增功能）
+      if (arguments.containsKey('searchQuery')) {
+        final query = arguments['searchQuery'] as String?;
+        if (query != null && query.isNotEmpty) {
+          searchController.text = query;
+          searchQuery.value = query;
+          print('=== Auto-filling search query: $query ===');
+          // 自动执行搜索
+          Future.delayed(Duration(milliseconds: 500), () {
+            performSearch(query);
+          });
+        }
+      }
+    }
+    
     fetchLevel1Categories();
   }
 
@@ -360,7 +395,7 @@ class ServiceBookingController extends GetxController {
 
   @override
   void onClose() {
-    print('=== ServiceBookingController onClose ===');
+    searchController.dispose();
     super.onClose();
   }
 
@@ -373,5 +408,106 @@ class ServiceBookingController extends GetxController {
       return value;
     }
     return '';
+  }
+
+  // 新增：搜索功能
+  void onSearchSubmitted(String query) {
+    if (query.trim().isEmpty) return;
+    
+    // 添加到搜索历史
+    final trimmedQuery = query.trim();
+    if (!searchHistory.contains(trimmedQuery)) {
+      searchHistory.insert(0, trimmedQuery);
+      if (searchHistory.length > 10) {
+        searchHistory.removeLast();
+      }
+    }
+    
+    performSearch(trimmedQuery);
+  }
+
+  void onSearchChanged(String query) {
+    searchQuery.value = query;
+  }
+
+  void clearSearch() {
+    searchController.clear();
+    searchQuery.value = '';
+    // 清除搜索结果，显示所有服务
+    if (selectedLevel1CategoryId.value != null) {
+      fetchLevel2Categories(selectedLevel1CategoryId.value!);
+    }
+  }
+
+  Future<void> performSearch(String query) async {
+    if (query.trim().isEmpty) return;
+    
+    print('=== Performing search for: $query ===');
+    isLoadingSearch.value = true;
+    
+    try {
+      // 搜索服务
+      final searchResults = await Supabase.instance.client
+          .from('services')
+          .select('''
+            id, title, description, price_range, 
+            category_level1_id, category_level2_id,
+            service_details, images
+          ''')
+          .or('title->>en.ilike.%$query%,title->>zh.ilike.%$query%,description->>en.ilike.%$query%,description->>zh.ilike.%$query%')
+          .eq('status', 'ACTIVE')
+          .limit(20);
+
+      print('Search results: ${searchResults.length} services found');
+
+      // 转换为ServiceItem对象
+      final searchServiceItems = searchResults.map((data) {
+        return ServiceItem(
+          id: data['id'],
+          parentId: data['category_level2_id'] ?? 0,
+          name: data['title'] ?? {'en': 'Service', 'zh': '服务'},
+          description: data['description'] ?? {'en': 'Description', 'zh': '描述'},
+          price: data['price_range']?['min']?.toString() ?? '0',
+          imageUrl: (data['images'] as List?)?.isNotEmpty == true 
+              ? data['images'][0] 
+              : 'https://via.placeholder.com/80x80?text=Service',
+          rating: 4.5, // TODO: 从reviews表获取真实评分
+          reviews: 0,  // TODO: 从reviews表获取真实评论数
+        );
+      }).toList();
+
+      services.assignAll(searchServiceItems);
+      
+      Get.snackbar(
+        'Search Results',
+        'Found ${searchServiceItems.length} services for "$query"',
+        snackPosition: SnackPosition.BOTTOM,
+        duration: Duration(seconds: 2),
+      );
+      
+    } catch (e) {
+      print('Search error: $e');
+      Get.snackbar(
+        'Search Error',
+        'Failed to search services. Please try again.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red[100],
+        colorText: Colors.red[800],
+      );
+    } finally {
+      isLoadingSearch.value = false;
+    }
+  }
+
+  void selectHotSearch(String query) {
+    searchController.text = query;
+    searchQuery.value = query;
+    performSearch(query);
+  }
+
+  void selectSearchHistory(String query) {
+    searchController.text = query;
+    searchQuery.value = query;
+    performSearch(query);
   }
 }

@@ -5,6 +5,7 @@ import 'home_controller.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
 import 'package:jinbeanpod_83904710/l10n/app_localizations_en.dart';
+import 'package:jinbeanpod_83904710/core/controllers/location_controller.dart';
 
 class HomePage extends GetView<HomeController> {
   const HomePage({super.key});
@@ -72,6 +73,8 @@ class HomePage extends GetView<HomeController> {
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
+    final locationController = Get.find<LocationController>();
+    
     return AppBar(
       automaticallyImplyLeading: false,
       elevation: 0,
@@ -92,25 +95,53 @@ class HomePage extends GetView<HomeController> {
             ),
           ),
           const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'JinBean',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'JinBean',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
                 ),
-              ),
-              Text(
-                'Home Services',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[600],
-                ),
-              ),
-            ],
+                // 添加位置信息显示
+                Obx(() => InkWell(
+                  onTap: () => _showLocationOptions(context, locationController),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.location_on,
+                        size: 12,
+                        color: Colors.grey[600],
+                      ),
+                      const SizedBox(width: 4),
+                      Flexible(
+                        child: Text(
+                          locationController.effectiveLocation.address.isNotEmpty
+                            ? locationController.effectiveLocation.address
+                            : 'Set Location',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Icon(
+                        Icons.arrow_drop_down,
+                        size: 14,
+                        color: Colors.grey[600],
+                      ),
+                    ],
+                  ),
+                )),
+              ],
+            ),
           ),
         ],
       ),
@@ -133,34 +164,140 @@ class HomePage extends GetView<HomeController> {
     );
   }
 
+  void _showLocationOptions(BuildContext context, LocationController locationController) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.location_on, color: Colors.blue[600]),
+                const SizedBox(width: 8),
+                const Text(
+                  'Service Location',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            
+            // Current Location
+            Obx(() => Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.blue[50],
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.blue[200]!),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Current Location',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.blue[800],
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          locationController.effectiveLocation.address,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      if (locationController.isLoading.value)
+                        const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            )),
+            
+            const SizedBox(height: 20),
+            
+            // Action Buttons
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: locationController.isLoading.value 
+                      ? null 
+                      : () {
+                          locationController.getCurrentLocation();
+                          Navigator.pop(context);
+                        },
+                    icon: const Icon(Icons.my_location),
+                    label: const Text('Use Current Location'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      // Navigate to location settings
+                      Get.toNamed('/location_settings');
+                    },
+                    icon: const Icon(Icons.edit_location),
+                    label: const Text('Change Location'),
+                  ),
+                ),
+              ],
+            ),
+            
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildSearchBar() {
     return Container(
-      margin: const EdgeInsets.all(16),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Card(
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: TextField(
-          decoration: InputDecoration(
-            hintText: 'What service do you need?',
-            hintStyle: TextStyle(color: Colors.grey[500], fontSize: 16),
-            prefixIcon: Container(
-              margin: const EdgeInsets.all(8),
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.blue[50],
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(Icons.search, color: Colors.blue[600], size: 20),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          child: TextField(
+            controller: controller.searchController,
+            onChanged: controller.onSearchChanged,
+            onSubmitted: controller.onSearchSubmitted,
+            decoration: InputDecoration(
+              hintText: 'Search for services...',
+              hintStyle: TextStyle(color: Colors.grey[500]),
+              border: InputBorder.none,
+              prefixIcon: Icon(Icons.search, color: Colors.grey[600]),
+              suffixIcon: Obx(() => controller.searchQuery.value.isNotEmpty
+                ? IconButton(
+                    icon: Icon(Icons.clear, color: Colors.grey[600]),
+                    onPressed: controller.clearSearch,
+                  )
+                : Icon(Icons.mic, color: Colors.grey[400])),
             ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-            filled: true,
-            fillColor: Colors.white,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           ),
-          style: const TextStyle(fontSize: 16),
         ),
       ),
     );

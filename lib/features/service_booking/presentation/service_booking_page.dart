@@ -173,32 +173,126 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
 
   Widget _buildSearchBar() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Card(
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: TextField(
-          decoration: InputDecoration(
-            hintText: 'Search for services...',
-            hintStyle: TextStyle(color: Colors.grey[500], fontSize: 16),
-            prefixIcon: Container(
-              margin: const EdgeInsets.all(8),
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.blue[50],
-                borderRadius: BorderRadius.circular(8),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: TextField(
+                controller: controller.searchController,
+                onChanged: controller.onSearchChanged,
+                onSubmitted: controller.onSearchSubmitted,
+                decoration: InputDecoration(
+                  hintText: 'Search services, providers...',
+                  hintStyle: TextStyle(color: Colors.grey[500]),
+                  border: InputBorder.none,
+                  prefixIcon: Obx(() => controller.isLoadingSearch.value
+                    ? Container(
+                        padding: const EdgeInsets.all(14),
+                        child: SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      )
+                    : Icon(Icons.search, color: Colors.grey[600])),
+                  suffixIcon: Obx(() => controller.searchQuery.value.isNotEmpty
+                    ? IconButton(
+                        icon: Icon(Icons.clear, color: Colors.grey[600]),
+                        onPressed: controller.clearSearch,
+                      )
+                    : Icon(Icons.filter_list, color: Colors.grey[400])),
+                ),
               ),
-              child: Icon(Icons.search, color: Colors.blue[600], size: 20),
             ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-            filled: true,
-            fillColor: Colors.white,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          ),
-          style: const TextStyle(fontSize: 16),
+            
+            // 热门搜索和搜索历史
+            Obx(() => controller.searchQuery.value.isEmpty && controller.searchController.text.isEmpty
+              ? Container(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 热门搜索
+                      if (controller.hotSearches.isNotEmpty) ...[
+                        Text(
+                          'Hot Searches',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 4,
+                          children: controller.hotSearches.map((search) {
+                            return InkWell(
+                              onTap: () => controller.selectHotSearch(search),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[100],
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Text(
+                                  search,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey[700],
+                                  ),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                      
+                      // 搜索历史
+                      if (controller.searchHistory.isNotEmpty) ...[
+                        const SizedBox(height: 16),
+                        Text(
+                          'Recent Searches',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        ...controller.searchHistory.take(5).map((search) {
+                          return InkWell(
+                            onTap: () => controller.selectSearchHistory(search),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.history, size: 16, color: Colors.grey[500]),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      search,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey[700],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ],
+                    ],
+                  ),
+                )
+              : const SizedBox.shrink()),
+          ],
         ),
       ),
     );
