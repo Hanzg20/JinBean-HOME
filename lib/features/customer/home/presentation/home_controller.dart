@@ -27,19 +27,46 @@ class HotspotItem {
 
 // New model for Service Recommendation items
 class ServiceRecommendation {
-  final String serviceId; // Changed to String for UUID
-  final Map<String, dynamic> serviceName;
-  final Map<String, dynamic> serviceDescription;
-  final String serviceIcon; // 对应ref_codes的extra_data['icon']
-  final String recommendationReason; // 推荐理由，如"根据您的地理位置"
+  final String id;
+  final dynamic serviceName;
+  final dynamic serviceDescription;
+  final String serviceIcon;
+  final String recommendationReason;
+  
+  // 添加缺失的属性
+  final dynamic name;
+  final String imageUrl;
+  final String providerName;
+  final double rating;
+  final String price;
+  final double? distance;
+  final bool isPopular;
+  final bool isNearby;
 
   ServiceRecommendation({
-    required this.serviceId,
+    required this.id,
     required this.serviceName,
     required this.serviceDescription,
     required this.serviceIcon,
     required this.recommendationReason,
-  });
+    // 新增属性的初始化
+    dynamic name,
+    String? imageUrl,
+    String? providerName,
+    double? rating,
+    String? price,
+    this.distance,
+    bool? isPopular,
+    bool? isNearby,
+  }) : name = name ?? serviceName,
+       imageUrl = imageUrl?.isNotEmpty == true && Uri.tryParse(imageUrl!)?.hasScheme == true
+          ? imageUrl
+          : 'https://via.placeholder.com/200x120?text=Service',
+       providerName = providerName ?? 'Service Provider',
+       rating = rating ?? 4.5,
+       price = price ?? '50',
+       isPopular = isPopular ?? false,
+       isNearby = isNearby ?? false;
 }
 
 // Existing model for Home Service Items (updated to include id and typeCode for grid)
@@ -295,7 +322,7 @@ class HomeController extends GetxController {
         print('图标名称: $iconData');
 
         processedServices.add(ServiceRecommendation(
-          serviceId: service['id'],
+          id: service['id'],
           serviceName: safeServiceTitle,
           serviceDescription: safeServiceDescription,
           serviceIcon: iconData,
