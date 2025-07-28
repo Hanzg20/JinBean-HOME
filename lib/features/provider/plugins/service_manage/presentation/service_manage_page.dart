@@ -258,7 +258,7 @@ class ServiceManagePage extends GetView<ServiceManageController> {
             final service = controller.services[index];
             return _buildServiceCard(service);
           },
-        ),
+      ),
       );
     });
   }
@@ -363,7 +363,7 @@ class ServiceManagePage extends GetView<ServiceManageController> {
                 ),
                 Expanded(
                   child: _buildServiceStat('Duration', controller.getServiceDuration(service)),
-                ),
+            ),
                 Expanded(
                   child: _buildServiceStat('Status', isAvailable ? 'Available' : 'Unavailable'),
                 ),
