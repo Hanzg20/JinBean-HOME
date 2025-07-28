@@ -42,6 +42,7 @@ import 'package:jinbeanpod_83904710/features/customer/profile/presentation/langu
 import 'package:jinbeanpod_83904710/features/customer/profile/presentation/language_settings/language_settings_binding.dart';
 import 'package:jinbeanpod_83904710/features/provider/settings/language_settings_page.dart';
 import 'package:jinbeanpod_83904710/features/provider/settings/language_settings_binding.dart';
+import 'package:jinbeanpod_83904710/simulator/simulator_launcher.dart';
 
 void main() async {
   print('[main] App starting...');
@@ -162,6 +163,7 @@ void main() async {
             GetPage(name: '/theme_settings', page: () => const ThemeSettingsPage(), binding: ThemeSettingsBinding()),
             GetPage(name: '/language_settings', page: () => const LanguageSettingsPage(), binding: LanguageSettingsBinding()),
             GetPage(name: '/provider/language_settings', page: () => const ProviderLanguageSettingsPage(), binding: ProviderLanguageSettingsBinding()),
+            GetPage(name: '/simulator', page: () => const SimulatorLauncher()),
             // 只保留 ProviderShellApp 相关静态路由，其它 provider 插件式页面全部移除
             ...providerSettingsRoutes,
           ],
