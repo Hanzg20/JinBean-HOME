@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'service_booking_controller.dart';
+import 'package:jinbeanpod_83904710/features/service_booking/presentation/service_booking_controller.dart';
 import 'package:jinbeanpod_83904710/l10n/generated/app_localizations.dart'; // 导入国际化类
 import 'package:jinbeanpod_83904710/app/theme/app_colors.dart'; // Import AppColors
 import 'package:jinbeanpod_83904710/core/controllers/location_controller.dart'; // 导入LocationController
@@ -299,121 +300,79 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
   }
 
   Widget _buildLevel1Categories() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Text(
-            'Service Categories',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Obx(() {
-          if (controller.isLoadingLevel1.value) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(32),
-                child: CircularProgressIndicator(),
-              ),
-            );
-          }
-          
-          if (controller.level1Categories.isEmpty) {
-            return Container(
-              margin: const EdgeInsets.all(16),
-              padding: const EdgeInsets.all(32),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey[200]!),
-              ),
-              child: Column(
-                children: [
-                  Icon(Icons.category_outlined, size: 48, color: Colors.grey[400]),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No service categories available',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          return SizedBox(
-            height: 80,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: controller.level1Categories.length,
-              itemBuilder: (context, index) {
-                final category = controller.level1Categories[index];
-                final isSelected = controller.selectedLevel1CategoryId.value == category.id;
-                
-                return Container(
-                  margin: const EdgeInsets.only(right: 12),
-                  child: InkWell(
-                    onTap: () => controller.selectLevel1Category(category.id),
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      width: 100,
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: isSelected ? Colors.blue[600] : Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: isSelected ? Colors.blue[600]! : Colors.grey[200]!,
-                          width: 1,
+    return Container(
+      height: 50,
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: Obx(() {
+        if (controller.isLoadingLevel1.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        
+        return ListView.builder(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: controller.level1Categories.length,
+          itemBuilder: (context, index) {
+            final category = controller.level1Categories[index];
+            final isSelected = controller.selectedLevel1CategoryId.value == category.id;
+            
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              margin: const EdgeInsets.only(right: 12),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    // 添加触觉反馈
+                    HapticFeedback.lightImpact();
+                    controller.selectLevel1Category(category.id);
+                  },
+                  borderRadius: BorderRadius.circular(25),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: isSelected ? Colors.blue[600] : Colors.grey[100],
+                      borderRadius: BorderRadius.circular(25),
+                      border: Border.all(
+                        color: isSelected ? Colors.blue[600]! : Colors.grey[300]!,
+                        width: isSelected ? 2 : 1,
+                      ),
+                      boxShadow: isSelected ? [
+                        BoxShadow(
+                          color: Colors.blue[600]!.withOpacity(0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
                         ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            _getIconData(category.extraData['icon'] ?? 'category'),
+                      ] : null,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          ServiceBookingController.iconFromString(category.extraData?['icon']),
+                          size: 18,
+                          color: isSelected ? Colors.white : Colors.grey[700],
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          controller.getSafeLocalizedText(category.displayName()),
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                             color: isSelected ? Colors.white : Colors.grey[700],
-                            size: 24,
                           ),
-                          const SizedBox(height: 8),
-                          Text(
-                            category.displayName(),
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: isSelected ? Colors.white : Colors.black87,
-                            ),
-                            textAlign: TextAlign.center,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
-                );
-              },
-            ),
-          );
-        }),
-        const SizedBox(height: 24),
-      ],
+                ),
+              ),
+            );
+          },
+        );
+      }),
     );
   }
 

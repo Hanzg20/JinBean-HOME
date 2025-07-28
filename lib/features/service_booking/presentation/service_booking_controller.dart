@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:get_storage/get_storage.dart';
 
 // New model for Level 1 Service Categories
 class ServiceCategoryLevel1 {
@@ -100,6 +101,10 @@ class ServiceBookingController extends GetxController {
   final RxString searchQuery = ''.obs;
   final RxList<String> searchHistory = <String>[].obs;
   final RxList<String> hotSearches = <String>['Cleaning', 'Plumbing', 'Electrician', 'Gardening'].obs;
+  final RxBool isLoadingSearch = false.obs;
+  
+  // 添加GetStorage实例
+  final _storage = GetStorage();
 
   // New states for service categorization
   final RxList<ServiceCategoryLevel1> level1Categories = <ServiceCategoryLevel1>[].obs;
@@ -114,7 +119,6 @@ class ServiceBookingController extends GetxController {
   final RxBool isLoadingLevel1 = false.obs;
   final RxBool isLoadingLevel2 = false.obs;
   final RxBool isLoadingServices = false.obs;
-  final RxBool isLoadingSearch = false.obs;
 
   static IconData iconFromString(String? iconName) {
     switch (iconName) {
@@ -140,6 +144,9 @@ class ServiceBookingController extends GetxController {
   void onInit() {
     super.onInit();
     print('=== ServiceBookingController onInit ===');
+    
+    // 加载搜索历史
+    _loadSearchHistory();
     
     // 处理从首页传来的参数
     final arguments = Get.arguments as Map<String, dynamic>?;
@@ -410,6 +417,27 @@ class ServiceBookingController extends GetxController {
     return '';
   }
 
+  // 新增：加载搜索历史
+  void _loadSearchHistory() {
+    try {
+      final history = _storage.read<List<String>>('search_history') ?? [];
+      searchHistory.assignAll(history);
+      print('=== Loaded search history: ${searchHistory.length} items ===');
+    } catch (e) {
+      print('=== Error loading search history: $e ===');
+    }
+  }
+
+  // 新增：保存搜索历史
+  void _saveSearchHistory() {
+    try {
+      _storage.write('search_history', searchHistory.toList());
+      print('=== Saved search history: ${searchHistory.length} items ===');
+    } catch (e) {
+      print('=== Error saving search history: $e ===');
+    }
+  }
+
   // 新增：搜索功能
   void onSearchSubmitted(String query) {
     if (query.trim().isEmpty) return;
@@ -421,6 +449,8 @@ class ServiceBookingController extends GetxController {
       if (searchHistory.length > 10) {
         searchHistory.removeLast();
       }
+      // 保存到本地存储
+      _saveSearchHistory();
     }
     
     performSearch(trimmedQuery);

@@ -344,67 +344,70 @@ class HomePage extends GetView<HomeController> {
               final item = controller.carouselItems[index];
               return Container(
                 margin: const EdgeInsets.symmetric(horizontal: 16),
-                child: Card(
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        Image.network(
-                          item.imageUrl,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              color: Colors.grey[300],
-                              child: const Icon(Icons.image, size: 60, color: Colors.grey),
-                            );
-                          },
-                        ),
-                        Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.transparent,
-                                Colors.black.withOpacity(0.7),
+                child: GestureDetector(
+                  onTap: () => controller.onBannerTap(index),
+                  child: Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          Image.network(
+                            item.imageUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                color: Colors.grey[300],
+                                child: const Icon(Icons.image, size: 60, color: Colors.grey),
+                              );
+                            },
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Colors.transparent,
+                                  Colors.black.withOpacity(0.7),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 16,
+                            left: 16,
+                            right: 16,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  controller.getSafeLocalizedText(item.title),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  controller.getSafeLocalizedText(item.description),
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.9),
+                                    fontSize: 14,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ],
                             ),
                           ),
-                        ),
-                        Positioned(
-                          bottom: 16,
-                          left: 16,
-                          right: 16,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                controller.getSafeLocalizedText(item.title),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                controller.getSafeLocalizedText(item.description),
-                                style: TextStyle(
-                                  color: Colors.white.withOpacity(0.9),
-                                  fontSize: 14,
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),

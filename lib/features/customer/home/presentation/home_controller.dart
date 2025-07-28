@@ -11,8 +11,20 @@ class CarouselItem {
   final String title;
   final String description;
   final String imageUrl;
+  final String? actionType; // 'service', 'category', 'url'
+  final String? serviceId;
+  final String? categoryId;
+  final String? url;
 
-  CarouselItem({required this.title, required this.description, required this.imageUrl});
+  CarouselItem({
+    required this.title, 
+    required this.description, 
+    required this.imageUrl,
+    this.actionType,
+    this.serviceId,
+    this.categoryId,
+    this.url,
+  });
 }
 
 // New model for Community Hotspot items
@@ -243,6 +255,34 @@ class HomeController extends GetxController {
 
   void onCarouselPageChanged(int index) {
     currentCarouselIndex.value = index;
+  }
+
+  // 新增：Banner点击处理
+  void onBannerTap(int index) {
+    final banner = carouselItems[index];
+    if (banner.actionType == 'service') {
+      // 跳转到服务详情页
+      Get.toNamed('/service_detail', arguments: {
+        'serviceId': banner.serviceId,
+        'serviceName': banner.title,
+      });
+    } else if (banner.actionType == 'category') {
+      // 跳转到服务预订页并高亮对应分类
+      Get.toNamed('/service_booking', arguments: {
+        'level1CategoryId': banner.categoryId,
+        'highlightCategory': true,
+      });
+    } else if (banner.actionType == 'url') {
+      // 打开外部链接
+      if (banner.url != null) {
+        // TODO: 使用url_launcher打开外部链接
+        Get.snackbar(
+          'External Link',
+          'Opening: ${banner.url}',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+    }
   }
 
   @override
