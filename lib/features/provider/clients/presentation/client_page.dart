@@ -55,25 +55,25 @@ class ClientPage extends GetView<ClientController> {
           ),
         ],
       ),
-      child: Column(
-        children: [
+        child: Column(
+          children: [
           // Search Bar
           TextField(
             onChanged: (value) => controller.searchClients(value),
-            decoration: InputDecoration(
+                decoration: InputDecoration(
               hintText: 'Search clients by name or email...',
               prefixIcon: const Icon(Icons.search),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-              filled: true,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  filled: true,
               fillColor: Colors.grey[100],
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            ),
-          ),
+                ),
+              ),
           const SizedBox(height: 12),
-          
+
           // Category Filter
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -115,8 +115,8 @@ class ClientPage extends GetView<ClientController> {
           final stats = snapshot.data ?? {};
           
           return Row(
-            children: [
-              Expanded(
+                children: [
+                  Expanded(
                 child: _buildStatCard('Total', stats['total']?.toString() ?? '0', Colors.blue),
               ),
               const SizedBox(width: 8),
@@ -207,7 +207,7 @@ class ClientPage extends GetView<ClientController> {
                 onPressed: () => _showAddClientDialog(),
                 icon: const Icon(Icons.add),
                 label: const Text('Add Client'),
-                style: ElevatedButton.styleFrom(
+                      style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   foregroundColor: Colors.white,
                 ),
@@ -272,12 +272,12 @@ class ClientPage extends GetView<ClientController> {
                       fontWeight: FontWeight.bold,
                       color: categoryColor,
                     ),
+                    ),
                   ),
-                ),
                 const SizedBox(width: 12),
                 
                 // Client Info
-                Expanded(
+                  Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -294,12 +294,12 @@ class ClientPage extends GetView<ClientController> {
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey[600],
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-                
+                ],
+              ),
+            ),
+
                 // Category Badge
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -315,7 +315,7 @@ class ClientPage extends GetView<ClientController> {
                       fontWeight: FontWeight.w500,
                       color: categoryColor,
                     ),
-                  ),
+            ),
                 ),
               ],
             ),
@@ -324,24 +324,24 @@ class ClientPage extends GetView<ClientController> {
             
             // Stats Row
             Row(
-              children: [
+                  children: [
                 Expanded(
                   child: _buildClientStat('Orders', controller.getTotalOrders(client).toString()),
-                ),
+                    ),
                 Expanded(
                   child: _buildClientStat('Total', controller.formatPrice(controller.getTotalAmount(client))),
                 ),
                 Expanded(
                   child: _buildClientStat('Last Contact', controller.formatDateTime(client['last_contact_date'])),
-                ),
+              ),
               ],
             ),
-            
+
             const SizedBox(height: 16),
             
             // Action Buttons
             Row(
-              children: [
+                  children: [
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: () => _showClientDetails(client),
@@ -360,9 +360,9 @@ class ClientPage extends GetView<ClientController> {
                     label: const Text('Message'),
                     style: OutlinedButton.styleFrom(
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
-                  ),
                 ),
+              ),
+            ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: OutlinedButton.icon(
