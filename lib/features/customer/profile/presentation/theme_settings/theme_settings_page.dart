@@ -5,7 +5,7 @@ import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
 import 'package:jinbeanpod_83904710/l10n/app_localizations_en.dart';
 
 class ThemeSettingsPage extends GetView<ThemeSettingsController> {
-  const ThemeSettingsPage({Key? key}) : super(key: key);
+  const ThemeSettingsPage({super.key});
 
   @override
   Widget build(BuildContext context) {

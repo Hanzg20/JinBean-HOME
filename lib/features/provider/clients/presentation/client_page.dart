@@ -2,13 +2,34 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/features/provider/clients/presentation/client_controller.dart';
 
-class ClientPage extends GetView<ClientController> {
-  const ClientPage({Key? key}) : super(key: key);
+class ClientPage extends StatefulWidget {
+  const ClientPage({super.key});
+
+  @override
+  State<ClientPage> createState() => _ClientPageState();
+}
+
+class _ClientPageState extends State<ClientPage> {
+  late ClientController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    // 确保Controller被注册
+    if (!Get.isRegistered<ClientController>()) {
+      Get.put(ClientController());
+    }
+    controller = Get.find<ClientController>();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Get.back(),
+        ),
         title: const Text('Client Management'),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,

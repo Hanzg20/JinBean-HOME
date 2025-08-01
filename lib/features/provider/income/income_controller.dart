@@ -29,55 +29,53 @@ class IncomeController extends GetxController {
     loadIncomeData();
   }
   
-  /// Load income data for selected period
+  /// Load income data
   Future<void> loadIncomeData() async {
     try {
       isLoading.value = true;
       
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) {
+        AppLogger.warning('[IncomeController] No user ID available', tag: 'Income');
+        return;
+      }
+      
       // Calculate date range based on selected period
       final DateTime now = DateTime.now();
       DateTime startDate;
-      DateTime endDate = DateTime(now.year, now.month, now.day, 23, 59, 59);
+      DateTime endDate = now;
       
       switch (selectedPeriod.value) {
         case 'week':
-          startDate = now.subtract(Duration(days: now.weekday - 1));
+          startDate = now.subtract(const Duration(days: 7));
           break;
         case 'month':
-          startDate = DateTime(int.parse(selectedYear.value), int.parse(selectedMonth.value), 1);
-          endDate = DateTime(int.parse(selectedYear.value), int.parse(selectedMonth.value) + 1, 0, 23, 59, 59);
+          startDate = DateTime(now.year, now.month - 1, now.day);
           break;
         case 'quarter':
-          final quarter = ((int.parse(selectedMonth.value) - 1) ~/ 3) + 1;
-          final startMonth = (quarter - 1) * 3 + 1;
-          startDate = DateTime(int.parse(selectedYear.value), startMonth, 1);
-          endDate = DateTime(int.parse(selectedYear.value), startMonth + 3, 0, 23, 59, 59);
+          startDate = DateTime(now.year, now.month - 3, now.day);
           break;
         case 'year':
-          startDate = DateTime(int.parse(selectedYear.value), 1, 1);
-          endDate = DateTime(int.parse(selectedYear.value), 12, 31, 23, 59, 59);
+          startDate = DateTime(now.year - 1, now.month, now.day);
           break;
         default:
-          startDate = DateTime(int.parse(selectedYear.value), int.parse(selectedMonth.value), 1);
-          endDate = DateTime(int.parse(selectedYear.value), int.parse(selectedMonth.value) + 1, 0, 23, 59, 59);
+          startDate = now.subtract(const Duration(days: 30));
       }
       
       // Load income records
       final incomeResponse = await _supabase
-          .from('income_records')
+          .from('income')
           .select('''
             *,
             orders:orders(
               id,
-              amount,
-              status,
-              created_at,
+              order_number,
               customer:users!orders_customer_id_fkey(
                 full_name
               )
             )
           ''')
-          .eq('provider_id', _supabase.auth.currentUser?.id)
+          .eq('provider_id', userId)
           .gte('income_date', startDate.toIso8601String())
           .lte('income_date', endDate.toIso8601String())
           .order('income_date', ascending: false);
@@ -88,7 +86,7 @@ class IncomeController extends GetxController {
       final settlementResponse = await _supabase
           .from('settlements')
           .select('*')
-          .eq('provider_id', _supabase.auth.currentUser?.id)
+          .eq('provider_id', userId)
           .gte('settlement_date', startDate.toIso8601String())
           .lte('settlement_date', endDate.toIso8601String())
           .order('settlement_date', ascending: false);
@@ -144,10 +142,16 @@ class IncomeController extends GetxController {
     try {
       isLoading.value = true;
       
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) {
+        AppLogger.warning('[IncomeController] No user ID available', tag: 'Income');
+        return;
+      }
+      
       await _supabase
           .from('settlements')
           .insert({
-            'provider_id': _supabase.auth.currentUser?.id,
+            'provider_id': userId,
             'amount': amount,
             'payment_method': paymentMethod,
             'status': 'pending',
@@ -181,6 +185,12 @@ class IncomeController extends GetxController {
   /// Get income statistics for different periods
   Future<Map<String, dynamic>> getIncomeStatistics() async {
     try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) {
+        AppLogger.warning('[IncomeController] No user ID available', tag: 'Income');
+        return {};
+      }
+      
       final now = DateTime.now();
       final Map<String, dynamic> stats = {};
       
@@ -188,7 +198,7 @@ class IncomeController extends GetxController {
       final monthlyResponse = await _supabase
           .from('income_records')
           .select('amount, income_date')
-          .eq('provider_id', _supabase.auth.currentUser?.id)
+          .eq('provider_id', userId)
           .gte('income_date', DateTime(now.year, 1, 1).toIso8601String())
           .lte('income_date', DateTime(now.year, 12, 31).toIso8601String());
       
@@ -210,7 +220,7 @@ class IncomeController extends GetxController {
       final yearlyResponse = await _supabase
           .from('income_records')
           .select('amount, income_date')
-          .eq('provider_id', _supabase.auth.currentUser?.id);
+          .eq('provider_id', userId);
       
       final Map<int, double> yearlyTotals = {};
       for (final record in yearlyResponse) {
@@ -233,10 +243,16 @@ class IncomeController extends GetxController {
   /// Get payment methods
   Future<List<Map<String, dynamic>>> getPaymentMethods() async {
     try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) {
+        AppLogger.warning('[IncomeController] No user ID available', tag: 'Income');
+        return [];
+      }
+      
       final response = await _supabase
           .from('payment_methods')
           .select('*')
-          .eq('provider_id', _supabase.auth.currentUser?.id)
+          .eq('provider_id', userId)
           .eq('is_active', true)
           .order('created_at');
       
@@ -251,12 +267,18 @@ class IncomeController extends GetxController {
   /// Add payment method
   Future<void> addPaymentMethod(String methodType, String accountInfo, String accountName) async {
     try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) {
+        AppLogger.warning('[IncomeController] No user ID available', tag: 'Income');
+        return;
+      }
+      
       isLoading.value = true;
       
       await _supabase
           .from('payment_methods')
           .insert({
-            'provider_id': _supabase.auth.currentUser?.id,
+            'provider_id': userId,
             'method_type': methodType,
             'account_info': accountInfo,
             'account_name': accountName,

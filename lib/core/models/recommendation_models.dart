@@ -1,7 +1,6 @@
 // 推荐系统数据模型
 // 支持用户行为分析、推荐算法、A/B测试等功能
 
-import 'package:flutter/material.dart';
 
 // ========================================
 // 1. 用户行为模型 (UserBehavior)

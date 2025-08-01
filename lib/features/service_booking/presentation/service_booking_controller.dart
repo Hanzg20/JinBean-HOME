@@ -464,8 +464,9 @@ class ServiceBookingController extends GetxController {
     searchController.clear();
     searchQuery.value = '';
     // 清除搜索结果，显示所有服务
-    if (selectedLevel1CategoryId.value != null) {
-      fetchLevel2Categories(selectedLevel1CategoryId.value!);
+    final selectedId = selectedLevel1CategoryId.value;
+    if (selectedId != null) {
+      fetchLevel2Categories(selectedId);
     }
   }
 

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
 
 class OrderManagePage extends StatelessWidget {

@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import './language_settings_controller.dart';
 import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
 import 'package:jinbeanpod_83904710/l10n/app_localizations_en.dart';
-import 'package:flutter_phoenix/flutter_phoenix.dart';
 
 class LanguageSettingsPage extends GetView<LanguageSettingsController> {
   const LanguageSettingsPage({super.key});

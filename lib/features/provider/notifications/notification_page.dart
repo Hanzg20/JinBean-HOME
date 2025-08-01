@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/features/provider/notifications/notification_controller.dart';
 
 class NotificationPage extends GetView<NotificationController> {
-  const NotificationPage({Key? key}) : super(key: key);
+  const NotificationPage({super.key});
 
   @override
   Widget build(BuildContext context) {

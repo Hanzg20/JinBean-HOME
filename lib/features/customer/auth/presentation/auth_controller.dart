@@ -199,7 +199,7 @@ class AuthController extends GetxController {
               .select()
               .single();
           print('[Register] user_profiles 插入返回: $insertResp');
-          if (insertResp == null || insertResp['id'] == null) {
+          if (insertResp['id'] == null) {
             print('[Register] user_profiles 插入失败，返回为 null 或无 id');
             errorMessage.value = 'Profile creation failed: insert returned null';
             return;

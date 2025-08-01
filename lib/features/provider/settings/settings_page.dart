@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'profile_details_page.dart'; // Import the new ProfileDetailsPage
+// Import the new ProfileDetailsPage
 import '../profile/provider_profile_controller.dart'; // Corrected import path for controller
 
 class SettingsPage extends StatelessWidget {

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/features/customer/orders/presentation/orders_controller.dart';
-import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
-import 'package:jinbeanpod_83904710/l10n/app_localizations_en.dart';
 
 class OrdersPage extends GetView<OrdersController> {
   const OrdersPage({super.key});

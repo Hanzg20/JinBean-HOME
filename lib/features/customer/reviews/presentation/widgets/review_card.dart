@@ -11,12 +11,12 @@ class ReviewCard extends StatelessWidget {
   final VoidCallback onReport;
 
   const ReviewCard({
-    Key? key,
+    super.key,
     required this.review,
     required this.onVote,
     required this.onReply,
     required this.onReport,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

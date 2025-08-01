@@ -9,10 +9,10 @@ class ReviewFilterPanel extends StatefulWidget {
   final Function(ReviewFilterOptions) onApply;
 
   const ReviewFilterPanel({
-    Key? key,
+    super.key,
     required this.filterOptions,
     required this.onApply,
-  }) : super(key: key);
+  });
 
   @override
   State<ReviewFilterPanel> createState() => _ReviewFilterPanelState();

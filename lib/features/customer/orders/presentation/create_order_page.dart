@@ -233,7 +233,7 @@ class CreateOrderPage extends GetView<CreateOrderController> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(AppLocalizations.of(context)!.basePrice),
-                Text('\$' + (controller.price?.value ?? 0.0).toStringAsFixed(2)),
+                Text('\$${(controller.price?.value ?? 0.0).toStringAsFixed(2)}'),
               ],
             ),
             const SizedBox(height: 8),
@@ -241,7 +241,7 @@ class CreateOrderPage extends GetView<CreateOrderController> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(AppLocalizations.of(context)!.serviceFee),
-                Text('\$' + (controller.platformFee.value ?? 0.0).toStringAsFixed(2)),
+                Text('\$${(controller.platformFee.value ?? 0.0).toStringAsFixed(2)}'),
               ],
             ),
             const Divider(),

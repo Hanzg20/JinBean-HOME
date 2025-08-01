@@ -13,7 +13,7 @@ class TagSelector extends StatelessWidget {
   final double borderRadius;
 
   const TagSelector({
-    Key? key,
+    super.key,
     required this.availableTags,
     required this.selectedTags,
     required this.onTagToggled,
@@ -21,7 +21,7 @@ class TagSelector extends StatelessWidget {
     this.selectedColor,
     this.unselectedColor,
     this.borderRadius = 16.0,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

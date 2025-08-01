@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
+import 'package:flutter/material.dart'; // Added for Color
 
 class ServiceManageController extends GetxController {
   final _supabase = Supabase.instance.client;
@@ -29,6 +30,14 @@ class ServiceManageController extends GetxController {
   /// Load services with pagination and filtering
   Future<void> loadServices({bool refresh = false}) async {
     try {
+      isLoading.value = true;
+      
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) {
+        AppLogger.warning('[ServiceManageController] No user ID available', tag: 'ServiceManage');
+        return;
+      }
+      
       if (refresh) {
         currentPage.value = 1;
         services.clear();
@@ -37,31 +46,67 @@ class ServiceManageController extends GetxController {
       
       if (!hasMoreData.value || isLoading.value) return;
       
-      isLoading.value = true;
-      
-      // Build query
+      // Build base query - updated to match actual database schema
       var query = _supabase
           .from('services')
           .select('''
             *,
             service_details:service_details(*),
-            category:ref_codes!services_category_id_fkey(
+            category_level1:ref_codes!services_category_level1_id_fkey(
+              code_value,
+              code_description
+            ),
+            category_level2:ref_codes!services_category_level2_id_fkey(
               code_value,
               code_description
             )
           ''')
-          .eq('provider_id', _supabase.auth.currentUser?.id)
+          .eq('provider_id', userId)
           .order('created_at', ascending: false)
           .range((currentPage.value - 1) * pageSize, currentPage.value * pageSize - 1);
       
       // Apply category filter
       if (selectedCategory.value != 'all') {
-        query = query.eq('status', selectedCategory.value);
+        query = _supabase
+            .from('services')
+            .select('''
+              *,
+              service_details:service_details(*),
+              category_level1:ref_codes!services_category_level1_id_fkey(
+                code_value,
+                code_description
+              ),
+              category_level2:ref_codes!services_category_level2_id_fkey(
+                code_value,
+                code_description
+              )
+            ''')
+            .eq('provider_id', userId)
+            .eq('status', selectedCategory.value)
+            .order('created_at', ascending: false)
+            .range((currentPage.value - 1) * pageSize, currentPage.value * pageSize - 1);
       }
       
-      // Apply search filter
+      // Apply search filter - updated to use title and description fields
       if (searchQuery.value.isNotEmpty) {
-        query = query.or('name.ilike.%${searchQuery.value}%,description.ilike.%${searchQuery.value}%');
+        query = _supabase
+            .from('services')
+            .select('''
+              *,
+              service_details:service_details(*),
+              category_level1:ref_codes!services_category_level1_id_fkey(
+                code_value,
+                code_description
+              ),
+              category_level2:ref_codes!services_category_level2_id_fkey(
+                code_value,
+                code_description
+              )
+            ''')
+            .eq('provider_id', userId)
+            .or('title->>zh.ilike.%${searchQuery.value}%,title->>en.ilike.%${searchQuery.value}%,description->>zh.ilike.%${searchQuery.value}%,description->>en.ilike.%${searchQuery.value}%')
+            .order('created_at', ascending: false)
+            .range((currentPage.value - 1) * pageSize, currentPage.value * pageSize - 1);
       }
       
       final response = await query;
@@ -95,18 +140,29 @@ class ServiceManageController extends GetxController {
     try {
       isLoading.value = true;
       
-      // Create service
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) {
+        AppLogger.warning('[ServiceManageController] No user ID available', tag: 'ServiceManage');
+        return;
+      }
+      
+      // Create service - updated to match actual database schema
       final serviceResponse = await _supabase
           .from('services')
           .insert({
-            'provider_id': _supabase.auth.currentUser?.id,
-            'name': serviceData['name'],
-            'description': serviceData['description'],
-            'category_id': serviceData['category_id'],
-            'base_price': serviceData['base_price'],
-            'duration_minutes': serviceData['duration_minutes'],
+            'provider_id': userId,
+            'title': {
+              'zh': serviceData['name'],
+              'en': serviceData['name']
+            },
+            'description': {
+              'zh': serviceData['description'],
+              'en': serviceData['description']
+            },
+            'category_level1_id': serviceData['category_id'],
+            'category_level2_id': serviceData['category_level2_id'],
             'status': serviceData['status'] ?? 'draft',
-            'is_available': serviceData['is_available'] ?? true,
+            'service_delivery_method': serviceData['service_delivery_method'] ?? 'on_site',
             'created_at': DateTime.now().toIso8601String(),
             'updated_at': DateTime.now().toIso8601String(),
           })
@@ -119,9 +175,13 @@ class ServiceManageController extends GetxController {
             .from('service_details')
             .insert({
               'service_id': serviceResponse['id'],
-              'detail_type': serviceData['details']['type'],
-              'detail_value': serviceData['details']['value'],
+              'pricing_type': serviceData['details']['pricing_type'] ?? 'fixed_price',
+              'price': serviceData['details']['price'],
+              'currency': serviceData['details']['currency'] ?? 'USD',
+              'duration_type': serviceData['details']['duration_type'] ?? 'hours',
+              'duration': serviceData['details']['duration'],
               'created_at': DateTime.now().toIso8601String(),
+              'updated_at': DateTime.now().toIso8601String(),
             });
       }
       
@@ -156,16 +216,36 @@ class ServiceManageController extends GetxController {
       await _supabase
           .from('services')
           .update({
-            'name': serviceData['name'],
-            'description': serviceData['description'],
-            'category_id': serviceData['category_id'],
-            'base_price': serviceData['base_price'],
-            'duration_minutes': serviceData['duration_minutes'],
+            'title': {
+              'zh': serviceData['name'],
+              'en': serviceData['name']
+            },
+            'description': {
+              'zh': serviceData['description'],
+              'en': serviceData['description']
+            },
+            'category_level1_id': serviceData['category_id'],
+            'category_level2_id': serviceData['category_level2_id'],
             'status': serviceData['status'],
-            'is_available': serviceData['is_available'],
+            'service_delivery_method': serviceData['service_delivery_method'] ?? 'on_site',
             'updated_at': DateTime.now().toIso8601String(),
           })
           .eq('id', serviceId);
+      
+      // Update service details if provided
+      if (serviceData['details'] != null) {
+        await _supabase
+            .from('service_details')
+            .upsert({
+              'service_id': serviceId,
+              'pricing_type': serviceData['details']['pricing_type'] ?? 'fixed_price',
+              'price': serviceData['details']['price'],
+              'currency': serviceData['details']['currency'] ?? 'USD',
+              'duration_type': serviceData['details']['duration_type'] ?? 'hours',
+              'duration': serviceData['details']['duration'],
+              'updated_at': DateTime.now().toIso8601String(),
+            });
+      }
       
       // Refresh services list
       await loadServices(refresh: true);
@@ -200,7 +280,7 @@ class ServiceManageController extends GetxController {
           .from('orders')
           .select('id')
           .eq('service_id', serviceId)
-          .in_('status', ['pending', 'accepted', 'in_progress']);
+          .inFilter('status', ['pending', 'accepted', 'in_progress']);
       
       if (ordersResponse.isNotEmpty) {
         Get.snackbar(
@@ -246,13 +326,31 @@ class ServiceManageController extends GetxController {
     }
   }
   
-  /// Toggle service availability
+  /// Toggle service availability by changing status
   Future<void> toggleServiceAvailability(String serviceId, bool isAvailable) async {
     try {
+      // Get current service status
+      final serviceResponse = await _supabase
+          .from('services')
+          .select('status')
+          .eq('id', serviceId)
+          .single();
+      
+      final currentStatus = serviceResponse['status'] as String;
+      String newStatus;
+      
+      if (isAvailable) {
+        // If making available, set to active if it was paused
+        newStatus = currentStatus == 'paused' ? 'active' : currentStatus;
+      } else {
+        // If making unavailable, set to paused if it was active
+        newStatus = currentStatus == 'active' ? 'paused' : currentStatus;
+      }
+      
       await _supabase
           .from('services')
           .update({
-            'is_available': isAvailable,
+            'status': newStatus,
             'updated_at': DateTime.now().toIso8601String(),
           })
           .eq('id', serviceId);
@@ -282,7 +380,7 @@ class ServiceManageController extends GetxController {
       final response = await _supabase
           .from('ref_codes')
           .select('*')
-          .eq('code_type', 'service_category')
+          .eq('code_type', 'SERVICE_TYPE')
           .order('code_description');
       
       return List<Map<String, dynamic>>.from(response);
@@ -296,40 +394,61 @@ class ServiceManageController extends GetxController {
   /// Get service statistics
   Future<Map<String, dynamic>> getServiceStatistics() async {
     try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) {
+        AppLogger.warning('[ServiceManageController] No user ID available', tag: 'ServiceManage');
+        return {
+          'total': 0,
+          'active': 0,
+          'inactive': 0,
+          'draft': 0,
+          'paused': 0,
+          'archived': 0,
+          'total_revenue': 0,
+        };
+      }
+      
       final response = await _supabase
           .from('services')
-          .select('status, is_available')
-          .eq('provider_id', _supabase.auth.currentUser?.id);
+          .select('status')
+          .eq('provider_id', userId);
       
       final Map<String, int> stats = {
         'total': response.length,
         'active': 0,
         'inactive': 0,
         'draft': 0,
-        'available': 0,
-        'unavailable': 0,
+        'paused': 0,
+        'archived': 0,
+        'total_revenue': 0,
       };
       
       for (final service in response) {
-        final status = service['status'] as String;
-        final isAvailable = service['is_available'] as bool;
-        
+        final status = service['status'] as String? ?? 'draft';
         if (stats.containsKey(status)) {
           stats[status] = (stats[status] ?? 0) + 1;
         }
-        
-        if (isAvailable) {
-          stats['available'] = (stats['available'] ?? 0) + 1;
-        } else {
-          stats['unavailable'] = (stats['unavailable'] ?? 0) + 1;
-        }
       }
+      
+      // Calculate total revenue (placeholder - would need to join with orders table)
+      // For now, we'll use a simple calculation based on active services
+      stats['total_revenue'] = stats['active']! * 50; // Placeholder calculation
+      
+      AppLogger.info('[ServiceManageController] Statistics calculated: $stats', tag: 'ServiceManage');
       
       return stats;
       
     } catch (e) {
       AppLogger.error('[ServiceManageController] Error getting statistics: $e', tag: 'ServiceManage');
-      return {};
+      return {
+        'total': 0,
+        'active': 0,
+        'inactive': 0,
+        'draft': 0,
+        'paused': 0,
+        'archived': 0,
+        'total_revenue': 0,
+      };
     }
   }
   
@@ -349,28 +468,42 @@ class ServiceManageController extends GetxController {
   String getStatusDisplayText(String status) {
     switch (status) {
       case 'active':
-        return 'Active';
+        return '活跃';
       case 'inactive':
-        return 'Inactive';
+        return '暂停';
       case 'draft':
-        return 'Draft';
+        return '草稿';
+      case 'paused':
+        return '暂停';
+      case 'archived':
+        return '已归档';
       default:
-        return 'Unknown';
+        return '未知';
     }
   }
   
   /// Get status color
-  int getStatusColor(String status) {
+  Color getStatusColor(String status) {
     switch (status) {
       case 'active':
-        return 0xFF4CAF50; // Green
+        return Colors.green;
       case 'inactive':
-        return 0xFFF44336; // Red
+        return Colors.grey;
       case 'draft':
-        return 0xFFFFA500; // Orange
+        return Colors.orange;
+      case 'paused':
+        return Colors.red;
+      case 'archived':
+        return Colors.grey;
       default:
-        return 0xFF9E9E9E; // Grey
+        return Colors.grey;
     }
+  }
+  
+  /// Check if service is available (active status)
+  bool isServiceAvailable(Map<String, dynamic> service) {
+    final status = service['status'] as String?;
+    return status == 'active';
   }
   
   /// Get category display text
@@ -389,44 +522,60 @@ class ServiceManageController extends GetxController {
   
   /// Get service name
   String getServiceName(Map<String, dynamic> service) {
-    return service['name'] ?? 'Unknown Service';
+    final title = service['title'] as Map<String, dynamic>?;
+    if (title != null) {
+      return title['zh'] ?? title['en'] ?? 'Unknown Service';
+    }
+    return 'Unknown Service';
   }
   
   /// Get service description
   String getServiceDescription(Map<String, dynamic> service) {
-    return service['description'] ?? 'No description';
+    final description = service['description'] as Map<String, dynamic>?;
+    if (description != null) {
+      return description['zh'] ?? description['en'] ?? 'No description';
+    }
+    return 'No description';
   }
   
   /// Get service category
   String getServiceCategory(Map<String, dynamic> service) {
-    final category = service['category'] as Map<String, dynamic>?;
-    return category?['code_description'] ?? 'Uncategorized';
+    final categoryLevel1 = service['category_level1'] as Map<String, dynamic>?;
+    if (categoryLevel1 != null) {
+      return categoryLevel1['code_description'] ?? 'Uncategorized';
+    }
+    return 'Uncategorized';
   }
   
-  /// Get service price
+  /// Get service price from service_details
   String getServicePrice(Map<String, dynamic> service) {
-    final price = service['base_price'];
-    if (price == null) return '\$0.00';
-    final double amount = price is int ? price.toDouble() : price;
-    return '\$${amount.toStringAsFixed(2)}';
-  }
-  
-  /// Get service duration
-  String getServiceDuration(Map<String, dynamic> service) {
-    final duration = service['duration_minutes'];
-    if (duration == null) return 'N/A';
-    final int minutes = duration is int ? duration : duration.toInt();
-    if (minutes < 60) {
-      return '${minutes} min';
-    } else {
-      final hours = minutes ~/ 60;
-      final remainingMinutes = minutes % 60;
-      if (remainingMinutes == 0) {
-        return '${hours} hour${hours > 1 ? 's' : ''}';
-      } else {
-        return '${hours}h ${remainingMinutes}m';
+    final serviceDetails = service['service_details'] as List<dynamic>?;
+    if (serviceDetails != null && serviceDetails.isNotEmpty) {
+      final details = serviceDetails.first as Map<String, dynamic>;
+      final price = details['price'];
+      if (price != null) {
+        final double amount = price is int ? price.toDouble() : price;
+        return '\$${amount.toStringAsFixed(2)}';
       }
     }
+    return '\$0.00';
+  }
+  
+  /// Get service duration from service_details
+  String getServiceDuration(Map<String, dynamic> service) {
+    final serviceDetails = service['service_details'] as List<dynamic>?;
+    if (serviceDetails != null && serviceDetails.isNotEmpty) {
+      final details = serviceDetails.first as Map<String, dynamic>;
+      final duration = details['duration'];
+      
+      if (duration != null) {
+        // Handle interval type duration
+        if (duration is String) {
+          return duration;
+        }
+      }
+    }
+    return 'N/A';
   }
   
   /// Format price

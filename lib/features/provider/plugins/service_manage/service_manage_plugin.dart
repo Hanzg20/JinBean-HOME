@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:jinbeanpod_83904710/core/plugin_management/app_plugin.dart';
-import 'service_manage_page.dart';
+import 'presentation/service_manage_page.dart';
 
 class ServiceManagePlugin extends AppPlugin {
   @override
@@ -11,7 +11,7 @@ class ServiceManagePlugin extends AppPlugin {
     icon: Icons.build,
     enabled: true,
     order: 2,
-    type: PluginType.bottomTab,
+    type: PluginType.standalonePage,
     routeName: '/provider/service_manage',
     role: 'provider',
   );

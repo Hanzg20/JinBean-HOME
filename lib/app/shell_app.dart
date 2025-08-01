@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../core/plugin_management/plugin_manager.dart';
-import 'package:jinbeanpod_83904710/core/plugin_management/app_plugin.dart';
 import 'package:jinbeanpod_83904710/app/shell_app_controller.dart';
 
 class ShellApp extends GetView<ShellAppController> {

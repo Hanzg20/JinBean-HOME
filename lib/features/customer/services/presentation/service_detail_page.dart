@@ -546,7 +546,7 @@ class ServiceDetailPage extends GetView<ServiceDetailController> {
                       ),
                     ),
                     Text(
-                      '${serviceDetail?.price?.toStringAsFixed(2) ?? '75'}',
+                      serviceDetail?.price?.toStringAsFixed(2) ?? '75',
                       style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,

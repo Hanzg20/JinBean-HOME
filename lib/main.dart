@@ -19,18 +19,8 @@ import 'package:jinbeanpod_83904710/features/customer/splash/presentation/splash
 import 'package:jinbeanpod_83904710/features/customer/splash/presentation/splash_binding.dart';
 import 'package:jinbeanpod_83904710/features/provider/settings/settings_page.dart';
 // New imports for Settings sub-pages
-import 'package:jinbeanpod_83904710/features/provider/settings/profile_details_page.dart';
-import 'package:jinbeanpod_83904710/features/provider/settings/finance_page.dart';
-import 'package:jinbeanpod_83904710/features/provider/settings/reviews_page.dart';
-import 'package:jinbeanpod_83904710/features/provider/settings/reports_page.dart';
-import 'package:jinbeanpod_83904710/features/provider/settings/marketing_page.dart';
-import 'package:jinbeanpod_83904710/features/provider/settings/legal_page.dart';
 
 // New imports for provider pages
-import 'package:jinbeanpod_83904710/features/provider/orders/presentation/orders_shell_page.dart';
-import 'package:jinbeanpod_83904710/features/provider/clients/presentation/client_page.dart';
-import 'package:jinbeanpod_83904710/features/provider/plugins/service_manage/presentation/service_manage_page.dart';
-import 'package:jinbeanpod_83904710/features/provider/plugins/message_center/presentation/message_center_page.dart';
 import 'package:jinbeanpod_83904710/features/customer/splash/presentation/splash_controller.dart';
 import 'package:jinbeanpod_83904710/features/customer/auth/presentation/register_page.dart';
 import 'package:jinbeanpod_83904710/features/customer/auth/presentation/register_binding.dart';
@@ -43,6 +33,7 @@ import 'package:jinbeanpod_83904710/features/customer/profile/presentation/langu
 import 'package:jinbeanpod_83904710/features/provider/settings/language_settings_page.dart';
 import 'package:jinbeanpod_83904710/features/provider/settings/language_settings_binding.dart';
 import 'package:jinbeanpod_83904710/simulator/simulator_launcher.dart';
+import 'package:jinbeanpod_83904710/features/demo/provider_theme_demo_page.dart';
 
 void main() async {
   print('[main] App starting...');
@@ -133,11 +124,22 @@ void main() async {
         final themeName = themeService.getThemeForRole(role) ?? themeService.currentThemeName;
         print('Current Role: $role');
         print('Current Theme Name: $themeName');
+        
+        // 根据角色选择主题
+        ThemeData theme;
+        if (role == 'provider') {
+          // Provider角色使用ProviderTheme
+          theme = themeService.getThemeForRoleAndMode(role, themeService.themeMode);
+        } else {
+          // 其他角色使用原有主题
+          theme = themeName == 'golden'
+              ? themeService.goldenTheme
+              : themeService.darkTealTheme;
+        }
+        
         return GetMaterialApp(
           debugShowCheckedModeBanner: false,
-          theme: themeName == 'golden'
-              ? themeService.goldenTheme
-              : themeService.darkTealTheme,
+          theme: theme,
           themeMode: ThemeMode.system,
           localizationsDelegates: const [
             AppLocalizations.delegate,
@@ -150,7 +152,7 @@ void main() async {
             Locale('zh', ''), // Chinese
           ],
           locale: initialLocale, // 优先用本地持久化语言，否则用系统
-          home: const SplashPage(), // Always start with SplashPage
+          home: const ProviderShellApp(), // 临时直接启动ProviderShellApp进行测试
           getPages: [
             GetPage(name: '/auth', page: () => const LoginPage()),
             GetPage(name: '/register', page: () => RegisterPage(), binding: RegisterBinding()),
@@ -164,6 +166,7 @@ void main() async {
             GetPage(name: '/language_settings', page: () => const LanguageSettingsPage(), binding: LanguageSettingsBinding()),
             GetPage(name: '/provider/language_settings', page: () => const ProviderLanguageSettingsPage(), binding: ProviderLanguageSettingsBinding()),
             GetPage(name: '/simulator', page: () => const SimulatorLauncher()),
+            GetPage(name: '/provider_theme_demo', page: () => const ProviderThemeDemoPage()),
             // 只保留 ProviderShellApp 相关静态路由，其它 provider 插件式页面全部移除
             ...providerSettingsRoutes,
           ],

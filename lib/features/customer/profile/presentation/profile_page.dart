@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/features/customer/profile/presentation/profile_controller.dart';
-import 'package:jinbeanpod_83904710/app/theme/app_colors.dart';
 import 'package:jinbeanpod_83904710/core/plugin_management/plugin_manager.dart';
 import 'package:jinbeanpod_83904710/features/provider/plugins/provider_identity/provider_identity_service.dart';
-import 'package:jinbeanpod_83904710/features/provider/plugins/provider_registration/provider_registration_plugin.dart';
-import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
 import 'package:jinbeanpod_83904710/features/customer/auth/presentation/auth_controller.dart';
 
 class ProfilePage extends GetView<ProfileController> {
@@ -102,11 +99,11 @@ class ProfilePage extends GetView<ProfileController> {
                                   // 用户统计信息
                                   Row(
                                     children: [
-                                      _buildStatItem('Rating', '${controller.userRating.value}'),
+                                      Expanded(child: _buildStatItem('Rating', '${controller.userRating.value}')),
                                       const SizedBox(width: 16),
-                                      _buildStatItem('Points', '${controller.userPoints.value}'),
+                                      Expanded(child: _buildStatItem('Points', '${controller.userPoints.value}')),
                                       const SizedBox(width: 16),
-                                      _buildStatItem('Member', controller.memberSince.value),
+                                      Expanded(child: _buildStatItem('Member', controller.memberSince.value)),
                                     ],
                                   ),
                                 ],

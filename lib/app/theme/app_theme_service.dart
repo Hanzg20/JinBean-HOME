@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:jinbeanpod_83904710/app/theme/app_colors.dart';
+import 'package:jinbeanpod_83904710/core/ui/themes/jinbean_theme.dart';
+import 'package:jinbeanpod_83904710/core/ui/themes/provider_theme.dart';
+import 'package:jinbeanpod_83904710/core/ui/themes/customer_theme.dart';
 
 class AppThemeService extends GetxService {
   final _box = GetStorage();
@@ -40,6 +43,12 @@ class AppThemeService extends GetxService {
   void setThemeByName(String themeName) {
     if (themeName == 'golden') {
       currentTheme.value = goldenTheme;
+    } else if (themeName == 'jinbean_provider') {
+      currentTheme.value = JinBeanProviderTheme.lightTheme;
+    } else if (themeName == 'jinbean_customer') {
+      currentTheme.value = JinBeanCustomerTheme.lightTheme;
+    } else if (themeName == 'jinbean_base') {
+      currentTheme.value = JinBeanTheme.lightTheme;
     } else {
       currentTheme.value = darkTealTheme; // Default or fallback
     }
@@ -231,17 +240,59 @@ class AppThemeService extends GetxService {
 
   // 新增：为指定角色保存主题名
   void setThemeForRole(String role, String themeName) {
-    final key = 'theme_' + role;
+    final key = 'theme_$role';
     _box.write(key, themeName);
   }
 
-  // 新增：获取指定角色的主题名，若无则 provider 返回 golden，customer 返回 dark_teal
+  // 新增：获取指定角色的主题名，若无则 provider 返回 jinbean_provider，customer 返回 dark_teal
   String? getThemeForRole(String role) {
-    final key = 'theme_' + role;
+    final key = 'theme_$role';
     final theme = _box.read(key);
     if (theme != null) return theme;
-    if (role == 'provider') return 'golden';
+    if (role == 'provider') return 'jinbean_provider';
     return 'dark_teal';
+  }
+
+  // 新增：根据角色获取主题
+  ThemeData getThemeDataForRole(String role) {
+    final themeName = getThemeForRole(role) ?? 'dark_teal';
+    return getThemeByName(themeName);
+  }
+
+  // 新增：根据主题名获取主题数据
+  ThemeData getThemeByName(String themeName) {
+    switch (themeName) {
+      case 'golden':
+        return goldenTheme;
+      case 'jinbean_provider':
+        return JinBeanProviderTheme.lightTheme;
+      case 'jinbean_customer':
+        return JinBeanCustomerTheme.lightTheme;
+      case 'jinbean_base':
+        return JinBeanTheme.lightTheme;
+      case 'dark_teal':
+      default:
+        return darkTealTheme;
+    }
+  }
+
+  // 新增：根据角色和主题模式获取主题
+  ThemeData getThemeForRoleAndMode(String role, ThemeMode mode) {
+    final themeName = getThemeForRole(role) ?? 'dark_teal';
+    final baseTheme = getThemeByName(themeName);
+    
+    if (mode == ThemeMode.dark) {
+      switch (role) {
+        case 'provider':
+          return JinBeanProviderTheme.darkTheme;
+        case 'customer':
+          return JinBeanCustomerTheme.darkTheme;
+        default:
+          return JinBeanTheme.darkTheme;
+      }
+    }
+    
+    return baseTheme;
   }
 
   // 设置ThemeMode

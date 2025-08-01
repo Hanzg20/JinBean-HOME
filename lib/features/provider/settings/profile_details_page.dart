@@ -10,7 +10,13 @@ class ProfileDetailsPage extends StatelessWidget {
     final controller = Get.put(ProviderProfileController());
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('个人资料')),
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Get.back(),
+        ),
+        title: const Text('个人资料'),
+      ),
       body: Obx(() {
         if (controller.isLoading.value) {
           return const Center(child: CircularProgressIndicator());

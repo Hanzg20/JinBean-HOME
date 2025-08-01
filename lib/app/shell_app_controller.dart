@@ -22,7 +22,7 @@ class ShellAppController extends GetxController {
     } else {
       _currentIndex.value = index;
     }
-    AppLogger.info('ShellAppController: setTabSafe to index: \\${_currentIndex.value} (maxTabs: \\${maxTabs})', tag: 'ShellAppController');
+    AppLogger.info('ShellAppController: setTabSafe to index: \\${_currentIndex.value} (maxTabs: \\$maxTabs)', tag: 'ShellAppController');
   }
 
   @override

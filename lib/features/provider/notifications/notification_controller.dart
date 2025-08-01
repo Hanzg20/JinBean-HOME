@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
@@ -32,28 +33,33 @@ class NotificationController extends GetxController {
   
   /// Setup realtime subscription for notifications
   void _setupRealtimeSubscription() {
-    _supabase
-        .channel('notifications')
-        .on(
-          RealtimeListenTypes.postgresChanges,
-          ChannelFilter(
-            event: 'INSERT',
+    try {
+      _supabase
+          .channel('notifications')
+          .onPostgresChanges(
+            event: PostgresChangeEvent.insert,
             schema: 'public',
             table: 'notifications',
-            filter: 'recipient_id=eq.${_supabase.auth.currentUser?.id}',
-          ),
-          (payload, [ref]) {
-            AppLogger.info('[NotificationController] New notification received: $payload', tag: 'Notification');
-            _handleNewNotification(payload);
-          },
-        )
-        .subscribe();
+            filter: PostgresChangeFilter(
+              type: PostgresChangeFilterType.eq,
+              column: 'recipient_id',
+              value: _supabase.auth.currentUser?.id ?? '',
+            ),
+            callback: (payload) {
+              AppLogger.info('[NotificationController] New notification received: $payload', tag: 'Notification');
+              _handleNewNotification(payload);
+            },
+          )
+          .subscribe();
+    } catch (e) {
+      AppLogger.error('[NotificationController] Error setting up realtime subscription: $e', tag: 'Notification');
+    }
   }
   
   /// Handle new notification from realtime
-  void _handleNewNotification(Map<String, dynamic> payload) {
-    final newNotification = payload['new'] as Map<String, dynamic>?;
-    if (newNotification != null) {
+  void _handleNewNotification(PostgresChangePayload payload) {
+    try {
+      final newNotification = payload.newRecord;
       notifications.insert(0, newNotification);
       unreadCount.value++;
       hasUnreadNotifications.value = true;
@@ -65,6 +71,8 @@ class NotificationController extends GetxController {
         snackPosition: SnackPosition.TOP,
         duration: const Duration(seconds: 3),
       );
+        } catch (e) {
+      AppLogger.error('[NotificationController] Error handling new notification: $e', tag: 'Notification');
     }
   }
   
@@ -73,17 +81,29 @@ class NotificationController extends GetxController {
     try {
       isLoading.value = true;
       
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) {
+        AppLogger.warning('[NotificationController] No user ID available', tag: 'Notification');
+        return;
+      }
+      
       // Build query
       var query = _supabase
           .from('notifications')
           .select('*')
-          .eq('recipient_id', _supabase.auth.currentUser?.id)
+          .eq('recipient_id', userId)
           .order('created_at', ascending: false)
           .limit(50);
       
       // Apply type filter
       if (selectedType.value != 'all') {
-        query = query.eq('notification_type', selectedType.value);
+        query = _supabase
+            .from('notifications')
+            .select('*')
+            .eq('recipient_id', userId)
+            .eq('notification_type', selectedType.value)
+            .order('created_at', ascending: false)
+            .limit(50);
       }
       
       final response = await query;
@@ -112,6 +132,12 @@ class NotificationController extends GetxController {
     try {
       isLoading.value = true;
       
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) {
+        AppLogger.warning('[NotificationController] No user ID available', tag: 'Notification');
+        return;
+      }
+      
       final response = await _supabase
           .from('messages')
           .select('''
@@ -129,7 +155,7 @@ class NotificationController extends GetxController {
               )
             )
           ''')
-          .eq('recipient_id', _supabase.auth.currentUser?.id)
+          .eq('recipient_id', userId)
           .order('created_at', ascending: false)
           .limit(50);
       
@@ -175,13 +201,19 @@ class NotificationController extends GetxController {
   /// Mark all notifications as read
   Future<void> markAllAsRead() async {
     try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) {
+        AppLogger.warning('[NotificationController] No user ID available', tag: 'Notification');
+        return;
+      }
+      
       await _supabase
           .from('notifications')
           .update({
             'is_read': true,
             'read_at': DateTime.now().toIso8601String(),
           })
-          .eq('recipient_id', _supabase.auth.currentUser?.id)
+          .eq('recipient_id', userId)
           .eq('is_read', false);
       
       // Update local state
@@ -266,10 +298,16 @@ class NotificationController extends GetxController {
   /// Get notification statistics
   Future<Map<String, dynamic>> getNotificationStatistics() async {
     try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) {
+        AppLogger.warning('[NotificationController] No user ID available', tag: 'Notification');
+        return {};
+      }
+      
       final response = await _supabase
           .from('notifications')
           .select('notification_type, is_read')
-          .eq('recipient_id', _supabase.auth.currentUser?.id);
+          .eq('recipient_id', userId);
       
       final Map<String, int> stats = {
         'total': response.length,

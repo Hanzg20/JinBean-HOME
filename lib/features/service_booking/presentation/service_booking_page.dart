@@ -47,9 +47,6 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 位置信息卡片
-              _buildLocationCard(locationController),
-              
               // 搜索栏
               _buildSearchBar(),
               
@@ -74,34 +71,13 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
     return AppBar(
       elevation: 0,
       backgroundColor: Colors.white,
-      title: const Text(
-        'Service Booking',
-        style: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          color: Colors.black87,
-        ),
-      ),
-      actions: [
-        Obx(() => IconButton(
-          icon: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: locationController.isLoading.value ? Colors.grey[100] : Colors.blue[50],
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(
-              Icons.location_on,
-              color: locationController.isLoading.value ? Colors.grey[400] : Colors.blue[600],
-              size: 20,
-            ),
-          ),
-          onPressed: locationController.isLoading.value 
-            ? null 
-            : () => _showLocationDialog(context, locationController),
-        )),
-        const SizedBox(width: 8),
-      ],
+      // 移除标题，节省空间
+      title: const SizedBox.shrink(),
+      centerTitle: false,
+      // 减少高度
+      toolbarHeight: 48, // 进一步减少高度
+      // 移除所有actions，让设计更简洁
+      automaticallyImplyLeading: false,
     );
   }
 
@@ -174,126 +150,60 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
 
   Widget _buildSearchBar() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      margin: const EdgeInsets.fromLTRB(16, 4, 16, 12), // 进一步减少间距
       child: Card(
-        elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              child: TextField(
-                controller: controller.searchController,
-                onChanged: controller.onSearchChanged,
-                onSubmitted: controller.onSearchSubmitted,
-                decoration: InputDecoration(
-                  hintText: 'Search services, providers...',
-                  hintStyle: TextStyle(color: Colors.grey[500]),
-                  border: InputBorder.none,
-                  prefixIcon: Obx(() => controller.isLoadingSearch.value
-                    ? Container(
-                        padding: const EdgeInsets.all(14),
-                        child: SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                      )
-                    : Icon(Icons.search, color: Colors.grey[600])),
-                  suffixIcon: Obx(() => controller.searchQuery.value.isNotEmpty
-                    ? IconButton(
-                        icon: Icon(Icons.clear, color: Colors.grey[600]),
-                        onPressed: controller.clearSearch,
-                      )
-                    : Icon(Icons.filter_list, color: Colors.grey[400])),
+        elevation: 1, // 进一步减少阴影
+        shadowColor: Colors.black.withOpacity(0.04),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10), // 减少内边距
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            color: Colors.white, // 简化背景，移除渐变
+            border: Border.all(color: Colors.grey[100] ?? Colors.grey, width: 0.5),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.search,
+                color: Colors.grey[500],
+                size: 20,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: TextField(
+                  controller: controller.searchController,
+                  onChanged: controller.onSearchChanged,
+                  onSubmitted: controller.onSearchSubmitted,
+                  decoration: InputDecoration(
+                    hintText: 'Search for services...',
+                    hintStyle: TextStyle(
+                      color: Colors.grey[400],
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                  ),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    color: Colors.black87,
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
               ),
-            ),
-            
-            // 热门搜索和搜索历史
-            Obx(() => controller.searchQuery.value.isEmpty && controller.searchController.text.isEmpty
-              ? Container(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // 热门搜索
-                      if (controller.hotSearches.isNotEmpty) ...[
-                        Text(
-                          'Hot Searches',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.grey[700],
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 4,
-                          children: controller.hotSearches.map((search) {
-                            return InkWell(
-                              onTap: () => controller.selectHotSearch(search),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[100],
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: Text(
-                                  search,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey[700],
-                                  ),
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                      ],
-                      
-                      // 搜索历史
-                      if (controller.searchHistory.isNotEmpty) ...[
-                        const SizedBox(height: 16),
-                        Text(
-                          'Recent Searches',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.grey[700],
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        ...controller.searchHistory.take(5).map((search) {
-                          return InkWell(
-                            onTap: () => controller.selectSearchHistory(search),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              child: Row(
-                                children: [
-                                  Icon(Icons.history, size: 16, color: Colors.grey[500]),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      search,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.grey[700],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                      ],
-                    ],
-                  ),
-                )
-              : const SizedBox.shrink()),
-          ],
+              Obx(() => controller.searchQuery.value.isNotEmpty
+                ? GestureDetector(
+                    onTap: controller.clearSearch,
+                    child: Icon(
+                      Icons.clear,
+                      color: Colors.grey[500],
+                      size: 20,
+                    ),
+                  )
+                : const SizedBox.shrink()),
+            ],
+          ),
         ),
       ),
     );
@@ -301,12 +211,16 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
 
   Widget _buildLevel1Categories() {
     return Container(
-      height: 50,
-      margin: const EdgeInsets.symmetric(vertical: 8),
+      height: 56, // 减少高度，参考Yelp
+      margin: const EdgeInsets.symmetric(vertical: 4), // 减少垂直间距
       child: Obx(() {
         if (controller.isLoadingLevel1.value) {
           return const Center(child: CircularProgressIndicator());
         }
+        
+        // 强制刷新UI
+        final selectedId = controller.selectedLevel1CategoryId.value;
+        print('=== Obx Rebuild === Selected ID: $selectedId');
         
         return ListView.builder(
           scrollDirection: Axis.horizontal,
@@ -314,54 +228,52 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
           itemCount: controller.level1Categories.length,
           itemBuilder: (context, index) {
             final category = controller.level1Categories[index];
-            final isSelected = controller.selectedLevel1CategoryId.value == category.id;
+            final isSelected = selectedId == category.id;
             
-            return AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-              margin: const EdgeInsets.only(right: 12),
+            // 添加调试信息
+            print('=== UI Debug ===');
+            print('Category: ${category.displayName()}, ID: ${category.id}');
+            print('Selected ID: $selectedId');
+            print('Is Selected: $isSelected');
+            
+            return Container(
+              margin: const EdgeInsets.only(right: 8), // 减少间距
               child: Material(
                 color: Colors.transparent,
                 child: InkWell(
                   onTap: () {
                     // 添加触觉反馈
                     HapticFeedback.lightImpact();
+                    print('=== Tapping Category: ${category.displayName()} (ID: ${category.id}) ===');
                     controller.selectLevel1Category(category.id);
                   },
-                  borderRadius: BorderRadius.circular(25),
+                  borderRadius: BorderRadius.circular(20), // 减少圆角
                   child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    duration: const Duration(milliseconds: 200), // 减少动画时间
+                    curve: Curves.easeInOut,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 减少内边距
                     decoration: BoxDecoration(
-                      color: isSelected ? Colors.blue[600] : Colors.grey[100],
-                      borderRadius: BorderRadius.circular(25),
-                      border: Border.all(
-                        color: isSelected ? Colors.blue[600]! : Colors.grey[300]!,
-                        width: isSelected ? 2 : 1,
-                      ),
-                      boxShadow: isSelected ? [
-                        BoxShadow(
-                          color: Colors.blue[600]!.withOpacity(0.3),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ] : null,
+                      color: isSelected ? Colors.blue[600] : Colors.grey[100], // 简化设计
+                      borderRadius: BorderRadius.circular(20),
+                      border: isSelected 
+                        ? Border.all(color: Colors.blue[600] ?? Colors.blue, width: 1)
+                        : null,
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          ServiceBookingController.iconFromString(category.extraData?['icon']),
-                          size: 18,
+                          ServiceBookingController.iconFromString(category.extraData['icon']),
+                          size: 18, // 减小图标
                           color: isSelected ? Colors.white : Colors.grey[700],
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 8), // 减少间距
                         Text(
                           controller.getSafeLocalizedText(category.displayName()),
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: 14, // 减小字体
                             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                            color: isSelected ? Colors.white : Colors.grey[700],
+                            color: isSelected ? Colors.white : Colors.grey[800],
                           ),
                         ),
                       ],
@@ -383,32 +295,49 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
       }
       
       if (controller.isLoadingLevel2.value) {
-        return const Center(
-          child: Padding(
-            padding: EdgeInsets.all(32),
-            child: CircularProgressIndicator(),
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          padding: const EdgeInsets.all(16), // 减少内边距
+          child: const Center(
+            child: Column(
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 4), // 减少间距
+                Text(
+                  'Loading services...',
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       }
       
       if (controller.level2Categories.isEmpty) {
         return Container(
-          margin: const EdgeInsets.all(16),
-          padding: const EdgeInsets.all(32),
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          padding: const EdgeInsets.all(12), // 减少内边距
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey[200]!),
+            border: Border.all(color: Colors.grey[100] ?? Colors.grey),
           ),
           child: Column(
             children: [
-              Icon(Icons.grid_view, size: 48, color: Colors.grey[400]),
-              const SizedBox(height: 16),
+              Icon(
+                Icons.grid_view,
+                size: 24, // 减小图标
+                color: Colors.grey[400],
+              ),
+              const SizedBox(height: 4), // 减少间距
               Text(
-                'No subcategories available',
+                'No services available',
                 style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
                   color: Colors.grey[600],
                 ),
               ),
@@ -420,96 +349,112 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // 简化的header
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4), // 减少垂直间距
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  controller.level1Categories.firstWhereOrNull((c) => c.id == controller.selectedLevel1CategoryId.value)?.displayName() ?? 'Subcategories',
+                  '${controller.level2Categories.length} Services',
                   style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
                     color: Colors.black87,
                   ),
                 ),
                 TextButton(
                   onPressed: () {},
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
                   child: Text(
                     'View All',
                     style: TextStyle(
                       color: Colors.blue[600],
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
                     ),
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          // 紧凑的网格布局
           GridView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 1.2,
+              crossAxisCount: 3, // 改为3列，参考Yelp
+              crossAxisSpacing: 8, // 减少间距
+              mainAxisSpacing: 8, // 减少间距
+              childAspectRatio: 0.8, // 调整比例
             ),
             itemCount: controller.level2Categories.length,
             itemBuilder: (context, index) {
               final category = controller.level2Categories[index];
-              return Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                child: InkWell(
-                  onTap: () {
-                    // TODO: Navigate to service detail page
-                    Get.snackbar('Service', 'Opening service details...', snackPosition: SnackPosition.BOTTOM);
-                  },
-                  borderRadius: BorderRadius.circular(12),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: Colors.blue[50],
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Icon(
-                            Icons.category,
-                            color: Colors.blue[600],
-                            size: 20,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          category.displayName(),
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
-                          ),
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
+              return _buildLevel2CategoryCard(category);
             },
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 12), // 减少底部间距
         ],
       );
     });
+  }
+
+  Widget _buildLevel2CategoryCard(dynamic category) {
+    return Card(
+      elevation: 0, // 移除阴影
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      child: InkWell(
+        onTap: () {
+          // TODO: Navigate to service detail page
+          Get.snackbar('Service', 'Opening service details...', snackPosition: SnackPosition.BOTTOM);
+        },
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: const EdgeInsets.all(8), // 减少内边距
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // 简化的图标容器
+              Container(
+                width: 32, // 减小图标容器
+                height: 32,
+                decoration: BoxDecoration(
+                  color: Colors.blue[50], // 简化背景
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Icon(
+                  Icons.category,
+                  color: Colors.blue[600],
+                  size: 18, // 减小图标
+                ),
+              ),
+              const SizedBox(height: 6), // 减少间距
+              // 简化的文本
+              Flexible(
+                child: Text(
+                  category.displayName(),
+                  style: const TextStyle(
+                    fontSize: 11, // 减小字体
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87,
+                    height: 1.1,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildRecommendedServices() {
@@ -605,7 +550,7 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
               // Service Image
               ClipRRect(
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                child: Container(
+                child: SizedBox(
                   height: 120,
                   width: double.infinity,
                   child: Image.network(
@@ -728,7 +673,7 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
                 children: [
                   ClipRRect(
                     borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                    child: Container(
+                    child: SizedBox(
                       height: 120,
                       width: double.infinity,
                       child: Image.network(

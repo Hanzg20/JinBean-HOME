@@ -161,7 +161,7 @@ class ProfileController extends GetxController {
     final user = Supabase.instance.client.auth.currentUser;
     if (user == null) {
       // Added user.id == null check for robustness
-      print('[ProfileController] No authenticated user or user ID found. Returning. user: \\${user}');
+      print('[ProfileController] No authenticated user or user ID found. Returning. user: \\$user');
       isLoading.value = false;
       return;
     }

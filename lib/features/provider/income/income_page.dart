@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/features/provider/income/income_controller.dart';
 
 class IncomePage extends GetView<IncomeController> {
-  const IncomePage({Key? key}) : super(key: key);
+  const IncomePage({super.key});
 
   @override
   Widget build(BuildContext context) {

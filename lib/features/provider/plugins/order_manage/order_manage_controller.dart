@@ -28,28 +28,31 @@ class OrderManageController extends GetxController {
     loadOrders();
   }
   
-  /// Load orders with pagination and filtering
+  /// Load orders
   Future<void> loadOrders({bool refresh = false}) async {
     try {
+      isLoading.value = true;
+      
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) {
+        AppLogger.warning('[OrderManageController] No user ID available', tag: 'OrderManage');
+        return;
+      }
+      
       if (refresh) {
         currentPage.value = 1;
         orders.clear();
-        hasMoreData.value = true;
       }
       
-      if (!hasMoreData.value || isLoading.value) return;
-      
-      isLoading.value = true;
-      
-      // Build query
+      // Build base query
       var query = _supabase
           .from('orders')
           .select('''
             *,
             customer:users!orders_customer_id_fkey(
               id,
-              email,
               full_name,
+              email,
               phone
             ),
             service:services(
@@ -59,18 +62,58 @@ class OrderManageController extends GetxController {
               price
             )
           ''')
-          .eq('provider_id', _supabase.auth.currentUser?.id)
+          .eq('provider_id', userId)
           .order('created_at', ascending: false)
           .range((currentPage.value - 1) * pageSize, currentPage.value * pageSize - 1);
       
       // Apply status filter
       if (currentStatus.value != 'all') {
-        query = query.eq('status', currentStatus.value);
+        query = _supabase
+            .from('orders')
+            .select('''
+              *,
+              customer:users!orders_customer_id_fkey(
+                id,
+                full_name,
+                email,
+                phone
+              ),
+              service:services(
+                id,
+                name,
+                description,
+                price
+              )
+            ''')
+            .eq('provider_id', userId)
+            .eq('status', currentStatus.value)
+            .order('created_at', ascending: false)
+            .range((currentPage.value - 1) * pageSize, currentPage.value * pageSize - 1);
       }
       
       // Apply search filter
       if (searchQuery.value.isNotEmpty) {
-        query = query.or('id.ilike.%${searchQuery.value}%,customer.full_name.ilike.%${searchQuery.value}%');
+        query = _supabase
+            .from('orders')
+            .select('''
+              *,
+              customer:users!orders_customer_id_fkey(
+                id,
+                full_name,
+                email,
+                phone
+              ),
+              service:services(
+                id,
+                name,
+                description,
+                price
+              )
+            ''')
+            .eq('provider_id', userId)
+            .or('id.ilike.%${searchQuery.value}%,customer.full_name.ilike.%${searchQuery.value}%')
+            .order('created_at', ascending: false)
+            .range((currentPage.value - 1) * pageSize, currentPage.value * pageSize - 1);
       }
       
       final response = await query;
@@ -104,6 +147,12 @@ class OrderManageController extends GetxController {
     try {
       isLoading.value = true;
       
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) {
+        AppLogger.warning('[OrderManageController] No user ID available', tag: 'OrderManage');
+        return;
+      }
+      
       // Update order status
       await _supabase
           .from('orders')
@@ -119,7 +168,7 @@ class OrderManageController extends GetxController {
           .insert({
             'order_id': orderId,
             'status': newStatus,
-            'changed_by': _supabase.auth.currentUser?.id,
+            'changed_by': userId,
             'changed_at': DateTime.now().toIso8601String(),
           });
       
@@ -181,10 +230,16 @@ class OrderManageController extends GetxController {
   /// Get order statistics
   Future<Map<String, dynamic>> getOrderStatistics() async {
     try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) {
+        AppLogger.warning('[OrderManageController] No user ID available', tag: 'OrderManage');
+        return {};
+      }
+      
       final response = await _supabase
           .from('orders')
           .select('status')
-          .eq('provider_id', _supabase.auth.currentUser?.id);
+          .eq('provider_id', userId);
       
       final Map<String, int> stats = {
         'total': response.length,

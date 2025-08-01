@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:jinbeanpod_83904710/core/plugin_management/plugin_manager.dart'; // Corrected import for PluginManager
+// Corrected import for PluginManager
 import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
-import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
 
 class OnboardingPageModel {
   final String imagePath;

@@ -12,14 +12,14 @@ class ImageUploadWidget extends StatelessWidget {
   final double borderRadius;
 
   const ImageUploadWidget({
-    Key? key,
+    super.key,
     required this.images,
     required this.onImageAdded,
     required this.onImageRemoved,
     this.maxImages = 5,
     this.imageSize = 80.0,
     this.borderRadius = 8.0,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

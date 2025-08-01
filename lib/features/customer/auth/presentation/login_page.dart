@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/features/customer/auth/presentation/auth_controller.dart';
 import 'package:jinbeanpod_83904710/app/theme/app_colors.dart';
 import 'package:jinbeanpod_83904710/core/plugin_management/plugin_manager.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 import 'package:jinbeanpod_83904710/app/theme/app_theme_service.dart';
 import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
@@ -236,9 +235,12 @@ class _LoginPageState extends State<LoginPage> {
                     print('[LoginPage] 跳转注册页: /register');
                     Get.toNamed('/register');
                   },
+                  style: TextButton.styleFrom(
+                    foregroundColor: Theme.of(context).colorScheme.primary,
+                    textStyle: const TextStyle(inherit: true),
+                  ),
                   child: Text(
                     (AppLocalizations.of(context) ?? AppLocalizationsEn()).noAccountPrompt,
-                    style: TextStyle(color: Theme.of(context).colorScheme.primary),
                   ),
                 ),
                 const SizedBox(height: 40),

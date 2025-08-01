@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'provider_simulator.dart';
 
 class SimulatorLauncher extends StatelessWidget {
-  const SimulatorLauncher({Key? key}) : super(key: key);
+  const SimulatorLauncher({super.key});
 
   @override
   Widget build(BuildContext context) {

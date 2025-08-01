@@ -14,10 +14,10 @@ class WriteReviewPage extends StatelessWidget {
   final String serviceTitle;
 
   const WriteReviewPage({
-    Key? key,
+    super.key,
     required this.serviceId,
     required this.serviceTitle,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

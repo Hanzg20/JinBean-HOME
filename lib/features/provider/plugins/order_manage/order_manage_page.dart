@@ -4,12 +4,16 @@ import 'package:jinbeanpod_83904710/features/provider/plugins/order_manage/order
 import 'package:jinbeanpod_83904710/features/provider/plugins/order_manage/order_manage_binding.dart';
 
 class OrderManagePage extends GetView<OrderManageController> {
-  const OrderManagePage({Key? key}) : super(key: key);
+  const OrderManagePage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Get.back(),
+        ),
         title: const Text('Order Management'),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,

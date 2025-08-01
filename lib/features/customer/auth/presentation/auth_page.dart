@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/features/customer/auth/presentation/auth_controller.dart';
-import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
 
 class AuthPage extends GetView<AuthController> {
   const AuthPage({super.key});

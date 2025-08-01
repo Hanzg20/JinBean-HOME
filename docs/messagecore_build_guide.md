@@ -252,7 +252,7 @@ Phase 4: 切换上线 (1周)
 ### 2.3 项目结构
 
 ```
-messagehub/
+messageCore/
 ├── apps/
 │   ├── api/                    # 主API服务
 │   ├── realtime/               # 实时通信服务

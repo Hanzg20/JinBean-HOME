@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:jinbeanpod_83904710/core/plugin_management/app_plugin.dart';
-import 'rob_order_hall_page.dart';
+import 'presentation/rob_order_hall_page.dart';
 
 class RobOrderHallPlugin extends AppPlugin {
   @override

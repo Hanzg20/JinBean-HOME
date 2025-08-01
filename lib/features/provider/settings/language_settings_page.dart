@@ -14,6 +14,10 @@ class ProviderLanguageSettingsPage extends GetView<LanguageSettingsController> {
     Locale? selectedLocale = currentLocale;
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Get.back(),
+        ),
         title: Text((AppLocalizations.of(context) ?? AppLocalizationsEn()).languageSettings),
       ),
       body: Center(

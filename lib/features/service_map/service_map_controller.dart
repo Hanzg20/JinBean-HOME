@@ -99,7 +99,7 @@ class ServiceMapController extends GetxController {
             ? Map<String, dynamic>.from(e['description'])
             : null;
         print(
-            '[ServiceMapController] 服务点: id=${e['id']} lat=$lat lng=$lng 距离=${distance?.toStringAsFixed(2) ?? '未知'}km');
+            '[ServiceMapController] 服务点: id=${e['id']} lat=$lat lng=$lng 距离=${distance.toStringAsFixed(2) ?? '未知'}km');
         return ServiceMarkerModel(
           id: e['id'],
           name: titleMap?['zh'] ?? titleMap?['en'] ?? '',

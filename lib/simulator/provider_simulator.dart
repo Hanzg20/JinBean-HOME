@@ -7,7 +7,7 @@ import 'package:jinbeanpod_83904710/features/provider/income/income_controller.d
 import 'package:jinbeanpod_83904710/features/provider/notifications/notification_controller.dart';
 
 class ProviderSimulator extends StatefulWidget {
-  const ProviderSimulator({Key? key}) : super(key: key);
+  const ProviderSimulator({super.key});
 
   @override
   State<ProviderSimulator> createState() => _ProviderSimulatorState();

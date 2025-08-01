@@ -8,6 +8,8 @@ import 'package:jinbeanpod_83904710/features/community/community_plugin.dart';
 import 'package:jinbeanpod_83904710/features/customer/profile/profile_plugin.dart';
 import 'package:jinbeanpod_83904710/features/service_map/service_map_plugin.dart'; // Import ServiceMapPlugin
 import 'package:jinbeanpod_83904710/features/customer/orders/orders_plugin.dart';
+import 'package:jinbeanpod_83904710/features/provider/plugins/service_manage/service_manage_plugin.dart'; // Import ServiceManagePlugin
+import 'package:jinbeanpod_83904710/features/provider/plugins/rob_order_hall/rob_order_hall_plugin.dart'; // Import RobOrderHallPlugin
 import 'package:jinbeanpod_83904710/app/shell_app_controller.dart';
 import 'package:jinbeanpod_83904710/app/theme/app_theme_service.dart';
 // TODO: 导入实际的插件文件，例如：
@@ -35,7 +37,7 @@ class PluginManager extends GetxController {
           .toList();
 
   PluginManager() {
-    print('[PluginManager] Constructor called. hash: [32m[1m[4m[7m${hashCode}[0m');
+    print('[PluginManager] Constructor called. hash:  [32m [1m [4m [7m$hashCode [0m');
     ever<List<PluginMetadata>>(_enabledPluginsMetadata,
         (_) => _updateEnabledTabPluginsForCurrentRole());
     ever<String>(currentRole, (_) => _updateEnabledTabPluginsForCurrentRole());
@@ -44,7 +46,7 @@ class PluginManager extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    print('[PluginManager] onInit called. hash: [32m[1m[4m[7m${hashCode}[0m');
+    print('[PluginManager] onInit called. hash:  [32m [1m [4m [7m$hashCode [0m');
     _fetchPluginsConfiguration();
   }
 
@@ -58,7 +60,9 @@ class PluginManager extends GetxController {
       ServiceBookingPlugin(), // 注册服务预约插件
       CommunityPlugin(), // 注册社区插件
       ServiceMapPlugin(), // 注册服务地图插件
-      // 不再注册任何 provider 端插件
+      // Provider 端插件
+      ServiceManagePlugin(), // 注册服务管理插件
+      RobOrderHallPlugin(), // 注册抢单大厅插件
     ]);
     print('[PluginManager] Static plugins registered: '
       '${_registeredPlugins.map((p) => p.metadata.id).join(', ')}');
@@ -159,6 +163,27 @@ class PluginManager extends GetxController {
           'type': PluginType.bottomTab,
           'routeName': '/profile',
           'role': 'customer',
+        },
+        // Provider 端插件配置
+        {
+          'id': 'service_manage',
+          'nameKey': 'service_manage',
+          'iconName': 'build',
+          'enabled': true,
+          'order': 1,
+          'type': PluginType.standalonePage,
+          'routeName': '/provider/service_manage',
+          'role': 'provider',
+        },
+        {
+          'id': 'rob_order_hall',
+          'nameKey': 'rob_order_hall',
+          'iconName': 'campaign',
+          'enabled': true,
+          'order': 2,
+          'type': PluginType.standalonePage,
+          'routeName': '/provider/rob_order_hall',
+          'role': 'provider',
         },
         // 不再包含任何 provider 端 bottomTab 配置
       ];

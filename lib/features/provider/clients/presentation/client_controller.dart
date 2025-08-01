@@ -29,25 +29,28 @@ class ClientController extends GetxController {
   /// Load clients with pagination and filtering
   Future<void> loadClients({bool refresh = false}) async {
     try {
+      isLoading.value = true;
+      
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) {
+        AppLogger.warning('[ClientController] No user ID available', tag: 'Client');
+        return;
+      }
+      
       if (refresh) {
         currentPage.value = 1;
         clients.clear();
-        hasMoreData.value = true;
       }
       
-      if (!hasMoreData.value || isLoading.value) return;
-      
-      isLoading.value = true;
-      
-      // Build query for client relationships
+      // Build base query
       var query = _supabase
           .from('client_relationships')
           .select('''
             *,
             client:users!client_relationships_client_id_fkey(
               id,
-              email,
               full_name,
+              email,
               phone,
               avatar_url
             ),
@@ -58,18 +61,60 @@ class ClientController extends GetxController {
               created_at
             )
           ''')
-          .eq('provider_id', _supabase.auth.currentUser?.id)
+          .eq('provider_id', userId)
           .order('last_contact_date', ascending: false)
           .range((currentPage.value - 1) * pageSize, currentPage.value * pageSize - 1);
       
       // Apply category filter
       if (selectedCategory.value != 'all') {
-        query = query.eq('relationship_type', selectedCategory.value);
+        query = _supabase
+            .from('client_relationships')
+            .select('''
+              *,
+              client:users!client_relationships_client_id_fkey(
+                id,
+                full_name,
+                email,
+                phone,
+                avatar_url
+              ),
+              orders:orders(
+                id,
+                status,
+                amount,
+                created_at
+              )
+            ''')
+            .eq('provider_id', userId)
+            .eq('relationship_type', selectedCategory.value)
+            .order('last_contact_date', ascending: false)
+            .range((currentPage.value - 1) * pageSize, currentPage.value * pageSize - 1);
       }
       
       // Apply search filter
       if (searchQuery.value.isNotEmpty) {
-        query = query.or('client.full_name.ilike.%${searchQuery.value}%,client.email.ilike.%${searchQuery.value}%');
+        query = _supabase
+            .from('client_relationships')
+            .select('''
+              *,
+              client:users!client_relationships_client_id_fkey(
+                id,
+                full_name,
+                email,
+                phone,
+                avatar_url
+              ),
+              orders:orders(
+                id,
+                status,
+                amount,
+                created_at
+              )
+            ''')
+            .eq('provider_id', userId)
+            .or('client.full_name.ilike.%${searchQuery.value}%,client.email.ilike.%${searchQuery.value}%')
+            .order('last_contact_date', ascending: false)
+            .range((currentPage.value - 1) * pageSize, currentPage.value * pageSize - 1);
       }
       
       final response = await query;
@@ -103,10 +148,16 @@ class ClientController extends GetxController {
     try {
       isLoading.value = true;
       
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) {
+        AppLogger.warning('[ClientController] No user ID available', tag: 'Client');
+        return;
+      }
+      
       await _supabase
           .from('client_relationships')
           .insert({
-            'provider_id': _supabase.auth.currentUser?.id,
+            'provider_id': userId,
             'client_id': clientId,
             'relationship_type': relationshipType,
             'notes': notes,
@@ -180,10 +231,16 @@ class ClientController extends GetxController {
     try {
       isLoading.value = true;
       
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) {
+        AppLogger.warning('[ClientController] No user ID available', tag: 'Client');
+        return;
+      }
+      
       await _supabase
           .from('client_communications')
           .insert({
-            'provider_id': _supabase.auth.currentUser?.id,
+            'provider_id': userId,
             'client_id': clientId,
             'communication_type': communicationType,
             'content': content,
@@ -198,7 +255,7 @@ class ClientController extends GetxController {
             'last_contact_date': DateTime.now().toIso8601String(),
             'updated_at': DateTime.now().toIso8601String(),
           })
-          .eq('provider_id', _supabase.auth.currentUser?.id)
+          .eq('provider_id', userId)
           .eq('client_id', clientId);
       
       Get.snackbar(
@@ -224,10 +281,16 @@ class ClientController extends GetxController {
   /// Get client communications
   Future<List<Map<String, dynamic>>> getClientCommunications(String clientId) async {
     try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) {
+        AppLogger.warning('[ClientController] No user ID available', tag: 'Client');
+        return [];
+      }
+      
       final response = await _supabase
           .from('client_communications')
           .select('*')
-          .eq('provider_id', _supabase.auth.currentUser?.id)
+          .eq('provider_id', userId)
           .eq('client_id', clientId)
           .order('communication_date', ascending: false);
       
@@ -242,10 +305,16 @@ class ClientController extends GetxController {
   /// Get client statistics
   Future<Map<String, dynamic>> getClientStatistics() async {
     try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) {
+        AppLogger.warning('[ClientController] No user ID available', tag: 'Client');
+        return {};
+      }
+      
       final response = await _supabase
           .from('client_relationships')
           .select('relationship_type')
-          .eq('provider_id', _supabase.auth.currentUser?.id);
+          .eq('provider_id', userId);
       
       final Map<String, int> stats = {
         'total': response.length,

@@ -8,9 +8,9 @@ class RatingStatsCard extends StatelessWidget {
   final ServiceRatingStats stats;
 
   const RatingStatsCard({
-    Key? key,
+    super.key,
     required this.stats,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -12,14 +12,14 @@ class RatingSelector extends StatelessWidget {
   final Color? inactiveColor;
 
   const RatingSelector({
-    Key? key,
+    super.key,
     required this.rating,
     required this.onRatingChanged,
     this.size = 24.0,
     this.allowHalfRating = true,
     this.activeColor,
     this.inactiveColor,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
