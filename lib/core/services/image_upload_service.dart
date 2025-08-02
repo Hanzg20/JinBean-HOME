@@ -137,7 +137,9 @@ class ImageUploadService {
     int height = 200,
     String text = 'Service Image',
   }) {
-    return 'https://via.placeholder.com/${width}x$height/4A90E2/FFFFFF?text=${Uri.encodeComponent(text)}';
+    // 使用picsum.photos替代via.placeholder.com，避免网络连接问题
+    final int seed = text.hashCode;
+    return 'https://picsum.photos/seed/$seed/$width/$height';
   }
 
   /// Get random image from Picsum for testing

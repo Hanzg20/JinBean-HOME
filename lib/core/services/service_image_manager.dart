@@ -140,8 +140,8 @@ class ServiceImageManager {
     }
   }
 
-  /// Get placeholder image for specific service type
-  String getPlaceholderImage({
+  /// Get placeholder image URL for service type
+  String getServiceTypePlaceholderUrl({
     required String serviceType,
     int width = 400,
     int height = 300,
@@ -162,8 +162,10 @@ class ServiceImageManager {
 
     final String icon = serviceIcons[serviceType] ?? '📋';
     final String text = '$icon $serviceType';
-
-    return 'https://via.placeholder.com/${width}x$height/4A90E2/FFFFFF?text=${Uri.encodeComponent(text)}';
+    
+    // 使用picsum.photos替代via.placeholder.com，避免网络连接问题
+    final int seed = text.hashCode;
+    return 'https://picsum.photos/seed/$seed/$width/$height';
   }
 
   /// Validate image URL
@@ -180,6 +182,7 @@ class ServiceImageManager {
 
   /// Get fallback image URL
   String getFallbackImageUrl() {
-    return 'https://via.placeholder.com/400x300/CCCCCC/666666?text=No+Image';
+    // 使用picsum.photos替代via.placeholder.com，避免网络连接问题
+    return 'https://picsum.photos/seed/fallback/400/300';
   }
 }

@@ -75,7 +75,9 @@ class ImageUtils {
     String backgroundColor = 'CCCCCC',
     String textColor = '666666',
   }) {
-    return 'https://via.placeholder.com/${width}x$height/$backgroundColor/$textColor?text=${Uri.encodeComponent(text)}';
+    // 使用picsum.photos替代via.placeholder.com，避免网络连接问题
+    final int seed = text.hashCode;
+    return 'https://picsum.photos/seed/$seed/$width/$height';
   }
 
   /// Get category-specific placeholder URL

@@ -74,7 +74,7 @@ class HomePage extends GetView<HomeController> {
               _buildCommunitySection(context),
               
               // 底部安全区域
-              SizedBox(height: MediaQuery.of(context).padding.bottom + 20),
+              SizedBox(height: MediaQuery.of(context).padding.bottom + 100),
             ],
           ),
         ),
@@ -87,7 +87,7 @@ class HomePage extends GetView<HomeController> {
     final colorScheme = theme.colorScheme;
     
     return Container(
-      height: 140,
+      height: 110,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -100,8 +100,8 @@ class HomePage extends GetView<HomeController> {
           stops: const [0.0, 0.6, 1.0],
         ),
         borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(40),
-          bottomRight: Radius.circular(40),
+          bottomLeft: Radius.circular(50),
+          bottomRight: Radius.circular(50),
         ),
       ),
       child: Stack(
@@ -145,16 +145,16 @@ class HomePage extends GetView<HomeController> {
           ),
           // 欢迎文本和图标
           Positioned(
-            bottom: 25,
+            bottom: 20,
             left: 20,
             child: Row(
               children: [
                 Container(
-                  width: 50,
-                  height: 50,
+                  width: 45,
+                  height: 45,
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(25),
+                    borderRadius: BorderRadius.circular(22.5),
                     border: Border.all(
                       color: Colors.white.withOpacity(0.3),
                       width: 2,
@@ -163,20 +163,20 @@ class HomePage extends GetView<HomeController> {
                   child: Icon(
                     Icons.celebration,
                     color: Colors.white,
-                    size: 24,
+                    size: 22,
                   ),
                 ),
-                const SizedBox(width: 15),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Welcome to JinBean',
+                        '欢迎使用金豆服务',
                         style: theme.textTheme.headlineSmall?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
-                          fontSize: 22,
+                          fontSize: 20,
                           shadows: [
                             Shadow(
                               offset: const Offset(0, 1),
@@ -186,12 +186,12 @@ class HomePage extends GetView<HomeController> {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 2),
                       Text(
-                        'Discover amazing services near you',
+                        '为您提供优质便捷的生活服务',
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: Colors.white.withOpacity(0.95),
-                          fontSize: 14,
+                          fontSize: 13,
                           shadows: [
                             Shadow(
                               offset: const Offset(0, 1),
@@ -487,7 +487,12 @@ class HomePage extends GetView<HomeController> {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(12),
+            topRight: Radius.circular(35),
+            bottomLeft: Radius.circular(12),
+            bottomRight: Radius.circular(12),
+          ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.15),
@@ -521,7 +526,7 @@ class HomePage extends GetView<HomeController> {
                   onChanged: controller.onSearchChanged,
                   onSubmitted: controller.onSearchSubmitted,
                   decoration: InputDecoration(
-                    hintText: 'Search for services...',
+                    hintText: '搜索您需要的服务...',
                     hintStyle: theme.textTheme.bodyMedium?.copyWith(
                       color: colorScheme.onSurfaceVariant,
                       fontSize: 16,
@@ -864,7 +869,9 @@ class HomePage extends GetView<HomeController> {
               break;
             case '服务地图':
               try {
-                Get.toNamed(controller.getServiceMapRoute());
+                final route = controller.getServiceMapRoute();
+                print('Navigating to service map route: $route');
+                Get.toNamed(route);
               } catch (e) {
                 print('Error navigating to service map: $e');
                 // 备用方案：显示提示信息
@@ -884,7 +891,12 @@ class HomePage extends GetView<HomeController> {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(12),
+            topRight: Radius.circular(35),
+            bottomLeft: Radius.circular(12),
+            bottomRight: Radius.circular(12),
+          ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.08),
@@ -1064,7 +1076,7 @@ class HomePage extends GetView<HomeController> {
           }
           
           return SizedBox(
-            height: 280,
+            height: 260,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -1091,12 +1103,24 @@ class HomePage extends GetView<HomeController> {
       child: Card(
         elevation: 4,
         shadowColor: Colors.black.withOpacity(0.1),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(12),
+            topRight: Radius.circular(35),
+            bottomLeft: Radius.circular(12),
+            bottomRight: Radius.circular(12),
+          ),
+        ),
         child: InkWell(
           onTap: () {
             Get.toNamed('/service_detail', arguments: {'serviceId': recommendation.id});
           },
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(12),
+            topRight: Radius.circular(35),
+            bottomLeft: Radius.circular(12),
+            bottomRight: Radius.circular(12),
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1104,9 +1128,12 @@ class HomePage extends GetView<HomeController> {
               Stack(
                 children: [
                   ClipRRect(
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(12),
+                      topRight: Radius.circular(35),
+                    ),
                     child: SizedBox(
-                      height: 140,
+                      height: 120,
                       width: double.infinity,
                       child: Image.network(
                         recommendation.imageUrl,
@@ -1177,7 +1204,7 @@ class HomePage extends GetView<HomeController> {
               ),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(12),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -1185,19 +1212,19 @@ class HomePage extends GetView<HomeController> {
                       Text(
                         controller.getSafeLocalizedText(recommendation.name),
                         style: const TextStyle(
-                          fontSize: 16,
+                          fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 4),
                       
                       // Provider Name
                       Text(
                         recommendation.providerName,
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 12,
                           color: Colors.grey[600],
                         ),
                         maxLines: 1,
@@ -1253,7 +1280,7 @@ class HomePage extends GetView<HomeController> {
                             ),
                         ],
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 6),
                       
                       // Price and Action
                       Row(
@@ -1268,22 +1295,22 @@ class HomePage extends GetView<HomeController> {
                             child: Text(
                               '\$${recommendation.price}',
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 14,
                                 fontWeight: FontWeight.bold,
                                 color: colorScheme.primary,
                               ),
                             ),
                           ),
                           Container(
-                            width: 32,
-                            height: 32,
+                            width: 28,
+                            height: 28,
                             decoration: BoxDecoration(
                               color: colorScheme.primary,
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: BorderRadius.circular(14),
                             ),
                             child: Icon(
                               Icons.arrow_forward_ios,
-                              size: 14,
+                              size: 12,
                               color: Colors.white,
                             ),
                           ),
@@ -1440,12 +1467,24 @@ class HomePage extends GetView<HomeController> {
                       child: Card(
                         elevation: 4,
                         shadowColor: Colors.black.withOpacity(0.1),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(12),
+                            topRight: Radius.circular(35),
+                            bottomLeft: Radius.circular(12),
+                            bottomRight: Radius.circular(12),
+                          ),
+                        ),
                         child: InkWell(
                           onTap: () {
                             // TODO: Navigate to Hotspot Detail Page
                           },
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(12),
+                            topRight: Radius.circular(35),
+                            bottomLeft: Radius.circular(12),
+                            bottomRight: Radius.circular(12),
+                          ),
                           child: Padding(
                             padding: const EdgeInsets.all(20),
                             child: Column(
