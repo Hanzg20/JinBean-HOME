@@ -9,6 +9,8 @@ import 'package:jinbeanpod_83904710/core/controllers/location_controller.dart';
 import 'package:jinbeanpod_83904710/app/shell_app_controller.dart';
 import 'package:jinbeanpod_83904710/core/plugin_management/plugin_manager.dart';
 import 'package:jinbeanpod_83904710/features/service_booking/presentation/service_booking_controller.dart';
+import 'package:jinbeanpod_83904710/core/ui/components/customer_theme_components.dart';
+import 'package:jinbeanpod_83904710/core/ui/themes/customer_theme_utils.dart';
 
 class HomePage extends GetView<HomeController> {
   const HomePage({super.key});
@@ -484,95 +486,12 @@ class HomePage extends GetView<HomeController> {
     
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 20, 16, 16),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(12),
-            topRight: Radius.circular(35),
-            bottomLeft: Radius.circular(12),
-            bottomRight: Radius.circular(12),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.15),
-              blurRadius: 15,
-              offset: const Offset(0, 6),
-              spreadRadius: 2,
-            ),
-          ],
-        ),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          child: Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: colorScheme.primary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Icon(
-                  Icons.search,
-                  color: colorScheme.primary,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 15),
-              Expanded(
-                child: TextField(
-                  controller: controller.searchController,
-                  onChanged: controller.onSearchChanged,
-                  onSubmitted: controller.onSearchSubmitted,
-                  decoration: InputDecoration(
-                    hintText: '搜索您需要的服务...',
-                    hintStyle: theme.textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                      fontSize: 16,
-                    ),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 8),
-                  ),
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontSize: 16,
-                    color: colorScheme.onSurface,
-                  ),
-                ),
-              ),
-              Obx(() => controller.searchQuery.value.isNotEmpty
-                ? Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: IconButton(
-                      icon: Icon(
-                        Icons.clear,
-                        color: colorScheme.onSurfaceVariant,
-                        size: 20,
-                      ),
-                      onPressed: controller.clearSearch,
-                    ),
-                  )
-                : Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: colorScheme.primary.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Icon(
-                      Icons.mic,
-                      color: colorScheme.primary,
-                      size: 20,
-                    ),
-                  )),
-            ],
-          ),
-        ),
+      child: CustomerSearchField(
+        hintText: '搜索您需要的服务...',
+        controller: controller.searchController,
+        onChanged: controller.onSearchChanged,
+        showClear: controller.searchQuery.value.isNotEmpty,
+        onClear: controller.clearSearch,
       ),
     );
   }
@@ -586,54 +505,31 @@ class HomePage extends GetView<HomeController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            child: Row(
-              children: [
-                Container(
-                  width: 4,
-                  height: 28,
-                  decoration: BoxDecoration(
+          CustomerSectionHeader(
+            title: 'Featured Services',
+            action: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: colorScheme.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: colorScheme.primary.withOpacity(0.2)),
+              ),
+              child: TextButton(
+                onPressed: () {},
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: Text(
+                  'View All',
+                  style: theme.textTheme.labelMedium?.copyWith(
                     color: colorScheme.primary,
-                    borderRadius: BorderRadius.circular(2),
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Featured Services',
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: colorScheme.onSurface,
-                    ),
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: colorScheme.primary.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: colorScheme.primary.withOpacity(0.2)),
-                  ),
-                  child: TextButton(
-                    onPressed: () {},
-                    style: TextButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                      minimumSize: Size.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                    child: Text(
-                      'View All',
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: colorScheme.primary,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
           SizedBox(
@@ -701,46 +597,41 @@ class HomePage extends GetView<HomeController> {
                               ),
                             ),
                             Positioned(
-                              bottom: 25,
-                              left: 25,
-                              right: 25,
+                              bottom: 20,
+                              left: 20,
+                              right: 20,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    controller.getSafeLocalizedText(item.title),
+                                    item.title,
                                     style: theme.textTheme.titleLarge?.copyWith(
                                       color: Colors.white,
-                                      fontSize: 20,
                                       fontWeight: FontWeight.bold,
-                                      shadows: [
-                                        Shadow(
-                                          offset: const Offset(0, 2),
-                                          blurRadius: 4,
-                                          color: Colors.black45,
-                                        ),
-                                      ],
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    controller.getSafeLocalizedText(item.description),
-                                    style: theme.textTheme.bodyMedium?.copyWith(
-                                      color: Colors.white.withOpacity(0.95),
-                                      fontSize: 14,
-                                      height: 1.3,
+                                      fontSize: 20,
                                       shadows: [
                                         Shadow(
                                           offset: const Offset(0, 1),
                                           blurRadius: 3,
-                                          color: Colors.black45,
+                                          color: Colors.black54,
                                         ),
                                       ],
                                     ),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    item.description,
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      color: Colors.white.withOpacity(0.9),
+                                      fontSize: 14,
+                                      shadows: [
+                                        Shadow(
+                                          offset: const Offset(0, 1),
+                                          blurRadius: 2,
+                                          color: Colors.black54,
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
@@ -754,26 +645,6 @@ class HomePage extends GetView<HomeController> {
               },
             )),
           ),
-          const SizedBox(height: 20),
-          Center(
-            child: Obx(() => Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(controller.carouselItems.length, (index) {
-                return Container(
-                  width: controller.currentCarouselIndex.value == index ? 28 : 10,
-                  height: 10,
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                    color: controller.currentCarouselIndex.value == index
-                        ? colorScheme.primary
-                        : colorScheme.onSurfaceVariant.withOpacity(0.3),
-                  ),
-                );
-              }),
-            )),
-          ),
-          const SizedBox(height: 30),
         ],
       ),
     );
@@ -835,10 +706,9 @@ class HomePage extends GetView<HomeController> {
   }
 
   Widget _buildServiceCategoryCard(BuildContext context, dynamic service) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    
-    return GestureDetector(
+    return CustomerServiceCard(
+      title: service.name,
+      icon: service.icon,
       onTap: () {
         if (service.typeCode == 'SERVICE_TYPE') {
           // 切换到service_booking标签页并传递参数
@@ -888,105 +758,6 @@ class HomePage extends GetView<HomeController> {
           }
         }
       },
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(12),
-            topRight: Radius.circular(35),
-            bottomLeft: Radius.circular(12),
-            bottomRight: Radius.circular(12),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-              spreadRadius: 1,
-            ),
-          ],
-        ),
-        child: Stack(
-          children: [
-            // 圆角装饰元素
-            Positioned(
-              top: 0,
-              right: 0,
-              child: Container(
-                width: 35,
-                height: 35,
-                decoration: BoxDecoration(
-                  color: colorScheme.primary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(17.5),
-                ),
-              ),
-            ),
-            Positioned(
-              bottom: 0,
-              left: 0,
-              child: Container(
-                width: 25,
-                height: 25,
-                decoration: BoxDecoration(
-                  color: colorScheme.primary.withOpacity(0.05),
-                  borderRadius: BorderRadius.circular(12.5),
-                ),
-              ),
-            ),
-            // 主要内容
-            Padding(
-              padding: const EdgeInsets.all(18),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Icon Container with improved design
-                  Container(
-                    width: 60,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          colorScheme.primary,
-                          colorScheme.primary.withOpacity(0.8),
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: colorScheme.primary.withOpacity(0.3),
-                          blurRadius: 10,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: Icon(
-                      service.icon,
-                      size: 30,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-                  // Text with better overflow handling
-                  Text(
-                    service.name,
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: colorScheme.onSurface,
-                      height: 1.2,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -997,82 +768,46 @@ class HomePage extends GetView<HomeController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Recommended for You',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: colorScheme.onSurface,
+        CustomerSectionHeader(
+          title: 'Recommended for You',
+          action: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: colorScheme.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: colorScheme.primary.withOpacity(0.2)),
+            ),
+            child: TextButton(
+              onPressed: () {
+                Get.toNamed('/service_booking');
+              },
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: Text(
+                'View All',
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: colorScheme.primary,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: colorScheme.primary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: colorScheme.primary.withOpacity(0.2)),
-                ),
-                child: TextButton(
-                  onPressed: () {
-                    Get.toNamed('/service_booking');
-                  },
-                  style: TextButton.styleFrom(
-                    padding: EdgeInsets.zero,
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
-                  child: Text(
-                    'View All',
-                    style: theme.textTheme.labelMedium?.copyWith(
-                      color: colorScheme.primary,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
         Obx(() {
           if (controller.isLoadingRecommendations.value) {
-            return Center(
-              child: Container(
-                padding: const EdgeInsets.all(40),
-                child: Column(
-                  children: [
-                    Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: colorScheme.primary.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      child: CircularProgressIndicator(
-                        color: colorScheme.primary,
-                        strokeWidth: 3,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Loading recommendations...',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
+            return const CustomerLoadingState(message: 'Loading recommendations...');
           }
           
           if (controller.recommendations.isEmpty) {
-            return _buildEmptyRecommendationsState(context);
+            return const CustomerEmptyState(
+              icon: Icons.recommend,
+              title: '暂无推荐',
+              subtitle: '完成更多订单后将为您推荐个性化服务',
+            );
           }
           
           return SizedBox(
@@ -1083,7 +818,19 @@ class HomePage extends GetView<HomeController> {
               itemCount: controller.recommendations.length,
               itemBuilder: (context, index) {
                 final recommendation = controller.recommendations[index];
-                return _buildEnhancedRecommendationCard(context, recommendation);
+                return CustomerRecommendationCard(
+                  title: controller.getSafeLocalizedText(recommendation.name),
+                  subtitle: recommendation.providerName,
+                  imageUrl: recommendation.imageUrl,
+                  rating: recommendation.rating,
+                  price: double.tryParse(recommendation.price) ?? 0.0,
+                  distance: recommendation.distance,
+                  isPopular: recommendation.isPopular,
+                  isNearby: recommendation.isNearby,
+                  onTap: () {
+                    Get.toNamed('/service_detail', arguments: {'serviceId': recommendation.id});
+                  },
+                );
               },
             ),
           );

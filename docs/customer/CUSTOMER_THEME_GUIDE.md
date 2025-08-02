@@ -33,6 +33,79 @@ JinBeanCustomerTheme
 - **CustomerThemeUtils**: 提供主题辅助方法
 - **CustomerThemeComponents**: 提供主题化通用组件
 
+## 设计风格统一规范
+
+### 1. 核心设计元素
+
+#### 颜色系统
+- **主色调**: `colorScheme.primary` (橙色系，温暖友好)
+- **表面色**: `colorScheme.surface` (浅灰白色，清爽)
+- **文字色**: `colorScheme.onSurface` (深色文字，易读)
+- **次要文字**: `colorScheme.onSurfaceVariant` (灰色文字，层次感)
+
+#### 圆角设计
+- **标准圆角**: 16px (卡片、按钮等主要元素)
+- **按钮圆角**: 12px (操作按钮)
+- **特殊圆角**: 20px (首页推荐卡片右上角)
+- **小圆角**: 8px (标签、徽章等)
+
+#### 间距规范
+- **主要间距**: 16px (页面边距、组件间距)
+- **次要间距**: 12px (内部元素间距)
+- **小间距**: 8px (紧密元素间距)
+- **微小间距**: 4px (文字行间距)
+
+#### 阴影系统
+- **卡片阴影**: elevation 8 (主要内容卡片)
+- **按钮阴影**: elevation 4 (操作按钮)
+- **浮动阴影**: elevation 12 (浮动元素)
+
+### 2. 页面布局规范
+
+#### 标准Scaffold结构
+```dart
+Scaffold(
+  backgroundColor: colorScheme.surface,
+  appBar: AppBar(
+    title: Text('页面标题', style: theme.textTheme.titleLarge?.copyWith(
+      fontWeight: FontWeight.w600,
+      color: colorScheme.onSurface,
+    )),
+    backgroundColor: Colors.transparent,
+    elevation: 0,
+    iconTheme: IconThemeData(color: colorScheme.onSurface),
+  ),
+  body: SingleChildScrollView(
+    padding: const EdgeInsets.all(16),
+    child: Column(
+      children: [
+        // 页面内容
+      ],
+    ),
+  ),
+)
+```
+
+#### 卡片设计
+```dart
+CustomerCard(
+  child: Column(
+    children: [
+      // 卡片内容
+    ],
+  ),
+  useGradient: true, // Customer端特有的渐变效果
+)
+```
+
+#### 徽章系统
+```dart
+CustomerBadge(
+  text: '热门',
+  type: CustomerBadgeType.primary,
+)
+```
+
 ## Customer端设计特点
 
 ### 1. 设计理念
@@ -95,6 +168,12 @@ class CustomerHomePage extends StatelessWidget {
 // 不要直接使用硬编码颜色
 backgroundColor: Colors.grey[50],
 color: Colors.blue[600],
+
+// 不要使用不一致的圆角
+borderRadius: BorderRadius.circular(8), // 应该是16px
+
+// 不要使用不一致的间距
+padding: EdgeInsets.all(20), // 应该是16px
 ```
 
 ### 2. 使用主题工具类
@@ -209,6 +288,50 @@ if (hasError) {
 }
 ```
 
+## 页面改造优先级
+
+### 高优先级 (立即改造)
+1. **HomePage** - 首页 (已有基础，需要优化)
+2. **ServiceBookingPage** - 服务预订页面
+3. **ServiceDetailPage** - 服务详情页面
+
+### 中优先级 (近期改造)
+4. **SearchPage** - 搜索页面
+5. **OrdersPage** - 订单页面
+6. **NotificationsPage** - 通知页面
+
+### 低优先级 (后续改造)
+7. **ProfilePage** - 个人资料页面
+8. **SettingsPage** - 设置页面
+
+## 改造检查清单
+
+### 颜色系统检查
+- [ ] 使用 `Theme.of(context).colorScheme` 而不是硬编码颜色
+- [ ] 背景色使用 `colorScheme.surface`
+- [ ] 文字色使用 `colorScheme.onSurface` 或 `colorScheme.onSurfaceVariant`
+- [ ] 主色调使用 `colorScheme.primary`
+
+### 组件使用检查
+- [ ] 使用 `CustomerCard` 替代普通 `Card`
+- [ ] 使用 `CustomerButton` 替代普通 `ElevatedButton`
+- [ ] 使用 `CustomerSearchField` 替代普通 `TextField`
+- [ ] 使用 `CustomerBadge` 显示状态和标签
+- [ ] 使用 `CustomerLoadingState`、`CustomerEmptyState`、`CustomerErrorState`
+
+### 布局规范检查
+- [ ] 页面边距使用 16px
+- [ ] 组件间距使用 12px 或 16px
+- [ ] 卡片圆角使用 16px
+- [ ] 按钮圆角使用 12px
+- [ ] 使用 `SingleChildScrollView` 包装页面内容
+
+### 交互规范检查
+- [ ] 所有可点击元素有明确的视觉反馈
+- [ ] 使用 `CustomerThemeUtils.showSnackBar` 显示提示信息
+- [ ] 错误状态有重试机制
+- [ ] 加载状态有明确的指示器
+
 ## 复用率优化策略
 
 ### 1. 组件级别复用
@@ -310,92 +433,27 @@ CustomerRecommendationCard(
 )
 ```
 
-## 性能优化
+## 常见问题
 
-### 1. 主题缓存
+### Q: 如何确保Customer端页面符合主题规范？
+A: 遵循以下步骤：
+1. 使用 `Theme.of(context).colorScheme` 获取颜色
+2. 使用 `CustomerThemeComponents` 中的组件
+3. 遵循间距和圆角规范
+4. 运行改造检查清单
 
-- 使用GetX的响应式主题管理
-- 避免重复创建主题对象
-- 利用Flutter的主题继承机制
+### Q: 如何处理特殊的设计需求？
+A: 在保持主题一致性的前提下：
+1. 优先使用现有的主题化组件
+2. 通过参数配置实现特殊需求
+3. 如确实需要自定义，确保使用主题颜色系统
 
-### 2. 组件优化
-
-- 使用const构造函数
-- 避免不必要的重建
-- 合理使用Obx和GetBuilder
-
-### 3. 内存管理
-
-- 及时释放主题相关资源
-- 避免主题对象泄漏
-- 合理使用dispose方法
-
-## 测试策略
-
-### 1. 主题一致性测试
-
-```dart
-testWidgets('Customer theme consistency test', (WidgetTester tester) async {
-  await tester.pumpWidget(
-    GetMaterialApp(
-      theme: JinBeanCustomerTheme.lightTheme,
-      home: CustomerHomePage(),
-    ),
-  );
-  
-  // 验证主题颜色一致性
-  final scaffold = tester.widget<Scaffold>(find.byType(Scaffold));
-  expect(scaffold.backgroundColor, JinBeanCustomerTheme.lightTheme.colorScheme.surface);
-});
-```
-
-### 2. 深色模式测试
-
-```dart
-testWidgets('Customer dark theme test', (WidgetTester tester) async {
-  await tester.pumpWidget(
-    GetMaterialApp(
-      theme: JinBeanCustomerTheme.darkTheme,
-      home: CustomerHomePage(),
-    ),
-  );
-  
-  // 验证深色主题正确应用
-  final appBar = tester.widget<AppBar>(find.byType(AppBar));
-  expect(appBar.backgroundColor, JinBeanCustomerTheme.darkTheme.colorScheme.primary);
-});
-```
-
-## 维护指南
-
-### 1. 主题更新
-
-当需要更新主题时：
-
-1. 修改`JinBeanCustomerTheme`中的相关配置
-2. 更新`CustomerThemeUtils`中的辅助方法
-3. 更新`CustomerThemeComponents`中的组件
-4. 运行测试确保一致性
-5. 更新文档
-
-### 2. 新组件添加
-
-添加新组件时：
-
-1. 在`CustomerThemeComponents`中定义
-2. 使用`Theme.of(context)`获取主题
-3. 支持浅色/深色模式
-4. 添加相应的测试
-5. 更新使用指南
-
-### 3. 问题排查
-
-常见问题：
-
-- **主题不生效**: 检查是否正确使用`Theme.of(context)`
-- **颜色不一致**: 检查是否使用了硬编码颜色
-- **深色模式问题**: 检查是否支持深色主题
-- **性能问题**: 检查是否过度使用Obx
+### Q: 如何测试主题一致性？
+A: 使用以下方法：
+1. 在不同设备上测试
+2. 切换浅色/深色模式
+3. 使用主题一致性测试
+4. 视觉审查和用户反馈
 
 ## 总结
 

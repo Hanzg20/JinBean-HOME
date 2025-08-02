@@ -5,6 +5,241 @@ import '../themes/customer_theme_utils.dart';
 /// 提供基于Customer_theme的常用UI组件，提高复用率
 /// 参考Provider_theme的设计模式，但针对Customer端特点优化
 
+/// Customer徽章类型枚举
+enum CustomerBadgeType {
+  primary,    // 主要徽章 (橙色)
+  secondary,  // 次要徽章 (灰色)
+  success,    // 成功徽章 (绿色)
+  warning,    // 警告徽章 (黄色)
+  error,      // 错误徽章 (红色)
+}
+
+/// 主题化徽章组件 - Customer端特有
+class CustomerBadge extends StatelessWidget {
+  final String text;
+  final CustomerBadgeType type;
+  final double? fontSize;
+  final EdgeInsetsGeometry? padding;
+
+  const CustomerBadge({
+    super.key,
+    required this.text,
+    this.type = CustomerBadgeType.primary,
+    this.fontSize,
+    this.padding,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
+    Color backgroundColor;
+    Color textColor;
+    
+    switch (type) {
+      case CustomerBadgeType.primary:
+        backgroundColor = colorScheme.primary;
+        textColor = colorScheme.onPrimary;
+        break;
+      case CustomerBadgeType.secondary:
+        backgroundColor = colorScheme.surfaceVariant;
+        textColor = colorScheme.onSurfaceVariant;
+        break;
+      case CustomerBadgeType.success:
+        backgroundColor = Colors.green;
+        textColor = Colors.white;
+        break;
+      case CustomerBadgeType.warning:
+        backgroundColor = Colors.orange;
+        textColor = Colors.white;
+        break;
+      case CustomerBadgeType.error:
+        backgroundColor = Colors.red;
+        textColor = Colors.white;
+        break;
+    }
+    
+    return Container(
+      padding: padding ?? const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        text,
+        style: theme.textTheme.bodySmall?.copyWith(
+          color: textColor,
+          fontSize: fontSize ?? 12,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+}
+
+/// 主题化区域标题组件 - Customer端特有
+class CustomerSectionHeader extends StatelessWidget {
+  final String title;
+  final String? subtitle;
+  final Widget? action;
+  final bool showDivider;
+
+  const CustomerSectionHeader({
+    super.key,
+    required this.title,
+    this.subtitle,
+    this.action,
+    this.showDivider = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: colorScheme.onSurface,
+                      ),
+                    ),
+                    if (subtitle != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitle!,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              if (action != null) action!,
+            ],
+          ),
+        ),
+        if (showDivider) CustomerThemeUtils.getDivider(context),
+      ],
+    );
+  }
+}
+
+/// 主题化统计卡片组件 - Customer端特有
+class CustomerStatCard extends StatelessWidget {
+  final String title;
+  final String value;
+  final IconData icon;
+  final Color? iconColor;
+  final VoidCallback? onTap;
+  final bool useGradient;
+
+  const CustomerStatCard({
+    super.key,
+    required this.title,
+    required this.value,
+    required this.icon,
+    this.iconColor,
+    this.onTap,
+    this.useGradient = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
+    Widget cardContent = Container(
+      padding: const EdgeInsets.all(16),
+      decoration: useGradient
+          ? BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  colorScheme.surface,
+                  colorScheme.primary.withOpacity(0.05),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: colorScheme.outline.withOpacity(0.1),
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: colorScheme.shadow.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            )
+          : BoxDecoration(
+              color: colorScheme.surface,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: colorScheme.outline.withOpacity(0.1),
+                width: 1,
+              ),
+            ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              CustomerIconContainer(
+                icon: icon,
+                size: 32,
+                iconColor: iconColor ?? colorScheme.primary,
+                useGradient: false,
+              ),
+              const Spacer(),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            value,
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            title,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (onTap != null) {
+      cardContent = InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: cardContent,
+      );
+    }
+
+    return cardContent;
+  }
+}
+
 /// 主题化卡片组件 - Customer端更注重视觉吸引力
 class CustomerCard extends StatelessWidget {
   final Widget child;
@@ -388,36 +623,14 @@ class CustomerServiceCard extends StatelessWidget {
               ),
               const Spacer(),
               if (isPopular)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Text(
-                    'Popular',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 9,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                CustomerBadge(
+                  text: '热门',
+                  type: CustomerBadgeType.error,
                 ),
               if (isNearby)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: Colors.green,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Text(
-                    'Nearby',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 9,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                CustomerBadge(
+                  text: '附近',
+                  type: CustomerBadgeType.success,
                 ),
             ],
           ),
@@ -523,40 +736,18 @@ class CustomerRecommendationCard extends StatelessWidget {
                     Positioned(
                       top: 8,
                       left: 8,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Text(
-                          'Popular',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 9,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                      child: CustomerBadge(
+                        text: '热门',
+                        type: CustomerBadgeType.error,
                       ),
                     ),
                   if (isNearby)
                     Positioned(
                       top: 8,
                       right: 8,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: Colors.green,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Text(
-                          'Nearby',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 9,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                      child: CustomerBadge(
+                        text: '附近',
+                        type: CustomerBadgeType.success,
                       ),
                     ),
                 ],
