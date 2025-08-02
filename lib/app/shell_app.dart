@@ -15,11 +15,7 @@ class ShellApp extends GetView<ShellAppController> {
       print('[ShellApp] Obx build triggered.');
       try {
         final role = pluginManager.currentRole.value;
-<<<<<<< Updated upstream
         print('[ShellApp] PluginManager hash: ${pluginManager.hashCode}');
-=======
-        print('[ShellApp] PluginManager hash:  [36m [1m [4m [7m${pluginManager.hashCode} [0m');
->>>>>>> Stashed changes
         final enabledTabPluginsRx =
             pluginManager.enabledTabPluginsForCurrentRole;
         final enabledTabPlugins = enabledTabPluginsRx.toList(); // 强制触发响应式
@@ -58,7 +54,6 @@ class ShellApp extends GetView<ShellAppController> {
 
         print(
             '[ShellApp] BottomNavigationBar build, items: ${bottomNavItems.map((e) => e.label).join(',')}');
-        final theme = Theme.of(context);
         final colorScheme = theme.colorScheme;
         return Scaffold(
           backgroundColor: Colors.white,
@@ -74,31 +69,6 @@ class ShellApp extends GetView<ShellAppController> {
             ),
           ),
           bottomNavigationBar: Theme(
-<<<<<<< Updated upstream
-            data: theme.copyWith(
-              bottomNavigationBarTheme: theme.bottomNavigationBarTheme.copyWith(
-                backgroundColor: theme.bottomNavigationBarTheme.backgroundColor,
-                selectedItemColor: theme.bottomNavigationBarTheme.selectedItemColor,
-                unselectedItemColor: theme.bottomNavigationBarTheme.unselectedItemColor,
-                type: BottomNavigationBarType.fixed,
-                elevation: theme.bottomNavigationBarTheme.elevation ?? 8,
-                selectedLabelStyle: theme.bottomNavigationBarTheme.selectedLabelStyle,
-                unselectedLabelStyle: theme.bottomNavigationBarTheme.unselectedLabelStyle,
-              ),
-            ),
-            child: BottomNavigationBar(
-              currentIndex: controller.currentIndex,
-              onTap: controller.changeTab,
-              items: bottomNavItems,
-              type: BottomNavigationBarType.fixed,
-              selectedItemColor: theme.bottomNavigationBarTheme.selectedItemColor,
-              unselectedItemColor: theme.bottomNavigationBarTheme.unselectedItemColor,
-              backgroundColor: theme.bottomNavigationBarTheme.backgroundColor,
-              elevation: theme.bottomNavigationBarTheme.elevation ?? 8,
-              selectedLabelStyle: theme.bottomNavigationBarTheme.selectedLabelStyle,
-              unselectedLabelStyle: theme.bottomNavigationBarTheme.unselectedLabelStyle,
-              showUnselectedLabels: true,
-=======
             data: Theme.of(context).copyWith(
               bottomNavigationBarTheme: BottomNavigationBarThemeData(
                 type: BottomNavigationBarType.fixed,
@@ -112,38 +82,37 @@ class ShellApp extends GetView<ShellAppController> {
                 ),
                 unselectedLabelStyle: const TextStyle(
                   fontWeight: FontWeight.w500,
-                  fontSize: 11,
+                  fontSize: 10,
                 ),
               ),
             ),
             child: BottomNavigationBar(
-              type: BottomNavigationBarType.fixed,
               currentIndex: controller.currentIndex,
               onTap: controller.changeTab,
+              items: bottomNavItems,
+              type: BottomNavigationBarType.fixed,
               selectedItemColor: Colors.white,
               unselectedItemColor: Colors.white.withOpacity(0.7),
               backgroundColor: colorScheme.primary,
               elevation: 8,
-              items: bottomNavItems,
->>>>>>> Stashed changes
+              selectedLabelStyle: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 11,
+              ),
+              unselectedLabelStyle: const TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 10,
+              ),
+              showUnselectedLabels: true,
             ),
           ),
         );
-      } catch (e, stack) {
-        print('[ShellApp] Obx build error: '
-<<<<<<< Updated upstream
-            '$e\n$stack');
-        return Scaffold(
+      } catch (e, stackTrace) {
+        print('[ShellApp] Error in build: $e');
+        print('[ShellApp] Stack trace: $stackTrace');
+        return const Scaffold(
           body: Center(
-            child: Text('Build error: '
-                '$e\n$stack'),
-=======
-            ' [31m$e\n$stack [0m');
-        return Scaffold(
-          body: Center(
-            child: Text('Build error: '
-                ' [31m$e\n$stack [0m'),
->>>>>>> Stashed changes
+            child: Text('Error loading app'),
           ),
         );
       }

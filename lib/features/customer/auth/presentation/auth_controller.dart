@@ -9,6 +9,7 @@ import 'package:jinbeanpod_83904710/features/customer/profile/presentation/profi
 import 'package:jinbeanpod_83904710/core/plugin_management/plugin_manager.dart'; // Corrected import for PluginManager
 import 'package:jinbeanpod_83904710/features/provider/plugins/provider_identity/provider_identity_service.dart';
 import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
+import 'package:jinbeanpod_83904710/app/theme/app_theme_service.dart'; // Corrected import for AppThemeService
 
 class AuthController extends GetxController {
   final _storage = GetStorage();
@@ -346,24 +347,49 @@ class AuthController extends GetxController {
         print('[AuthController] logout: ProfileController not registered.');
       }
 
-      // Step 2: Dismiss any open dialogs or bottom sheets
+      // Step 2: Reset PluginManager's currentRole to default 'customer'
+      if (Get.isRegistered<PluginManager>()) {
+        final pluginManager = Get.find<PluginManager>();
+        print('[AuthController] logout: Resetting PluginManager currentRole to customer.');
+        // 直接设置currentRole，避免调用setRole方法触发插件重新加载
+        pluginManager.currentRole.value = 'customer';
+        
+        // 手动切换主题到Customer主题
+        try {
+          final themeService = Get.find<AppThemeService>();
+          themeService.setThemeByName('dark_teal'); // Customer主题
+          print('[AuthController] logout: Theme switched to Customer theme.');
+        } catch (e) {
+          print('[AuthController] logout: Error switching theme: $e');
+        }
+      } else {
+        print('[AuthController] logout: PluginManager not registered.');
+      }
+
+      // Step 3: Reset AuthController's own states
+      selectedLoginRole.value = 'customer';
+      userProfileRole.value = '';
+      errorMessage.value = '';
+
+      // Step 4: Dismiss any open dialogs or bottom sheets
       if (Get.isDialogOpen == true || Get.isBottomSheetOpen == true) {
         Get.back();
       }
 
-      // Step 3: Clear stored user ID and user profile from local storage
+      // Step 5: Clear stored user ID and user profile from local storage
       await _storage.remove('userId');
       await _storage.remove('userProfile');
-      print('Local storage userId and userProfile cleared.');
+      await _storage.remove('lastRole'); // Clear last role as well
+      print('Local storage userId, userProfile, and lastRole cleared.');
 
-      // Step 4: Sign out from Supabase
+      // Step 6: Sign out from Supabase
       await Supabase.instance.client.auth.signOut();
       print('User signed out successfully from Supabase.');
 
-      // Step 5: Give a small delay for UI repainting and then navigate
+      // Step 7: Give a small delay for UI repainting and then navigate
       await Future.delayed(const Duration(milliseconds: 500));
 
-      Get.offAllNamed('/splash');
+      Get.offAllNamed('/auth');
     } catch (e, s) { // Added StackTrace s
       print('Logout error: $e\nStackTrace: $s'); // Print StackTrace
       Get.snackbar('Error', 'Failed to logout. Please try again.');
