@@ -146,8 +146,8 @@ class ProfileController extends GetxController {
       ProfileMenuItem(
         title: 'Logout',
         icon: Icons.logout,
-        onTap: () {
-          _authController.logout();
+        onTap: () async {
+          await _authController.logout();
         },
       ),
     ]);
@@ -254,7 +254,7 @@ class ProfileController extends GetxController {
       if (user == null) return;
 
       // Count pending orders (assuming you have an orders table)
-      // This is a placeholder - implement when orders table is created
+      // This is a placeholder - implement when orders table exists
       final orderCount =
           0; // TODO: Replace with actual query when orders table exists
 

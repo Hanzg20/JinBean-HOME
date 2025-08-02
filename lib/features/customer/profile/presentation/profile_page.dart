@@ -310,7 +310,9 @@ class ProfilePage extends GetView<ProfileController> {
             icon: Icons.logout,
             title: 'Sign Out',
             subtitle: 'Log out of your account',
-            onTap: () => Get.find<AuthController>().logout(),
+            onTap: () async {
+              await Get.find<AuthController>().logout();
+            },
           ),
         ],
       ),

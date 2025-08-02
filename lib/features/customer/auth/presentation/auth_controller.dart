@@ -323,75 +323,39 @@ class AuthController extends GetxController {
     }
   }
 
-  void logout() async {
+  Future<void> logout() async {
     try {
-      // Step 1: Immediately reset ProfileController's states to default safe values
-      // This ensures any active UI listeners bound to ProfileController see safe empty values
-      if (Get.isRegistered<ProfileController>()) {
-        final profileController = Get.find<ProfileController>();
-        print('[AuthController] logout: Resetting ProfileController states.');
-        profileController.userName.value = '';
-        profileController.memberSince.value = '';
-        profileController.avatarUrl.value = '';
-        profileController.userBio.value = '';
-        profileController.userLevel.value = 'Member';
-        profileController.userPoints.value = 0;
-        profileController.userRating.value = 0.0;
-        profileController.isEmailVerified.value = false;
-        profileController.isPhoneVerified.value = false;
-        profileController.isLoading.value =
-            false; // Set to false, as we are not loading.
-        print(
-            '[AuthController] logout: ProfileController avatarUrl after reset: ${profileController.avatarUrl.value}');
-      } else {
-        print('[AuthController] logout: ProfileController not registered.');
-      }
-
-      // Step 2: Reset PluginManager's currentRole to default 'customer'
-      if (Get.isRegistered<PluginManager>()) {
-        final pluginManager = Get.find<PluginManager>();
-        print('[AuthController] logout: Resetting PluginManager currentRole to customer.');
-        // 直接设置currentRole，避免调用setRole方法触发插件重新加载
-        pluginManager.currentRole.value = 'customer';
-        
-        // 手动切换主题到Customer主题
-        try {
-          final themeService = Get.find<AppThemeService>();
-          themeService.setThemeByName('dark_teal'); // Customer主题
-          print('[AuthController] logout: Theme switched to Customer theme.');
-        } catch (e) {
-          print('[AuthController] logout: Error switching theme: $e');
-        }
-      } else {
-        print('[AuthController] logout: PluginManager not registered.');
-      }
-
-      // Step 3: Reset AuthController's own states
+      print('[AuthController] logout: Starting logout process...');
+      
+      // Step 1: Sign out from Supabase first
+      await Supabase.instance.client.auth.signOut();
+      print('[AuthController] logout: Supabase sign out completed.');
+      
+      // Step 2: Clear local storage
+      await _storage.remove('userId');
+      await _storage.remove('userProfile');
+      await _storage.remove('lastRole');
+      print('[AuthController] logout: Local storage cleared.');
+      
+      // Step 3: Reset states
       selectedLoginRole.value = 'customer';
       userProfileRole.value = '';
       errorMessage.value = '';
-
-      // Step 4: Dismiss any open dialogs or bottom sheets
-      if (Get.isDialogOpen == true || Get.isBottomSheetOpen == true) {
-        Get.back();
+      
+      // Step 4: Reset PluginManager role
+      if (Get.isRegistered<PluginManager>()) {
+        final pluginManager = Get.find<PluginManager>();
+        pluginManager.currentRole.value = 'customer';
+        print('[AuthController] logout: PluginManager role reset to customer.');
       }
-
-      // Step 5: Clear stored user ID and user profile from local storage
-      await _storage.remove('userId');
-      await _storage.remove('userProfile');
-      await _storage.remove('lastRole'); // Clear last role as well
-      print('Local storage userId, userProfile, and lastRole cleared.');
-
-      // Step 6: Sign out from Supabase
-      await Supabase.instance.client.auth.signOut();
-      print('User signed out successfully from Supabase.');
-
-      // Step 7: Give a small delay for UI repainting and then navigate
-      await Future.delayed(const Duration(milliseconds: 500));
-
+      
+      // Step 5: Navigate to login page immediately
+      print('[AuthController] logout: About to navigate to /auth');
       Get.offAllNamed('/auth');
-    } catch (e, s) { // Added StackTrace s
-      print('Logout error: $e\nStackTrace: $s'); // Print StackTrace
+      print('[AuthController] logout: Navigation to /auth completed');
+      
+    } catch (e, s) {
+      print('[AuthController] logout error: $e\nStackTrace: $s');
       Get.snackbar('Error', 'Failed to logout. Please try again.');
     }
   }

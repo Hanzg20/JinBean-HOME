@@ -64,67 +64,11 @@ class ProviderProfileController extends GetxController {
     }
   }
 
-  void logout() async {
-    try {
-      print('[ProviderProfileController] Provider logout started.');
-      
-      // Step 1: Reset ProviderProfileController states
-      displayName.value = '';
-      email.value = '';
-      phone.value = '';
-      avatarUrl.value = '';
-      status.value = '';
-      providerType.value = '';
-      serviceCategories.clear();
-      certificationStatus.value = '';
-      isLoading.value = false;
-      
-      // Step 2: Reset PluginManager's currentRole to default 'customer'
-      if (Get.isRegistered<PluginManager>()) {
-        final pluginManager = Get.find<PluginManager>();
-        print('[ProviderProfileController] logout: Resetting PluginManager currentRole to customer.');
-        pluginManager.currentRole.value = 'customer';
-        
-        // 手动切换主题到Customer主题
-        try {
-          final themeService = Get.find<AppThemeService>();
-          themeService.setThemeByName('dark_teal'); // Customer主题
-          print('[ProviderProfileController] logout: Theme switched to Customer theme.');
-        } catch (e) {
-          print('[ProviderProfileController] logout: Error switching theme: $e');
-        }
-      }
-      
-      // Step 3: Reset AuthController states if available
-      if (Get.isRegistered<AuthController>()) {
-        final authController = Get.find<AuthController>();
-        authController.selectedLoginRole.value = 'customer';
-        authController.userProfileRole.value = '';
-        authController.errorMessage.value = '';
-      }
-      
-      // Step 4: Dismiss any open dialogs or bottom sheets
-      if (Get.isDialogOpen == true || Get.isBottomSheetOpen == true) {
-        Get.back();
-      }
-      
-      // Step 5: Clear stored data
-      await _storage.remove('userId');
-      await _storage.remove('userProfile');
-      await _storage.remove('lastRole');
-      print('[ProviderProfileController] Local storage cleared.');
-      
-      // Step 6: Sign out from Supabase
-      await Supabase.instance.client.auth.signOut();
-      print('[ProviderProfileController] User signed out successfully from Supabase.');
-      
-      // Step 7: Navigate to login page
-      await Future.delayed(const Duration(milliseconds: 500));
-      Get.offAllNamed('/auth');
-      
-    } catch (e, s) {
-      print('[ProviderProfileController] Logout error: $e\nStackTrace: $s');
-      Get.snackbar('Error', 'Failed to logout. Please try again.');
-    }
+  Future<void> logout() async {
+    print('[ProviderProfileController] Provider logout started.');
+    
+    // 像Customer端一样，直接调用AuthController的logout方法
+    // AuthController会处理所有的清理和导航逻辑
+    await Get.find<AuthController>().logout();
   }
 } 
