@@ -99,20 +99,20 @@ class ProviderIconContainer extends StatelessWidget {
 
 /// 主题化按钮组件
 class ProviderButton extends StatelessWidget {
-  final String text;
   final VoidCallback? onPressed;
-  final bool isPrimary;
-  final bool isLoading;
+  final String text;
   final IconData? icon;
+  final ProviderButtonType type;
+  final bool isLoading;
   final double? width;
 
   const ProviderButton({
     super.key,
+    required this.onPressed,
     required this.text,
-    this.onPressed,
-    this.isPrimary = true,
-    this.isLoading = false,
     this.icon,
+    this.type = ProviderButtonType.primary,
+    this.isLoading = false,
     this.width,
   });
 
@@ -121,99 +121,102 @@ class ProviderButton extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     
-    Widget buttonChild = isLoading
-        ? SizedBox(
-            width: 20,
-            height: 20,
+    ButtonStyle buttonStyle;
+    Color textColor;
+    
+    switch (type) {
+      case ProviderButtonType.primary:
+        buttonStyle = ElevatedButton.styleFrom(
+          backgroundColor: colorScheme.primary,
+          foregroundColor: colorScheme.onPrimary,
+          elevation: 4,
+          shadowColor: colorScheme.shadow.withOpacity(0.2),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        );
+        textColor = colorScheme.onPrimary;
+        break;
+      case ProviderButtonType.secondary:
+        buttonStyle = OutlinedButton.styleFrom(
+          foregroundColor: colorScheme.primary,
+          side: BorderSide(color: colorScheme.primary, width: 1.5),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        );
+        textColor = colorScheme.primary;
+        break;
+      case ProviderButtonType.error:
+        buttonStyle = ElevatedButton.styleFrom(
+          backgroundColor: colorScheme.error,
+          foregroundColor: colorScheme.onError,
+          elevation: 4,
+          shadowColor: colorScheme.shadow.withOpacity(0.2),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        );
+        textColor = colorScheme.onError;
+        break;
+    }
+
+    Widget buttonContent = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (isLoading)
+          SizedBox(
+            width: 16,
+            height: 16,
             child: CircularProgressIndicator(
               strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation<Color>(
-                isPrimary ? colorScheme.onPrimary : colorScheme.primary,
-              ),
+              valueColor: AlwaysStoppedAnimation<Color>(textColor),
             ),
           )
-        : Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (icon != null) ...[
-                Icon(icon, size: 18),
-                const SizedBox(width: 8),
-              ],
-              Text(text),
-            ],
+        else if (icon != null)
+          Icon(icon, size: 18),
+        if ((icon != null || isLoading) && text.isNotEmpty)
+          const SizedBox(width: 8),
+        if (text.isNotEmpty)
+          Text(
+            text,
+            style: theme.textTheme.labelLarge?.copyWith(
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              color: textColor,
+            ),
+          ),
+      ],
+    );
+
+    Widget button = type == ProviderButtonType.secondary
+        ? OutlinedButton(
+            style: buttonStyle,
+            onPressed: isLoading ? null : onPressed,
+            child: buttonContent,
+          )
+        : ElevatedButton(
+            style: buttonStyle,
+            onPressed: isLoading ? null : onPressed,
+            child: buttonContent,
           );
 
-    if (isPrimary) {
-      return SizedBox(
-        width: width,
-        child: ElevatedButton(
-          onPressed: isLoading ? null : onPressed,
-          style: ProviderThemeUtils.getPrimaryButtonStyle(context),
-          child: buttonChild,
-        ),
-      );
-    } else {
-      return SizedBox(
-        width: width,
-        child: OutlinedButton(
-          onPressed: isLoading ? null : onPressed,
-          style: ProviderThemeUtils.getSecondaryButtonStyle(context),
-          child: buttonChild,
-        ),
-      );
+    if (width != null) {
+      button = SizedBox(width: width, child: button);
     }
+
+    return button;
   }
 }
 
-/// 主题化输入框组件
-class ProviderTextField extends StatelessWidget {
-  final String? labelText;
-  final String? hintText;
-  final IconData? prefixIcon;
-  final IconData? suffixIcon;
-  final TextEditingController? controller;
-  final String? Function(String?)? validator;
-  final bool obscureText;
-  final TextInputType? keyboardType;
-  final int? maxLines;
-  final VoidCallback? onSuffixIconTap;
-
-  const ProviderTextField({
-    super.key,
-    this.labelText,
-    this.hintText,
-    this.prefixIcon,
-    this.suffixIcon,
-    this.controller,
-    this.validator,
-    this.obscureText = false,
-    this.keyboardType,
-    this.maxLines = 1,
-    this.onSuffixIconTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      validator: validator,
-      obscureText: obscureText,
-      keyboardType: keyboardType,
-      maxLines: maxLines,
-      decoration: ProviderThemeUtils.getInputDecoration(
-        context,
-        labelText: labelText,
-        hintText: hintText,
-        prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
-        suffixIcon: suffixIcon != null
-            ? IconButton(
-                icon: Icon(suffixIcon),
-                onPressed: onSuffixIconTap,
-              )
-            : null,
-      ),
-    );
-  }
+/// 按钮类型枚举
+enum ProviderButtonType {
+  primary,
+  secondary,
+  error,
 }
 
 /// 主题化列表项组件
@@ -247,14 +250,14 @@ class ProviderListTile extends StatelessWidget {
           leading: leadingIcon != null
               ? ProviderIconContainer(
                   icon: leadingIcon!,
-                  size: 40,
+                  size: 36,
                 )
               : null,
           title: Text(
             title,
             style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
               color: colorScheme.onSurface,
-              fontWeight: FontWeight.w500,
             ),
           ),
           subtitle: subtitle != null
@@ -265,18 +268,128 @@ class ProviderListTile extends StatelessWidget {
                   ),
                 )
               : null,
-          trailing: trailing ??
-              (onTap != null
-                  ? Icon(
-                      Icons.arrow_forward_ios,
-                      size: 16,
-                      color: colorScheme.onSurfaceVariant,
-                    )
-                  : null),
+          trailing: trailing ?? (onTap != null
+              ? Icon(
+                  Icons.arrow_forward_ios,
+                  color: colorScheme.onSurfaceVariant,
+                  size: 16,
+                )
+              : null),
           onTap: onTap,
         ),
-        if (showDivider) ProviderThemeUtils.getDivider(context),
+        if (showDivider)
+          Divider(
+            height: 1,
+            color: colorScheme.outline.withOpacity(0.1),
+            indent: 16,
+            endIndent: 16,
+          ),
       ],
+    );
+  }
+}
+
+/// 主题化徽章组件
+class ProviderBadge extends StatelessWidget {
+  final String text;
+  final ProviderBadgeType type;
+  final double? fontSize;
+
+  const ProviderBadge({
+    super.key,
+    required this.text,
+    this.type = ProviderBadgeType.primary,
+    this.fontSize,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
+    Color backgroundColor;
+    Color textColor;
+    
+    switch (type) {
+      case ProviderBadgeType.primary:
+        backgroundColor = colorScheme.primary;
+        textColor = colorScheme.onPrimary;
+        break;
+      case ProviderBadgeType.secondary:
+        backgroundColor = colorScheme.secondary;
+        textColor = colorScheme.onSecondary;
+        break;
+      case ProviderBadgeType.error:
+        backgroundColor = colorScheme.error;
+        textColor = colorScheme.onError;
+        break;
+      case ProviderBadgeType.warning:
+        backgroundColor = colorScheme.tertiary;
+        textColor = colorScheme.onTertiary;
+        break;
+    }
+    
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: fontSize ?? 10,
+          fontWeight: FontWeight.w600,
+          color: textColor,
+        ),
+      ),
+    );
+  }
+}
+
+/// 徽章类型枚举
+enum ProviderBadgeType {
+  primary,
+  secondary,
+  error,
+  warning,
+}
+
+/// 主题化区块标题组件
+class ProviderSectionHeader extends StatelessWidget {
+  final String title;
+  final Widget? action;
+  final EdgeInsetsGeometry? padding;
+
+  const ProviderSectionHeader({
+    super.key,
+    required this.title,
+    this.action,
+    this.padding,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
+    return Padding(
+      padding: padding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              title,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: colorScheme.primary,
+                fontSize: 14,
+              ),
+            ),
+          ),
+          if (action != null) action!,
+        ],
+      ),
     );
   }
 }
@@ -307,40 +420,34 @@ class ProviderStatCard extends StatelessWidget {
     
     return ProviderCard(
       onTap: onTap,
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.all(16),
+      child: Row(
         children: [
-          Row(
-            children: [
-              ProviderIconContainer(
-                icon: icon,
-                size: 48,
-                backgroundColor: (iconColor ?? colorScheme.primary).withOpacity(0.1),
-                iconColor: iconColor ?? colorScheme.primary,
-              ),
-              const Spacer(),
-              if (onTap != null)
-                Icon(
-                  Icons.arrow_forward_ios,
-                  size: 16,
-                  color: colorScheme.onSurfaceVariant,
+          ProviderIconContainer(
+            icon: icon,
+            size: 40,
+            iconColor: iconColor ?? colorScheme.primary,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
                 ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            value,
-            style: theme.textTheme.headlineMedium?.copyWith(
-              color: valueColor ?? colorScheme.onSurface,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            title,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onSurfaceVariant,
+                const SizedBox(height: 4),
+                Text(
+                  value,
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: valueColor ?? colorScheme.onSurface,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -351,29 +458,38 @@ class ProviderStatCard extends StatelessWidget {
 
 /// 主题化加载状态组件
 class ProviderLoadingState extends StatelessWidget {
-  final String? message;
+  final String message;
+  final double size;
 
   const ProviderLoadingState({
     super.key,
-    this.message,
+    this.message = '加载中...',
+    this.size = 40,
   });
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          ProviderThemeUtils.getLoadingIndicator(context),
-          if (message != null) ...[
-            const SizedBox(height: 16),
-            Text(
-              message!,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
+          SizedBox(
+            width: size,
+            height: size,
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
             ),
-          ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            message,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
         ],
       ),
     );
@@ -385,27 +501,64 @@ class ProviderEmptyState extends StatelessWidget {
   final IconData icon;
   final String title;
   final String? subtitle;
-  final VoidCallback? onAction;
   final String? actionText;
+  final VoidCallback? onAction;
 
   const ProviderEmptyState({
     super.key,
     required this.icon,
     required this.title,
     this.subtitle,
-    this.onAction,
     this.actionText,
+    this.onAction,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ProviderThemeUtils.getEmptyState(
-      context,
-      icon: icon,
-      title: title,
-      subtitle: subtitle,
-      onAction: onAction,
-      actionText: actionText,
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ProviderIconContainer(
+              icon: icon,
+              size: 64,
+              iconColor: colorScheme.onSurfaceVariant,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              title,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: colorScheme.onSurface,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            if (subtitle != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                subtitle!,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+            if (actionText != null && onAction != null) ...[
+              const SizedBox(height: 24),
+              ProviderButton(
+                onPressed: onAction,
+                text: actionText!,
+                type: ProviderButtonType.primary,
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }
@@ -423,10 +576,40 @@ class ProviderErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ProviderThemeUtils.getErrorState(
-      context,
-      message: message,
-      onRetry: onRetry,
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ProviderIconContainer(
+              icon: Icons.error_outline,
+              size: 64,
+              iconColor: colorScheme.error,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              message,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: colorScheme.onSurface,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            if (onRetry != null) ...[
+              const SizedBox(height: 24),
+              ProviderButton(
+                onPressed: onRetry,
+                text: '重试',
+                type: ProviderButtonType.primary,
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 } 

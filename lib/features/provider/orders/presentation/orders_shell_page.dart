@@ -39,10 +39,10 @@ class _OrdersShellPageState extends State<OrdersShellPage> {
             '订单中心',
             style: theme.textTheme.titleLarge?.copyWith(
               color: colorScheme.onSurface,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w600,
             ),
           ),
-          backgroundColor: colorScheme.surface,
+          backgroundColor: Colors.transparent,
           elevation: 0,
           iconTheme: IconThemeData(color: colorScheme.onSurface),
           bottom: TabBar(

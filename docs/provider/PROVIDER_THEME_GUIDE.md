@@ -4,6 +4,119 @@
 
 Provider_theme是专为服务提供者角色设计的主题系统，采用"My Diary"风格，提供现代化的UI体验。本指南将详细介绍如何正确使用Provider_theme以提高复用率和用户体验。
 
+## 设计风格统一规范
+
+### 1. 核心设计元素
+
+基于首页和Settings页面的成功设计，Provider端所有页面应遵循以下统一规范：
+
+#### 🎨 颜色系统
+- **主色调**: 使用`Theme.of(context).colorScheme.primary` (JinBeanColors.primaryDark)
+- **背景色**: 使用`Theme.of(context).colorScheme.surface` (Color(0xFFF5F7FA))
+- **变体背景**: 使用`Theme.of(context).colorScheme.surfaceVariant` (Color(0xFFE8EAED))
+- **文本色**: 使用`Theme.of(context).colorScheme.onSurface` 和 `onSurfaceVariant`
+
+#### 🔄 圆角设计
+- **标准卡片**: `BorderRadius.circular(16)`
+- **按钮**: `BorderRadius.circular(12)`
+- **输入框**: `BorderRadius.circular(12)`
+- **特殊圆角**: 右上角64px，其他角16px (用于重要信息卡片)
+
+#### 📐 间距规范
+- **主间距**: 16px (页面边距、卡片间距)
+- **次间距**: 8px (组件内部间距)
+- **小间距**: 4px (文字间距)
+
+#### 🎯 阴影系统
+- **卡片阴影**: `elevation: 8`, `shadowColor: colorScheme.shadow.withValues(alpha: 0.08)`
+- **按钮阴影**: `elevation: 4`, `shadowColor: colorScheme.shadow.withValues(alpha: 0.2)`
+
+### 2. 页面布局规范
+
+#### 📱 页面结构
+```dart
+Scaffold(
+  backgroundColor: colorScheme.surface,
+  appBar: AppBar(
+    backgroundColor: Colors.transparent,
+    elevation: 0,
+    title: Text('页面标题', style: theme.textTheme.titleLarge),
+    iconTheme: IconThemeData(color: colorScheme.onSurface),
+  ),
+  body: SingleChildScrollView(
+    padding: const EdgeInsets.all(16),
+    child: Column(
+      children: [
+        // 页面内容
+      ],
+    ),
+  ),
+)
+```
+
+#### 🃏 卡片设计
+```dart
+ProviderCard(
+  onTap: () => onTap(),
+  child: Row(
+    children: [
+      ProviderIconContainer(
+        icon: Icons.example,
+        size: 36,
+      ),
+      const SizedBox(width: 12),
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('标题', style: theme.textTheme.titleMedium),
+            Text('副标题', style: theme.textTheme.bodySmall),
+          ],
+        ),
+      ),
+      Icon(Icons.arrow_forward_ios, size: 14),
+    ],
+  ),
+)
+```
+
+#### 🏷️ 徽章系统
+```dart
+// 数量徽章
+Container(
+  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+  decoration: BoxDecoration(
+    color: colorScheme.primary,
+    borderRadius: BorderRadius.circular(8),
+  ),
+  child: Text(
+    '12',
+    style: TextStyle(
+      fontSize: 10,
+      fontWeight: FontWeight.w600,
+      color: colorScheme.onPrimary,
+    ),
+  ),
+)
+
+// 状态徽章
+Container(
+  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+  decoration: BoxDecoration(
+    color: colorScheme.error,
+    borderRadius: BorderRadius.circular(8),
+  ),
+  child: Text(
+    '待认证',
+    style: TextStyle(
+      fontSize: 10,
+      fontWeight: FontWeight.w600,
+      color: colorScheme.onError,
+    ),
+  ),
+)
+```
+
 ## 主题架构
 
 ### 1. 主题层次结构
@@ -50,16 +163,18 @@ class MyPage extends StatelessWidget {
       backgroundColor: colorScheme.surface,
       appBar: AppBar(
         title: Text('页面标题', style: theme.textTheme.titleLarge),
-        backgroundColor: colorScheme.surface,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         iconTheme: IconThemeData(color: colorScheme.onSurface),
       ),
-      body: Container(
-        color: colorScheme.surface,
-        child: Text(
-          '内容',
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: colorScheme.onSurface,
-          ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            _buildSectionHeader(context, '区块标题'),
+            const SizedBox(height: 8),
+            _buildContentSection(context),
+          ],
         ),
       ),
     );
@@ -73,6 +188,12 @@ class MyPage extends StatelessWidget {
 // 不要直接使用硬编码颜色
 backgroundColor: JinBeanColors.background,
 color: JinBeanColors.textPrimary,
+
+// 不要使用不一致的圆角
+borderRadius: BorderRadius.circular(8), // 应该使用12或16
+
+// 不要使用不一致的间距
+padding: const EdgeInsets.all(20), // 应该使用16
 ```
 
 ### 2. 使用主题工具类
@@ -95,229 +216,97 @@ ElevatedButton(
   child: Text('按钮'),
 )
 
+// 获取主题化输入框样式
+TextField(
+  decoration: ProviderThemeUtils.getInputDecoration(
+    context,
+    hintText: '请输入...',
+    prefixIcon: Icon(Icons.search),
+  ),
+)
+
 // 显示主题化提示
 ProviderThemeUtils.showSuccessSnackBar(context, message: '操作成功');
 ```
 
-#### 使用主题化组件
+### 3. 使用主题组件库
+
+#### 使用ProviderThemeComponents
 
 ```dart
 import 'package:jinbeanpod_83904710/core/ui/components/provider_theme_components.dart';
 
 // 使用主题化卡片
 ProviderCard(
-  child: Text('卡片内容'),
-  onTap: () => print('卡片被点击'),
+  onTap: () => onTap(),
+  child: content,
+)
+
+// 使用主题化图标容器
+ProviderIconContainer(
+  icon: Icons.example,
+  size: 36,
 )
 
 // 使用主题化按钮
 ProviderButton(
-  text: '确认',
-  onPressed: () {},
-  icon: Icons.check,
-)
-
-// 使用主题化输入框
-ProviderTextField(
-  labelText: '用户名',
-  hintText: '请输入用户名',
-  prefixIcon: Icons.person,
-)
-
-// 使用主题化列表项
-ProviderListTile(
-  title: '设置项',
-  subtitle: '设置描述',
-  leadingIcon: Icons.settings,
-  onTap: () {},
+  onPressed: () => onPressed(),
+  text: '按钮文本',
+  type: ProviderButtonType.primary,
 )
 ```
 
-### 3. 状态管理
+## 页面改造优先级
 
-#### 加载状态
+### 高优先级 (立即修改)
+1. **收入管理页面** - 核心业务功能
+2. **订单管理页面** - 核心业务功能
 
-```dart
-if (isLoading) {
-  return ProviderLoadingState(message: '加载中...');
-}
-```
+### 中优先级 (近期修改)
+3. **客户管理页面** - 业务支持功能
+4. **服务管理页面** - 业务支持功能
 
-#### 空状态
+### 低优先级 (后续优化)
+5. **通知页面** - 辅助功能
+6. **其他插件页面** - 扩展功能
 
-```dart
-if (data.isEmpty) {
-  return ProviderEmptyState(
-    icon: Icons.inbox,
-    title: '暂无数据',
-    subtitle: '点击下方按钮添加数据',
-    onAction: () => addData(),
-    actionText: '添加数据',
-  );
-}
-```
+## 改造检查清单
 
-#### 错误状态
+### ✅ 颜色系统检查
+- [ ] 使用`Theme.of(context).colorScheme`替代硬编码颜色
+- [ ] 背景色使用`colorScheme.surface`
+- [ ] 文本色使用`colorScheme.onSurface`
+- [ ] 主色调使用`colorScheme.primary`
 
-```dart
-if (hasError) {
-  return ProviderErrorState(
-    message: '加载失败，请重试',
-    onRetry: () => loadData(),
-  );
-}
-```
+### ✅ 组件使用检查
+- [ ] 使用`ProviderCard`替代自定义卡片
+- [ ] 使用`ProviderIconContainer`替代自定义图标容器
+- [ ] 使用`ProviderThemeUtils`提供的方法
+- [ ] 使用`ProviderButton`替代标准按钮
 
-## 复用率优化策略
+### ✅ 布局规范检查
+- [ ] 页面边距使用16px
+- [ ] 卡片圆角使用16px
+- [ ] 按钮圆角使用12px
+- [ ] 组件间距使用8px
 
-### 1. 组件级别复用
+### ✅ 交互规范检查
+- [ ] 使用主题化的SnackBar
+- [ ] 使用主题化的对话框
+- [ ] 使用主题化的加载指示器
+- [ ] 使用主题化的错误处理
 
-#### 高复用率组件 (80%+)
+## 常见问题
 
-- **AppBar**: 所有页面都使用统一的AppBar样式
-- **卡片**: 大部分内容展示都使用卡片布局
-- **按钮**: 所有交互操作都使用主题化按钮
-- **输入框**: 所有表单输入都使用主题化输入框
+### Q: 如何确保页面符合Provider主题？
+A: 使用`ProviderThemeUtils`和`ProviderThemeComponents`，避免直接使用硬编码颜色和样式。
 
-#### 中复用率组件 (40-80%)
+### Q: 如何处理特殊的设计需求？
+A: 在`ProviderThemeUtils`中添加新的工具方法，或在`ProviderThemeComponents`中添加新的组件。
 
-- **列表项**: 设置页面、菜单页面使用
-- **统计卡片**: 首页、数据展示页面使用
-- **图标容器**: 各种图标展示场景使用
+### Q: 如何保持与其他页面的一致性？
+A: 严格遵循本指南的设计规范，使用统一的组件库和工具类。
 
-#### 低复用率组件 (<40%)
+---
 
-- **开关**: 仅在设置页面使用
-- **滑块**: 在筛选器中偶尔使用
-- **单选按钮**: 在筛选器中偶尔使用
-
-### 2. 页面级别复用
-
-#### 已使用Provider_theme的页面 (100%)
-
-1. **ProviderShellApp** - 主页面容器
-2. **ServiceManagementPage** - 服务管理页面
-3. **IncomePage** - 收入管理页面
-4. **NotificationPage** - 通知页面
-5. **ClientPage** - 客户管理页面
-6. **OrderManagePage** - 订单管理页面
-7. **RobOrderHallPage** - 抢单大厅页面
-8. **SettingsPage** - 设置页面 ✅ (已优化)
-9. **OrdersShellPage** - 订单管理外壳页面 ✅ (已优化)
-
-### 3. 主题切换支持
-
-#### 浅色/深色模式
-
-```dart
-// 在AppThemeService中自动处理
-ThemeData getThemeForRoleAndMode(String role, ThemeMode mode) {
-  if (mode == ThemeMode.dark) {
-    switch (role) {
-      case 'provider':
-        return JinBeanProviderTheme.darkTheme;
-      // ...
-    }
-  }
-  return getThemeByName(themeName);
-}
-```
-
-## 性能优化
-
-### 1. 主题缓存
-
-- 使用GetX的响应式主题管理
-- 避免重复创建主题对象
-- 利用Flutter的主题继承机制
-
-### 2. 组件优化
-
-- 使用const构造函数
-- 避免不必要的重建
-- 合理使用Obx和GetBuilder
-
-### 3. 内存管理
-
-- 及时释放主题相关资源
-- 避免主题对象泄漏
-- 合理使用dispose方法
-
-## 测试策略
-
-### 1. 主题一致性测试
-
-```dart
-testWidgets('Provider theme consistency test', (WidgetTester tester) async {
-  await tester.pumpWidget(
-    GetMaterialApp(
-      theme: JinBeanProviderTheme.lightTheme,
-      home: MyPage(),
-    ),
-  );
-  
-  // 验证主题颜色一致性
-  final scaffold = tester.widget<Scaffold>(find.byType(Scaffold));
-  expect(scaffold.backgroundColor, JinBeanProviderTheme.lightTheme.colorScheme.surface);
-});
-```
-
-### 2. 深色模式测试
-
-```dart
-testWidgets('Provider dark theme test', (WidgetTester tester) async {
-  await tester.pumpWidget(
-    GetMaterialApp(
-      theme: JinBeanProviderTheme.darkTheme,
-      home: MyPage(),
-    ),
-  );
-  
-  // 验证深色主题正确应用
-  final appBar = tester.widget<AppBar>(find.byType(AppBar));
-  expect(appBar.backgroundColor, Colors.transparent);
-});
-```
-
-## 维护指南
-
-### 1. 主题更新
-
-当需要更新主题时：
-
-1. 修改`JinBeanProviderTheme`中的相关配置
-2. 更新`ProviderThemeUtils`中的辅助方法
-3. 更新`ProviderThemeComponents`中的组件
-4. 运行测试确保一致性
-5. 更新文档
-
-### 2. 新组件添加
-
-添加新组件时：
-
-1. 在`ProviderThemeComponents`中定义
-2. 使用`Theme.of(context)`获取主题
-3. 支持浅色/深色模式
-4. 添加相应的测试
-5. 更新使用指南
-
-### 3. 问题排查
-
-常见问题：
-
-- **主题不生效**: 检查是否正确使用`Theme.of(context)`
-- **颜色不一致**: 检查是否使用了硬编码颜色
-- **深色模式问题**: 检查是否支持深色主题
-- **性能问题**: 检查是否过度使用Obx
-
-## 总结
-
-通过遵循本指南，可以：
-
-1. **提高复用率**: 从65%提升到90%+
-2. **保持一致性**: 所有Provider页面使用统一主题
-3. **提升用户体验**: 现代化的UI设计和流畅的主题切换
-4. **降低维护成本**: 统一的主题管理机制
-5. **支持扩展**: 易于添加新的主题组件
-
-记住：**始终使用`Theme.of(context)`而不是硬编码颜色，这是Provider_theme正确使用的关键**。 
+**注意**: 所有Provider端页面都应严格遵循本指南，确保用户体验的一致性和专业性。 

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/core/ui/design_system/colors.dart';
 import 'package:jinbeanpod_83904710/features/provider/clients/presentation/client_controller.dart';
+import 'package:jinbeanpod_83904710/core/ui/components/provider_theme_components.dart';
+import 'package:jinbeanpod_83904710/core/ui/themes/provider_theme_utils.dart';
 
 class ClientPage extends StatefulWidget {
   const ClientPage({super.key});
@@ -25,39 +27,42 @@ class _ClientPageState extends State<ClientPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
     return Scaffold(
-      backgroundColor: JinBeanColors.background,
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           '客户管理',
-          style: TextStyle(
-            color: JinBeanColors.textPrimary,
-            fontWeight: FontWeight.bold,
+          style: theme.textTheme.titleLarge?.copyWith(
+            color: colorScheme.onSurface,
+            fontWeight: FontWeight.w600,
           ),
         ),
-        backgroundColor: JinBeanColors.background,
+        backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: JinBeanColors.textPrimary),
+        iconTheme: IconThemeData(color: colorScheme.onSurface),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: Icon(Icons.refresh, color: colorScheme.onSurface),
             onPressed: () => controller.refreshClients(),
           ),
           IconButton(
-            icon: const Icon(Icons.add),
+            icon: Icon(Icons.add, color: colorScheme.onSurface),
             onPressed: () => _showAddClientDialog(),
           ),
         ],
       ),
       body: Column(
         children: [
-          // Search and Filter Section
+          // 搜索和筛选区域
           _buildSearchAndFilterSection(),
           
-          // Statistics Section
+          // 统计区域
           _buildStatisticsSection(),
           
-          // Clients List
+          // 客户列表
           Expanded(
             child: _buildClientsList(),
           ),
@@ -67,606 +72,337 @@ class _ClientPageState extends State<ClientPage> {
   }
 
   Widget _buildSearchAndFilterSection() {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: JinBeanColors.surface,
+        color: colorScheme.surface,
         border: Border(
-          bottom: BorderSide(color: JinBeanColors.border, width: 1),
+          bottom: BorderSide(color: colorScheme.outline.withOpacity(0.1), width: 1),
         ),
       ),
       child: Column(
         children: [
-          // Search Bar
+          // 搜索栏
           TextField(
             onChanged: (value) => controller.searchClients(value),
-            decoration: InputDecoration(
+            decoration: ProviderThemeUtils.getInputDecoration(
+              context,
               hintText: '搜索客户姓名或邮箱...',
-              prefixIcon: const Icon(Icons.search, color: JinBeanColors.textSecondary),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: JinBeanColors.border),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: JinBeanColors.border),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: JinBeanColors.primary, width: 2),
-              ),
-              filled: true,
-              fillColor: JinBeanColors.background,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              prefixIcon: Icon(Icons.search, color: colorScheme.onSurfaceVariant),
             ),
           ),
           const SizedBox(height: 12),
-
-          // Category Filter
+          // 筛选器
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
-              children: controller.categories.map((category) {
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: Obx(() => FilterChip(
-                    label: Text(controller.getCategoryDisplayText(category)),
-                    selected: controller.selectedCategory.value == category,
-                    onSelected: (selected) {
-                      if (selected) {
-                        controller.filterByCategory(category);
-                      }
-                    },
-                    backgroundColor: JinBeanColors.surface,
-                    selectedColor: JinBeanColors.primaryLight,
-                    checkmarkColor: JinBeanColors.primary,
-                  )),
-                );
-              }).toList(),
+              children: [
+                _buildFilterChip('全部', 'all'),
+                const SizedBox(width: 8),
+                _buildFilterChip('活跃', 'active'),
+                const SizedBox(width: 8),
+                _buildFilterChip('新客户', 'new'),
+                const SizedBox(width: 8),
+                _buildFilterChip('VIP', 'vip'),
+              ],
             ),
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildFilterChip(String label, String value) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
+    return Obx(() => FilterChip(
+      label: Text(label),
+      selected: controller.selectedFilter.value == value,
+      onSelected: (selected) {
+        if (selected) {
+          controller.filterClients(value);
+        }
+      },
+      backgroundColor: colorScheme.surfaceVariant,
+      selectedColor: colorScheme.primary.withOpacity(0.1),
+      checkmarkColor: colorScheme.primary,
+      labelStyle: TextStyle(
+        color: controller.selectedFilter.value == value
+            ? colorScheme.primary
+            : colorScheme.onSurfaceVariant,
+      ),
+    ));
   }
 
   Widget _buildStatisticsSection() {
     return Container(
       padding: const EdgeInsets.all(16),
-      child: FutureBuilder<Map<String, dynamic>>(
-        future: controller.getClientStatistics(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          
-          final stats = snapshot.data ?? {};
-          
-          return Row(
-                children: [
-                  Expanded(
-                child: _buildStatCard('总客户', stats['total']?.toString() ?? '0', JinBeanColors.primary),
-              ),
-              const SizedBox(width: 8),
+      child: Obx(() => Column(
+        children: [
+          Row(
+            children: [
               Expanded(
-                child: _buildStatCard('已服务', stats['served']?.toString() ?? '0', JinBeanColors.success),
+                child: ProviderStatCard(
+                  title: '总客户数',
+                  value: controller.totalClients.toString(),
+                  icon: Icons.people,
+                  iconColor: Theme.of(context).colorScheme.primary,
+                ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 12),
               Expanded(
-                child: _buildStatCard('谈判中', stats['in_negotiation']?.toString() ?? '0', JinBeanColors.warning),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildStatCard('潜在客户', stats['potential']?.toString() ?? '0', JinBeanColors.info),
+                child: ProviderStatCard(
+                  title: '活跃客户',
+                  value: controller.activeClients.toString(),
+                  icon: Icons.person_add,
+                  iconColor: Theme.of(context).colorScheme.secondary,
+                ),
               ),
             ],
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildStatCard(String title, String value, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.3)),
-      ),
-      child: Column(
-        children: [
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 12,
-              color: JinBeanColors.textSecondary,
-            ),
-            textAlign: TextAlign.center,
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: ProviderStatCard(
+                  title: '新客户',
+                  value: controller.newClients.toString(),
+                  icon: Icons.person_add_alt,
+                  iconColor: Theme.of(context).colorScheme.tertiary,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ProviderStatCard(
+                  title: 'VIP客户',
+                  value: controller.vipClients.toString(),
+                  icon: Icons.star,
+                  iconColor: Theme.of(context).colorScheme.error,
+                ),
+              ),
+            ],
           ),
         ],
-      ),
+      )),
     );
   }
 
   Widget _buildClientsList() {
     return Obx(() {
-      if (controller.isLoading.value && controller.clients.isEmpty) {
-        return const Center(child: CircularProgressIndicator());
+      if (controller.isLoading.value) {
+        return const ProviderLoadingState(message: '加载客户数据...');
       }
       
-      if (controller.clients.isEmpty) {
-        return Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.people,
-                size: 64,
-                color: JinBeanColors.textSecondary,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                '暂无客户',
-                style: TextStyle(
-                  fontSize: 18,
-                  color: JinBeanColors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                '添加您的第一个客户以开始',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: JinBeanColors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton.icon(
-                onPressed: () => _showAddClientDialog(),
-                icon: const Icon(Icons.add),
-                label: const Text('添加客户'),
-                      style: ElevatedButton.styleFrom(
-                  backgroundColor: JinBeanColors.primary,
-                  foregroundColor: Colors.white,
-                ),
-              ),
-            ],
-          ),
+      if (controller.filteredClients.isEmpty) {
+        return const ProviderEmptyState(
+          icon: Icons.people,
+          title: '暂无客户数据',
+          subtitle: '完成订单后将自动添加客户',
+          actionText: '添加客户',
         );
       }
       
-      return RefreshIndicator(
-        onRefresh: () => controller.refreshClients(),
-        child: ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: controller.clients.length + (controller.hasMoreData.value ? 1 : 0),
-          itemBuilder: (context, index) {
-            if (index == controller.clients.length) {
-              // Load more indicator
-              if (controller.hasMoreData.value) {
-                controller.loadClients();
-                return const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(16),
-                    child: CircularProgressIndicator(),
-                  ),
-                );
-              }
-              return const SizedBox.shrink();
-            }
-            
-            final client = controller.clients[index];
-            return _buildClientCard(client);
-          },
-        ),
-      );
-    });
-  }
-
-  Widget _buildClientCard(Map<String, dynamic> client) {
-    final relationshipType = client['relationship_type'] as String;
-    final categoryColor = Color(controller.getCategoryColor(relationshipType));
-    
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
+      return ListView.builder(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            Row(
-              children: [
-                // Avatar
-                CircleAvatar(
-                  radius: 24,
-                  backgroundColor: categoryColor.withOpacity(0.1),
-                  child: Text(
-                    controller.getClientName(client)[0].toUpperCase(),
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: categoryColor,
-                    ),
+        itemCount: controller.filteredClients.length,
+        itemBuilder: (context, index) {
+          final client = controller.filteredClients[index];
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: ProviderCard(
+              onTap: () => _showClientDetail(client),
+              child: Row(
+                children: [
+                  // 客户头像
+                  CircleAvatar(
+                    radius: 24,
+                    backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    child: Text(
+                      (client['name'] ?? 'C')[0].toUpperCase(),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                const SizedBox(width: 12),
-                
-                // Client Info
+                  const SizedBox(width: 12),
+                  // 客户信息
                   Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        controller.getClientName(client),
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          client['name'] ?? '未知客户',
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
                         ),
+                        const SizedBox(height: 4),
+                        Text(
+                          client['email'] ?? '无邮箱',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Text(
+                              '订单: ${client['order_count'] ?? 0}',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                fontSize: 12,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Text(
+                              '消费: ¥${(client['total_spent'] ?? 0).toStringAsFixed(2)}',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  // 状态徽章
+                  Column(
+                    children: [
+                      ProviderBadge(
+                        text: _getClientStatus(client),
+                        type: _getClientBadgeType(client),
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        controller.getClientEmail(client),
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: JinBeanColors.textSecondary,
-                    ),
+                      Icon(
+                        Icons.arrow_forward_ios,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        size: 14,
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-
-                // Category Badge
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: categoryColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: categoryColor.withOpacity(0.3)),
-                  ),
-                  child: Text(
-                    controller.getCategoryDisplayText(relationshipType),
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: categoryColor,
-                    ),
-            ),
-                ),
-              ],
-            ),
-            
-            const SizedBox(height: 16),
-            
-            // Stats Row
-            Row(
-                  children: [
-                Expanded(
-                  child: _buildClientStat('订单数', controller.getTotalOrders(client).toString()),
-                    ),
-                Expanded(
-                  child: _buildClientStat('总金额', controller.formatPrice(controller.getTotalAmount(client))),
-                ),
-                Expanded(
-                  child: _buildClientStat('最后联系', controller.formatDateTime(client['last_contact_date'])),
-              ),
-              ],
-            ),
-
-            const SizedBox(height: 16),
-            
-            // Action Buttons
-            Row(
-                  children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () => _showClientDetails(client),
-                    icon: const Icon(Icons.visibility, size: 16),
-                    label: const Text('查看'),
-                    style: OutlinedButton.styleFrom(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () => _showCommunicationDialog(client),
-                    icon: const Icon(Icons.message, size: 16),
-                    label: const Text('消息'),
-                    style: OutlinedButton.styleFrom(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                ),
-              ),
-            ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () => _showEditClientDialog(client),
-                    icon: const Icon(Icons.edit, size: 16),
-                    label: const Text('编辑'),
-                    style: OutlinedButton.styleFrom(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildClientStat(String label, String value) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: JinBeanColors.textSecondary,
-          ),
-        ),
-      ],
-    );
+          );
+        },
+      );
+    });
   }
 
   void _showAddClientDialog() {
-    final clientIdController = TextEditingController();
-    final notesController = TextEditingController();
-    String selectedCategory = 'potential';
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final nameController = TextEditingController();
+    final emailController = TextEditingController();
     
     Get.dialog(
       AlertDialog(
-        title: const Text('添加新客户'),
-        content: StatefulBuilder(
-          builder: (context, setState) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: clientIdController,
-                  decoration: const InputDecoration(
-                    labelText: '客户ID',
-                    hintText: '请输入客户用户ID',
-                  ),
-                ),
-                const SizedBox(height: 16),
-                DropdownButtonFormField<String>(
-                  value: selectedCategory,
-                  decoration: const InputDecoration(
-                    labelText: '关系类型',
-                  ),
-                  items: controller.categories
-                      .where((cat) => cat != 'all')
-                      .map((category) => DropdownMenuItem(
-                        value: category,
-                        child: Text(controller.getCategoryDisplayText(category)),
-                      ))
-                      .toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      selectedCategory = value!;
-                    });
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: notesController,
-                  decoration: const InputDecoration(
-                    labelText: '备注',
-                    hintText: '添加关于此客户的任何备注',
-                  ),
-                  maxLines: 3,
-                ),
-              ],
-            );
-          },
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        backgroundColor: colorScheme.surface,
+        title: Row(
+          children: [
+            ProviderIconContainer(
+              icon: Icons.person_add,
+              size: 32,
+            ),
+            const SizedBox(width: 12),
+            Text(
+              '添加客户',
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: colorScheme.onSurface,
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: ProviderThemeUtils.getInputDecoration(
+                context,
+                labelText: '客户姓名',
+                hintText: '请输入客户姓名',
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: emailController,
+              decoration: ProviderThemeUtils.getInputDecoration(
+                context,
+                labelText: '邮箱地址',
+                hintText: '请输入邮箱地址',
+              ),
+            ),
+          ],
         ),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('取消'),
+            child: Text(
+              '取消',
+              style: TextStyle(color: colorScheme.onSurfaceVariant),
+            ),
           ),
-          ElevatedButton(
+          ProviderButton(
             onPressed: () {
-              if (clientIdController.text.isNotEmpty) {
-                controller.addClient(
-                  clientIdController.text,
-                  selectedCategory,
-                  notesController.text,
-                );
+              if (nameController.text.isNotEmpty) {
+                controller.addClient(nameController.text, emailController.text);
                 Get.back();
               }
             },
-            child: const Text('添加'),
+            text: '添加',
+            type: ProviderButtonType.primary,
           ),
         ],
       ),
     );
   }
 
-  void _showEditClientDialog(Map<String, dynamic> client) {
-    final notesController = TextEditingController(text: client['notes'] ?? '');
-    String selectedCategory = client['relationship_type'] as String;
+  void _showClientDetail(Map<String, dynamic> client) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     
     Get.dialog(
       AlertDialog(
-        title: Text('编辑 ${controller.getClientName(client)}'),
-        content: StatefulBuilder(
-          builder: (context, setState) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                DropdownButtonFormField<String>(
-                  value: selectedCategory,
-                  decoration: const InputDecoration(
-                    labelText: '关系类型',
-                  ),
-                  items: controller.categories
-                      .where((cat) => cat != 'all')
-                      .map((category) => DropdownMenuItem(
-                        value: category,
-                        child: Text(controller.getCategoryDisplayText(category)),
-                      ))
-                      .toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      selectedCategory = value!;
-                    });
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: notesController,
-                  decoration: const InputDecoration(
-                    labelText: '备注',
-                    hintText: '添加关于此客户的任何备注',
-                  ),
-                  maxLines: 3,
-                ),
-              ],
-            );
-          },
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('取消'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              controller.updateClient(
-                client['id'],
-                selectedCategory,
-                notesController.text,
-              );
-              Get.back();
-            },
-            child: const Text('更新'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showCommunicationDialog(Map<String, dynamic> client) {
-    final contentController = TextEditingController();
-    String selectedType = 'message';
-    
-    Get.dialog(
-      AlertDialog(
-        title: Text('添加沟通 - ${controller.getClientName(client)}'),
-        content: StatefulBuilder(
-          builder: (context, setState) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                DropdownButtonFormField<String>(
-                  value: selectedType,
-                  decoration: const InputDecoration(
-                    labelText: '沟通类型',
-                  ),
-                  items: const [
-                    DropdownMenuItem(value: 'message', child: Text('消息')),
-                    DropdownMenuItem(value: 'call', child: Text('电话')),
-                    DropdownMenuItem(value: 'email', child: Text('邮件')),
-                    DropdownMenuItem(value: 'meeting', child: Text('会议')),
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      selectedType = value!;
-                    });
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: contentController,
-                  decoration: const InputDecoration(
-                    labelText: '内容',
-                    hintText: '请输入沟通详情',
-                  ),
-                  maxLines: 3,
-                ),
-              ],
-            );
-          },
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('取消'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (contentController.text.isNotEmpty) {
-                controller.addCommunication(
-                  client['client_id'],
-                  selectedType,
-                  contentController.text,
-                );
-                Get.back();
-              }
-            },
-            child: const Text('添加'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showClientDetails(Map<String, dynamic> client) {
-    Get.dialog(
-      AlertDialog(
-        title: Text(controller.getClientName(client)),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildDetailRow('邮箱', controller.getClientEmail(client)),
-              _buildDetailRow('电话', controller.getClientPhone(client)),
-              _buildDetailRow('关系', controller.getCategoryDisplayText(client['relationship_type'])),
-              _buildDetailRow('总订单', controller.getTotalOrders(client).toString()),
-              _buildDetailRow('总金额', controller.formatPrice(controller.getTotalAmount(client))),
-              _buildDetailRow('最后联系', controller.formatDateTime(client['last_contact_date'])),
-              if (client['notes'] != null && client['notes'].isNotEmpty)
-                _buildDetailRow('备注', client['notes']),
-            ],
+        backgroundColor: colorScheme.surface,
+        title: Text(
+          '客户详情',
+          style: theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: colorScheme.onSurface,
           ),
         ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildDetailRow('姓名', client['name'] ?? '未知'),
+            _buildDetailRow('邮箱', client['email'] ?? '无邮箱'),
+            _buildDetailRow('订单数', '${client['order_count'] ?? 0}'),
+            _buildDetailRow('总消费', '¥${(client['total_spent'] ?? 0).toStringAsFixed(2)}'),
+            _buildDetailRow('状态', _getClientStatus(client)),
+            _buildDetailRow('创建时间', client['created_at'] ?? '未知'),
+          ],
+        ),
         actions: [
-          TextButton(
+          ProviderButton(
             onPressed: () => Get.back(),
-            child: const Text('关闭'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Get.back();
-              _showCommunicationDialog(client);
-            },
-            child: const Text('添加沟通'),
+            text: '关闭',
+            type: ProviderButtonType.secondary,
           ),
         ],
       ),
@@ -674,23 +410,60 @@ class _ClientPageState extends State<ClientPage> {
   }
 
   Widget _buildDetailRow(String label, String value) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 100,
+            width: 80,
             child: Text(
               '$label:',
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: colorScheme.onSurfaceVariant,
+              ),
             ),
           ),
           Expanded(
-            child: Text(value),
+            child: Text(
+              value,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurface,
+              ),
+            ),
           ),
         ],
       ),
     );
+  }
+
+  String _getClientStatus(Map<String, dynamic> client) {
+    final orderCount = client['order_count'] ?? 0;
+    final totalSpent = client['total_spent'] ?? 0;
+    
+    if (totalSpent > 1000) return 'VIP';
+    if (orderCount > 5) return '活跃';
+    if (orderCount > 0) return '普通';
+    return '新客户';
+  }
+
+  ProviderBadgeType _getClientBadgeType(Map<String, dynamic> client) {
+    final status = _getClientStatus(client);
+    switch (status) {
+      case 'VIP':
+        return ProviderBadgeType.error;
+      case '活跃':
+        return ProviderBadgeType.primary;
+      case '普通':
+        return ProviderBadgeType.secondary;
+      case '新客户':
+        return ProviderBadgeType.warning;
+      default:
+        return ProviderBadgeType.secondary;
+    }
   }
 } 
