@@ -407,7 +407,6 @@ class _ProviderSimulatorState extends State<ProviderSimulator> {
                 _buildStatRow('总通知数', '${notificationController.notifications.length}'),
                 _buildStatRow('未读通知', '${notificationController.notifications.where((n) => n['is_read'] == false).length}'),
                 _buildStatRow('已读通知', '${notificationController.notifications.where((n) => n['is_read'] == true).length}'),
-                _buildStatRow('消息数', '${notificationController.messages.length}'),
               ],
             )),
           ),
@@ -826,7 +825,6 @@ class _ProviderSimulatorState extends State<ProviderSimulator> {
     serviceController.services.clear();
     incomeController.incomeRecords.clear();
     notificationController.notifications.clear();
-    notificationController.messages.clear();
 
     Get.snackbar(
       '重置完成',

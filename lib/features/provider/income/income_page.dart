@@ -18,19 +18,15 @@ class IncomePage extends GetView<IncomeController> {
             icon: const Icon(Icons.refresh),
             onPressed: () => controller.refreshIncomeData(),
           ),
-          IconButton(
-            icon: const Icon(Icons.account_balance_wallet),
-            onPressed: () => _showAddPaymentMethodDialog(),
-          ),
         ],
       ),
       body: Column(
         children: [
-          // Period Selector
-          _buildPeriodSelector(),
+          // Period Filter
+          _buildPeriodFilter(),
           
-          // Income Statistics
-          _buildIncomeStatistics(),
+          // Statistics Cards
+          _buildStatisticsSection(),
           
           // Income Records
           Expanded(
@@ -38,10 +34,16 @@ class IncomePage extends GetView<IncomeController> {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _showSettlementDialog(),
+        backgroundColor: Colors.blue,
+        icon: const Icon(Icons.account_balance_wallet, color: Colors.white),
+        label: const Text('Request Settlement', style: TextStyle(color: Colors.white)),
+      ),
     );
   }
 
-  Widget _buildPeriodSelector() {
+  Widget _buildPeriodFilter() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -56,8 +58,16 @@ class IncomePage extends GetView<IncomeController> {
         ],
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Period Filter
+          const Text(
+            'Income Period',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
@@ -65,7 +75,7 @@ class IncomePage extends GetView<IncomeController> {
                 return Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: Obx(() => FilterChip(
-                    label: Text(controller.getPeriodDisplayText(period)),
+                    label: Text(_getPeriodDisplayName(period)),
                     selected: controller.selectedPeriod.value == period,
                     onSelected: (selected) {
                       if (selected) {
@@ -80,121 +90,83 @@ class IncomePage extends GetView<IncomeController> {
               }).toList(),
             ),
           ),
-          
-          // Year and Month Selector (for monthly view)
-          if (controller.selectedPeriod.value == 'month') ...[
-            const SizedBox(height: 12),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatisticsSection() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      child: Obx(() {
+        return Column(
+          children: [
+            // Main Statistics Row
             Row(
               children: [
                 Expanded(
-                  child: DropdownButtonFormField<String>(
-                    value: controller.selectedYear.value,
-                    decoration: const InputDecoration(
-                      labelText: 'Year',
-                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    ),
-                    items: List.generate(5, (index) {
-                      final year = DateTime.now().year - 2 + index;
-                      return DropdownMenuItem(
-                        value: year.toString(),
-                        child: Text(year.toString()),
-                      );
-                    }),
-                    onChanged: (value) {
-                      if (value != null) {
-                        controller.changeYear(value);
-                      }
-                    },
+                  child: _buildStatCard(
+                    'Total Income',
+                    controller.formatCurrency(controller.totalIncome),
+                    Colors.green,
+                    Icons.attach_money,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
                 Expanded(
-                  child: DropdownButtonFormField<String>(
-                    value: controller.selectedMonth.value,
-                    decoration: const InputDecoration(
-                      labelText: 'Month',
-                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    ),
-                    items: List.generate(12, (index) {
-                      final month = index + 1;
-                      return DropdownMenuItem(
-                        value: month.toString(),
-                        child: Text(_getMonthName(month)),
-                      );
-                    }),
-                    onChanged: (value) {
-                      if (value != null) {
-                        controller.changeMonth(value);
-                      }
-                    },
+                  child: _buildStatCard(
+                    'Pending',
+                    controller.formatCurrency(controller.pendingAmount),
+                    Colors.orange,
+                    Icons.pending,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildStatCard(
+                    'Settled',
+                    controller.formatCurrency(controller.settledAmount),
+                    Colors.blue,
+                    Icons.check_circle,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _buildStatCard(
+                    'Total Orders',
+                    controller.totalOrders.toString(),
+                    Colors.purple,
+                    Icons.receipt,
                   ),
                 ),
               ],
             ),
           ],
-        ],
-      ),
+        );
+      }),
     );
   }
 
-  Widget _buildIncomeStatistics() {
+  Widget _buildStatCard(String title, String value, Color color, IconData icon) {
     return Container(
       padding: const EdgeInsets.all(16),
-      child: Obx(() => Column(
-        children: [
-          // Main Statistics
-          Row(
-            children: [
-              Expanded(
-                child: _buildStatCard('Total Income', controller.formatPrice(controller.totalIncome.value), Colors.green),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildStatCard('Settled', controller.formatPrice(controller.totalSettled.value), Colors.blue),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildStatCard('Pending', controller.formatPrice(controller.totalPending.value), Colors.orange),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: _buildStatCard('Orders', controller.totalOrders.value.toString(), Colors.purple),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildStatCard('Settlements', controller.settlements.length.toString(), Colors.teal),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildStatCard('Avg/Order', controller.totalOrders.value > 0 
-                    ? controller.formatPrice(controller.totalIncome.value / controller.totalOrders.value)
-                    : '\$0.00', Colors.indigo),
-              ),
-            ],
-          ),
-        ],
-      )),
-    );
-  }
-
-  Widget _buildStatCard(String title, String value, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: color.withOpacity(0.3)),
       ),
       child: Column(
         children: [
+          Icon(icon, color: color, size: 24),
+          const SizedBox(height: 8),
           Text(
             value,
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
               color: color,
             ),
@@ -239,7 +211,7 @@ class IncomePage extends GetView<IncomeController> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Income will appear here when orders are completed',
+                'Income records will appear here when you complete orders',
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey[500],
@@ -267,6 +239,8 @@ class IncomePage extends GetView<IncomeController> {
   Widget _buildIncomeRecordCard(Map<String, dynamic> record) {
     final status = record['status'] as String;
     final statusColor = Color(controller.getStatusColor(status));
+    final amount = record['amount'] as num? ?? 0;
+    final incomeType = record['income_type'] as String? ?? 'unknown';
     
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -282,69 +256,76 @@ class IncomePage extends GetView<IncomeController> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
-                  child: Text(
-                    controller.getCustomerName(record),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        controller.getIncomeTypeDisplayName(incomeType),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        controller.formatDate(record['created_at']),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: statusColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: statusColor.withOpacity(0.3)),
-                  ),
-                  child: Text(
-                    controller.getStatusDisplayText(status),
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: statusColor,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            
-            const SizedBox(height: 12),
-            
-            // Income Details
-            Row(
-              children: [
-                Expanded(
-                  child: _buildIncomeDetail('Amount', controller.formatPrice(record['amount'])),
-                ),
-                Expanded(
-                  child: _buildIncomeDetail('Order Amount', controller.getOrderAmount(record)),
-                ),
-                Expanded(
-                  child: _buildIncomeDetail('Date', controller.formatDateTime(record['income_date'])),
-                ),
-              ],
-            ),
-            
-            const SizedBox(height: 12),
-            
-            // Action Buttons
-            if (status == 'pending') ...[
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () => _showSettlementDialog(record),
-                      icon: const Icon(Icons.payment, size: 16),
-                      label: const Text('Request Settlement'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      controller.formatCurrency(amount),
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green,
                       ),
                     ),
+                    const SizedBox(height: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: statusColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: statusColor.withOpacity(0.3)),
+                      ),
+                      child: Text(
+                        controller.getStatusDisplayName(status),
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                          color: statusColor,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            
+            // Notes
+            if (record['notes'] != null && record['notes'].isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  record['notes'],
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[700],
                   ),
-                ],
+                ),
               ),
             ],
           ],
@@ -353,85 +334,43 @@ class IncomePage extends GetView<IncomeController> {
     );
   }
 
-  Widget _buildIncomeDetail(String label, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[600],
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
-    );
-  }
-
-  void _showSettlementDialog(Map<String, dynamic> record) {
-    final amountController = TextEditingController(text: record['amount']?.toString() ?? '');
-    String selectedPaymentMethod = '';
+  void _showSettlementDialog() {
+    final amountController = TextEditingController();
+    final notesController = TextEditingController();
     
     Get.dialog(
       AlertDialog(
         title: const Text('Request Settlement'),
-        content: StatefulBuilder(
-          builder: (context, setState) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: amountController,
-                  decoration: const InputDecoration(
-                    labelText: 'Amount',
-                    prefixText: '\$',
-                  ),
-                  keyboardType: TextInputType.number,
-                ),
-                const SizedBox(height: 16),
-                FutureBuilder<List<Map<String, dynamic>>>(
-                  future: controller.getPaymentMethods(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const CircularProgressIndicator();
-                    }
-                    
-                    final paymentMethods = snapshot.data ?? [];
-                    
-                    if (paymentMethods.isEmpty) {
-                      return const Text('No payment methods found. Please add a payment method first.');
-                    }
-                    
-                    return DropdownButtonFormField<String>(
-                      value: selectedPaymentMethod.isEmpty && paymentMethods.isNotEmpty 
-                          ? paymentMethods.first['id'] 
-                          : selectedPaymentMethod,
-                      decoration: const InputDecoration(
-                        labelText: 'Payment Method',
-                      ),
-                      items: paymentMethods.map((method) => DropdownMenuItem(
-                        value: method['id'],
-                        child: Text('${method['method_type']} - ${method['account_name']}'),
-                      )).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          selectedPaymentMethod = value!;
-                        });
-                      },
-                    );
-                  },
-                ),
-              ],
-            );
-          },
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: amountController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Amount',
+                prefixText: '\$',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: notesController,
+              maxLines: 3,
+              decoration: const InputDecoration(
+                labelText: 'Notes (Optional)',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Obx(() => Text(
+              'Available for settlement: ${controller.formatCurrency(controller.pendingAmount)}',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey[600],
+              ),
+            )),
+          ],
         ),
         actions: [
           TextButton(
@@ -441,97 +380,36 @@ class IncomePage extends GetView<IncomeController> {
           ElevatedButton(
             onPressed: () {
               final amount = double.tryParse(amountController.text);
-              if (amount != null && amount > 0 && selectedPaymentMethod.isNotEmpty) {
-                controller.requestSettlement(amount, selectedPaymentMethod);
+              if (amount != null && amount > 0) {
                 Get.back();
-              }
-            },
-            child: const Text('Request'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showAddPaymentMethodDialog() {
-    final accountNameController = TextEditingController();
-    final accountInfoController = TextEditingController();
-    String selectedMethodType = 'bank_transfer';
-    
-    Get.dialog(
-      AlertDialog(
-        title: const Text('Add Payment Method'),
-        content: StatefulBuilder(
-          builder: (context, setState) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                DropdownButtonFormField<String>(
-                  value: selectedMethodType,
-                  decoration: const InputDecoration(
-                    labelText: 'Payment Method Type',
-                  ),
-                  items: const [
-                    DropdownMenuItem(value: 'bank_transfer', child: Text('Bank Transfer')),
-                    DropdownMenuItem(value: 'paypal', child: Text('PayPal')),
-                    DropdownMenuItem(value: 'stripe', child: Text('Stripe')),
-                    DropdownMenuItem(value: 'wechat_pay', child: Text('WeChat Pay')),
-                    DropdownMenuItem(value: 'alipay', child: Text('Alipay')),
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      selectedMethodType = value!;
-                    });
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: accountNameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Account Name',
-                    hintText: 'Enter account holder name',
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: accountInfoController,
-                  decoration: const InputDecoration(
-                    labelText: 'Account Information',
-                    hintText: 'Enter account number or email',
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (accountNameController.text.isNotEmpty && accountInfoController.text.isNotEmpty) {
-                controller.addPaymentMethod(
-                  selectedMethodType,
-                  accountInfoController.text,
-                  accountNameController.text,
+                controller.requestSettlement(amount, notesController.text);
+              } else {
+                Get.snackbar(
+                  'Error',
+                  'Please enter a valid amount',
+                  snackPosition: SnackPosition.BOTTOM,
                 );
-                Get.back();
               }
             },
-            child: const Text('Add'),
+            child: const Text('Submit'),
           ),
         ],
       ),
     );
   }
 
-  String _getMonthName(int month) {
-    const months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
-    ];
-    return months[month - 1];
+  String _getPeriodDisplayName(String period) {
+    switch (period) {
+      case 'today':
+        return 'Today';
+      case 'week':
+        return 'This Week';
+      case 'month':
+        return 'This Month';
+      case 'year':
+        return 'This Year';
+      default:
+        return period;
+    }
   }
 } 

@@ -5,14 +5,16 @@ import 'package:jinbeanpod_83904710/app/theme/app_colors.dart';
 import 'package:jinbeanpod_83904710/core/ui/themes/jinbean_theme.dart';
 import 'package:jinbeanpod_83904710/core/ui/themes/provider_theme.dart';
 import 'package:jinbeanpod_83904710/core/ui/themes/customer_theme.dart';
+import 'package:jinbeanpod_83904710/core/plugin_management/plugin_manager.dart';
 
 class AppThemeService extends GetxService {
   final _box = GetStorage();
   final String _themeKey = 'currentTheme';
   final String _themeModeKey = 'themeMode';
+  final String _roleThemeKey = 'roleTheme';
 
   // Observable for the current theme
-  Rx<ThemeData> currentTheme = ThemeData.light().obs; // Default to light theme
+  Rx<ThemeData> currentTheme = ThemeData.light().obs;
 
   // 获取当前主题名
   String get currentThemeName => _box.read(_themeKey) ?? 'dark_teal';
@@ -240,13 +242,19 @@ class AppThemeService extends GetxService {
 
   // 新增：为指定角色保存主题名
   void setThemeForRole(String role, String themeName) {
-    final key = 'theme_$role';
+    final key = '${_roleThemeKey}_$role';
     _box.write(key, themeName);
+    
+    // 如果当前用户是该角色，立即应用主题
+    final currentRole = Get.find<PluginManager>().currentRole.value;
+    if (currentRole == role) {
+      setThemeByName(themeName);
+    }
   }
 
   // 新增：获取指定角色的主题名，若无则 provider 返回 jinbean_provider，customer 返回 dark_teal
   String? getThemeForRole(String role) {
-    final key = 'theme_$role';
+    final key = '${_roleThemeKey}_$role';
     final theme = _box.read(key);
     if (theme != null) return theme;
     if (role == 'provider') return 'jinbean_provider';
@@ -279,7 +287,6 @@ class AppThemeService extends GetxService {
   // 新增：根据角色和主题模式获取主题
   ThemeData getThemeForRoleAndMode(String role, ThemeMode mode) {
     final themeName = getThemeForRole(role) ?? 'dark_teal';
-    final baseTheme = getThemeByName(themeName);
     
     if (mode == ThemeMode.dark) {
       switch (role) {
@@ -292,7 +299,7 @@ class AppThemeService extends GetxService {
       }
     }
     
-    return baseTheme;
+    return getThemeByName(themeName);
   }
 
   // 设置ThemeMode
@@ -302,5 +309,29 @@ class AppThemeService extends GetxService {
     if (mode == ThemeMode.dark) modeStr = 'dark';
     _box.write(_themeModeKey, modeStr);
     Get.changeThemeMode(mode);
+    
+    // 重新应用当前角色的主题
+    final currentRole = Get.find<PluginManager>().currentRole.value;
+    final themeName = getThemeForRole(currentRole) ?? 'dark_teal';
+    setThemeByName(themeName);
+  }
+
+  // 新增：强制应用Provider主题
+  void applyProviderTheme() {
+    final themeName = getThemeForRole('provider') ?? 'jinbean_provider';
+    setThemeByName(themeName);
+  }
+
+  // 新增：强制应用Customer主题
+  void applyCustomerTheme() {
+    final themeName = getThemeForRole('customer') ?? 'dark_teal';
+    setThemeByName(themeName);
+  }
+
+  // 新增：根据当前角色自动应用主题
+  void applyThemeForCurrentRole() {
+    final currentRole = Get.find<PluginManager>().currentRole.value;
+    final themeName = getThemeForRole(currentRole) ?? 'dark_teal';
+    setThemeByName(themeName);
   }
 } 

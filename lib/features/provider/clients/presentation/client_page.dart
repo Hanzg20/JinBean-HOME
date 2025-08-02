@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jinbeanpod_83904710/core/ui/design_system/colors.dart';
 import 'package:jinbeanpod_83904710/features/provider/clients/presentation/client_controller.dart';
 
 class ClientPage extends StatefulWidget {
@@ -25,15 +26,18 @@ class _ClientPageState extends State<ClientPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: JinBeanColors.background,
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Get.back(),
+        title: const Text(
+          '客户管理',
+          style: TextStyle(
+            color: JinBeanColors.textPrimary,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        title: const Text('Client Management'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        backgroundColor: JinBeanColors.background,
         elevation: 0,
+        iconTheme: const IconThemeData(color: JinBeanColors.textPrimary),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -66,33 +70,36 @@ class _ClientPageState extends State<ClientPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 3,
-            offset: const Offset(0, 1),
-          ),
-        ],
+        color: JinBeanColors.surface,
+        border: Border(
+          bottom: BorderSide(color: JinBeanColors.border, width: 1),
+        ),
       ),
-        child: Column(
-          children: [
+      child: Column(
+        children: [
           // Search Bar
           TextField(
             onChanged: (value) => controller.searchClients(value),
-                decoration: InputDecoration(
-              hintText: 'Search clients by name or email...',
-              prefixIcon: const Icon(Icons.search),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  filled: true,
-              fillColor: Colors.grey[100],
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                ),
+            decoration: InputDecoration(
+              hintText: '搜索客户姓名或邮箱...',
+              prefixIcon: const Icon(Icons.search, color: JinBeanColors.textSecondary),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: JinBeanColors.border),
               ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: JinBeanColors.border),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: JinBeanColors.primary, width: 2),
+              ),
+              filled: true,
+              fillColor: JinBeanColors.background,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
+          ),
           const SizedBox(height: 12),
 
           // Category Filter
@@ -110,9 +117,9 @@ class _ClientPageState extends State<ClientPage> {
                         controller.filterByCategory(category);
                       }
                     },
-                    backgroundColor: Colors.grey[100],
-                    selectedColor: Colors.blue[100],
-                    checkmarkColor: Colors.blue,
+                    backgroundColor: JinBeanColors.surface,
+                    selectedColor: JinBeanColors.primaryLight,
+                    checkmarkColor: JinBeanColors.primary,
                   )),
                 );
               }).toList(),
@@ -138,19 +145,19 @@ class _ClientPageState extends State<ClientPage> {
           return Row(
                 children: [
                   Expanded(
-                child: _buildStatCard('Total', stats['total']?.toString() ?? '0', Colors.blue),
+                child: _buildStatCard('总客户', stats['total']?.toString() ?? '0', JinBeanColors.primary),
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: _buildStatCard('Served', stats['served']?.toString() ?? '0', Colors.green),
+                child: _buildStatCard('已服务', stats['served']?.toString() ?? '0', JinBeanColors.success),
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: _buildStatCard('In Negotiation', stats['in_negotiation']?.toString() ?? '0', Colors.orange),
+                child: _buildStatCard('谈判中', stats['in_negotiation']?.toString() ?? '0', JinBeanColors.warning),
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: _buildStatCard('Potential', stats['potential']?.toString() ?? '0', Colors.purple),
+                child: _buildStatCard('潜在客户', stats['potential']?.toString() ?? '0', JinBeanColors.info),
               ),
             ],
           );
@@ -182,7 +189,7 @@ class _ClientPageState extends State<ClientPage> {
             title,
             style: TextStyle(
               fontSize: 12,
-              color: Colors.grey[600],
+              color: JinBeanColors.textSecondary,
             ),
             textAlign: TextAlign.center,
           ),
@@ -205,31 +212,31 @@ class _ClientPageState extends State<ClientPage> {
               Icon(
                 Icons.people,
                 size: 64,
-                color: Colors.grey[400],
+                color: JinBeanColors.textSecondary,
               ),
               const SizedBox(height: 16),
               Text(
-                'No clients found',
+                '暂无客户',
                 style: TextStyle(
                   fontSize: 18,
-                  color: Colors.grey[600],
+                  color: JinBeanColors.textSecondary,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
-                'Add your first client to get started',
+                '添加您的第一个客户以开始',
                 style: TextStyle(
                   fontSize: 14,
-                  color: Colors.grey[500],
+                  color: JinBeanColors.textSecondary,
                 ),
               ),
               const SizedBox(height: 16),
               ElevatedButton.icon(
                 onPressed: () => _showAddClientDialog(),
                 icon: const Icon(Icons.add),
-                label: const Text('Add Client'),
+                label: const Text('添加客户'),
                       style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
+                  backgroundColor: JinBeanColors.primary,
                   foregroundColor: Colors.white,
                 ),
               ),
@@ -314,7 +321,7 @@ class _ClientPageState extends State<ClientPage> {
                         controller.getClientEmail(client),
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey[600],
+                          color: JinBeanColors.textSecondary,
                     ),
                   ),
                 ],
@@ -347,13 +354,13 @@ class _ClientPageState extends State<ClientPage> {
             Row(
                   children: [
                 Expanded(
-                  child: _buildClientStat('Orders', controller.getTotalOrders(client).toString()),
+                  child: _buildClientStat('订单数', controller.getTotalOrders(client).toString()),
                     ),
                 Expanded(
-                  child: _buildClientStat('Total', controller.formatPrice(controller.getTotalAmount(client))),
+                  child: _buildClientStat('总金额', controller.formatPrice(controller.getTotalAmount(client))),
                 ),
                 Expanded(
-                  child: _buildClientStat('Last Contact', controller.formatDateTime(client['last_contact_date'])),
+                  child: _buildClientStat('最后联系', controller.formatDateTime(client['last_contact_date'])),
               ),
               ],
             ),
@@ -367,7 +374,7 @@ class _ClientPageState extends State<ClientPage> {
                   child: OutlinedButton.icon(
                     onPressed: () => _showClientDetails(client),
                     icon: const Icon(Icons.visibility, size: 16),
-                    label: const Text('View'),
+                    label: const Text('查看'),
                     style: OutlinedButton.styleFrom(
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
@@ -378,7 +385,7 @@ class _ClientPageState extends State<ClientPage> {
                   child: OutlinedButton.icon(
                     onPressed: () => _showCommunicationDialog(client),
                     icon: const Icon(Icons.message, size: 16),
-                    label: const Text('Message'),
+                    label: const Text('消息'),
                     style: OutlinedButton.styleFrom(
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
@@ -389,7 +396,7 @@ class _ClientPageState extends State<ClientPage> {
                   child: OutlinedButton.icon(
                     onPressed: () => _showEditClientDialog(client),
                     icon: const Icon(Icons.edit, size: 16),
-                    label: const Text('Edit'),
+                    label: const Text('编辑'),
                     style: OutlinedButton.styleFrom(
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
@@ -418,7 +425,7 @@ class _ClientPageState extends State<ClientPage> {
           label,
           style: TextStyle(
             fontSize: 12,
-            color: Colors.grey[600],
+            color: JinBeanColors.textSecondary,
           ),
         ),
       ],
@@ -432,7 +439,7 @@ class _ClientPageState extends State<ClientPage> {
     
     Get.dialog(
       AlertDialog(
-        title: const Text('Add New Client'),
+        title: const Text('添加新客户'),
         content: StatefulBuilder(
           builder: (context, setState) {
             return Column(
@@ -441,15 +448,15 @@ class _ClientPageState extends State<ClientPage> {
                 TextField(
                   controller: clientIdController,
                   decoration: const InputDecoration(
-                    labelText: 'Client ID',
-                    hintText: 'Enter client user ID',
+                    labelText: '客户ID',
+                    hintText: '请输入客户用户ID',
                   ),
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
                   value: selectedCategory,
                   decoration: const InputDecoration(
-                    labelText: 'Relationship Type',
+                    labelText: '关系类型',
                   ),
                   items: controller.categories
                       .where((cat) => cat != 'all')
@@ -468,8 +475,8 @@ class _ClientPageState extends State<ClientPage> {
                 TextField(
                   controller: notesController,
                   decoration: const InputDecoration(
-                    labelText: 'Notes',
-                    hintText: 'Add any notes about this client',
+                    labelText: '备注',
+                    hintText: '添加关于此客户的任何备注',
                   ),
                   maxLines: 3,
                 ),
@@ -480,7 +487,7 @@ class _ClientPageState extends State<ClientPage> {
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Cancel'),
+            child: const Text('取消'),
           ),
           ElevatedButton(
             onPressed: () {
@@ -493,7 +500,7 @@ class _ClientPageState extends State<ClientPage> {
                 Get.back();
               }
             },
-            child: const Text('Add'),
+            child: const Text('添加'),
           ),
         ],
       ),
@@ -506,7 +513,7 @@ class _ClientPageState extends State<ClientPage> {
     
     Get.dialog(
       AlertDialog(
-        title: Text('Edit ${controller.getClientName(client)}'),
+        title: Text('编辑 ${controller.getClientName(client)}'),
         content: StatefulBuilder(
           builder: (context, setState) {
             return Column(
@@ -515,7 +522,7 @@ class _ClientPageState extends State<ClientPage> {
                 DropdownButtonFormField<String>(
                   value: selectedCategory,
                   decoration: const InputDecoration(
-                    labelText: 'Relationship Type',
+                    labelText: '关系类型',
                   ),
                   items: controller.categories
                       .where((cat) => cat != 'all')
@@ -534,8 +541,8 @@ class _ClientPageState extends State<ClientPage> {
                 TextField(
                   controller: notesController,
                   decoration: const InputDecoration(
-                    labelText: 'Notes',
-                    hintText: 'Add any notes about this client',
+                    labelText: '备注',
+                    hintText: '添加关于此客户的任何备注',
                   ),
                   maxLines: 3,
                 ),
@@ -546,7 +553,7 @@ class _ClientPageState extends State<ClientPage> {
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Cancel'),
+            child: const Text('取消'),
           ),
           ElevatedButton(
             onPressed: () {
@@ -557,7 +564,7 @@ class _ClientPageState extends State<ClientPage> {
               );
               Get.back();
             },
-            child: const Text('Update'),
+            child: const Text('更新'),
           ),
         ],
       ),
@@ -570,7 +577,7 @@ class _ClientPageState extends State<ClientPage> {
     
     Get.dialog(
       AlertDialog(
-        title: Text('Add Communication - ${controller.getClientName(client)}'),
+        title: Text('添加沟通 - ${controller.getClientName(client)}'),
         content: StatefulBuilder(
           builder: (context, setState) {
             return Column(
@@ -579,13 +586,13 @@ class _ClientPageState extends State<ClientPage> {
                 DropdownButtonFormField<String>(
                   value: selectedType,
                   decoration: const InputDecoration(
-                    labelText: 'Communication Type',
+                    labelText: '沟通类型',
                   ),
                   items: const [
-                    DropdownMenuItem(value: 'message', child: Text('Message')),
-                    DropdownMenuItem(value: 'call', child: Text('Phone Call')),
-                    DropdownMenuItem(value: 'email', child: Text('Email')),
-                    DropdownMenuItem(value: 'meeting', child: Text('Meeting')),
+                    DropdownMenuItem(value: 'message', child: Text('消息')),
+                    DropdownMenuItem(value: 'call', child: Text('电话')),
+                    DropdownMenuItem(value: 'email', child: Text('邮件')),
+                    DropdownMenuItem(value: 'meeting', child: Text('会议')),
                   ],
                   onChanged: (value) {
                     setState(() {
@@ -597,8 +604,8 @@ class _ClientPageState extends State<ClientPage> {
                 TextField(
                   controller: contentController,
                   decoration: const InputDecoration(
-                    labelText: 'Content',
-                    hintText: 'Enter communication details',
+                    labelText: '内容',
+                    hintText: '请输入沟通详情',
                   ),
                   maxLines: 3,
                 ),
@@ -609,7 +616,7 @@ class _ClientPageState extends State<ClientPage> {
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Cancel'),
+            child: const Text('取消'),
           ),
           ElevatedButton(
             onPressed: () {
@@ -622,7 +629,7 @@ class _ClientPageState extends State<ClientPage> {
                 Get.back();
               }
             },
-            child: const Text('Add'),
+            child: const Text('添加'),
           ),
         ],
       ),
@@ -638,28 +645,28 @@ class _ClientPageState extends State<ClientPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              _buildDetailRow('Email', controller.getClientEmail(client)),
-              _buildDetailRow('Phone', controller.getClientPhone(client)),
-              _buildDetailRow('Relationship', controller.getCategoryDisplayText(client['relationship_type'])),
-              _buildDetailRow('Total Orders', controller.getTotalOrders(client).toString()),
-              _buildDetailRow('Total Amount', controller.formatPrice(controller.getTotalAmount(client))),
-              _buildDetailRow('Last Contact', controller.formatDateTime(client['last_contact_date'])),
+              _buildDetailRow('邮箱', controller.getClientEmail(client)),
+              _buildDetailRow('电话', controller.getClientPhone(client)),
+              _buildDetailRow('关系', controller.getCategoryDisplayText(client['relationship_type'])),
+              _buildDetailRow('总订单', controller.getTotalOrders(client).toString()),
+              _buildDetailRow('总金额', controller.formatPrice(controller.getTotalAmount(client))),
+              _buildDetailRow('最后联系', controller.formatDateTime(client['last_contact_date'])),
               if (client['notes'] != null && client['notes'].isNotEmpty)
-                _buildDetailRow('Notes', client['notes']),
+                _buildDetailRow('备注', client['notes']),
             ],
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Close'),
+            child: const Text('关闭'),
           ),
           ElevatedButton(
             onPressed: () {
               Get.back();
               _showCommunicationDialog(client);
             },
-            child: const Text('Add Communication'),
+            child: const Text('添加沟通'),
           ),
         ],
       ),

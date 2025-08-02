@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jinbeanpod_83904710/core/ui/design_system/colors.dart';
 import 'package:jinbeanpod_83904710/features/provider/plugins/rob_order_hall/rob_order_hall_controller.dart';
 
 class RobOrderHallPage extends StatefulWidget {
@@ -20,33 +21,33 @@ class _RobOrderHallPageState extends State<RobOrderHallPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    
     return Scaffold(
+      backgroundColor: JinBeanColors.background,
       appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: theme.colorScheme.onPrimary),
-          onPressed: () => Get.back(),
-        ),
         title: Row(
           children: [
-            Icon(Icons.flash_on, color: theme.colorScheme.onPrimary, size: 24),
+            Icon(Icons.flash_on, color: JinBeanColors.primary, size: 24),
             const SizedBox(width: 8),
-            Text(
+            const Text(
               '接单大厅',
-              style: TextStyle(color: theme.colorScheme.onPrimary, fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: JinBeanColors.textPrimary,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ],
         ),
-        backgroundColor: theme.primaryColor,
+        backgroundColor: JinBeanColors.background,
         elevation: 0,
+        iconTheme: const IconThemeData(color: JinBeanColors.textPrimary),
         actions: [
           IconButton(
-            icon: Icon(Icons.refresh, color: theme.colorScheme.onPrimary),
+            icon: const Icon(Icons.refresh),
             onPressed: () => controller.refreshData(),
           ),
           IconButton(
-            icon: Icon(Icons.settings, color: theme.colorScheme.onPrimary),
+            icon: const Icon(Icons.settings),
             onPressed: () => _showSettings(),
           ),
         ],
@@ -87,13 +88,14 @@ class _RobOrderHallPageState extends State<RobOrderHallPage> {
             children: [
               Row(
                 children: [
-                  Icon(Icons.analytics, color: Colors.blue[600], size: 24),
+                  Icon(Icons.analytics, color: JinBeanColors.primary, size: 24),
                   const SizedBox(width: 8),
                   const Text(
                     '接单统计',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
+                      color: JinBeanColors.textPrimary,
                     ),
                   ),
                 ],
