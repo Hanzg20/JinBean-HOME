@@ -25,7 +25,6 @@ import 'package:jinbeanpod_83904710/features/customer/splash/presentation/splash
 import 'package:jinbeanpod_83904710/features/customer/auth/presentation/register_page.dart';
 import 'package:jinbeanpod_83904710/features/customer/auth/presentation/register_binding.dart';
 import 'package:jinbeanpod_83904710/features/service_map/service_map_page.dart';
-import 'features/provider/settings/settings_routes.dart';
 import 'features/customer/profile/presentation/theme_settings/theme_settings_page.dart';
 import 'features/customer/profile/presentation/theme_settings/theme_settings_binding.dart';
 import 'package:jinbeanpod_83904710/features/customer/profile/presentation/language_settings/language_settings_page.dart';
@@ -152,7 +151,7 @@ void main() async {
             Locale('zh', ''), // Chinese
           ],
           locale: initialLocale, // 优先用本地持久化语言，否则用系统
-          home: const ProviderShellApp(), // 临时直接启动ProviderShellApp进行测试
+          home: const SplashPage(), // 从启动页面开始，让SplashController处理路由逻辑
           getPages: [
             GetPage(name: '/auth', page: () => const LoginPage()),
             GetPage(name: '/register', page: () => RegisterPage(), binding: RegisterBinding()),
@@ -168,7 +167,6 @@ void main() async {
             GetPage(name: '/simulator', page: () => const SimulatorLauncher()),
             GetPage(name: '/provider_theme_demo', page: () => const ProviderThemeDemoPage()),
             // 只保留 ProviderShellApp 相关静态路由，其它 provider 插件式页面全部移除
-            ...providerSettingsRoutes,
           ],
         );
       }),

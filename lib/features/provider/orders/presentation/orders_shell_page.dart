@@ -28,29 +28,46 @@ class _OrdersShellPageState extends State<OrdersShellPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
     return DefaultTabController(
       length: 2, // For "订单管理" and "抢单大厅"
       child: Scaffold(
+        backgroundColor: colorScheme.surface,
         appBar: AppBar(
           title: Text(
-            '订单中心', // Orders Center
-            style: TextStyle(color: theme.colorScheme.onPrimary),
+            '订单中心',
+            style: theme.textTheme.titleLarge?.copyWith(
+              color: colorScheme.onSurface,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          backgroundColor: theme.primaryColor,
+          backgroundColor: colorScheme.surface,
+          elevation: 0,
+          iconTheme: IconThemeData(color: colorScheme.onSurface),
           bottom: TabBar(
-            labelColor: theme.colorScheme.onPrimary,
-            unselectedLabelColor: theme.colorScheme.onPrimary.withOpacity(0.7),
-            indicatorColor: theme.colorScheme.onPrimary,
+            labelColor: colorScheme.primary,
+            unselectedLabelColor: colorScheme.onSurfaceVariant,
+            indicatorColor: colorScheme.primary,
+            indicatorWeight: 3,
+            labelStyle: theme.textTheme.labelLarge?.copyWith(
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+            ),
+            unselectedLabelStyle: theme.textTheme.labelLarge?.copyWith(
+              fontWeight: FontWeight.normal,
+              fontSize: 16,
+            ),
             tabs: const [
-              Tab(text: '订单管理'), // Order Management
-              Tab(text: '接单大厅'), // Order Acceptance Hall
+              Tab(text: '订单管理'),
+              Tab(text: '接单大厅'),
             ],
           ),
         ),
         body: TabBarView(
           children: [
-            OrderManagePage(), // Existing Order Management Page
-            RobOrderHallPage(), // Existing Rob Order Hall Page
+            OrderManagePage(),
+            RobOrderHallPage(),
           ],
         ),
       ),

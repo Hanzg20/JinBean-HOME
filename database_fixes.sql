@@ -31,6 +31,28 @@ CREATE TABLE IF NOT EXISTS public.client_relationships (
     UNIQUE(provider_id, client_user_id)
 );
 
+-- 2.1 创建provider_settings表（如果不存在）
+CREATE TABLE IF NOT EXISTS public.provider_settings (
+    id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+    provider_id uuid NOT NULL REFERENCES public.provider_profiles(id) ON DELETE CASCADE,
+    setting_key text NOT NULL,
+    setting_value jsonb NOT NULL DEFAULT '{}',
+    created_at timestamptz NOT NULL DEFAULT now(),
+    updated_at timestamptz NOT NULL DEFAULT now(),
+    UNIQUE(provider_id, setting_key)
+);
+
+-- 2.2 为provider_settings添加索引
+CREATE INDEX IF NOT EXISTS idx_provider_settings_provider_id ON public.provider_settings(provider_id);
+CREATE INDEX IF NOT EXISTS idx_provider_settings_key ON public.provider_settings(setting_key);
+
+-- 2.3 为provider_settings添加updated_at触发器
+DROP TRIGGER IF EXISTS update_provider_settings_updated_at ON public.provider_settings;
+CREATE TRIGGER update_provider_settings_updated_at
+    BEFORE UPDATE ON public.provider_settings
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
 -- 3. 创建client_communications表（如果不存在）
 CREATE TABLE IF NOT EXISTS public.client_communications (
     id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),

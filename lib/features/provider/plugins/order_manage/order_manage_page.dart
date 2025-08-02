@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jinbeanpod_83904710/core/ui/design_system/colors.dart';
 import 'package:jinbeanpod_83904710/features/provider/plugins/order_manage/order_manage_controller.dart';
 import 'package:jinbeanpod_83904710/features/provider/plugins/order_manage/order_manage_binding.dart';
 
@@ -9,15 +10,18 @@ class OrderManagePage extends GetView<OrderManageController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: JinBeanColors.background,
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Get.back(),
+        title: const Text(
+          '订单管理',
+          style: TextStyle(
+            color: JinBeanColors.textPrimary,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        title: const Text('Order Management'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        backgroundColor: JinBeanColors.background,
         elevation: 0,
+        iconTheme: const IconThemeData(color: JinBeanColors.textPrimary),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -46,15 +50,10 @@ class OrderManagePage extends GetView<OrderManageController> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 3,
-            offset: const Offset(0, 1),
-          ),
-        ],
+        color: JinBeanColors.surface,
+        border: Border(
+          bottom: BorderSide(color: JinBeanColors.border, width: 1),
+        ),
       ),
       child: Column(
         children: [
@@ -62,14 +61,22 @@ class OrderManagePage extends GetView<OrderManageController> {
           TextField(
             onChanged: (value) => controller.searchOrders(value),
             decoration: InputDecoration(
-              hintText: 'Search orders by ID or customer name...',
-              prefixIcon: const Icon(Icons.search),
+              hintText: '搜索订单ID或客户姓名...',
+              prefixIcon: const Icon(Icons.search, color: JinBeanColors.textSecondary),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
+                borderSide: BorderSide(color: JinBeanColors.border),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: JinBeanColors.border),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: JinBeanColors.primary, width: 2),
               ),
               filled: true,
-              fillColor: Colors.grey[100],
+              fillColor: JinBeanColors.background,
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
           ),
@@ -90,9 +97,9 @@ class OrderManagePage extends GetView<OrderManageController> {
                         controller.filterByStatus(status);
                       }
                     },
-                    backgroundColor: Colors.grey[100],
-                    selectedColor: Colors.blue[100],
-                    checkmarkColor: Colors.blue,
+                    backgroundColor: JinBeanColors.surface,
+                    selectedColor: JinBeanColors.primaryLight,
+                    checkmarkColor: JinBeanColors.primary,
                   )),
                 );
               }).toList(),
@@ -118,19 +125,19 @@ class OrderManagePage extends GetView<OrderManageController> {
           return Row(
             children: [
               Expanded(
-                child: _buildStatCard('Total', stats['total']?.toString() ?? '0', Colors.blue),
+                child: _buildStatCard('总订单', stats['total']?.toString() ?? '0', JinBeanColors.primary),
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: _buildStatCard('Pending', stats['pending']?.toString() ?? '0', Colors.orange),
+                child: _buildStatCard('待接单', stats['pending']?.toString() ?? '0', JinBeanColors.warning),
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: _buildStatCard('In Progress', stats['in_progress']?.toString() ?? '0', Colors.green),
+                child: _buildStatCard('服务中', stats['in_progress']?.toString() ?? '0', JinBeanColors.success),
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: _buildStatCard('Completed', stats['completed']?.toString() ?? '0', Colors.green),
+                child: _buildStatCard('已完成', stats['completed']?.toString() ?? '0', JinBeanColors.success),
               ),
             ],
           );
@@ -188,7 +195,7 @@ class OrderManagePage extends GetView<OrderManageController> {
               ),
               const SizedBox(height: 16),
               Text(
-                'No orders found',
+                '未找到订单',
                 style: TextStyle(
                   fontSize: 18,
                   color: Colors.grey[600],
@@ -196,7 +203,7 @@ class OrderManagePage extends GetView<OrderManageController> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Orders will appear here when customers place them',
+                '当客户下单时，订单将显示在此处',
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey[500],
@@ -254,7 +261,7 @@ class OrderManagePage extends GetView<OrderManageController> {
               children: [
                 Expanded(
                   child: Text(
-                    'Order #${order['id'].toString().substring(0, 8)}',
+                    '订单 #${order['id'].toString().substring(0, 8)}',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -370,7 +377,7 @@ class OrderManagePage extends GetView<OrderManageController> {
             style: OutlinedButton.styleFrom(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
-            child: const Text('View Details'),
+            child: const Text('查看详情'),
           ),
         ),
         
@@ -382,10 +389,10 @@ class OrderManagePage extends GetView<OrderManageController> {
             child: ElevatedButton(
               onPressed: () => _acceptOrder(orderId),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
+                backgroundColor: JinBeanColors.success,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
-              child: const Text('Accept'),
+              child: const Text('接单'),
             ),
           ),
         
@@ -394,10 +401,10 @@ class OrderManagePage extends GetView<OrderManageController> {
             child: ElevatedButton(
               onPressed: () => _startService(orderId),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
+                backgroundColor: JinBeanColors.primary,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
-              child: const Text('Start'),
+              child: const Text('开始服务'),
             ),
           ),
         
@@ -406,10 +413,10 @@ class OrderManagePage extends GetView<OrderManageController> {
             child: ElevatedButton(
               onPressed: () => _completeService(orderId),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
+                backgroundColor: JinBeanColors.success,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
-              child: const Text('Complete'),
+              child: const Text('完成服务'),
             ),
           ),
         
@@ -417,11 +424,8 @@ class OrderManagePage extends GetView<OrderManageController> {
           Expanded(
             child: ElevatedButton(
               onPressed: () => _rejectOrder(orderId),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              ),
-              child: const Text('Reject'),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              child: const Text('拒绝'),
             ),
           ),
       ],
@@ -431,28 +435,28 @@ class OrderManagePage extends GetView<OrderManageController> {
   void _showOrderDetails(Map<String, dynamic> order) {
     Get.dialog(
       AlertDialog(
-        title: Text('Order #${order['id'].toString().substring(0, 8)}'),
+        title: Text('订单 #${order['id'].toString().substring(0, 8)}'),
         content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              _buildDetailRow('Customer', controller.getCustomerName(order)),
-              _buildDetailRow('Service', controller.getServiceName(order)),
-              _buildDetailRow('Amount', controller.formatPrice(order['amount'])),
-              _buildDetailRow('Status', controller.getStatusDisplayText(order['status'])),
-              _buildDetailRow('Created', controller.formatDateTime(order['created_at'])),
+              _buildDetailRow('客户', controller.getCustomerName(order)),
+              _buildDetailRow('服务', controller.getServiceName(order)),
+              _buildDetailRow('金额', controller.formatPrice(order['amount'])),
+              _buildDetailRow('状态', controller.getStatusDisplayText(order['status'])),
+              _buildDetailRow('创建时间', controller.formatDateTime(order['created_at'])),
               if (order['scheduled_date'] != null)
-                _buildDetailRow('Scheduled', controller.formatDateTime(order['scheduled_date'])),
+                _buildDetailRow('预约时间', controller.formatDateTime(order['scheduled_date'])),
               if (order['notes'] != null && order['notes'].isNotEmpty)
-                _buildDetailRow('Notes', order['notes']),
+                _buildDetailRow('备注', order['notes']),
             ],
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Close'),
+            child: const Text('关闭'),
           ),
         ],
       ),
@@ -483,19 +487,19 @@ class OrderManagePage extends GetView<OrderManageController> {
   void _acceptOrder(String orderId) {
     Get.dialog(
       AlertDialog(
-        title: const Text('Accept Order'),
-        content: const Text('Are you sure you want to accept this order?'),
+        title: const Text('接单'),
+        content: const Text('您确定要接这个订单吗？'),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Cancel'),
+            child: const Text('取消'),
           ),
           ElevatedButton(
             onPressed: () {
               Get.back();
               controller.acceptOrder(orderId);
             },
-            child: const Text('Accept'),
+            child: const Text('接单'),
           ),
         ],
       ),
@@ -505,12 +509,12 @@ class OrderManagePage extends GetView<OrderManageController> {
   void _rejectOrder(String orderId) {
     Get.dialog(
       AlertDialog(
-        title: const Text('Reject Order'),
-        content: const Text('Are you sure you want to reject this order?'),
+        title: const Text('拒绝订单'),
+        content: const Text('您确定要拒绝这个订单吗？'),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Cancel'),
+            child: const Text('取消'),
           ),
           ElevatedButton(
             onPressed: () {
@@ -518,7 +522,7 @@ class OrderManagePage extends GetView<OrderManageController> {
               controller.rejectOrder(orderId);
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Reject'),
+            child: const Text('拒绝'),
           ),
         ],
       ),
@@ -528,19 +532,19 @@ class OrderManagePage extends GetView<OrderManageController> {
   void _startService(String orderId) {
     Get.dialog(
       AlertDialog(
-        title: const Text('Start Service'),
-        content: const Text('Are you sure you want to start this service?'),
+        title: const Text('开始服务'),
+        content: const Text('您确定要开始这个服务吗？'),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Cancel'),
+            child: const Text('取消'),
           ),
           ElevatedButton(
             onPressed: () {
               Get.back();
               controller.startService(orderId);
             },
-            child: const Text('Start'),
+            child: const Text('开始服务'),
           ),
         ],
       ),
@@ -548,21 +552,36 @@ class OrderManagePage extends GetView<OrderManageController> {
   }
 
   void _completeService(String orderId) {
+    // 找到对应的订单数据
+    final orderData = controller.orders.firstWhere(
+      (order) => order['id'] == orderId,
+      orElse: () => <String, dynamic>{},
+    );
+
+    if (orderData.isEmpty) {
+      Get.snackbar(
+        '错误',
+        '未找到订单数据',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
     Get.dialog(
       AlertDialog(
-        title: const Text('Complete Service'),
-        content: const Text('Are you sure you want to mark this service as completed?'),
+        title: const Text('完成服务'),
+        content: const Text('您确定要将此服务标记为已完成吗？'),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Cancel'),
+            child: const Text('取消'),
           ),
           ElevatedButton(
             onPressed: () {
               Get.back();
-              controller.completeService(orderId);
+              controller.completeServiceWithClientConversion(orderId, orderData);
             },
-            child: const Text('Complete'),
+            child: const Text('完成'),
           ),
         ],
       ),
