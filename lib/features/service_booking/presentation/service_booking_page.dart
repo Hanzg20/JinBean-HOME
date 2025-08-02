@@ -6,6 +6,8 @@ import 'package:jinbeanpod_83904710/l10n/generated/app_localizations.dart'; // �
 import 'package:jinbeanpod_83904710/app/theme/app_colors.dart'; // Import AppColors
 import 'package:jinbeanpod_83904710/core/controllers/location_controller.dart'; // 导入LocationController
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:jinbeanpod_83904710/core/ui/components/customer_theme_components.dart';
+import 'package:jinbeanpod_83904710/core/ui/themes/customer_theme_utils.dart';
 
 class ServiceBookingPage extends GetView<ServiceBookingController> {
   const ServiceBookingPage({super.key});
@@ -34,9 +36,11 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
   @override
   Widget build(BuildContext context) {
     final locationController = Get.find<LocationController>();
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: colorScheme.surface,
       appBar: _buildAppBar(context, locationController),
       body: RefreshIndicator(
         onRefresh: () async {
@@ -68,9 +72,13 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context, LocationController locationController) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
     return AppBar(
       elevation: 0,
-      backgroundColor: Colors.white,
+      backgroundColor: colorScheme.surface,
+      foregroundColor: colorScheme.onSurface,
       // 移除标题，节省空间
       title: const SizedBox.shrink(),
       centerTitle: false,
@@ -151,60 +159,12 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
   Widget _buildSearchBar() {
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 4, 16, 12), // 进一步减少间距
-      child: Card(
-        elevation: 1, // 进一步减少阴影
-        shadowColor: Colors.black.withOpacity(0.04),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10), // 减少内边距
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            color: Colors.white, // 简化背景，移除渐变
-            border: Border.all(color: Colors.grey[100] ?? Colors.grey, width: 0.5),
-          ),
-          child: Row(
-            children: [
-              Icon(
-                Icons.search,
-                color: Colors.grey[500],
-                size: 20,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: TextField(
-                  controller: controller.searchController,
-                  onChanged: controller.onSearchChanged,
-                  onSubmitted: controller.onSearchSubmitted,
-                  decoration: InputDecoration(
-                    hintText: 'Search for services...',
-                    hintStyle: TextStyle(
-                      color: Colors.grey[400],
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                    ),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 8),
-                  ),
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.black87,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ),
-              Obx(() => controller.searchQuery.value.isNotEmpty
-                ? GestureDetector(
-                    onTap: controller.clearSearch,
-                    child: Icon(
-                      Icons.clear,
-                      color: Colors.grey[500],
-                      size: 20,
-                    ),
-                  )
-                : const SizedBox.shrink()),
-            ],
-          ),
-        ),
+      child: CustomerSearchField(
+        hintText: 'Search for services...',
+        controller: controller.searchController,
+        onChanged: controller.onSearchChanged,
+        showClear: controller.searchQuery.value.isNotEmpty,
+        onClear: controller.clearSearch,
       ),
     );
   }
