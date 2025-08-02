@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/features/provider/services/service_management_controller.dart';
+import 'package:jinbeanpod_83904710/features/provider/services/service_management_service.dart';
 import 'package:jinbeanpod_83904710/core/ui/components/provider_theme_components.dart';
 import 'package:jinbeanpod_83904710/core/ui/themes/provider_theme_utils.dart';
 
@@ -65,7 +66,7 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
               Expanded(
                 child: ProviderStatCard(
                   title: '活跃服务',
-                  value: controller.services.where((s) => s['status'] == 'active').length.toString(),
+                  value: controller.services.where((s) => s.status == ServiceStatus.active).length.toString(),
                   icon: Icons.check_circle,
                   iconColor: Theme.of(context).colorScheme.secondary,
                 ),
@@ -78,7 +79,7 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
               Expanded(
                 child: ProviderStatCard(
                   title: '暂停服务',
-                  value: controller.services.where((s) => s['status'] == 'paused').length.toString(),
+                  value: controller.services.where((s) => s.status == ServiceStatus.inactive).length.toString(),
                   icon: Icons.pause_circle,
                   iconColor: Theme.of(context).colorScheme.tertiary,
                 ),
@@ -87,7 +88,7 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
               Expanded(
                 child: ProviderStatCard(
                   title: '总收入',
-                  value: controller.formatCurrency(controller.totalRevenue),
+                  value: '¥${controller.services.fold(0.0, (sum, service) => sum + service.price).toStringAsFixed(2)}',
                   icon: Icons.attach_money,
                   iconColor: Theme.of(context).colorScheme.error,
                 ),
@@ -127,9 +128,9 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
                 children: [
                   // 服务图标
                   ProviderIconContainer(
-                    icon: _getServiceIcon(service['category']),
+                    icon: _getServiceIcon(service.categoryLevel1Id),
                     size: 48,
-                    iconColor: _getServiceColor(context, service['status']),
+                    iconColor: _getServiceColor(context, service.status),
                   ),
                   const SizedBox(width: 12),
                   // 服务信息
@@ -138,7 +139,7 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          service['name'] ?? '未知服务',
+                          service.title,
                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w600,
                             color: Theme.of(context).colorScheme.onSurface,
@@ -146,7 +147,7 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          service['description'] ?? '无描述',
+                          service.description,
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
@@ -157,7 +158,7 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
                         Row(
                           children: [
                             Text(
-                              controller.formatCurrency(service['price'] ?? 0),
+                              '¥${service.price.toStringAsFixed(2)}',
                               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                                 fontWeight: FontWeight.bold,
                                 color: Theme.of(context).colorScheme.primary,
@@ -165,7 +166,7 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
                             ),
                             const SizedBox(width: 16),
                             Text(
-                              '${service['duration'] ?? 0}分钟',
+                              '${service.reviewCount}评价',
                               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 fontSize: 12,
@@ -180,8 +181,8 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
                   Column(
                     children: [
                       ProviderBadge(
-                        text: _getStatusText(service['status']),
-                        type: _getStatusBadgeType(service['status']),
+                        text: controller.getStatusDisplayText(service.status),
+                        type: _getStatusBadgeType(service.status),
                       ),
                       const SizedBox(height: 8),
                       Row(
@@ -197,7 +198,7 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
                           ),
                           IconButton(
                             icon: Icon(
-                              service['status'] == 'active' ? Icons.pause : Icons.play_arrow,
+                              service.status == ServiceStatus.active ? Icons.pause : Icons.play_arrow,
                               size: 18,
                               color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
@@ -219,10 +220,9 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
   void _showAddServiceDialog(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final nameController = TextEditingController();
+    final titleController = TextEditingController();
     final descriptionController = TextEditingController();
     final priceController = TextEditingController();
-    final durationController = TextEditingController();
     String selectedCategory = 'cleaning';
     
     Get.dialog(
@@ -254,7 +254,7 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextField(
-                    controller: nameController,
+                    controller: titleController,
                     decoration: ProviderThemeUtils.getInputDecoration(
                       context,
                       labelText: '服务名称',
@@ -272,34 +272,16 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
                     maxLines: 3,
                   ),
                   const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: priceController,
-                          keyboardType: TextInputType.number,
-                          decoration: ProviderThemeUtils.getInputDecoration(
-                            context,
-                            labelText: '价格',
-                            hintText: '0.00',
-                          ).copyWith(
-                            prefixText: '¥',
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: TextField(
-                          controller: durationController,
-                          keyboardType: TextInputType.number,
-                          decoration: ProviderThemeUtils.getInputDecoration(
-                            context,
-                            labelText: '时长(分钟)',
-                            hintText: '60',
-                          ),
-                        ),
-                      ),
-                    ],
+                  TextField(
+                    controller: priceController,
+                    keyboardType: TextInputType.number,
+                    decoration: ProviderThemeUtils.getInputDecoration(
+                      context,
+                      labelText: '价格',
+                      hintText: '0.00',
+                    ).copyWith(
+                      prefixText: '¥',
+                    ),
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
@@ -335,15 +317,20 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
           ),
           ProviderButton(
             onPressed: () {
-              if (nameController.text.isNotEmpty && priceController.text.isNotEmpty) {
-                controller.addService({
-                  'name': nameController.text,
-                  'description': descriptionController.text,
-                  'price': double.tryParse(priceController.text) ?? 0.0,
-                  'duration': int.tryParse(durationController.text) ?? 60,
-                  'category': selectedCategory,
-                  'status': 'active',
-                });
+              if (titleController.text.isNotEmpty && priceController.text.isNotEmpty) {
+                final service = Service(
+                  id: '',
+                  providerId: '',
+                  title: titleController.text,
+                  description: descriptionController.text,
+                  categoryLevel1Id: selectedCategory,
+                  categoryLevel2Id: selectedCategory,
+                  status: ServiceStatus.active,
+                  price: double.tryParse(priceController.text) ?? 0.0,
+                  createdAt: DateTime.now(),
+                  updatedAt: DateTime.now(),
+                );
+                controller.createService(service);
                 Get.back();
               }
             },
@@ -355,14 +342,13 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
     );
   }
 
-  void _showEditServiceDialog(BuildContext context, Map<String, dynamic> service) {
+  void _showEditServiceDialog(BuildContext context, Service service) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final nameController = TextEditingController(text: service['name']);
-    final descriptionController = TextEditingController(text: service['description']);
-    final priceController = TextEditingController(text: service['price'].toString());
-    final durationController = TextEditingController(text: service['duration'].toString());
-    String selectedCategory = service['category'] ?? 'cleaning';
+    final titleController = TextEditingController(text: service.title);
+    final descriptionController = TextEditingController(text: service.description);
+    final priceController = TextEditingController(text: service.price.toString());
+    String selectedCategory = service.categoryLevel1Id;
     
     Get.dialog(
       AlertDialog(
@@ -393,7 +379,7 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextField(
-                    controller: nameController,
+                    controller: titleController,
                     decoration: ProviderThemeUtils.getInputDecoration(
                       context,
                       labelText: '服务名称',
@@ -411,34 +397,16 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
                     maxLines: 3,
                   ),
                   const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: priceController,
-                          keyboardType: TextInputType.number,
-                          decoration: ProviderThemeUtils.getInputDecoration(
-                            context,
-                            labelText: '价格',
-                            hintText: '0.00',
-                          ).copyWith(
-                            prefixText: '¥',
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: TextField(
-                          controller: durationController,
-                          keyboardType: TextInputType.number,
-                          decoration: ProviderThemeUtils.getInputDecoration(
-                            context,
-                            labelText: '时长(分钟)',
-                            hintText: '60',
-                          ),
-                        ),
-                      ),
-                    ],
+                  TextField(
+                    controller: priceController,
+                    keyboardType: TextInputType.number,
+                    decoration: ProviderThemeUtils.getInputDecoration(
+                      context,
+                      labelText: '价格',
+                      hintText: '0.00',
+                    ).copyWith(
+                      prefixText: '¥',
+                    ),
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
@@ -474,14 +442,25 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
           ),
           ProviderButton(
             onPressed: () {
-              if (nameController.text.isNotEmpty && priceController.text.isNotEmpty) {
-                controller.updateService(service['id'], {
-                  'name': nameController.text,
-                  'description': descriptionController.text,
-                  'price': double.tryParse(priceController.text) ?? 0.0,
-                  'duration': int.tryParse(durationController.text) ?? 60,
-                  'category': selectedCategory,
-                });
+              if (titleController.text.isNotEmpty && priceController.text.isNotEmpty) {
+                final updatedService = Service(
+                  id: service.id,
+                  providerId: service.providerId,
+                  title: titleController.text,
+                  description: descriptionController.text,
+                  categoryLevel1Id: selectedCategory,
+                  categoryLevel2Id: selectedCategory,
+                  status: service.status,
+                  averageRating: service.averageRating,
+                  reviewCount: service.reviewCount,
+                  price: double.tryParse(priceController.text) ?? 0.0,
+                  location: service.location,
+                  imagesUrl: service.imagesUrl,
+                  extraData: service.extraData,
+                  createdAt: service.createdAt,
+                  updatedAt: DateTime.now(),
+                );
+                controller.updateService(updatedService);
                 Get.back();
               }
             },
@@ -493,7 +472,7 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
     );
   }
 
-  void _showServiceDetail(BuildContext context, Map<String, dynamic> service) {
+  void _showServiceDetail(BuildContext context, Service service) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     
@@ -514,13 +493,14 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildDetailRow(context, '名称', service['name'] ?? '未知'),
-            _buildDetailRow(context, '描述', service['description'] ?? '无描述'),
-            _buildDetailRow(context, '价格', controller.formatCurrency(service['price'] ?? 0)),
-            _buildDetailRow(context, '时长', '${service['duration'] ?? 0}分钟'),
-            _buildDetailRow(context, '类别', _getCategoryText(service['category'])),
-            _buildDetailRow(context, '状态', _getStatusText(service['status'])),
-            _buildDetailRow(context, '创建时间', service['created_at'] ?? '未知'),
+            _buildDetailRow(context, '名称', service.title),
+            _buildDetailRow(context, '描述', service.description),
+            _buildDetailRow(context, '价格', '¥${service.price.toStringAsFixed(2)}'),
+            _buildDetailRow(context, '评分', '${service.averageRating.toStringAsFixed(1)}★'),
+            _buildDetailRow(context, '评价数', '${service.reviewCount}'),
+            _buildDetailRow(context, '类别', _getCategoryText(service.categoryLevel1Id)),
+            _buildDetailRow(context, '状态', controller.getStatusDisplayText(service.status)),
+            _buildDetailRow(context, '创建时间', service.createdAt.toString().substring(0, 19)),
           ],
         ),
         actions: [
@@ -566,9 +546,9 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
     );
   }
 
-  void _toggleServiceStatus(Map<String, dynamic> service) {
-    final newStatus = service['status'] == 'active' ? 'paused' : 'active';
-    controller.updateService(service['id'], {'status': newStatus});
+  void _toggleServiceStatus(Service service) {
+    final newStatus = service.status == ServiceStatus.active ? ServiceStatus.inactive : ServiceStatus.active;
+    controller.updateServiceStatus(service.id, newStatus);
   }
 
   IconData _getServiceIcon(String? category) {
@@ -584,43 +564,20 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
     }
   }
 
-  Color _getServiceColor(BuildContext context, String? status) {
-    final colorScheme = Theme.of(context).colorScheme;
-    switch (status) {
-      case 'active':
-        return colorScheme.primary;
-      case 'paused':
-        return colorScheme.tertiary;
-      case 'inactive':
-        return colorScheme.error;
-      default:
-        return colorScheme.onSurfaceVariant;
-    }
+  Color _getServiceColor(BuildContext context, ServiceStatus status) {
+    return controller.getStatusColor(status);
   }
 
-  String _getStatusText(String? status) {
+  ProviderBadgeType _getStatusBadgeType(ServiceStatus status) {
     switch (status) {
-      case 'active':
-        return '活跃';
-      case 'paused':
-        return '暂停';
-      case 'inactive':
-        return '停用';
-      default:
-        return '未知';
-    }
-  }
-
-  ProviderBadgeType _getStatusBadgeType(String? status) {
-    switch (status) {
-      case 'active':
+      case ServiceStatus.active:
         return ProviderBadgeType.primary;
-      case 'paused':
+      case ServiceStatus.inactive:
         return ProviderBadgeType.warning;
-      case 'inactive':
-        return ProviderBadgeType.error;
-      default:
+      case ServiceStatus.draft:
         return ProviderBadgeType.secondary;
+      case ServiceStatus.archived:
+        return ProviderBadgeType.error;
     }
   }
 

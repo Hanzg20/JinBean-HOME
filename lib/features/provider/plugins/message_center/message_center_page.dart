@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/features/provider/notifications/notification_controller.dart';
+import 'package:jinbeanpod_83904710/core/ui/components/provider_theme_components.dart';
 
 class MessageCenterPage extends StatefulWidget {
   const MessageCenterPage({super.key});
@@ -23,36 +24,51 @@ class _MessageCenterPageState extends State<MessageCenterPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
     return DefaultTabController(
       length: 2,
       child: Scaffold(
+        backgroundColor: colorScheme.surface,
         appBar: AppBar(
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
+            icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
             onPressed: () => Get.back(),
           ),
-          title: const Text('消息中心'),
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black,
+          title: Text(
+            '消息中心',
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: colorScheme.onSurface,
+            ),
+          ),
+          backgroundColor: Colors.transparent,
           elevation: 0,
+          iconTheme: IconThemeData(color: colorScheme.onSurface),
           actions: [
-            Obx(() => controller.hasUnreadNotifications.value
+            Obx(() => controller.unreadCount.value > 0
                 ? Badge(
-                    label: Text(controller.unreadCount.value.toString()),
+                    label: Text(
+                      controller.unreadCount.value.toString(),
+                      style: TextStyle(color: colorScheme.onPrimary),
+                    ),
+                    backgroundColor: colorScheme.error,
                     child: IconButton(
-                      icon: const Icon(Icons.notifications),
+                      icon: Icon(Icons.notifications, color: colorScheme.onSurface),
                       onPressed: () => _showUnreadNotifications(),
                     ),
                   )
                 : IconButton(
-                    icon: const Icon(Icons.notifications),
+                    icon: Icon(Icons.notifications, color: colorScheme.onSurface),
                     onPressed: () => _showUnreadNotifications(),
                   )),
             IconButton(
-              icon: const Icon(Icons.refresh),
+              icon: Icon(Icons.refresh, color: colorScheme.onSurface),
               onPressed: () => controller.refreshNotifications(),
             ),
             PopupMenuButton<String>(
+              icon: Icon(Icons.more_vert, color: colorScheme.onSurface),
               onSelected: (value) {
                 switch (value) {
                   case 'mark_all_read':
@@ -64,22 +80,22 @@ class _MessageCenterPageState extends State<MessageCenterPage> {
                 }
               },
               itemBuilder: (context) => [
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'mark_all_read',
                   child: Row(
                     children: [
-                      Icon(Icons.mark_email_read),
-                      SizedBox(width: 8),
+                      Icon(Icons.mark_email_read, color: colorScheme.primary),
+                      const SizedBox(width: 8),
                       Text('全部标记为已读'),
                     ],
                   ),
                 ),
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'settings',
                   child: Row(
                     children: [
-                      Icon(Icons.settings),
-                      SizedBox(width: 8),
+                      Icon(Icons.settings, color: colorScheme.primary),
+                      const SizedBox(width: 8),
                       Text('通知设置'),
                     ],
                   ),
@@ -87,11 +103,13 @@ class _MessageCenterPageState extends State<MessageCenterPage> {
               ],
             ),
           ],
-          bottom: const TabBar(
-            labelColor: Colors.black,
-            unselectedLabelColor: Colors.grey,
-            indicatorColor: Colors.blue,
-            tabs: [
+          bottom: TabBar(
+            labelColor: colorScheme.primary,
+            unselectedLabelColor: colorScheme.onSurfaceVariant,
+            indicatorColor: colorScheme.primary,
+            labelStyle: theme.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w600),
+            unselectedLabelStyle: theme.textTheme.labelMedium,
+            tabs: const [
               Tab(text: '通知'),
               Tab(text: '消息'),
             ],
@@ -108,374 +126,129 @@ class _MessageCenterPageState extends State<MessageCenterPage> {
   }
 
   Widget _buildNotificationsTab() {
-    return Column(
-      children: [
-        // 筛选区域
-        _buildFilterSection(),
-        
-        // 统计区域
-        _buildStatisticsSection(),
-        
-        // 通知列表
-        Expanded(
-          child: _buildNotificationsList(),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildFilterSection() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 3,
-            offset: const Offset(0, 1),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          // 类型筛选
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                'all',
-                'order',
-                'message',
-                'system',
-                'payment',
-              ].map((type) {
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: Obx(() => FilterChip(
-                    label: Text(_getNotificationTypeText(type)),
-                    selected: controller.selectedType.value == type,
-                    onSelected: (selected) {
-                      if (selected) {
-                        controller.filterByType(type);
-                      }
-                    },
-                    backgroundColor: Colors.grey[100],
-                    selectedColor: Colors.blue[100],
-                    checkmarkColor: Colors.blue,
-                  )),
-                );
-              }).toList(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatisticsSection() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      child: FutureBuilder<Map<String, dynamic>>(
-        future: controller.getNotificationStatistics(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          
-          final stats = snapshot.data ?? {};
-          
-          return Row(
-            children: [
-              Expanded(
-                child: _buildStatCard('全部', stats['total']?.toString() ?? '0', Colors.blue),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildStatCard('未读', stats['unread']?.toString() ?? '0', Colors.orange),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildStatCard('今日', stats['today']?.toString() ?? '0', Colors.green),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildStatCard(String title, String value, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.3)),
-      ),
-      child: Column(
-        children: [
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[600],
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNotificationsList() {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
     return Obx(() {
-      if (controller.isLoading.value && controller.notifications.isEmpty) {
-        return const Center(child: CircularProgressIndicator());
+      if (controller.isLoading.value) {
+        return const ProviderLoadingState(message: '加载通知数据...');
       }
       
       if (controller.notifications.isEmpty) {
-        return Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.notifications_none,
-                size: 64,
-                color: Colors.grey[400],
-              ),
-              const SizedBox(height: 16),
-              Text(
-                '暂无通知',
-                style: TextStyle(
-                  fontSize: 18,
-                  color: Colors.grey[600],
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                '有新的通知时会在这里显示',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[500],
-                ),
-              ),
-            ],
-          ),
+        return const ProviderEmptyState(
+          icon: Icons.notifications_none,
+          title: '暂无通知',
+          subtitle: '新的通知将显示在这里',
         );
       }
       
-      return RefreshIndicator(
-        onRefresh: () => controller.refreshNotifications(),
-        child: ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: controller.notifications.length,
-          itemBuilder: (context, index) {
-            final notification = controller.notifications[index];
-            return _buildNotificationCard(notification);
-          },
-        ),
+      return ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: controller.notifications.length,
+        itemBuilder: (context, index) {
+          final notification = controller.notifications[index];
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: ProviderCard(
+              onTap: () => _showNotificationDetail(notification),
+              child: ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: colorScheme.primary.withOpacity(0.1),
+                  child: Icon(
+                    _getNotificationIcon(notification['notification_type']),
+                    color: colorScheme.primary,
+                    size: 20,
+                  ),
+                ),
+                title: Text(
+                  notification['title'] ?? '未知通知',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      notification['message'] ?? '无内容',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      controller.formatNotificationTime(notification['created_at']),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+                trailing: !notification['is_read']
+                    ? Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: colorScheme.error,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      )
+                    : null,
+              ),
+            ),
+          );
+        },
       );
     });
   }
 
-  Widget _buildNotificationCard(Map<String, dynamic> notification) {
-    final isRead = notification['is_read'] ?? false;
-    final type = notification['notification_type'] ?? 'system';
-    final title = notification['title'] ?? '';
-    final message = notification['message'] ?? '';
-    final createdAt = notification['created_at'];
-    
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      elevation: isRead ? 1 : 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: _getNotificationTypeColor(type).withOpacity(0.1),
-          child: Icon(
-            _getNotificationTypeIcon(type),
-            color: _getNotificationTypeColor(type),
-          ),
-        ),
-        title: Text(
-          title,
-          style: TextStyle(
-            fontWeight: isRead ? FontWeight.normal : FontWeight.bold,
-          ),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              message,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              createdAt != null ? _formatDate(createdAt) : '未知时间',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[500],
-              ),
-            ),
-          ],
-        ),
-        trailing: !isRead
-            ? Container(
-                width: 8,
-                height: 8,
-                decoration: const BoxDecoration(
-                  color: Colors.blue,
-                  shape: BoxShape.circle,
-                ),
-              )
-            : null,
-        onTap: () => _showNotificationDetail(notification),
-      ),
-    );
-  }
-
   Widget _buildMessagesTab() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.chat_bubble_outline,
-            size: 64,
-            color: Colors.grey[400],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            '消息功能',
-            style: TextStyle(
-              fontSize: 18,
-              color: Colors.grey[600],
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '与客户的实时消息功能正在开发中',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[500],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _getNotificationTypeText(String type) {
-    switch (type) {
-      case 'all':
-        return '全部';
-      case 'order':
-        return '订单';
-      case 'message':
-        return '消息';
-      case 'system':
-        return '系统';
-      case 'payment':
-        return '支付';
-      default:
-        return type;
-    }
-  }
-
-  Color _getNotificationTypeColor(String type) {
-    switch (type) {
-      case 'order':
-        return Colors.blue;
-      case 'message':
-        return Colors.green;
-      case 'system':
-        return Colors.orange;
-      case 'payment':
-        return Colors.purple;
-      default:
-        return Colors.grey;
-    }
-  }
-
-  IconData _getNotificationTypeIcon(String type) {
-    switch (type) {
-      case 'order':
-        return Icons.shopping_cart;
-      case 'message':
-        return Icons.message;
-      case 'system':
-        return Icons.info;
-      case 'payment':
-        return Icons.payment;
-      default:
-        return Icons.notifications;
-    }
-  }
-
-  String _formatDate(dynamic date) {
-    if (date is String) {
-      return DateTime.parse(date).toString().substring(0, 10);
-    } else if (date is DateTime) {
-      return date.toString().substring(0, 10);
-    }
-    return '未知日期';
-  }
-
-  void _showNotificationDetail(Map<String, dynamic> notification) {
-    Get.dialog(
-      AlertDialog(
-        title: Text(notification['title'] ?? '通知详情'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(notification['message'] ?? ''),
-            const SizedBox(height: 16),
-            Text(
-              '时间: ${_formatDate(notification['created_at'])}',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[600],
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('关闭'),
-          ),
-        ],
-      ),
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
+    return const ProviderEmptyState(
+      icon: Icons.message,
+      title: '暂无消息',
+      subtitle: '消息功能正在开发中...',
     );
   }
 
   void _showUnreadNotifications() {
-    Get.snackbar(
-      '未读通知',
-      '您有 ${controller.unreadCount.value} 条未读通知',
-      snackPosition: SnackPosition.BOTTOM,
-    );
-  }
-
-  void _showNotificationSettings() {
+    final unreadNotifications = controller.unreadNotifications;
+    if (unreadNotifications.isEmpty) {
+      Get.snackbar(
+        '提示',
+        '没有未读通知',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+    
     Get.dialog(
       AlertDialog(
-        title: const Text('通知设置'),
-        content: const Text('通知设置功能正在开发中...'),
+        title: const Text('未读通知'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: unreadNotifications.length,
+            itemBuilder: (context, index) {
+              final notification = unreadNotifications[index];
+              return ListTile(
+                title: Text(notification['title'] ?? '未知通知'),
+                subtitle: Text(notification['message'] ?? '无内容'),
+                onTap: () {
+                  Get.back();
+                  _showNotificationDetail(notification);
+                },
+              );
+            },
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
@@ -484,5 +257,84 @@ class _MessageCenterPageState extends State<MessageCenterPage> {
         ],
       ),
     );
+  }
+
+  void _showNotificationDetail(Map<String, dynamic> notification) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
+    // 标记为已读
+    if (!notification['is_read']) {
+      controller.markAsRead(notification['id']);
+    }
+    
+    Get.dialog(
+      AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        backgroundColor: colorScheme.surface,
+        title: Text(
+          notification['title'] ?? '通知详情',
+          style: theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: colorScheme.onSurface,
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              notification['message'] ?? '无内容',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              '时间: ${controller.formatNotificationTime(notification['created_at'])}',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text(
+              '关闭',
+              style: TextStyle(color: colorScheme.primary),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showNotificationSettings() {
+    Get.snackbar(
+      '提示',
+      '通知设置功能正在开发中...',
+      snackPosition: SnackPosition.BOTTOM,
+    );
+  }
+
+  IconData _getNotificationIcon(String? type) {
+    switch (type) {
+      case 'order':
+        return Icons.shopping_cart;
+      case 'payment':
+        return Icons.payment;
+      case 'system':
+        return Icons.system_update;
+      case 'promotion':
+        return Icons.local_offer;
+      case 'reminder':
+        return Icons.alarm;
+      default:
+        return Icons.notifications;
+    }
   }
 } 
