@@ -33,6 +33,8 @@ import 'package:jinbeanpod_83904710/features/provider/settings/language_settings
 import 'package:jinbeanpod_83904710/features/provider/settings/language_settings_binding.dart';
 import 'package:jinbeanpod_83904710/simulator/simulator_launcher.dart';
 import 'package:jinbeanpod_83904710/features/demo/provider_theme_demo_page.dart';
+import 'package:jinbeanpod_83904710/core/ui/themes/customer_theme.dart';
+import 'package:jinbeanpod_83904710/core/ui/themes/provider_theme.dart';
 
 void main() async {
   print('[main] App starting...');
@@ -120,20 +122,22 @@ void main() async {
       child: Obx(() {
         final role = Get.find<PluginManager>().currentRole.value;
         final themeService = AppThemeService();
-        final themeName = themeService.getThemeForRole(role) ?? themeService.currentThemeName;
         print('Current Role: $role');
-        print('Current Theme Name: $themeName');
         
         // 根据角色选择主题
         ThemeData theme;
         if (role == 'provider') {
           // Provider角色使用ProviderTheme
-          theme = themeService.getThemeForRoleAndMode(role, themeService.themeMode);
+          theme = JinBeanProviderTheme.lightTheme;
+          print('Applying Provider Theme');
+        } else if (role == 'customer') {
+          // Customer角色使用CustomerTheme
+          theme = JinBeanCustomerTheme.lightTheme;
+          print('Applying Customer Theme');
         } else {
-          // 其他角色使用原有主题
-          theme = themeName == 'golden'
-              ? themeService.goldenTheme
-              : themeService.darkTealTheme;
+          // 默认使用Customer主题
+          theme = JinBeanCustomerTheme.lightTheme;
+          print('Applying Default Customer Theme');
         }
         
         return GetMaterialApp(

@@ -9,12 +9,13 @@ class ShellApp extends GetView<ShellAppController> {
   @override
   Widget build(BuildContext context) {
     final PluginManager pluginManager = Get.find<PluginManager>();
+    final theme = Theme.of(context);
 
     return Obx(() {
       print('[ShellApp] Obx build triggered.');
       try {
         final role = pluginManager.currentRole.value;
-        print('[ShellApp] PluginManager hash: [36m[1m[4m[7m${pluginManager.hashCode}[0m');
+        print('[ShellApp] PluginManager hash: ${pluginManager.hashCode}');
         final enabledTabPluginsRx =
             pluginManager.enabledTabPluginsForCurrentRole;
         final enabledTabPlugins = enabledTabPluginsRx.toList(); // 强制触发响应式
@@ -63,25 +64,40 @@ class ShellApp extends GetView<ShellAppController> {
               children: pluginWidgets,
             ),
           ),
-          bottomNavigationBar: BottomNavigationBar(
-            currentIndex: controller.currentIndex,
-            onTap: controller.changeTab,
-            items: bottomNavItems,
-            type: BottomNavigationBarType.fixed,
-            selectedItemColor: Theme.of(context).primaryColor,
-            unselectedItemColor:
-                Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-            showUnselectedLabels: true,
-            elevation: 8,
+          bottomNavigationBar: Theme(
+            data: theme.copyWith(
+              bottomNavigationBarTheme: theme.bottomNavigationBarTheme.copyWith(
+                backgroundColor: theme.bottomNavigationBarTheme.backgroundColor,
+                selectedItemColor: theme.bottomNavigationBarTheme.selectedItemColor,
+                unselectedItemColor: theme.bottomNavigationBarTheme.unselectedItemColor,
+                type: BottomNavigationBarType.fixed,
+                elevation: theme.bottomNavigationBarTheme.elevation ?? 8,
+                selectedLabelStyle: theme.bottomNavigationBarTheme.selectedLabelStyle,
+                unselectedLabelStyle: theme.bottomNavigationBarTheme.unselectedLabelStyle,
+              ),
+            ),
+            child: BottomNavigationBar(
+              currentIndex: controller.currentIndex,
+              onTap: controller.changeTab,
+              items: bottomNavItems,
+              type: BottomNavigationBarType.fixed,
+              selectedItemColor: theme.bottomNavigationBarTheme.selectedItemColor,
+              unselectedItemColor: theme.bottomNavigationBarTheme.unselectedItemColor,
+              backgroundColor: theme.bottomNavigationBarTheme.backgroundColor,
+              elevation: theme.bottomNavigationBarTheme.elevation ?? 8,
+              selectedLabelStyle: theme.bottomNavigationBarTheme.selectedLabelStyle,
+              unselectedLabelStyle: theme.bottomNavigationBarTheme.unselectedLabelStyle,
+              showUnselectedLabels: true,
+            ),
           ),
         );
       } catch (e, stack) {
         print('[ShellApp] Obx build error: '
-            '[31m$e\n$stack[0m');
+            '$e\n$stack');
         return Scaffold(
           body: Center(
             child: Text('Build error: '
-                '[31m$e\n$stack[0m'),
+                '$e\n$stack'),
           ),
         );
       }
