@@ -121,17 +121,18 @@ class _ClientPageState extends State<ClientPage> {
     
     return Obx(() => FilterChip(
       label: Text(label),
-      selected: controller.selectedFilter.value == value,
+      selected: controller.selectedCategory.value == value,
       onSelected: (selected) {
         if (selected) {
-          controller.filterClients(value);
+          controller.selectedCategory.value = value;
+          controller.loadClients(refresh: true);
         }
       },
       backgroundColor: colorScheme.surfaceVariant,
       selectedColor: colorScheme.primary.withOpacity(0.1),
       checkmarkColor: colorScheme.primary,
       labelStyle: TextStyle(
-        color: controller.selectedFilter.value == value
+        color: controller.selectedCategory.value == value
             ? colorScheme.primary
             : colorScheme.onSurfaceVariant,
       ),
@@ -148,7 +149,7 @@ class _ClientPageState extends State<ClientPage> {
               Expanded(
                 child: ProviderStatCard(
                   title: '总客户数',
-                  value: controller.totalClients.toString(),
+                  value: controller.clients.length.toString(),
                   icon: Icons.people,
                   iconColor: Theme.of(context).colorScheme.primary,
                 ),
@@ -156,8 +157,8 @@ class _ClientPageState extends State<ClientPage> {
               const SizedBox(width: 12),
               Expanded(
                 child: ProviderStatCard(
-                  title: '活跃客户',
-                  value: controller.activeClients.toString(),
+                  title: '已服务',
+                  value: controller.clients.where((c) => c['relationship_type'] == 'served').length.toString(),
                   icon: Icons.person_add,
                   iconColor: Theme.of(context).colorScheme.secondary,
                 ),
@@ -169,8 +170,8 @@ class _ClientPageState extends State<ClientPage> {
             children: [
               Expanded(
                 child: ProviderStatCard(
-                  title: '新客户',
-                  value: controller.newClients.toString(),
+                  title: '谈判中',
+                  value: controller.clients.where((c) => c['relationship_type'] == 'in_negotiation').length.toString(),
                   icon: Icons.person_add_alt,
                   iconColor: Theme.of(context).colorScheme.tertiary,
                 ),
@@ -178,8 +179,8 @@ class _ClientPageState extends State<ClientPage> {
               const SizedBox(width: 12),
               Expanded(
                 child: ProviderStatCard(
-                  title: 'VIP客户',
-                  value: controller.vipClients.toString(),
+                  title: '潜在客户',
+                  value: controller.clients.where((c) => c['relationship_type'] == 'potential').length.toString(),
                   icon: Icons.star,
                   iconColor: Theme.of(context).colorScheme.error,
                 ),
@@ -197,7 +198,7 @@ class _ClientPageState extends State<ClientPage> {
         return const ProviderLoadingState(message: '加载客户数据...');
       }
       
-      if (controller.filteredClients.isEmpty) {
+      if (controller.clients.isEmpty) {
         return const ProviderEmptyState(
           icon: Icons.people,
           title: '暂无客户数据',
@@ -208,9 +209,23 @@ class _ClientPageState extends State<ClientPage> {
       
       return ListView.builder(
         padding: const EdgeInsets.all(16),
-        itemCount: controller.filteredClients.length,
+        itemCount: controller.clients.length + (controller.hasMoreData.value ? 1 : 0),
         itemBuilder: (context, index) {
-          final client = controller.filteredClients[index];
+          if (index == controller.clients.length) {
+            // Load more indicator
+            if (controller.hasMoreData.value) {
+              controller.loadClients();
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
+            return const SizedBox.shrink();
+          }
+          
+          final client = controller.clients[index];
           return Padding(
             padding: const EdgeInsets.only(bottom: 8),
             child: ProviderCard(
@@ -222,7 +237,7 @@ class _ClientPageState extends State<ClientPage> {
                     radius: 24,
                     backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                     child: Text(
-                      (client['name'] ?? 'C')[0].toUpperCase(),
+                      controller.getClientName(client)[0].toUpperCase(),
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.bold,
@@ -236,7 +251,7 @@ class _ClientPageState extends State<ClientPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          client['name'] ?? '未知客户',
+                          controller.getClientName(client),
                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w600,
                             color: Theme.of(context).colorScheme.onSurface,
@@ -244,7 +259,7 @@ class _ClientPageState extends State<ClientPage> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          client['email'] ?? '无邮箱',
+                          controller.getClientEmail(client),
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
@@ -253,7 +268,7 @@ class _ClientPageState extends State<ClientPage> {
                         Row(
                           children: [
                             Text(
-                              '订单: ${client['order_count'] ?? 0}',
+                              '订单: ${controller.getTotalOrders(client)}',
                               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 fontSize: 12,
@@ -261,7 +276,7 @@ class _ClientPageState extends State<ClientPage> {
                             ),
                             const SizedBox(width: 16),
                             Text(
-                              '消费: ¥${(client['total_spent'] ?? 0).toStringAsFixed(2)}',
+                              '消费: ${controller.formatPrice(controller.getTotalAmount(client))}',
                               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 fontSize: 12,
@@ -276,7 +291,7 @@ class _ClientPageState extends State<ClientPage> {
                   Column(
                     children: [
                       ProviderBadge(
-                        text: _getClientStatus(client),
+                        text: controller.getCategoryDisplayText(client['relationship_type']),
                         type: _getClientBadgeType(client),
                       ),
                       const SizedBox(height: 4),
@@ -299,8 +314,9 @@ class _ClientPageState extends State<ClientPage> {
   void _showAddClientDialog() {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final nameController = TextEditingController();
-    final emailController = TextEditingController();
+    final clientIdController = TextEditingController();
+    final notesController = TextEditingController();
+    String selectedCategory = 'potential';
     
     Get.dialog(
       AlertDialog(
@@ -324,27 +340,52 @@ class _ClientPageState extends State<ClientPage> {
             ),
           ],
         ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: ProviderThemeUtils.getInputDecoration(
-                context,
-                labelText: '客户姓名',
-                hintText: '请输入客户姓名',
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: emailController,
-              decoration: ProviderThemeUtils.getInputDecoration(
-                context,
-                labelText: '邮箱地址',
-                hintText: '请输入邮箱地址',
-              ),
-            ),
-          ],
+        content: StatefulBuilder(
+          builder: (context, setState) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: clientIdController,
+                  decoration: ProviderThemeUtils.getInputDecoration(
+                    context,
+                    labelText: '客户ID',
+                    hintText: '请输入客户用户ID',
+                  ),
+                ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  value: selectedCategory,
+                  decoration: ProviderThemeUtils.getInputDecoration(
+                    context,
+                    labelText: '关系类型',
+                  ),
+                  items: controller.categories
+                      .where((cat) => cat != 'all')
+                      .map((category) => DropdownMenuItem(
+                        value: category,
+                        child: Text(controller.getCategoryDisplayText(category)),
+                      ))
+                      .toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedCategory = value!;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: notesController,
+                  decoration: ProviderThemeUtils.getInputDecoration(
+                    context,
+                    labelText: '备注',
+                    hintText: '添加关于此客户的任何备注',
+                  ),
+                  maxLines: 3,
+                ),
+              ],
+            );
+          },
         ),
         actions: [
           TextButton(
@@ -356,8 +397,12 @@ class _ClientPageState extends State<ClientPage> {
           ),
           ProviderButton(
             onPressed: () {
-              if (nameController.text.isNotEmpty) {
-                controller.addClient(nameController.text, emailController.text);
+              if (clientIdController.text.isNotEmpty) {
+                controller.addClient(
+                  clientIdController.text,
+                  selectedCategory,
+                  notesController.text,
+                );
                 Get.back();
               }
             },
@@ -390,12 +435,15 @@ class _ClientPageState extends State<ClientPage> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildDetailRow('姓名', client['name'] ?? '未知'),
-            _buildDetailRow('邮箱', client['email'] ?? '无邮箱'),
-            _buildDetailRow('订单数', '${client['order_count'] ?? 0}'),
-            _buildDetailRow('总消费', '¥${(client['total_spent'] ?? 0).toStringAsFixed(2)}'),
-            _buildDetailRow('状态', _getClientStatus(client)),
-            _buildDetailRow('创建时间', client['created_at'] ?? '未知'),
+            _buildDetailRow('姓名', controller.getClientName(client)),
+            _buildDetailRow('邮箱', controller.getClientEmail(client)),
+            _buildDetailRow('电话', controller.getClientPhone(client)),
+            _buildDetailRow('关系', controller.getCategoryDisplayText(client['relationship_type'])),
+            _buildDetailRow('总订单', controller.getTotalOrders(client).toString()),
+            _buildDetailRow('总金额', controller.formatPrice(controller.getTotalAmount(client))),
+            _buildDetailRow('最后联系', controller.formatDateTime(client['last_contact_date'])),
+            if (client['notes'] != null && client['notes'].isNotEmpty)
+              _buildDetailRow('备注', client['notes']),
           ],
         ),
         actions: [

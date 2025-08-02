@@ -58,261 +58,273 @@ class IncomePage extends GetView<IncomeController> {
   }
 
   Widget _buildPeriodFilter() {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        border: Border(
-          bottom: BorderSide(color: colorScheme.outline.withOpacity(0.1), width: 1),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '收入周期',
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: colorScheme.onSurface,
+    return Builder(
+      builder: (context) {
+        final theme = Theme.of(context);
+        final colorScheme = theme.colorScheme;
+        
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: colorScheme.surface,
+            border: Border(
+              bottom: BorderSide(color: colorScheme.outline.withOpacity(0.1), width: 1),
             ),
           ),
-          const SizedBox(height: 12),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: controller.periodOptions.map((period) {
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: Obx(() => FilterChip(
-                    label: Text(_getPeriodDisplayName(period)),
-                    selected: controller.selectedPeriod.value == period,
-                    onSelected: (selected) {
-                      if (selected) {
-                        controller.changePeriod(period);
-                      }
-                    },
-                    backgroundColor: colorScheme.surfaceVariant,
-                    selectedColor: colorScheme.primary.withOpacity(0.1),
-                    checkmarkColor: colorScheme.primary,
-                    labelStyle: TextStyle(
-                      color: controller.selectedPeriod.value == period
-                          ? colorScheme.primary
-                          : colorScheme.onSurfaceVariant,
-                    ),
-                  )),
-                );
-              }).toList(),
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '收入周期',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 12),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: controller.periodOptions.map((period) {
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: Obx(() => FilterChip(
+                        label: Text(_getPeriodDisplayName(period)),
+                        selected: controller.selectedPeriod.value == period,
+                        onSelected: (selected) {
+                          if (selected) {
+                            controller.changePeriod(period);
+                          }
+                        },
+                        backgroundColor: colorScheme.surfaceVariant,
+                        selectedColor: colorScheme.primary.withOpacity(0.1),
+                        checkmarkColor: colorScheme.primary,
+                        labelStyle: TextStyle(
+                          color: controller.selectedPeriod.value == period
+                              ? colorScheme.primary
+                              : colorScheme.onSurfaceVariant,
+                        ),
+                      )),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
   Widget _buildStatisticsSection() {
     return Container(
       padding: const EdgeInsets.all(16),
-      child: Obx(() {
-        final theme = Theme.of(context);
-        final colorScheme = theme.colorScheme;
-        
-        return Column(
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: ProviderStatCard(
-                    title: '总收入',
-                    value: controller.formatCurrency(controller.totalIncome),
-                    icon: Icons.account_balance_wallet,
-                    iconColor: colorScheme.primary,
+      child: Obx(() => Builder(
+        builder: (context) {
+          final theme = Theme.of(context);
+          final colorScheme = theme.colorScheme;
+          
+          return Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: ProviderStatCard(
+                      title: '总收入',
+                      value: controller.formatCurrency(controller.totalIncome),
+                      icon: Icons.account_balance_wallet,
+                      iconColor: colorScheme.primary,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ProviderStatCard(
-                    title: '订单数',
-                    value: controller.totalOrders.toString(),
-                    icon: Icons.receipt_long,
-                    iconColor: colorScheme.secondary,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ProviderStatCard(
+                      title: '订单数',
+                      value: controller.totalOrders.toString(),
+                      icon: Icons.receipt_long,
+                      iconColor: colorScheme.secondary,
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: ProviderStatCard(
-                    title: '已结算',
-                    value: controller.formatCurrency(controller.settledAmount),
-                    icon: Icons.trending_up,
-                    iconColor: colorScheme.tertiary,
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: ProviderStatCard(
+                      title: '已结算',
+                      value: controller.formatCurrency(controller.settledAmount),
+                      icon: Icons.trending_up,
+                      iconColor: colorScheme.tertiary,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ProviderStatCard(
-                    title: '待结算',
-                    value: controller.formatCurrency(controller.pendingAmount),
-                    icon: Icons.pending_actions,
-                    iconColor: colorScheme.error,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ProviderStatCard(
+                      title: '待结算',
+                      value: controller.formatCurrency(controller.pendingAmount),
+                      icon: Icons.pending_actions,
+                      iconColor: colorScheme.error,
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ],
-        );
-      }),
+                ],
+              ),
+            ],
+          );
+        },
+      )),
     );
   }
 
   Widget _buildIncomeRecords() {
-    return Obx(() {
-      final theme = Theme.of(context);
-      final colorScheme = theme.colorScheme;
-      
-      if (controller.isLoading.value) {
-        return const ProviderLoadingState(message: '加载收入记录...');
-      }
-      
-      if (controller.incomeRecords.isEmpty) {
-        return const ProviderEmptyState(
-          icon: Icons.account_balance_wallet,
-          title: '暂无收入记录',
-          subtitle: '完成订单后将显示收入记录',
-        );
-      }
-      
-      return ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: controller.incomeRecords.length,
-        itemBuilder: (context, index) {
-          final record = controller.incomeRecords[index];
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: ProviderCard(
-              onTap: () => _showIncomeDetail(record),
-              child: Row(
-                children: [
-                  ProviderIconContainer(
-                    icon: _getStatusIcon(record['status']),
-                    size: 40,
-                    iconColor: _getStatusColor(record['status']),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+    return Obx(() => Builder(
+      builder: (context) {
+        final theme = Theme.of(context);
+        final colorScheme = theme.colorScheme;
+        
+        if (controller.isLoading.value) {
+          return const ProviderLoadingState(message: '加载收入记录...');
+        }
+        
+        if (controller.incomeRecords.isEmpty) {
+          return const ProviderEmptyState(
+            icon: Icons.account_balance_wallet,
+            title: '暂无收入记录',
+            subtitle: '完成订单后将显示收入记录',
+          );
+        }
+        
+        return ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: controller.incomeRecords.length,
+          itemBuilder: (context, index) {
+            final record = controller.incomeRecords[index];
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: ProviderCard(
+                onTap: () => _showIncomeDetail(context, record),
+                child: Row(
+                  children: [
+                    ProviderIconContainer(
+                      icon: _getStatusIcon(record['status']),
+                      size: 40,
+                      iconColor: _getStatusColor(context, record['status']),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            controller.getIncomeTypeDisplayName(record['income_type'] ?? 'unknown'),
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: colorScheme.onSurface,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            record['customer_name'] ?? '未知客户',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            controller.formatDate(record['created_at']),
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          controller.getIncomeTypeDisplayName(record['income_type'] ?? 'unknown'),
+                          controller.formatCurrency(record['amount']),
                           style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: colorScheme.onSurface,
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.primary,
                           ),
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          record['customer_name'] ?? '未知客户',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          controller.formatDate(record['created_at']),
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: colorScheme.onSurfaceVariant,
-                            fontSize: 12,
-                          ),
+                        ProviderBadge(
+                          text: controller.getStatusDisplayName(record['status']),
+                          type: _getBadgeType(record['status']),
                         ),
                       ],
                     ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        controller.formatCurrency(record['amount']),
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: colorScheme.primary,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      ProviderBadge(
-                        text: controller.getStatusDisplayName(record['status']),
-                        type: _getBadgeType(record['status']),
-                      ),
-                    ],
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          );
-        },
-      );
-    });
+            );
+          },
+        );
+      },
+    ));
   }
 
   void _showSettlementDialog() {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    
     Get.dialog(
-      AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        backgroundColor: colorScheme.surface,
-        title: Row(
-          children: [
-            ProviderIconContainer(
-              icon: Icons.account_balance_wallet,
-              size: 32,
+      Builder(
+        builder: (context) {
+          final theme = Theme.of(context);
+          final colorScheme = theme.colorScheme;
+          
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
             ),
-            const SizedBox(width: 12),
-            Text(
-              '申请结算',
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: colorScheme.onSurface,
+            backgroundColor: colorScheme.surface,
+            title: Row(
+              children: [
+                ProviderIconContainer(
+                  icon: Icons.account_balance_wallet,
+                  size: 32,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  '申请结算',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+              ],
+            ),
+            content: Text(
+              '确定要申请结算当前周期的收入吗？',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurfaceVariant,
               ),
             ),
-          ],
-        ),
-        content: Text(
-          '确定要申请结算当前周期的收入吗？',
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: colorScheme.onSurfaceVariant,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: Text(
-              '取消',
-              style: TextStyle(color: colorScheme.onSurfaceVariant),
-            ),
-          ),
-          ProviderButton(
-            onPressed: () {
-              Get.back();
-              controller.requestSettlement(controller.pendingAmount, '');
-            },
-            text: '确认申请',
-            type: ProviderButtonType.primary,
-          ),
-        ],
+            actions: [
+              TextButton(
+                onPressed: () => Get.back(),
+                child: Text(
+                  '取消',
+                  style: TextStyle(color: colorScheme.onSurfaceVariant),
+                ),
+              ),
+              ProviderButton(
+                onPressed: () {
+                  Get.back();
+                  controller.requestSettlement(controller.pendingAmount, '');
+                },
+                text: '确认申请',
+                type: ProviderButtonType.primary,
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 
-  void _showIncomeDetail(Map<String, dynamic> record) {
+  void _showIncomeDetail(BuildContext context, Map<String, dynamic> record) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     
@@ -333,11 +345,11 @@ class IncomePage extends GetView<IncomeController> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildDetailRow('类型', controller.getIncomeTypeDisplayName(record['income_type'] ?? 'unknown')),
-            _buildDetailRow('客户', record['customer_name'] ?? '未知'),
-            _buildDetailRow('金额', controller.formatCurrency(record['amount'])),
-            _buildDetailRow('状态', controller.getStatusDisplayName(record['status'])),
-            _buildDetailRow('创建时间', controller.formatDate(record['created_at'])),
+            _buildDetailRow(context, '类型', controller.getIncomeTypeDisplayName(record['income_type'] ?? 'unknown')),
+            _buildDetailRow(context, '客户', record['customer_name'] ?? '未知'),
+            _buildDetailRow(context, '金额', controller.formatCurrency(record['amount'])),
+            _buildDetailRow(context, '状态', controller.getStatusDisplayName(record['status'])),
+            _buildDetailRow(context, '创建时间', controller.formatDate(record['created_at'])),
           ],
         ),
         actions: [
@@ -351,7 +363,7 @@ class IncomePage extends GetView<IncomeController> {
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
+  Widget _buildDetailRow(BuildContext context, String label, String value) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     
@@ -413,7 +425,7 @@ class IncomePage extends GetView<IncomeController> {
     }
   }
 
-  Color _getStatusColor(String? status) {
+  Color _getStatusColor(BuildContext context, String? status) {
     final colorScheme = Theme.of(context).colorScheme;
     switch (status) {
       case 'settled':
