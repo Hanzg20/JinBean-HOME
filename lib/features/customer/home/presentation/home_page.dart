@@ -691,7 +691,7 @@ class HomePage extends GetView<HomeController> {
               crossAxisCount: 3,
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
-              childAspectRatio: 0.9,
+              childAspectRatio: 1.1, // 调整为更合适的宽高比
             ),
             itemCount: controller.services.length,
             itemBuilder: (context, index) {
