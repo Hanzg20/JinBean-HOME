@@ -134,40 +134,37 @@ class ProfilePage extends GetView<ProfileController> {
           ),
 
           // 账户管理卡片组
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildSectionTitle('Account Management'),
-                  const SizedBox(height: 12),
-                  _buildAccountCard(),
-                  const SizedBox(height: 24),
+          SliverPadding(
+            padding: const EdgeInsets.all(16.0),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                _buildSectionTitle('Account Management'),
+                const SizedBox(height: 12),
+                _buildAccountCard(),
+                const SizedBox(height: 24),
 
-                  // 服务管理卡片组
-                  _buildSectionTitle('Service Management'),
-                  const SizedBox(height: 12),
-                  _buildServiceCard(),
-                  const SizedBox(height: 24),
+                // 服务管理卡片组
+                _buildSectionTitle('Service Management'),
+                const SizedBox(height: 12),
+                _buildServiceCard(),
+                const SizedBox(height: 24),
 
-                  // 设置卡片组
-                  _buildSectionTitle('Settings'),
-                  const SizedBox(height: 12),
-                  _buildSettingsCard(),
-                  const SizedBox(height: 24),
+                // 设置卡片组
+                _buildSectionTitle('Settings'),
+                const SizedBox(height: 12),
+                _buildSettingsCard(),
+                const SizedBox(height: 24),
 
-                  // 帮助与支持卡片组
-                  _buildSectionTitle('Help & Support'),
-                  const SizedBox(height: 12),
-                  _buildHelpCard(),
-                  const SizedBox(height: 24),
+                // 帮助与支持卡片组
+                _buildSectionTitle('Help & Support'),
+                const SizedBox(height: 12),
+                _buildHelpCard(),
+                const SizedBox(height: 24),
 
-                  // 角色切换按钮
-                  _buildRoleSwitchCard(),
-                  const SizedBox(height: 80), // 为底部留空间
-                ],
-              ),
+                // 角色切换按钮
+                _buildRoleSwitchCard(),
+                const SizedBox(height: 100), // 为底部留空间
+              ]),
             ),
           ),
         ],
@@ -351,202 +348,169 @@ class ProfilePage extends GetView<ProfileController> {
   }
 
   Widget _buildHelpCard() {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Column(
-        children: [
-          _buildMenuItem(
-            icon: Icons.help_outline,
-            title: 'Help Center',
-            subtitle: 'Get help and support',
-            onTap: () => Get.toNamed('/help'),
+    return Builder(
+      builder: (context) {
+        final theme = Theme.of(context);
+        final colorScheme = theme.colorScheme;
+        
+        return CustomerCard(
+          child: Column(
+            children: [
+              _buildMenuItem(
+                icon: Icons.help_outline,
+                title: 'Help Center',
+                subtitle: 'Get help and support',
+                onTap: () => Get.toNamed('/help'),
+              ),
+              _buildDivider(),
+              _buildMenuItem(
+                icon: Icons.contact_support_outlined,
+                title: 'Contact Us',
+                subtitle: 'Reach out to our support team',
+                onTap: () => _contactSupport(),
+              ),
+              _buildDivider(),
+              _buildMenuItem(
+                icon: Icons.description_outlined,
+                title: 'Terms of Service',
+                subtitle: 'Read our terms and conditions',
+                onTap: () => Get.toNamed('/terms'),
+              ),
+              _buildDivider(),
+              _buildMenuItem(
+                icon: Icons.privacy_tip_outlined,
+                title: 'Privacy Policy',
+                subtitle: 'Learn about our privacy practices',
+                onTap: () => Get.toNamed('/privacy_policy'),
+              ),
+            ],
           ),
-          _buildDivider(),
-          _buildMenuItem(
-            icon: Icons.contact_support_outlined,
-            title: 'Contact Us',
-            subtitle: 'Reach out to our support team',
-            onTap: () => _contactSupport(),
-          ),
-          _buildDivider(),
-          _buildMenuItem(
-            icon: Icons.description_outlined,
-            title: 'Terms of Service',
-            subtitle: 'Read our terms and conditions',
-            onTap: () => Get.toNamed('/terms'),
-        ),
-          _buildDivider(),
-          _buildMenuItem(
-            icon: Icons.privacy_tip_outlined,
-            title: 'Privacy Policy',
-            subtitle: 'Learn about our privacy practices',
-            onTap: () => Get.toNamed('/privacy_policy'),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
   Widget _buildRoleSwitchCard() {
-            return Card(
-              elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: FutureBuilder<ProviderStatus>(
-          future: ProviderIdentityService.getProviderStatus(),
-          builder: (context, snapshot) {
-            final status = snapshot.data ?? ProviderStatus.notProvider;
-            if (status == ProviderStatus.approved) {
-              return Column(
-                children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.switch_account, color: Colors.blue, size: 24),
-                      const SizedBox(width: 12),
-                      Expanded(
-                  child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Switch to Provider Mode',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
+    return Builder(
+      builder: (context) {
+        final theme = Theme.of(context);
+        final colorScheme = theme.colorScheme;
+        
+        return CustomerCard(
+          child: FutureBuilder<ProviderStatus>(
+            future: ProviderIdentityService.getProviderStatus(),
+            builder: (context, snapshot) {
+              final status = snapshot.data ?? ProviderStatus.notProvider;
+              if (status == ProviderStatus.approved) {
+                return Column(
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.switch_account, color: colorScheme.primary, size: 24),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Switch to Provider Mode',
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: colorScheme.onSurface,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Manage your services and orders',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[600],
+                              const SizedBox(height: 4),
+                              Text(
+                                'Manage your services and orders',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      icon: const Icon(Icons.switch_account),
-                      label: const Text('Switch to Provider'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                      onPressed: () {
-                        Get.find<PluginManager>().setRole('provider');
-                        Get.offAllNamed('/provider_home');
-                      },
-                    ),
-                  ),
-                ],
-              );
-            } else if (status == ProviderStatus.pending) {
-              return Column(
-                children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.hourglass_empty, color: Colors.orange, size: 24),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Provider Application Pending',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Your application is under review',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
-                      icon: const Icon(Icons.hourglass_empty),
-                      label: const Text('Waiting for Approval'),
-                      style: OutlinedButton.styleFrom(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                      onPressed: null,
-                    ),
-                  ),
-                ],
-              );
-            } else {
-              return Column(
-                children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.business, color: Colors.green, size: 24),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Become a Service Provider',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
+                            ],
                           ),
                         ),
-                      const SizedBox(height: 4),
-                      Text(
-                              'Start offering your services',
-                        style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      icon: const Icon(Icons.business),
-                      label: const Text('Apply Now'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                      onPressed: () => Get.toNamed('/provider_registration'),
+                      ],
                     ),
-                  ),
-                ],
-              );
-            }
-          },
-        ),
-      ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        icon: Icon(Icons.switch_account, color: colorScheme.onPrimary),
+                        label: Text(
+                          'Switch to Provider',
+                          style: TextStyle(color: colorScheme.onPrimary),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colorScheme.primary,
+                          foregroundColor: colorScheme.onPrimary,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        onPressed: () {
+                          Get.find<PluginManager>().setRole('provider');
+                          Get.offAllNamed('/provider_home');
+                        },
+                      ),
+                    ),
+                  ],
+                );
+              } else {
+                return Column(
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.business, color: colorScheme.primary, size: 24),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Become a Provider',
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: colorScheme.onSurface,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Start offering your services',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        icon: Icon(Icons.add_business, color: colorScheme.primary),
+                        label: Text(
+                          'Apply Now',
+                          style: TextStyle(color: colorScheme.primary),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: colorScheme.primary,
+                          side: BorderSide(color: colorScheme.primary),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        onPressed: () {
+                          Get.toNamed('/provider_application');
+                        },
+                      ),
+                    ),
+                  ],
+                );
+              }
+            },
+          ),
+        );
+      },
     );
   }
 
