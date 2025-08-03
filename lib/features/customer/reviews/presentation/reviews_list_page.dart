@@ -8,6 +8,8 @@ import 'reviews_controller.dart';
 import 'widgets/review_card.dart';
 import 'widgets/review_filter_panel.dart';
 import 'widgets/rating_stats_card.dart';
+import 'package:jinbeanpod_83904710/core/ui/components/customer_theme_components.dart';
+import 'package:jinbeanpod_83904710/core/ui/themes/customer_theme_utils.dart';
 
 class ReviewsListPage extends StatelessWidget {
   final String serviceId;
@@ -22,6 +24,8 @@ class ReviewsListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(ReviewsController());
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     
     // 初始化页面数据
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -29,15 +33,15 @@ class ReviewsListPage extends StatelessWidget {
     });
 
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        title: Text('Reviews'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
+        title: Text('Reviews', style: theme.textTheme.titleLarge?.copyWith(color: colorScheme.onSurface)),
+        backgroundColor: colorScheme.surface,
+        foregroundColor: colorScheme.onSurface,
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.filter_list),
+            icon: Icon(Icons.filter_list, color: colorScheme.onSurface),
             onPressed: () => _showFilterPanel(context, controller),
           ),
         ],
@@ -56,13 +60,15 @@ class ReviewsListPage extends StatelessWidget {
           Expanded(
             child: Obx(() {
               if (controller.isLoadingReviews.value && controller.reviews.isEmpty) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
+                return const CustomerLoadingState(message: 'Loading reviews...');
               }
               
               if (controller.reviews.isEmpty) {
-                return _buildEmptyState();
+                return const CustomerEmptyState(
+                  icon: Icons.rate_review,
+                  title: 'No Reviews Yet',
+                  subtitle: 'Be the first to review this service',
+                );
               }
               
               return RefreshIndicator(
@@ -104,86 +110,73 @@ class ReviewsListPage extends StatelessWidget {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _navigateToWriteReview(context, controller),
-        icon: const Icon(Icons.rate_review),
-        label: const Text('Write Review'),
-        backgroundColor: Colors.blue[600],
-        foregroundColor: Colors.white,
-      ),
-    );
-  }
-
-  Widget _buildFilterTags(ReviewsController controller) {
-    final selectedTags = controller.filterOptions.value.tags;
-    if (selectedTags.isEmpty) return const SizedBox.shrink();
-    
-    return Container(
-      height: 50,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: selectedTags.length + 1,
-        itemBuilder: (context, index) {
-          if (index == selectedTags.length) {
-            return Padding(
-              padding: const EdgeInsets.only(left: 8),
-              child: TextButton(
-                onPressed: () => controller.updateFilterOptions(
-                  controller.filterOptions.value.copyWith(tags: []),
-                ),
-                child: const Text('Clear All'),
-              ),
-            );
-          }
+      floatingActionButton: Builder(
+        builder: (context) {
+          final colorScheme = Theme.of(context).colorScheme;
           
-          final tag = selectedTags[index];
-          return Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: Chip(
-              label: Text(tag),
-              onDeleted: () {
-                final newTags = List<String>.from(selectedTags)..remove(tag);
-                controller.updateFilterOptions(
-                  controller.filterOptions.value.copyWith(tags: newTags),
-                );
-              },
-            ),
+          return FloatingActionButton.extended(
+            onPressed: () => _navigateToWriteReview(context, controller),
+            icon: Icon(Icons.rate_review, color: colorScheme.onPrimary),
+            label: Text('Write Review', style: TextStyle(color: colorScheme.onPrimary)),
+            backgroundColor: colorScheme.primary,
+            foregroundColor: colorScheme.onPrimary,
           );
         },
       ),
     );
   }
 
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.rate_review_outlined,
-            size: 64,
-            color: Colors.grey[400],
+  Widget _buildFilterTags(ReviewsController controller) {
+    return Builder(
+      builder: (context) {
+        final theme = Theme.of(context);
+        final colorScheme = theme.colorScheme;
+        
+        final selectedTags = controller.filterOptions.value.tags;
+        if (selectedTags.isEmpty) return const SizedBox.shrink();
+        
+        return Container(
+          height: 50,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: selectedTags.length + 1,
+            itemBuilder: (context, index) {
+              if (index == selectedTags.length) {
+                return Padding(
+                  padding: const EdgeInsets.only(left: 8),
+                  child: TextButton(
+                    onPressed: () => controller.updateFilterOptions(
+                      controller.filterOptions.value.copyWith(tags: []),
+                    ),
+                    child: Text(
+                      'Clear All',
+                      style: TextStyle(color: colorScheme.primary),
+                    ),
+                  ),
+                );
+              }
+              
+              final tag = selectedTags[index];
+              return Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: Chip(
+                  label: Text(tag),
+                  backgroundColor: colorScheme.primary.withOpacity(0.1),
+                  side: BorderSide(color: colorScheme.primary.withOpacity(0.3)),
+                  labelStyle: TextStyle(color: colorScheme.primary),
+                  onDeleted: () {
+                    final newTags = List<String>.from(selectedTags)..remove(tag);
+                    controller.updateFilterOptions(
+                      controller.filterOptions.value.copyWith(tags: newTags),
+                    );
+                  },
+                ),
+              );
+            },
           ),
-          const SizedBox(height: 16),
-          Text(
-            'No reviews yet',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey[600],
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Be the first to review this service!',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[500],
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
