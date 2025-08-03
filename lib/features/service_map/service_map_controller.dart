@@ -26,7 +26,10 @@ class ServiceMapController extends GetxController {
   void onInit() {
     super.onInit();
     _loadCustomMarker();
-    fetchMarkers();
+    // 延迟调用fetchMarkers，避免在构建过程中调用dialog
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      fetchMarkers();
+    });
   }
 
   Future<void> _loadCustomMarker() async {
