@@ -4,6 +4,8 @@ import 'package:jinbeanpod_83904710/features/customer/profile/presentation/profi
 import 'package:jinbeanpod_83904710/core/plugin_management/plugin_manager.dart';
 import 'package:jinbeanpod_83904710/features/provider/plugins/provider_identity/provider_identity_service.dart';
 import 'package:jinbeanpod_83904710/features/customer/auth/presentation/auth_controller.dart';
+import 'package:jinbeanpod_83904710/core/ui/components/customer_theme_components.dart';
+import 'package:jinbeanpod_83904710/core/ui/themes/customer_theme_utils.dart';
 
 class ProfilePage extends GetView<ProfileController> {
   const ProfilePage({super.key});
@@ -11,9 +13,13 @@ class ProfilePage extends GetView<ProfileController> {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(ProfileController());
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
     print('[ProfilePage] build method called.'); // Added log
 
     return Scaffold(
+      backgroundColor: colorScheme.surface,
       body: CustomScrollView(
         slivers: [
           // Profile Header
@@ -21,7 +27,8 @@ class ProfilePage extends GetView<ProfileController> {
             expandedHeight: 200.0,
             floating: false,
             pinned: true,
-            backgroundColor: Theme.of(context).colorScheme.primary,
+            backgroundColor: colorScheme.primary,
+            foregroundColor: colorScheme.onPrimary,
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
                 decoration: BoxDecoration(
@@ -29,8 +36,8 @@ class ProfilePage extends GetView<ProfileController> {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      Theme.of(context).colorScheme.primary,
-                      Theme.of(context).colorScheme.primary.withOpacity(0.8),
+                      colorScheme.primary,
+                      colorScheme.primary.withOpacity(0.8),
                     ],
                   ),
                 ),
@@ -52,10 +59,10 @@ class ProfilePage extends GetView<ProfileController> {
                                 height: 80,
                                         decoration: BoxDecoration(
                                           shape: BoxShape.circle,
-                                  border: Border.all(color: Colors.white, width: 3),
+                                  border: Border.all(color: colorScheme.onPrimary, width: 3),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.2),
+                                      color: colorScheme.shadow.withOpacity(0.2),
                                       blurRadius: 8,
                                       offset: const Offset(0, 2),
                                       ),
@@ -63,12 +70,12 @@ class ProfilePage extends GetView<ProfileController> {
                                 ),
                                 child: CircleAvatar(
                                   radius: 37,
-                                  backgroundColor: Colors.grey[300],
+                                  backgroundColor: colorScheme.surfaceVariant,
                                   backgroundImage: controller.avatarUrl.value.isNotEmpty
                                       ? NetworkImage(controller.avatarUrl.value)
                                       : null,
                                   child: controller.avatarUrl.value.isEmpty
-                                      ? const Icon(Icons.person, size: 40, color: Colors.grey)
+                                      ? Icon(Icons.person, size: 40, color: colorScheme.onSurfaceVariant)
                                       : null,
                                       ),
                               ),
@@ -81,18 +88,16 @@ class ProfilePage extends GetView<ProfileController> {
                                 children: [
                                   Text(
                                     controller.userName.value,
-                                    style: const TextStyle(
-                                      fontSize: 24,
+                                    style: theme.textTheme.headlineMedium?.copyWith(
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.white,
+                                      color: colorScheme.onPrimary,
                                     ),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
                                     controller.userBio.value.isNotEmpty ? controller.userBio.value : 'No bio yet',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.white.withOpacity(0.8),
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      color: colorScheme.onPrimary.withOpacity(0.8),
                                     ),
                                     ),
                                   const SizedBox(height: 8),
@@ -112,9 +117,9 @@ class ProfilePage extends GetView<ProfileController> {
                             // 编辑按钮
                             IconButton(
                               onPressed: () => Get.toNamed('/edit_profile'),
-                              icon: const Icon(Icons.edit, color: Colors.white, size: 20),
+                              icon: Icon(Icons.edit, color: colorScheme.onPrimary, size: 20),
                               style: IconButton.styleFrom(
-                                backgroundColor: Colors.white.withOpacity(0.2),
+                                backgroundColor: colorScheme.onPrimary.withOpacity(0.2),
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                               ),
                             ),
@@ -171,151 +176,177 @@ class ProfilePage extends GetView<ProfileController> {
   }
 
   Widget _buildStatItem(String label, String value) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.white.withOpacity(0.8),
-          ),
-        ),
-      ],
+    return Builder(
+      builder: (context) {
+        final theme = Theme.of(context);
+        final colorScheme = theme.colorScheme;
+        
+        return Column(
+          children: [
+            Text(
+              value,
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: colorScheme.onPrimary,
+              ),
+            ),
+            Text(
+              label,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: colorScheme.onPrimary.withOpacity(0.8),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
   Widget _buildSectionTitle(String title) {
-    return Text(
+    return Builder(
+      builder: (context) {
+        final theme = Theme.of(context);
+        final colorScheme = theme.colorScheme;
+        
+        return Text(
           title,
-      style: const TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.w600,
-        color: Colors.black87,
-      ),
+          style: theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: colorScheme.onSurface,
+          ),
+        );
+      },
     );
   }
 
   Widget _buildAccountCard() {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Column(
-        children: [
-          _buildMenuItem(
-            icon: Icons.person_outline,
-            title: 'Edit Profile',
-            subtitle: 'Update your personal information',
-            onTap: () => Get.toNamed('/edit_profile'),
+    return Builder(
+      builder: (context) {
+        final theme = Theme.of(context);
+        final colorScheme = theme.colorScheme;
+        
+        return CustomerCard(
+          child: Column(
+            children: [
+              _buildMenuItem(
+                icon: Icons.person_outline,
+                title: 'Edit Profile',
+                subtitle: 'Update your personal information',
+                onTap: () => Get.toNamed('/edit_profile'),
+              ),
+              _buildDivider(),
+              _buildMenuItem(
+                icon: Icons.location_on_outlined,
+                title: 'My Addresses',
+                subtitle: 'Manage your delivery addresses',
+                onTap: () => Get.toNamed('/addresses'),
+              ),
+              _buildDivider(),
+              _buildMenuItem(
+                icon: Icons.payment_outlined,
+                title: 'Payment Methods',
+                subtitle: 'Manage your payment options',
+                onTap: () => Get.toNamed('/payment_methods'),
+              ),
+              _buildDivider(),
+              _buildMenuItem(
+                icon: Icons.favorite_outline,
+                title: 'Saved Services',
+                subtitle: 'View your favorite services',
+                onTap: () => Get.toNamed('/saved_services'),
+              ),
+            ],
           ),
-          _buildDivider(),
-          _buildMenuItem(
-            icon: Icons.location_on_outlined,
-            title: 'My Addresses',
-            subtitle: 'Manage your delivery addresses',
-            onTap: () => Get.toNamed('/addresses'),
-          ),
-          _buildDivider(),
-          _buildMenuItem(
-            icon: Icons.payment_outlined,
-            title: 'Payment Methods',
-            subtitle: 'Manage your payment options',
-            onTap: () => Get.toNamed('/payment_methods'),
-          ),
-          _buildDivider(),
-          _buildMenuItem(
-            icon: Icons.favorite_outline,
-            title: 'Saved Services',
-            subtitle: 'View your favorite services',
-            onTap: () => Get.toNamed('/saved_services'),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
   Widget _buildServiceCard() {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Column(
-        children: [
-          _buildMenuItem(
-            icon: Icons.receipt_long_outlined,
-            title: 'My Orders',
-            subtitle: 'View and manage your orders',
-            onTap: () => Get.toNamed('/orders'),
+    return Builder(
+      builder: (context) {
+        final theme = Theme.of(context);
+        final colorScheme = theme.colorScheme;
+        
+        return CustomerCard(
+          child: Column(
+            children: [
+              _buildMenuItem(
+                icon: Icons.receipt_long_outlined,
+                title: 'My Orders',
+                subtitle: 'View and manage your orders',
+                onTap: () => Get.toNamed('/orders'),
+              ),
+              _buildDivider(),
+              _buildMenuItem(
+                icon: Icons.rate_review_outlined,
+                title: 'My Reviews',
+                subtitle: 'View your service reviews',
+                onTap: () => Get.toNamed('/my_reviews'),
+              ),
+              _buildDivider(),
+              _buildMenuItem(
+                icon: Icons.message_outlined,
+                title: 'Messages',
+                subtitle: 'Chat with service providers',
+                onTap: () => Get.toNamed('/messages'),
+              ),
+            ],
           ),
-          _buildDivider(),
-          _buildMenuItem(
-            icon: Icons.rate_review_outlined,
-            title: 'My Reviews',
-            subtitle: 'View your service reviews',
-            onTap: () => Get.toNamed('/my_reviews'),
-          ),
-          _buildDivider(),
-          _buildMenuItem(
-            icon: Icons.message_outlined,
-            title: 'Messages',
-            subtitle: 'Chat with service providers',
-            onTap: () => Get.toNamed('/messages'),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
   Widget _buildSettingsCard() {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Column(
-        children: [
-          _buildMenuItem(
-            icon: Icons.notifications_outlined,
-            title: 'Notifications',
-            subtitle: 'Manage your notification preferences',
-            onTap: () => Get.toNamed('/notifications'),
+    return Builder(
+      builder: (context) {
+        final theme = Theme.of(context);
+        final colorScheme = theme.colorScheme;
+        
+        return CustomerCard(
+          child: Column(
+            children: [
+              _buildMenuItem(
+                icon: Icons.notifications_outlined,
+                title: 'Notifications',
+                subtitle: 'Manage your notification preferences',
+                onTap: () => Get.toNamed('/notifications'),
+              ),
+              _buildDivider(),
+              _buildMenuItem(
+                icon: Icons.language_outlined,
+                title: 'Language',
+                subtitle: 'Change app language',
+                onTap: () => _showLanguageDialog(),
+              ),
+              _buildDivider(),
+              _buildMenuItem(
+                icon: Icons.security_outlined,
+                title: 'Privacy & Security',
+                subtitle: 'Manage your privacy settings',
+                onTap: () => Get.toNamed('/privacy'),
+              ),
+              _buildDivider(),
+              _buildMenuItem(
+                icon: Icons.palette_outlined,
+                title: 'Theme Settings',
+                subtitle: 'Switch app color theme',
+                onTap: () => Get.toNamed('/theme_settings'),
+              ),
+              _buildDivider(),
+              _buildMenuItem(
+                icon: Icons.logout,
+                title: 'Sign Out',
+                subtitle: 'Log out of your account',
+                onTap: () async {
+                  await Get.find<AuthController>().logout();
+                },
+              ),
+            ],
           ),
-          _buildDivider(),
-          _buildMenuItem(
-            icon: Icons.language_outlined,
-            title: 'Language',
-            subtitle: 'Change app language',
-            onTap: () => _showLanguageDialog(),
-          ),
-          _buildDivider(),
-          _buildMenuItem(
-            icon: Icons.security_outlined,
-            title: 'Privacy & Security',
-            subtitle: 'Manage your privacy settings',
-            onTap: () => Get.toNamed('/privacy'),
-          ),
-          _buildDivider(),
-          _buildMenuItem(
-            icon: Icons.palette_outlined,
-            title: 'Theme Settings',
-            subtitle: 'Switch app color theme',
-            onTap: () => Get.toNamed('/theme_settings'),
-          ),
-          _buildDivider(),
-          _buildMenuItem(
-            icon: Icons.logout,
-            title: 'Sign Out',
-            subtitle: 'Log out of your account',
-            onTap: () async {
-              await Get.find<AuthController>().logout();
-            },
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -525,41 +556,53 @@ class ProfilePage extends GetView<ProfileController> {
     required String subtitle,
     required VoidCallback onTap,
   }) {
-    return ListTile(
-      leading: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          color: Colors.grey[100],
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Icon(icon, size: 20, color: Colors.grey[700]),
-      ),
-      title: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      subtitle: Text(
-        subtitle,
-        style: TextStyle(
-          fontSize: 14,
-          color: Colors.grey[600],
-        ),
-      ),
-      trailing: const Icon(Icons.chevron_right, color: Colors.grey),
-      onTap: onTap,
+    return Builder(
+      builder: (context) {
+        final theme = Theme.of(context);
+        final colorScheme = theme.colorScheme;
+        
+        return ListTile(
+          leading: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceVariant,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, size: 20, color: colorScheme.onSurfaceVariant),
+          ),
+          title: Text(
+            title,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w500,
+              color: colorScheme.onSurface,
+            ),
+          ),
+          subtitle: Text(
+            subtitle,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+          trailing: Icon(Icons.chevron_right, color: colorScheme.onSurfaceVariant),
+          onTap: onTap,
+        );
+      },
     );
   }
 
   Widget _buildDivider() {
-    return Divider(
-      height: 1,
-      indent: 72,
-      endIndent: 16,
-      color: Colors.grey[200],
+    return Builder(
+      builder: (context) {
+        final colorScheme = Theme.of(context).colorScheme;
+        
+        return Divider(
+          height: 1,
+          indent: 72,
+          endIndent: 16,
+          color: colorScheme.outline.withOpacity(0.2),
+        );
+      },
     );
   }
 
