@@ -11,7 +11,12 @@ class CustomerThemeUtils {
     
     return BoxDecoration(
       color: colorScheme.surface,
-      borderRadius: BorderRadius.circular(20), // Customer端使用更大的圆角
+      borderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(16),
+        topRight: Radius.circular(64), // 右上角半径是其他角的4倍
+        bottomLeft: Radius.circular(16),
+        bottomRight: Radius.circular(16),
+      ),
       border: Border.all(
         color: colorScheme.outline.withOpacity(0.1),
         width: 1,
@@ -40,7 +45,12 @@ class CustomerThemeUtils {
           colorScheme.primary.withOpacity(0.8),
         ],
       ),
-      borderRadius: BorderRadius.circular(16), // Customer端使用更大的圆角
+      borderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(12),
+        topRight: Radius.circular(48), // 右上角半径是其他角的4倍
+        bottomLeft: Radius.circular(12),
+        bottomRight: Radius.circular(12),
+      ),
       boxShadow: [
         BoxShadow(
           color: colorScheme.primary.withOpacity(0.3),
@@ -61,8 +71,13 @@ class CustomerThemeUtils {
       foregroundColor: colorScheme.onPrimary,
       elevation: 3, // Customer端使用适中的阴影
       shadowColor: colorScheme.shadow.withOpacity(0.2),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16), // Customer端使用更大的圆角
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(12),
+          topRight: Radius.circular(48), // 右上角半径是其他角的4倍
+          bottomLeft: Radius.circular(12),
+          bottomRight: Radius.circular(12),
+        ),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16), // Customer端使用更大的内边距
       textStyle: theme.textTheme.labelLarge?.copyWith(
@@ -80,8 +95,13 @@ class CustomerThemeUtils {
     return OutlinedButton.styleFrom(
       foregroundColor: colorScheme.primary,
       side: BorderSide(color: colorScheme.primary, width: 1.5),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16), // Customer端使用更大的圆角
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(12),
+          topRight: Radius.circular(48), // 右上角半径是其他角的4倍
+          bottomLeft: Radius.circular(12),
+          bottomRight: Radius.circular(12),
+        ),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
       textStyle: theme.textTheme.labelLarge?.copyWith(

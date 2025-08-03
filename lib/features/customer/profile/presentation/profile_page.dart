@@ -537,7 +537,12 @@ class ProfilePage extends GetView<ProfileController> {
             height: 36,
             decoration: BoxDecoration(
               color: colorScheme.surfaceVariant,
-              borderRadius: BorderRadius.circular(8), // 减小圆角
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(6),
+                topRight: Radius.circular(24), // 右上角半径是其他角的4倍
+                bottomLeft: Radius.circular(6),
+                bottomRight: Radius.circular(6),
+              ),
             ),
             child: Icon(icon, size: 18, color: colorScheme.onSurfaceVariant), // 减小图标大小
           ),

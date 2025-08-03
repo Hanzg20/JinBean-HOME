@@ -64,7 +64,12 @@ class CustomerBadge extends StatelessWidget {
       padding: padding ?? const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(6),
+          topRight: Radius.circular(24), // 右上角半径是其他角的4倍
+          bottomLeft: Radius.circular(6),
+          bottomRight: Radius.circular(6),
+        ),
       ),
       child: Text(
         text,
@@ -276,7 +281,12 @@ class CustomerCard extends StatelessWidget {
                   colorScheme.surfaceVariant.withOpacity(0.3),
                 ],
               ),
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(64), // 右上角半径是其他角的4倍
+                bottomLeft: Radius.circular(16),
+                bottomRight: Radius.circular(16),
+              ),
               border: Border.all(
                 color: colorScheme.outline.withOpacity(0.1),
                 width: 1,
@@ -296,7 +306,12 @@ class CustomerCard extends StatelessWidget {
     if (onTap != null) {
       cardContent = InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(16),
+          topRight: Radius.circular(64), // 右上角半径是其他角的4倍
+          bottomLeft: Radius.circular(16),
+          bottomRight: Radius.circular(16),
+        ),
         child: cardContent,
       );
     }
@@ -611,7 +626,12 @@ class CustomerServiceCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(8),
+          topRight: Radius.circular(32), // 右上角半径是其他角的4倍
+          bottomLeft: Radius.circular(8),
+          bottomRight: Radius.circular(8),
+        ),
         border: Border.all(
           color: colorScheme.outline.withOpacity(0.1),
           width: 1,
@@ -628,7 +648,12 @@ class CustomerServiceCard extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(8),
+            topRight: Radius.circular(32), // 右上角半径是其他角的4倍
+            bottomLeft: Radius.circular(8),
+            bottomRight: Radius.circular(8),
+          ),
           child: Padding(
             padding: const EdgeInsets.all(12),
             child: Column(
@@ -643,11 +668,16 @@ class CustomerServiceCard extends StatelessWidget {
                       height: 36,
                       decoration: BoxDecoration(
                         color: colorScheme.primary.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(6),
+                          topRight: Radius.circular(24), // 右上角半径是其他角的4倍
+                          bottomLeft: Radius.circular(6),
+                          bottomRight: Radius.circular(6),
+                        ),
                       ),
                       child: Icon(
                         icon,
-                        size: 20,
+                        size: 18,
                         color: colorScheme.primary,
                       ),
                     ),
@@ -657,7 +687,12 @@ class CustomerServiceCard extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
                           color: Colors.red,
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(3),
+                            topRight: Radius.circular(12), // 右上角半径是其他角的4倍
+                            bottomLeft: Radius.circular(3),
+                            bottomRight: Radius.circular(3),
+                          ),
                         ),
                         child: Text(
                           '热门',
@@ -673,7 +708,12 @@ class CustomerServiceCard extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
                           color: Colors.green,
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(3),
+                            topRight: Radius.circular(12), // 右上角半径是其他角的4倍
+                            bottomLeft: Radius.circular(3),
+                            bottomRight: Radius.circular(3),
+                          ),
                         ),
                         child: Text(
                           '附近',
@@ -754,10 +794,22 @@ class CustomerRecommendationCard extends StatelessWidget {
       margin: const EdgeInsets.only(right: 12),
       child: Card(
         elevation: 3,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(8),
+            topRight: Radius.circular(32), // 右上角半径是其他角的4倍
+            bottomLeft: Radius.circular(8),
+            bottomRight: Radius.circular(8),
+          ),
+        ),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(8),
+            topRight: Radius.circular(32), // 右上角半径是其他角的4倍
+            bottomLeft: Radius.circular(8),
+            bottomRight: Radius.circular(8),
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -765,7 +817,10 @@ class CustomerRecommendationCard extends StatelessWidget {
               Stack(
                 children: [
                   ClipRRect(
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(8),
+                      topRight: Radius.circular(32), // 右上角半径是其他角的4倍
+                    ),
                     child: SizedBox(
                       height: 120,
                       width: double.infinity,
