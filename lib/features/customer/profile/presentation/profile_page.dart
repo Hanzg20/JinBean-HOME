@@ -139,31 +139,31 @@ class ProfilePage extends GetView<ProfileController> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 _buildSectionTitle('Account Management'),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8), // 减少间距
                 _buildAccountCard(),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16), // 减少间距
 
                 // 服务管理卡片组
                 _buildSectionTitle('Service Management'),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8), // 减少间距
                 _buildServiceCard(),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16), // 减少间距
 
                 // 设置卡片组
                 _buildSectionTitle('Settings'),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8), // 减少间距
                 _buildSettingsCard(),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16), // 减少间距
 
                 // 帮助与支持卡片组
                 _buildSectionTitle('Help & Support'),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8), // 减少间距
                 _buildHelpCard(),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16), // 减少间距
 
                 // 角色切换按钮
                 _buildRoleSwitchCard(),
-                const SizedBox(height: 100), // 为底部留空间
+                const SizedBox(height: 80), // 为底部留空间
               ]),
             ),
           ),
@@ -223,6 +223,7 @@ class ProfilePage extends GetView<ProfileController> {
         final colorScheme = theme.colorScheme;
         
         return CustomerCard(
+          margin: EdgeInsets.zero, // 移除默认margin
           child: Column(
             children: [
               _buildMenuItem(
@@ -266,6 +267,7 @@ class ProfilePage extends GetView<ProfileController> {
         final colorScheme = theme.colorScheme;
         
         return CustomerCard(
+          margin: EdgeInsets.zero, // 移除默认margin
           child: Column(
             children: [
               _buildMenuItem(
@@ -302,6 +304,7 @@ class ProfilePage extends GetView<ProfileController> {
         final colorScheme = theme.colorScheme;
         
         return CustomerCard(
+          margin: EdgeInsets.zero, // 移除默认margin
           child: Column(
             children: [
               _buildMenuItem(
@@ -354,6 +357,7 @@ class ProfilePage extends GetView<ProfileController> {
         final colorScheme = theme.colorScheme;
         
         return CustomerCard(
+          margin: EdgeInsets.zero, // 移除默认margin
           child: Column(
             children: [
               _buildMenuItem(
@@ -397,6 +401,7 @@ class ProfilePage extends GetView<ProfileController> {
         final colorScheme = theme.colorScheme;
         
         return CustomerCard(
+          margin: EdgeInsets.zero, // 移除默认margin
           child: FutureBuilder<ProviderStatus>(
             future: ProviderIdentityService.getProviderStatus(),
             builder: (context, snapshot) {
@@ -526,29 +531,31 @@ class ProfilePage extends GetView<ProfileController> {
         final colorScheme = theme.colorScheme;
         
         return ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 减少内边距
           leading: Container(
-            width: 40,
-            height: 40,
+            width: 36, // 减小图标容器大小
+            height: 36,
             decoration: BoxDecoration(
               color: colorScheme.surfaceVariant,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(8), // 减小圆角
             ),
-            child: Icon(icon, size: 20, color: colorScheme.onSurfaceVariant),
+            child: Icon(icon, size: 18, color: colorScheme.onSurfaceVariant), // 减小图标大小
           ),
           title: Text(
             title,
-            style: theme.textTheme.titleMedium?.copyWith(
+            style: theme.textTheme.titleSmall?.copyWith( // 使用更小的字体
               fontWeight: FontWeight.w500,
               color: colorScheme.onSurface,
             ),
           ),
           subtitle: Text(
             subtitle,
-            style: theme.textTheme.bodyMedium?.copyWith(
+            style: theme.textTheme.bodySmall?.copyWith( // 使用更小的字体
               color: colorScheme.onSurfaceVariant,
+              fontSize: 12, // 明确指定字体大小
             ),
           ),
-          trailing: Icon(Icons.chevron_right, color: colorScheme.onSurfaceVariant),
+          trailing: Icon(Icons.chevron_right, color: colorScheme.onSurfaceVariant, size: 16), // 减小图标大小
           onTap: onTap,
         );
       },
