@@ -5428,9 +5428,10 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
             const SizedBox(height: 12),
             
             // 服务描述
-            if (serviceDetail.description != null) ...[
+            if (serviceDetail.serviceDetailsJson != null && 
+                serviceDetail.serviceDetailsJson!['description'] != null) ...[
               Text(
-                serviceDetail.description!,
+                serviceDetail.serviceDetailsJson!['description'],
                 style: theme.textTheme.bodyMedium,
               ),
               const SizedBox(height: 12),
@@ -5515,6 +5516,62 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  // 新增：报价状态显示组件
+  Widget _buildQuoteStatus(ServiceDetailController controller, ThemeData theme) {
+    final status = controller.quoteRequestStatus.value;
+    if (status.isEmpty) return const SizedBox.shrink();
+    
+    Color statusColor;
+    IconData statusIcon;
+    String statusText;
+    
+    switch (status) {
+      case 'pending':
+        statusColor = Colors.orange;
+        statusIcon = Icons.schedule;
+        statusText = 'Quote Request Pending';
+        break;
+      case 'accepted':
+        statusColor = Colors.green;
+        statusIcon = Icons.check_circle;
+        statusText = 'Quote Accepted';
+        break;
+      case 'declined':
+        statusColor = Colors.red;
+        statusIcon = Icons.cancel;
+        statusText = 'Quote Declined';
+        break;
+      default:
+        statusColor = Colors.grey;
+        statusIcon = Icons.info;
+        statusText = 'Quote Status: $status';
+    }
+    
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: statusColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: statusColor.withOpacity(0.3)),
+      ),
+      child: Row(
+        children: [
+          Icon(statusIcon, color: statusColor, size: 20),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              statusText,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: statusColor,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
