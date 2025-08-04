@@ -30,43 +30,36 @@ class _ClientPageState extends State<ClientPage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     
-    return Scaffold(
-      backgroundColor: colorScheme.surface,
-      appBar: AppBar(
-        title: Text(
-          '客户管理',
-          style: theme.textTheme.titleLarge?.copyWith(
-            color: colorScheme.onSurface,
-            fontWeight: FontWeight.w600,
-          ),
+    return Container(
+      color: Colors.white,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.people,
+              size: 64,
+              color: Colors.blue,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Client Management',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.blue,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Client Page',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey[600],
+              ),
+            ),
+          ],
         ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: IconThemeData(color: colorScheme.onSurface),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.refresh, color: colorScheme.onSurface),
-            onPressed: () => controller.refreshClients(),
-          ),
-          IconButton(
-            icon: Icon(Icons.add, color: colorScheme.onSurface),
-            onPressed: () => _showAddClientDialog(),
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          // 搜索和筛选区域
-          _buildSearchAndFilterSection(),
-          
-          // 统计区域
-          _buildStatisticsSection(),
-          
-          // 客户列表
-          Expanded(
-            child: _buildClientsList(),
-          ),
-        ],
       ),
     );
   }

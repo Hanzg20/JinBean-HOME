@@ -35,6 +35,10 @@ import 'package:jinbeanpod_83904710/simulator/simulator_launcher.dart';
 import 'package:jinbeanpod_83904710/features/demo/provider_theme_demo_page.dart';
 import 'package:jinbeanpod_83904710/core/ui/themes/customer_theme.dart';
 import 'package:jinbeanpod_83904710/core/ui/themes/provider_theme.dart';
+// Add service detail imports
+import 'package:jinbeanpod_83904710/features/customer/services/presentation/service_detail_page.dart';
+import 'package:jinbeanpod_83904710/features/customer/services/presentation/service_detail_binding.dart';
+import 'package:jinbeanpod_83904710/features/customer/services/presentation/similar_services_page.dart';
 
 void main() async {
   print('[main] App starting...');
@@ -161,7 +165,6 @@ void main() async {
             GetPage(name: '/register', page: () => RegisterPage(), binding: RegisterBinding()),
             GetPage(name: '/main_shell', page: () => ShellApp()),
             GetPage(name: '/address_demo', page: () => const AddressInputDemoPage()),
-            GetPage(name: '/provider_home', page: () => const ProviderShellApp()),
             GetPage(name: '/settings', page: () => const SettingsPage()),
             GetPage(name: '/splash', page: () => const SplashPage(), binding: SplashBinding()),
             GetPage(name: '/service_map', page: () => const ServiceMapPage()),
@@ -170,6 +173,14 @@ void main() async {
             GetPage(name: '/provider/language_settings', page: () => const ProviderLanguageSettingsPage(), binding: ProviderLanguageSettingsBinding()),
             GetPage(name: '/simulator', page: () => const SimulatorLauncher()),
             GetPage(name: '/provider_theme_demo', page: () => const ProviderThemeDemoPage()),
+            GetPage(name: '/service_detail', page: () => const ServiceDetailPage(), binding: ServiceDetailBinding()),
+            GetPage(
+              name: '/similar_services', 
+              page: () => SimilarServicesPage(
+                currentServiceId: Get.parameters['currentServiceId'] ?? '',
+                categoryId: Get.parameters['categoryId'] ?? '',
+              ),
+            ),
             // 只保留 ProviderShellApp 相关静态路由，其它 provider 插件式页面全部移除
           ],
         );

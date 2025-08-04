@@ -4,165 +4,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 // Import JinBean UI components
 import 'package:jinbeanpod_83904710/core/ui/jinbean_ui.dart';
 import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
-// Import actual provider pages
-import 'orders/presentation/orders_shell_page.dart';
-import 'clients/presentation/client_page.dart';
-import 'settings/settings_page.dart';
-import 'income/income_page.dart';
-import 'notifications/notification_page.dart';
-import 'services/service_management_page.dart';
-import 'provider_bindings.dart';
-
-class ProviderShellApp extends StatefulWidget {
-  const ProviderShellApp({super.key});
-
-  @override
-  State<ProviderShellApp> createState() => _ProviderShellAppState();
-}
-
-class _ProviderShellAppState extends State<ProviderShellApp> with TickerProviderStateMixin {
-  int _currentIndex = 0;
-
-  void _onNavigateToTab(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-  }
-
-  late final List<Widget> _pages;
-
-  @override
-  void initState() {
-    super.initState();
-    print('[INFO][ProviderShellApp] ${DateTime.now().toIso8601String()} [ProviderShellApp] initState called');
-    
-    // 确保所有Provider控制器都已注册
-    ProviderControllerManager.ensureControllersRegistered();
-    
-    // 初始化页面列表 - 根据设计文档的正确顺序
-    _pages = [
-      ProviderHomePage(onNavigateToTab: _onNavigateToTab), // Dashboard
-      OrdersShellPage(), // 订单管理页面
-      ClientPage(), // 客户管理页面
-      SettingsPage(), // 设置页面
-    ];
-    
-    print('[INFO][ProviderShellApp] ${DateTime.now().toIso8601String()} [ProviderShellApp] _pages initialized');
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    print('[DEBUG][ProviderShellApp] ${DateTime.now().toIso8601String()} [ProviderShellApp] build called, _currentIndex: $_currentIndex');
-    
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: JinBeanColors.backgroundGradient,
-        ),
-        child: IndexedStack(
-          index: _currentIndex,
-          children: _pages,
-        ),
-      ),
-      bottomNavigationBar: _buildSimpleBottomBar(),
-    );
-  }
-
-  Widget _buildSimpleBottomBar() {
-    return Container(
-      decoration: BoxDecoration(
-        color: JinBeanColors.surface,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        child: Container(
-          height: 70, // 增加高度以避免溢出
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Row(
-            children: [
-              _buildTabIcon(
-                icon: Icons.dashboard,
-                label: '首页',
-                isSelected: _currentIndex == 0,
-                onTap: () => _onTabTap(0),
-              ),
-              _buildTabIcon(
-                icon: Icons.list_alt,
-                label: '订单',
-                isSelected: _currentIndex == 1,
-                onTap: () => _onTabTap(1),
-              ),
-              _buildTabIcon(
-                icon: Icons.people,
-                label: '客户',
-                isSelected: _currentIndex == 2,
-                onTap: () => _onTabTap(2),
-              ),
-              _buildTabIcon(
-                icon: Icons.settings,
-                label: '设置',
-                isSelected: _currentIndex == 3,
-                onTap: () => _onTabTap(3),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTabIcon({
-    required IconData icon,
-    required String label,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min, // 添加这行
-            children: [
-              Icon(
-                icon,
-                color: isSelected ? JinBeanColors.primary : JinBeanColors.textSecondary,
-                size: 24,
-              ),
-              const SizedBox(height: 2), // 减少间距
-              Text(
-                label,
-                style: TextStyle(
-                  color: isSelected ? JinBeanColors.primary : JinBeanColors.textSecondary,
-                  fontSize: 11, // 减小字体大小
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                ),
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _onTabTap(int index) {
-    print('[DEBUG][ProviderShellApp] Tab tapped, index: $index');
-    setState(() {
-      _currentIndex = index;
-    });
-  }
-}
 
 class ProviderHomePage extends StatefulWidget {
   final Function(int) onNavigateToTab;
@@ -288,37 +129,45 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
   @override
   Widget build(BuildContext context) {
     print('[DEBUG][ProviderHomePage] ${DateTime.now().toIso8601String()} [ProviderHomePage] build called');
+    print('[DEBUG][ProviderHomePage] isLoading.value: ${isLoading.value}');
     
-    return Scaffold(
-      backgroundColor: JinBeanColors.background,
-      body: SafeArea(
-        child: Obx(() => isLoading.value
-            ? const Center(child: CircularProgressIndicator())
-            : RefreshIndicator(
-                onRefresh: _loadDashboardData,
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildHeaderSection(),
-                      const SizedBox(height: 20),
-                      _buildOverviewCard(),
-                      const SizedBox(height: 20),
-                      _buildQuickActionsSection(),
-                      const SizedBox(height: 20),
-                      _buildRecentOrdersSection(),
-                      const SizedBox(height: 20),
-                      _buildWeeklyEarningsChart(),
-                      const SizedBox(height: 20),
-                      _buildTopServicesSection(),
-                      const SizedBox(height: 20),
-                      _buildPerformanceMetrics(),
-                      const SizedBox(height: 80), // 增加底部间距，避免被导航栏遮挡
-                    ],
-                  ),
-                ),
-              )),
+    return Container(
+      color: Colors.white,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.dashboard,
+              size: 64,
+              color: Colors.blue,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Provider Dashboard',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.blue,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Welcome to Provider Home Page',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton(
+              onPressed: () {
+                print('[DEBUG] Button pressed');
+              },
+              child: Text('Test Button'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -653,15 +502,15 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
               const SizedBox(width: 12),
               _buildActionCard('服务管理', Icons.build, '管理服务项目', '+', JinBeanColors.primary, () {
                 // 跳转到服务管理页面
-                Get.to(() => const ServiceManagementPage());
+                Get.toNamed('/provider/service_manage');
               }),
               const SizedBox(width: 12),
               _buildActionCard('查看收入', Icons.account_balance_wallet, '收入统计', '\$${thisMonthEarnings.value}', JinBeanColors.warning, () {
-                Get.to(() => const IncomePage());
+                Get.toNamed('/provider/income');
               }),
               const SizedBox(width: 12),
               _buildActionCard('通知', Icons.notifications, '消息中心', '3', JinBeanColors.error, () {
-                Get.to(() => const NotificationPage());
+                Get.toNamed('/provider/message_center');
               }),
             ],
           ),

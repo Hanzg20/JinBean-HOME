@@ -30,44 +30,34 @@ class _OrdersShellPageState extends State<OrdersShellPage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     
-    return DefaultTabController(
-      length: 2, // For "订单管理" and "抢单大厅"
-      child: Scaffold(
-        backgroundColor: colorScheme.surface,
-        appBar: AppBar(
-          title: Text(
-            '订单中心',
-            style: theme.textTheme.titleLarge?.copyWith(
-              color: colorScheme.onSurface,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          iconTheme: IconThemeData(color: colorScheme.onSurface),
-          bottom: TabBar(
-            labelColor: colorScheme.primary,
-            unselectedLabelColor: colorScheme.onSurfaceVariant,
-            indicatorColor: colorScheme.primary,
-            indicatorWeight: 3,
-            labelStyle: theme.textTheme.labelLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-              fontSize: 16,
-            ),
-            unselectedLabelStyle: theme.textTheme.labelLarge?.copyWith(
-              fontWeight: FontWeight.normal,
-              fontSize: 16,
-            ),
-            tabs: const [
-              Tab(text: '订单管理'),
-              Tab(text: '接单大厅'),
-            ],
-          ),
-        ),
-        body: TabBarView(
+    return Container(
+      color: Colors.white,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            OrderManagePage(),
-            RobOrderHallPage(),
+            Icon(
+              Icons.list_alt,
+              size: 64,
+              color: Colors.blue,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Orders Management',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.blue,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Orders Shell Page',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey[600],
+              ),
+            ),
           ],
         ),
       ),

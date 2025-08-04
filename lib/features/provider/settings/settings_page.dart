@@ -18,56 +18,34 @@ class SettingsPage extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return Scaffold(
-      backgroundColor: JinBeanColors.background,
-      appBar: AppBar(
-        title: Text(
-          '设置',
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: JinBeanColors.textPrimary,
-          ),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: JinBeanColors.textPrimary),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+    return Container(
+      color: Colors.white,
+      child: Center(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Provider信息卡片
-            _buildProviderInfoCard(context),
-            const SizedBox(height: 20),
-            
-            // 业务管理
-            _buildSectionHeader(context, '业务管理'),
-            const SizedBox(height: 8),
-            _buildBusinessSection(context),
+            Icon(
+              Icons.settings,
+              size: 64,
+              color: Colors.blue,
+            ),
             const SizedBox(height: 16),
-            
-            // 账户设置
-            _buildSectionHeader(context, '账户设置'),
+            Text(
+              'Settings',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.blue,
+              ),
+            ),
             const SizedBox(height: 8),
-            _buildAccountSection(context),
-            const SizedBox(height: 16),
-            
-            // 应用设置
-            _buildSectionHeader(context, '应用设置'),
-            const SizedBox(height: 8),
-            _buildAppSettingsSection(context),
-            const SizedBox(height: 16),
-            
-            // 数据与安全
-            _buildSectionHeader(context, '数据与安全'),
-            const SizedBox(height: 8),
-            _buildSecuritySection(context),
-            const SizedBox(height: 16),
-            
-            // 退出登录
-            _buildLogoutSection(context),
-            const SizedBox(height: 20),
+            Text(
+              'Settings Page',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey[600],
+              ),
+            ),
           ],
         ),
       ),

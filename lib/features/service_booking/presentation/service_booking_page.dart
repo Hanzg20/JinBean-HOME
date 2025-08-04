@@ -511,7 +511,7 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: InkWell(
           onTap: () {
-            Get.toNamed('/service_detail', arguments: {'serviceId': service.id});
+            Get.toNamed('/service_detail', parameters: {'serviceId': service.id});
           },
           borderRadius: BorderRadius.circular(12),
           child: Column(
@@ -632,7 +632,7 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: InkWell(
           onTap: () {
-            Get.toNamed('/service_detail', arguments: {'serviceId': service.id});
+            Get.toNamed('/service_detail', parameters: {'serviceId': service.id});
           },
           borderRadius: BorderRadius.circular(12),
           child: Column(
