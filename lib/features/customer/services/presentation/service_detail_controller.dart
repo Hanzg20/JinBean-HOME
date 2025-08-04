@@ -353,15 +353,15 @@ class ServiceDetailController extends GetxController {
   
   Future<void> _loadReviewsData(String serviceId) async {
     try {
-      isLoadingReviews = true;
+      isLoadingReviews.value = true;
       update();
       
-      reviews = await ServiceDetailApiService.getServiceReviews(serviceId, limit: 10);
+      reviews.value = await ServiceDetailApiService.getServiceReviews(serviceId, limit: 10);
       
     } catch (e) {
-      reviewsError = e.toString();
+      reviewsError.value = e.toString();
     } finally {
-      isLoadingReviews = false;
+      isLoadingReviews.value = false;
       update();
     }
   }
@@ -406,7 +406,7 @@ class ServiceDetailController extends GetxController {
     try {
       final userId = Supabase.instance.client.auth.currentUser?.id;
       if (userId != null) {
-        isFavorite = await ServiceDetailApiService.checkFavoriteStatus(serviceId, userId);
+        isFavorite.value = await ServiceDetailApiService.checkFavoriteStatus(serviceId, userId);
       }
     } catch (e) {
       print('Error loading favorite status: $e');
@@ -489,19 +489,19 @@ class ServiceDetailController extends GetxController {
         return;
       }
       
-      isFavorite = !isFavorite;
+      isFavorite.value = !isFavorite.value;
       update();
       
-      await ServiceDetailApiService.toggleFavorite(service!.id, userId, isFavorite);
+      await ServiceDetailApiService.toggleFavorite(service!.id, userId, isFavorite.value);
       
       Get.snackbar(
         'Favorite',
-        isFavorite ? 'Added to favorites' : 'Removed from favorites',
+        isFavorite.value ? 'Added to favorites' : 'Removed from favorites',
         snackPosition: SnackPosition.BOTTOM,
       );
     } catch (e) {
       // 恢复状态
-      isFavorite = !isFavorite;
+      isFavorite.value = !isFavorite.value;
       update();
       
       Get.snackbar(
@@ -773,7 +773,7 @@ class ServiceDetailController extends GetxController {
 
   /// 更新报价状态
   void updateQuoteStatus(String status) {
-    quoteRequestStatus = status;
+    quoteRequestStatus.value = status;
     update();
   }
 
@@ -781,7 +781,7 @@ class ServiceDetailController extends GetxController {
   Future<void> submitQuoteRequest() async {
     if (service?.id == null) return;
     
-    isLoadingQuote = true;
+    isLoadingQuote.value = true;
     quoteError = '';
     update();
 
@@ -812,7 +812,7 @@ class ServiceDetailController extends GetxController {
       await Future.delayed(const Duration(seconds: 2));
       
       // 更新状态
-      quoteRequestStatus = 'pending';
+      quoteRequestStatus.value = 'pending';
       
       // 记录用户行为
       await PersonalizationService.logUserBehavior(
@@ -825,7 +825,7 @@ class ServiceDetailController extends GetxController {
       quoteError = e.toString();
       print('Error submitting quote request: $e');
     } finally {
-      isLoadingQuote = false;
+      isLoadingQuote.value = false;
       update();
     }
   }
@@ -840,7 +840,7 @@ class ServiceDetailController extends GetxController {
       
       // 模拟数据
       await Future.delayed(const Duration(seconds: 1));
-      receivedQuote = {
+      receivedQuote.value = {
         'id': 'quote_123',
         'serviceId': service!.id,
         'providerId': service!.providerId,
@@ -860,17 +860,17 @@ class ServiceDetailController extends GetxController {
 
   /// 接受报价
   Future<void> acceptQuote() async {
-    if (receivedQuote == null) return;
+    if (receivedQuote.value.isEmpty) return;
     
     try {
       // TODO: 调用API接受报价
-      // await QuoteApiService.acceptQuote(receivedQuote!['id']);
+      // await QuoteApiService.acceptQuote(receivedQuote.value['id']);
       
       // 模拟API调用
       await Future.delayed(const Duration(seconds: 1));
       
       // 更新状态
-      quoteRequestStatus = 'accepted';
+      quoteRequestStatus.value = 'accepted';
       
       Get.snackbar(
         'Quote Accepted',
@@ -894,17 +894,17 @@ class ServiceDetailController extends GetxController {
 
   /// 拒绝报价
   Future<void> declineQuote() async {
-    if (receivedQuote == null) return;
+    if (receivedQuote.value.isEmpty) return;
     
     try {
       // TODO: 调用API拒绝报价
-      // await QuoteApiService.declineQuote(receivedQuote!['id']);
+      // await QuoteApiService.declineQuote(receivedQuote.value['id']);
       
       // 模拟API调用
       await Future.delayed(const Duration(seconds: 1));
       
       // 更新状态
-      quoteRequestStatus = 'declined';
+      quoteRequestStatus.value = 'declined';
       
       Get.snackbar(
         'Quote Declined',
@@ -931,8 +931,8 @@ class ServiceDetailController extends GetxController {
 
   // 新增：加载评价数据
   Future<void> loadReviews() async {
-    isLoadingReviews = true;
-    reviewsError = '';
+    isLoadingReviews.value = true;
+    reviewsError.value = '';
     update();
     
     try {
@@ -940,7 +940,7 @@ class ServiceDetailController extends GetxController {
       await Future.delayed(const Duration(milliseconds: 800));
       
       // 使用mock数据
-      reviews = [
+      reviews.value = [
         Review(
           id: '1',
           serviceId: 'service1',
@@ -1007,10 +1007,10 @@ class ServiceDetailController extends GetxController {
       _applyReviewFilters();
       
     } catch (e) {
-      reviewsError = 'Failed to load reviews: $e';
+      reviewsError.value = 'Failed to load reviews: $e';
       print('[ServiceDetailController] Error loading reviews: $e');
     } finally {
-      isLoadingReviews = false;
+      isLoadingReviews.value = false;
       update();
     }
   }
@@ -1025,7 +1025,7 @@ class ServiceDetailController extends GetxController {
 
   // 新增：应用评价筛选和排序
   void _applyReviewFilters() {
-    filteredReviews = List.from(reviews);
+    filteredReviews.value = List.from(reviews);
     
     // 应用星级筛选
     if (!reviewFilters['all']!) {
@@ -1036,26 +1036,26 @@ class ServiceDetailController extends GetxController {
         }
       }
       if (selectedRatings.isNotEmpty) {
-        filteredReviews = filteredReviews.where((r) => selectedRatings.contains(r.rating)).toList();
+        filteredReviews.value = filteredReviews.where((r) => selectedRatings.contains(r.rating)).toList();
       }
     }
     
     // 应用其他筛选
     if (reviewFilters['withPhotos']!) {
-      filteredReviews = filteredReviews.where((r) => r.images?.isNotEmpty == true).toList();
+      filteredReviews.value = filteredReviews.where((r) => r.images?.isNotEmpty == true).toList();
     }
     
     if (reviewFilters['verified']!) {
-      filteredReviews = filteredReviews.where((r) => r.isVerified).toList();
+      filteredReviews.value = filteredReviews.where((r) => r.isVerified).toList();
     }
     
     // 应用排序
-    sortReviews(currentReviewSort);
+    sortReviews(currentReviewSort.value);
   }
 
   // 新增：排序评价
   void sortReviews(String sortType) {
-    currentReviewSort = sortType;
+    currentReviewSort.value = sortType;
     
     switch (sortType) {
       case 'newest':
@@ -1107,7 +1107,7 @@ class ServiceDetailController extends GetxController {
     reviewFilters.forEach((key, _) {
       reviewFilters[key] = key == 'all';
     });
-    currentReviewSort = 'newest';
+    currentReviewSort.value = 'newest';
     _applyReviewFilters();
   }
 

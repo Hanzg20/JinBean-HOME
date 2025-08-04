@@ -132,8 +132,8 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
       actions: [
         IconButton(
           icon: Icon(
-            controller.isFavorite ? Icons.favorite : Icons.favorite_border,
-            color: controller.isFavorite ? Colors.red : null,
+            controller.isFavorite.value ? Icons.favorite : Icons.favorite_border,
+            color: controller.isFavorite.value ? Colors.red : null,
           ),
           onPressed: () {
             Get.find<ServiceDetailController>().toggleFavorite();
