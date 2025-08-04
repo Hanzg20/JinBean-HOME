@@ -1497,6 +1497,107 @@ ${currentRoute['route']}
       (marker) => marker.id == service?.id,
     );
   }
+
+  // 新增：获取附近服务
+  List<ServiceMarkerModel> getNearbyServices() {
+    return _serviceMapController.markers;
+  }
+
+  // 新增：更新预订详情
+  void updateBookingDetails(String key, dynamic value) {
+    bookingDetails[key] = value;
+  }
+
+  // 新增：提交预订
+  Future<void> submitBooking() async {
+    if (bookingDetails['serviceDate']?.toString().isEmpty ?? true) {
+      Get.snackbar(
+        'Error',
+        'Please select a service date',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    if (bookingDetails['serviceTime']?.toString().isEmpty ?? true) {
+      Get.snackbar(
+        'Error',
+        'Please select a service time',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    isLoadingBooking.value = true;
+    try {
+      await Future.delayed(const Duration(seconds: 2));
+      Get.snackbar(
+        'Success',
+        'Booking submitted successfully',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to submit booking: $e',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isLoadingBooking.value = false;
+    }
+  }
+
+  // 新增：联系提供商方法
+  void callProvider() {
+    final serviceDetail = service;
+    if (serviceDetail != null && provider?.contactPhone != null) {
+      Get.snackbar(
+        'Calling',
+        'Calling ${provider!.contactPhone}',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } else {
+      Get.snackbar(
+        'Error',
+        'Phone number not available',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+
+  void emailProvider() {
+    final serviceDetail = service;
+    if (serviceDetail != null && provider?.contactEmail != null) {
+      Get.snackbar(
+        'Email',
+        'Opening email client for ${provider!.contactEmail}',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } else {
+      Get.snackbar(
+        'Error',
+        'Email address not available',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+
+  void visitWebsite() {
+    final serviceDetail = service;
+    if (serviceDetail != null && provider?.contactEmail != null) {
+      Get.snackbar(
+        'Website',
+        'Opening website...',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } else {
+      Get.snackbar(
+        'Error',
+        'Website not available',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
 }
 
 // 新增相似服务模型

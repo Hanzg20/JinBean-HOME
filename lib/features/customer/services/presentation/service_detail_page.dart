@@ -463,7 +463,7 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
           const SizedBox(height: 16),
           
           // 评价列表
-          if (controller.isLoadingReviews && controller.reviews.isEmpty)
+          if (controller.isLoadingReviews.value && controller.reviews.isEmpty)
             const Center(
               child: Padding(
                 padding: EdgeInsets.all(32.0),
@@ -4217,15 +4217,15 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
                       controller.toggleFavorite();
                       Get.snackbar(
                         'Favorite',
-                        controller.isFavorite ? 'Added to favorites!' : 'Removed from favorites!',
+                        controller.isFavorite.value ? 'Added to favorites!' : 'Removed from favorites!',
                         snackPosition: SnackPosition.BOTTOM,
-                        backgroundColor: controller.isFavorite ? Colors.green : Colors.grey,
+                        backgroundColor: controller.isFavorite.value ? Colors.green : Colors.grey,
                         colorText: Colors.white,
                       );
                     },
                     icon: Icon(
-                      controller.isFavorite ? Icons.favorite : Icons.favorite_border,
-                      color: controller.isFavorite ? Colors.red : Colors.grey[600],
+                      controller.isFavorite.value ? Icons.favorite : Icons.favorite_border,
+                      color: controller.isFavorite.value ? Colors.red : Colors.grey[600],
                     ),
                   ),
                 ),
@@ -6857,11 +6857,11 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundImage: serviceDetail.providerImage != null
-                    ? NetworkImage(serviceDetail.providerImage!)
+                backgroundImage: controller.provider?.profileImageUrl != null
+                    ? NetworkImage(controller.provider!.profileImageUrl!)
                     : null,
-                child: serviceDetail.providerImage == null
-                    ? Text(serviceDetail.providerName[0].toUpperCase())
+                child: controller.provider?.profileImageUrl == null
+                    ? Text(controller.provider?.companyName[0].toUpperCase() ?? 'P')
                     : null,
               ),
               const SizedBox(width: 12),
@@ -6870,7 +6870,7 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      serviceDetail.providerName,
+                      controller.provider?.companyName ?? 'Provider',
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -6889,33 +6889,33 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
           const SizedBox(height: 16),
           
           // 联系详情
-          if (serviceDetail.providerPhone != null) ...[
+          if (controller.provider?.contactPhone != null) ...[
             _buildContactItem(
               Icons.phone,
               'Phone',
-              serviceDetail.providerPhone!,
+              controller.provider!.contactPhone,
               () => controller.callProvider(),
               theme,
             ),
             const SizedBox(height: 8),
           ],
           
-          if (serviceDetail.providerEmail != null) ...[
+          if (controller.provider?.contactEmail != null) ...[
             _buildContactItem(
               Icons.email,
               'Email',
-              serviceDetail.providerEmail!,
+              controller.provider!.contactEmail,
               () => controller.emailProvider(),
               theme,
             ),
             const SizedBox(height: 8),
           ],
           
-          if (serviceDetail.providerWebsite != null) ...[
+          if (controller.provider?.contactEmail != null) ...[
             _buildContactItem(
               Icons.language,
               'Website',
-              serviceDetail.providerWebsite!,
+              'Visit Website',
               () => controller.visitWebsite(),
               theme,
             ),
