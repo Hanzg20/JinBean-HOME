@@ -391,12 +391,6 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
           _buildEnhancedMapSection(controller, theme),
           const SizedBox(height: 16),
           
-          // 相似服务推荐 - 只在有数据时显示
-          if (controller.similarServices.isNotEmpty) ...[
-            _buildSimilarServicesSection(controller, theme),
-            const SizedBox(height: 32),
-          ],
-          
           // 服务区域信息
           _buildSimplifiedServiceAreaInfo(controller, theme),
           
@@ -502,10 +496,94 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
           _buildPersonalizedHeader(theme),
           const SizedBox(height: 16),
           
-          // 基础个性化内容
-          _buildBasicPersonalizedContent(controller, theme),
+          // 相似服务推荐 - 迁移到For you tab
+          if (controller.similarServices.isNotEmpty) ...[
+            _buildSimilarServicesSection(controller, theme),
+            const SizedBox(height: 16),
+          ],
+          
+          // 个性化洞察
+          _buildPersonalizedInsights(controller, theme),
           const SizedBox(height: 32),
         ],
+      ),
+    );
+  }
+
+  // 新增：个性化洞察组件
+  Widget _buildPersonalizedInsights(ServiceDetailController controller, ThemeData theme) {
+    return CustomerCard(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.insights, color: theme.colorScheme.primary),
+                const SizedBox(width: 8),
+                Text(
+                  'Personalized Insights',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            _buildInsightItem(
+              'Service Quality',
+              'High customer satisfaction rate: 96%',
+              Icons.thumb_up,
+              Colors.green,
+              theme,
+            ),
+            const SizedBox(height: 8),
+            _buildInsightItem(
+              'Response Time',
+              'Average response time: 2 hours',
+              Icons.speed,
+              Colors.blue,
+              theme,
+            ),
+            const SizedBox(height: 8),
+            _buildInsightItem(
+              'Reliability',
+              '99% on-time service completion rate',
+              Icons.timer,
+              Colors.orange,
+              theme,
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primary.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: theme.colorScheme.primary.withOpacity(0.2)),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.lightbulb_outline,
+                    color: theme.colorScheme.primary,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'More personalized recommendations coming soon!',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.primary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1553,7 +1631,7 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Similar Services',
+                  'Recommended for You',
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
