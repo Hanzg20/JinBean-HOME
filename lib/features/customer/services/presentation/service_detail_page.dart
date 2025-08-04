@@ -396,6 +396,29 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
             _buildSimilarServicesSection(controller, theme),
             const SizedBox(height: 32),
           ],
+          
+          // 服务区域信息
+          _buildSimplifiedServiceAreaInfo(controller, theme),
+          
+          const SizedBox(height: 12),
+          
+          // 导航操作按钮
+          _buildNavigationActions(controller, theme),
+          
+          const SizedBox(height: 24),
+          
+          // 报价系统
+          _buildQuoteSystem(controller, theme),
+          
+          const SizedBox(height: 24),
+          
+          // 预订系统
+          _buildBookingSystem(controller, theme),
+          
+          const SizedBox(height: 24),
+          
+          // 联系系统
+          _buildContactSystem(controller, theme),
         ],
       ),
     );
@@ -1012,7 +1035,7 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
               ),
             ),
           ),
-          onTap: () => _selectServiceDate(controller),
+          onTap: () => _selectDate(controller),
           readOnly: true,
         ),
         const SizedBox(height: 12),
@@ -1032,7 +1055,7 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
               ),
             ),
           ),
-          onTap: () => _selectServiceTime(controller),
+          onTap: () => _selectTime(controller),
           readOnly: true,
         ),
         const SizedBox(height: 12),
@@ -1154,7 +1177,7 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
     );
   }
 
-  void _selectServiceDate(ServiceDetailController controller) {
+  void _selectDate(ServiceDetailController controller) {
     showDatePicker(
       context: context,
       initialDate: DateTime.now().add(const Duration(days: 1)),
@@ -1162,60 +1185,20 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
       lastDate: DateTime.now().add(const Duration(days: 365)),
     ).then((date) {
       if (date != null) {
-        controller.updateQuoteDetails('serviceDate', date.toIso8601String());
-        Get.snackbar(
-          'Date Selected',
-          'Service date set to ${date.toString().split(' ')[0]}',
-          snackPosition: SnackPosition.BOTTOM,
-        );
+        controller.updateQuoteDetails('serviceDate', date.toString().split(' ')[0]);
       }
     });
   }
 
-  void _selectServiceTime(ServiceDetailController controller) {
-    showDialog(
+  void _selectTime(ServiceDetailController controller) {
+    showTimePicker(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Select Preferred Time'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.wb_sunny, color: Colors.orange),
-              title: const Text('Morning (8 AM - 12 PM)'),
-              onTap: () {
-                controller.updateQuoteDetails('serviceTime', 'Morning');
-                Get.back();
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.wb_sunny_outlined, color: Colors.blue),
-              title: const Text('Afternoon (12 PM - 5 PM)'),
-              onTap: () {
-                controller.updateQuoteDetails('serviceTime', 'Afternoon');
-                Get.back();
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.nightlight, color: Colors.purple),
-              title: const Text('Evening (5 PM - 9 PM)'),
-              onTap: () {
-                controller.updateQuoteDetails('serviceTime', 'Evening');
-                Get.back();
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.schedule, color: Colors.grey),
-              title: const Text('Flexible'),
-              onTap: () {
-                controller.updateQuoteDetails('serviceTime', 'Flexible');
-                Get.back();
-              },
-            ),
-          ],
-        ),
-      ),
-    );
+      initialTime: TimeOfDay.now(),
+    ).then((time) {
+      if (time != null) {
+        controller.updateQuoteDetails('serviceTime', '${time.hour}:${time.minute.toString().padLeft(2, '0')}');
+      }
+    });
   }
 
   void _selectUrgencyLevel(String level) {
@@ -4416,6 +4399,7 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
                   },
                 ),
                 
+                
                 // 5. 请求报价（如果服务需要报价）
                 if (controller.serviceDetail?.pricingType == 'custom' || 
                     controller.serviceDetail?.pricingType == 'negotiable')
@@ -5632,6 +5616,11 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
             
             // 导航操作按钮
             _buildNavigationActions(controller, theme),
+            
+            const SizedBox(height: 24),
+            
+            // 报价系统
+            _buildQuoteSystem(controller, theme),
           ],
         ),
       ),
@@ -6334,6 +6323,713 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
       ),
     );
   }
+
+  // 新增：报价系统UI组件
+  Widget _buildQuoteSystem(ServiceDetailController controller, ThemeData theme) {
+    return CustomerCard(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 报价系统标题
+            Row(
+              children: [
+                Icon(Icons.request_quote, color: theme.colorScheme.primary),
+                const SizedBox(width: 8),
+                Text(
+                  'Get Quote',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            
+            // 报价状态显示
+            if (controller.quoteRequestStatus != null) ...[
+              _buildQuoteStatus(controller, theme),
+              const SizedBox(height: 16),
+            ],
+            
+            // 报价表单
+            if (controller.quoteRequestStatus == null || controller.quoteRequestStatus == 'pending') ...[
+              _buildQuoteForm(controller, theme),
+            ],
+            
+            // 已收到报价显示
+            if (controller.receivedQuote != null) ...[
+              _buildReceivedQuote(controller, theme),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  // 新增：报价状态显示
+  Widget _buildQuoteStatus(ServiceDetailController controller, ThemeData theme) {
+    Color statusColor;
+    IconData statusIcon;
+    String statusText;
+    
+    switch (controller.quoteRequestStatus) {
+      case 'pending':
+        statusColor = Colors.orange;
+        statusIcon = Icons.schedule;
+        statusText = 'Quote Request Pending';
+        break;
+      case 'reviewing':
+        statusColor = Colors.blue;
+        statusIcon = Icons.visibility;
+        statusText = 'Provider Reviewing Request';
+        break;
+      case 'quoted':
+        statusColor = Colors.green;
+        statusIcon = Icons.check_circle;
+        statusText = 'Quote Received';
+        break;
+      case 'expired':
+        statusColor = Colors.red;
+        statusIcon = Icons.error;
+        statusText = 'Quote Expired';
+        break;
+      default:
+        statusColor = Colors.grey;
+        statusIcon = Icons.info;
+        statusText = 'No Quote Request';
+    }
+    
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: statusColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: statusColor.withOpacity(0.3)),
+      ),
+      child: Row(
+        children: [
+          Icon(statusIcon, color: statusColor, size: 20),
+          const SizedBox(width: 8),
+          Text(
+            statusText,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: statusColor,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 新增：已收到报价显示
+  Widget _buildReceivedQuote(ServiceDetailController controller, ThemeData theme) {
+    final quote = controller.receivedQuote!;
+    
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.green.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.green.withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.check_circle, color: Colors.green),
+              const SizedBox(width: 8),
+              Text(
+                'Quote Received',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          
+          // 报价金额
+          Row(
+            children: [
+              Text(
+                'Quote Amount:',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                '\$${quote['amount']?.toStringAsFixed(2)}',
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          
+          // 服务描述
+          if (quote['description'] != null) ...[
+            Text(
+              'Service Description:',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              quote['description'],
+              style: theme.textTheme.bodySmall,
+            ),
+            const SizedBox(height: 8),
+          ],
+          
+          // 时间线
+          if (quote['timeline'] != null) ...[
+            Row(
+              children: [
+                Text(
+                  'Timeline:',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  quote['timeline'],
+                  style: theme.textTheme.bodyMedium,
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+          ],
+          
+          // 有效期
+          if (quote['validUntil'] != null) ...[
+            Row(
+              children: [
+                Text(
+                  'Valid Until:',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  DateTime.parse(quote['validUntil']).toString().split(' ')[0],
+                  style: theme.textTheme.bodyMedium,
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+          ],
+          
+          // 操作按钮
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => controller.declineQuote(),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.red,
+                    side: BorderSide(color: Colors.red),
+                  ),
+                  child: const Text('Decline'),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () => controller.acceptQuote(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('Accept'),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 新增：预订系统UI组件
+  Widget _buildBookingSystem(ServiceDetailController controller, ThemeData theme) {
+    return CustomerCard(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 预订系统标题
+            Row(
+              children: [
+                Icon(Icons.calendar_today, color: theme.colorScheme.primary),
+                const SizedBox(width: 8),
+                Text(
+                  'Book Service',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            
+            // 价格信息
+            _buildPricingInfo(controller, theme),
+            const SizedBox(height: 16),
+            
+            // 预订表单
+            _buildBookingForm(controller, theme),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // 新增：价格信息显示
+  Widget _buildPricingInfo(ServiceDetailController controller, ThemeData theme) {
+    final serviceDetail = controller.serviceDetail;
+    if (serviceDetail == null) return const SizedBox.shrink();
+    
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.blue.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.blue.withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                'Service Price',
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                '\$${serviceDetail.price?.toStringAsFixed(2)}',
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          
+          // 价格类型
+          Row(
+            children: [
+              Icon(Icons.info_outline, size: 16, color: Colors.grey[600]),
+              const SizedBox(width: 4),
+              Text(
+                '${serviceDetail.pricingType.toUpperCase()} pricing',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: Colors.grey[600],
+                ),
+              ),
+            ],
+          ),
+          
+          // 服务时长
+          if (serviceDetail.duration != null) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(Icons.schedule, size: 16, color: Colors.grey[600]),
+                const SizedBox(width: 4),
+                Text(
+                  'Duration: ${serviceDetail.duration!.inHours}h ${serviceDetail.duration!.inMinutes % 60}m',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+          ],
+          
+          // 协商详情
+          if (serviceDetail.negotiationDetails != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              serviceDetail.negotiationDetails!,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: Colors.grey[600],
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  // 新增：预订表单
+  Widget _buildBookingForm(ServiceDetailController controller, ThemeData theme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 服务日期
+        Text(
+          'Service Date',
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          decoration: InputDecoration(
+            hintText: 'Select service date',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            filled: true,
+            fillColor: Colors.grey[50],
+            suffixIcon: Icon(Icons.calendar_today),
+          ),
+          onTap: () => _selectBookingDate(controller),
+          readOnly: true,
+          controller: TextEditingController(
+            text: controller.bookingDetails['serviceDate'] ?? '',
+          ),
+        ),
+        const SizedBox(height: 16),
+        
+        // 服务时间
+        Text(
+          'Service Time',
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          decoration: InputDecoration(
+            hintText: 'Select service time',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            filled: true,
+            fillColor: Colors.grey[50],
+            suffixIcon: Icon(Icons.access_time),
+          ),
+          onTap: () => _selectBookingTime(controller),
+          readOnly: true,
+          controller: TextEditingController(
+            text: controller.bookingDetails['serviceTime'] ?? '',
+          ),
+        ),
+        const SizedBox(height: 16),
+        
+        // 特殊要求
+        Text(
+          'Special Requirements (Optional)',
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          maxLines: 3,
+          decoration: InputDecoration(
+            hintText: 'Any special requirements or notes...',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            filled: true,
+            fillColor: Colors.grey[50],
+          ),
+          onChanged: (value) => controller.updateBookingDetails('specialRequirements', value),
+        ),
+        const SizedBox(height: 24),
+        
+        // 预订按钮
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: controller.isLoadingBooking.value ? null : () => controller.submitBooking(),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: theme.colorScheme.primary,
+              foregroundColor: theme.colorScheme.onPrimary,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+            ),
+            child: controller.isLoadingBooking.value
+                ? const CircularProgressIndicator(color: Colors.white)
+                : const Text('Book Now'),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // 新增：选择预订日期
+  void _selectBookingDate(ServiceDetailController controller) {
+    showDatePicker(
+      context: context,
+      initialDate: DateTime.now().add(const Duration(days: 1)),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    ).then((date) {
+      if (date != null) {
+        controller.updateBookingDetails('serviceDate', date.toString().split(' ')[0]);
+      }
+    });
+  }
+
+  // 新增：选择预订时间
+  void _selectBookingTime(ServiceDetailController controller) {
+    showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    ).then((time) {
+      if (time != null) {
+        controller.updateBookingDetails('serviceTime', '${time.hour}:${time.minute.toString().padLeft(2, '0')}');
+      }
+    });
+  }
+
+  // 新增：联系系统UI组件
+  Widget _buildContactSystem(ServiceDetailController controller, ThemeData theme) {
+    return CustomerCard(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 联系系统标题
+            Row(
+              children: [
+                Icon(Icons.contact_support, color: theme.colorScheme.primary),
+                const SizedBox(width: 8),
+                Text(
+                  'Contact Provider',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            
+            // 联系信息
+            _buildContactInfo(controller, theme),
+            const SizedBox(height: 16),
+            
+            // 联系选项
+            _buildContactOptions(controller, theme),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // 新增：联系信息显示
+  Widget _buildContactInfo(ServiceDetailController controller, ThemeData theme) {
+    final serviceDetail = controller.serviceDetail;
+    if (serviceDetail == null) return const SizedBox.shrink();
+    
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 提供商名称
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 20,
+                backgroundImage: serviceDetail.providerImage != null
+                    ? NetworkImage(serviceDetail.providerImage!)
+                    : null,
+                child: serviceDetail.providerImage == null
+                    ? Text(serviceDetail.providerName[0].toUpperCase())
+                    : null,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      serviceDetail.providerName,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      'Professional Service Provider',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          
+          // 联系详情
+          if (serviceDetail.providerPhone != null) ...[
+            _buildContactItem(
+              Icons.phone,
+              'Phone',
+              serviceDetail.providerPhone!,
+              () => controller.callProvider(),
+              theme,
+            ),
+            const SizedBox(height: 8),
+          ],
+          
+          if (serviceDetail.providerEmail != null) ...[
+            _buildContactItem(
+              Icons.email,
+              'Email',
+              serviceDetail.providerEmail!,
+              () => controller.emailProvider(),
+              theme,
+            ),
+            const SizedBox(height: 8),
+          ],
+          
+          if (serviceDetail.providerWebsite != null) ...[
+            _buildContactItem(
+              Icons.language,
+              'Website',
+              serviceDetail.providerWebsite!,
+              () => controller.visitWebsite(),
+              theme,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  // 新增：联系项目
+  Widget _buildContactItem(
+    IconData icon,
+    String label,
+    String value,
+    VoidCallback onTap,
+    ThemeData theme,
+  ) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          children: [
+            Icon(icon, size: 20, color: theme.colorScheme.primary),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  Text(
+                    value,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[400]),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // 新增：联系选项
+  Widget _buildContactOptions(ServiceDetailController controller, ThemeData theme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Quick Actions',
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 12),
+        
+        // 聊天按钮
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: () => controller.startChat(),
+            icon: const Icon(Icons.chat_bubble_outline),
+            label: const Text('Start Chat'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: theme.colorScheme.primary,
+              foregroundColor: theme.colorScheme.onPrimary,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        
+        // 其他联系选项
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: () => controller.callProvider(),
+                icon: const Icon(Icons.phone),
+                label: const Text('Call'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: theme.colorScheme.primary,
+                  side: BorderSide(color: theme.colorScheme.primary),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: () => controller.emailProvider(),
+                icon: const Icon(Icons.email),
+                label: const Text('Email'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: theme.colorScheme.primary,
+                  side: BorderSide(color: theme.colorScheme.primary),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
 }
 
 class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
@@ -6357,4 +7053,5 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
     return oldDelegate.tabBar != tabBar;
   }
-} 
+}
+

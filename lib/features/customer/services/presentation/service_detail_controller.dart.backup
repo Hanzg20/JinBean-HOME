@@ -1,15 +1,115 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:jinbeanpod_83904710/features/customer/services/services/similar_services_api_service.dart';
-import 'package:jinbeanpod_83904710/features/customer/services/services/similarity_calculator_service.dart';
-import 'package:jinbeanpod_83904710/features/customer/services/services/service_detail_api_service.dart';
-import 'package:jinbeanpod_83904710/features/customer/services/services/chat_service.dart';
-import 'package:jinbeanpod_83904710/features/customer/services/services/personalization_service.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:jinbeanpod_83904710/features/service_map/service_map_controller.dart';
-import 'package:jinbeanpod_83904710/features/service_map/service_marker_model.dart';
+import 'package:geolocator/geolocator.dart';
+
+import '../../../../core/theme/customer_theme_components.dart';
+import '../../../../core/utils/logger.dart';
+import '../../../../core/services/personalization_service.dart';
+import '../../../../core/services/chat_service.dart';
+import '../../../../core/models/service_detail.dart';
+import '../../../../core/models/review.dart';
+import '../../../../core/models/provider.dart';
+import '../../../../core/models/user_behavior.dart';
+import '../services/service_detail_api_service.dart';
+import '../../../service_map/service_map_controller.dart';
+
+class ServiceDetailController extends GetxController {
+  // 服务详情数据
+  final Rx<ServiceDetail?> service = Rx<ServiceDetail?>(null);
+  final RxBool isLoading = false.obs;
+  final RxString error = ''.obs;
+
+  // 评价系统数据
+  final RxList<Review> reviews = <Review>[].obs;
+  final RxList<Review> filteredReviews = <Review>[].obs;
+  final RxBool isLoadingReviews = false.obs;
+  final RxString reviewsError = ''.obs;
+  final RxMap<String, bool> reviewFilters = <String, bool>{
+    'all': true,
+    '5star': false,
+    '4star': false,
+    '3star': false,
+    '2star': false,
+    '1star': false,
+    'withPhotos': false,
+    'verified': false,
+  }.obs;
+  final RxString currentReviewSort = 'newest'.obs;
+  final RxMap<String, int> ratingDistribution = <String, int>{}.obs;
+
+  // 地图相关数据
+  final Rx<LatLng?> currentServiceLocation = Rx<LatLng?>(null);
+  final Rx<Map<String, dynamic>?> serviceAreaInfo = Rx<Map<String, dynamic>?>(null);
+  final RxDouble serviceRadiusKm = 50.0.obs;
+
+  // 报价系统相关数据
+  final RxMap<String, dynamic> quoteDetails = <String, dynamic>{}.obs;
+  final RxString quoteRequestStatus = ''.obs;
+  final RxMap<String, dynamic> receivedQuote = <String, dynamic>{}.obs;
+  final RxBool isLoadingQuote = false.obs;
+  String quoteError = '';
+
+  // 预订系统相关数据
+  final RxMap<String, dynamic> bookingDetails = <String, dynamic>{}.obs;
+  final RxBool isLoadingBooking = false.obs;
+
+  // 收藏和分享相关数据
+  final RxBool isFavorite = false.obs;
+
+  // 聊天服务实例
+  late ChatService _chatService;
+
+  // ServiceMapController实例
+  late ServiceMapController _serviceMapController;
+
+  // API服务实例
+  final ServiceDetailApiService _apiService = ServiceDetailApiService();
+
+  // 个人化服务实例
+  final PersonalizationService _personalizationService = PersonalizationService();
+
+  @override
+  void onInit() {
+    super.onInit();
+    _initializeServices();
+    _initializeMapFeatures();
+  }
+
+  void _initializeServices() {
+    _chatService = ChatService();
+    _serviceMapController = Get.find<ServiceMapController>();
+  }
+
+  void _initializeMapFeatures() {
+    _serviceMapController.initializeMap();
+  }
+
+  // 加载服务详情
+  Future<void> loadServiceDetail(String serviceId) async {
+    isLoading.value = true;
+    error.value = '';
+
+    try {
+      final serviceDetail = await _apiService.getServiceDetail(serviceId);
+      service.value = serviceDetail;
+      
+      // 初始化地图功能
+      _initializeMapFeatures();
+      
+      // 加载评价
+      await loadReviews(serviceId);
+      
+      // 记录用户行为
+      await _logServiceView(serviceId);
+      
+      // 加载个人化数据
+      await _loadPersonalizationData(serviceId);
 import 'package:jinbeanpod_83904710/core/controllers/location_controller.dart';
 
 class Service {
@@ -194,13 +294,20 @@ class ServiceDetailController extends GetxController {
   bool isLoadingPersonalization = false;
   String personalizationError = '';
 
-  // 报价相关数据
-  String? quoteRequestStatus; // 'pending', 'reviewing', 'quoted', 'expired'
-  Map<String, dynamic> quoteDetails = {};
-  Map<String, dynamic>? receivedQuote;
-  bool isLoadingQuote = false;
+  // 报价系统相关数据
+  final RxMap<String, dynamic> quoteDetails = <String, dynamic>{}.obs;
+  final RxString quoteRequestStatus = ''.obs;
+  final RxMap<String, dynamic> receivedQuote = <String, dynamic>{}.obs;
+  final RxBool isLoadingQuote = false.obs;
   String quoteError = '';
   
+  // 预订系统相关数据
+  final RxMap<String, dynamic> bookingDetails = <String, dynamic>{}.obs;
+  final RxBool isLoadingBooking = false.obs;
+
+  // 收藏和分享相关数据
+  final RxBool isFavorite = false.obs;
+
   // 聊天服务实例
   late ChatService _chatService;
   
@@ -240,37 +347,6 @@ class ServiceDetailController extends GetxController {
   List<Review> filteredReviews = [];
   Map<String, int> ratingDistribution = {};
   bool isLoadingReviewStats = false;
-  
-  // 评价系统数据
-  final RxList<Review> reviews = <Review>[].obs;
-  final RxList<Review> filteredReviews = <Review>[].obs;
-  final RxBool isLoadingReviews = false.obs;
-  final RxString reviewsError = ''.obs;
-  final RxMap<String, bool> reviewFilters = <String, bool>{
-    'all': true,
-    '5star': false,
-    '4star': false,
-    '3star': false,
-    '2star': false,
-    '1star': false,
-    'withPhotos': false,
-    'verified': false,
-  }.obs;
-  final RxString currentReviewSort = 'newest'.obs;
-  final RxMap<String, int> ratingDistribution = <String, int>{}.obs;
-
-  // 报价系统相关数据
-  final RxMap<String, dynamic> quoteDetails = <String, dynamic>{}.obs;
-  final RxString quoteRequestStatus = ''.obs;
-  final RxMap<String, dynamic> receivedQuote = <String, dynamic>{}.obs;
-  final RxBool isLoadingQuote = false.obs;
-
-  // 预订系统相关数据
-  final RxMap<String, dynamic> bookingDetails = <String, dynamic>{}.obs;
-  final RxBool isLoadingBooking = false.obs;
-
-  // 收藏和分享相关数据
-  final RxBool isFavorite = false.obs;
   
   @override
   void onInit() {
@@ -786,68 +862,111 @@ class ServiceDetailController extends GetxController {
     }
   }
 
-  /// 更新报价详情
+  // 新增：报价系统相关属性
+
+  // 新增：更新报价详情
   void updateQuoteDetails(String key, dynamic value) {
     quoteDetails[key] = value;
-    update();
   }
 
-  /// 更新报价状态
-  void updateQuoteStatus(String status) {
-    quoteRequestStatus = status;
-    update();
-  }
-
-  /// 提交报价请求
+  // 新增：提交报价请求
   Future<void> submitQuoteRequest() async {
-    if (service?.id == null) return;
-    
-    isLoadingQuote = true;
-    quoteError = '';
-    update();
+    if (quoteDetails['requirements']?.toString().isEmpty ?? true) {
+      Get.snackbar(
+        'Error',
+        'Please describe your service requirements',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
 
+    isLoadingQuote.value = true;
     try {
-      // 验证必要字段
-      if (quoteDetails['requirements']?.isEmpty ?? true) {
-        throw Exception('Service requirements are required');
-      }
-
-      // 构建报价请求数据
-      final quoteRequest = {
-        'serviceId': service!.id,
-        'providerId': service!.providerId,
-        'customerId': GetStorage().read('userId') ?? '',
-        'requirements': quoteDetails['requirements'],
-        'serviceDate': quoteDetails['serviceDate'],
-        'serviceTime': quoteDetails['serviceTime'],
-        'budget': quoteDetails['budget'],
-        'urgencyLevel': quoteDetails['urgencyLevel'],
-        'status': 'pending',
-        'createdAt': DateTime.now().toIso8601String(),
-      };
-
-      // TODO: 调用API提交报价请求
-      // await QuoteApiService.submitQuoteRequest(quoteRequest);
-      
       // 模拟API调用
       await Future.delayed(const Duration(seconds: 2));
       
-      // 更新状态
-      quoteRequestStatus = 'pending';
-      
-      // 记录用户行为
-      await PersonalizationService.logUserBehavior(
-        userId: GetStorage().read('userId') ?? '',
-        serviceId: service!.id,
-        behaviorType: UserBehaviorType.quoteRequest,
+      quoteRequestStatus.value = 'pending';
+      Get.snackbar(
+        'Success',
+        'Quote request submitted successfully',
+        snackPosition: SnackPosition.BOTTOM,
       );
-
     } catch (e) {
-      quoteError = e.toString();
-      print('Error submitting quote request: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to submit quote request: $e',
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } finally {
-      isLoadingQuote = false;
-      update();
+      isLoadingQuote.value = false;
+    }
+  }
+
+  // 新增：接受报价
+  void acceptQuote() {
+    Get.snackbar(
+      'Success',
+      'Quote accepted successfully',
+      snackPosition: SnackPosition.BOTTOM,
+    );
+    // 这里可以添加跳转到支付页面的逻辑
+  }
+
+  // 新增：拒绝报价
+  void declineQuote() {
+    Get.snackbar(
+      'Info',
+      'Quote declined',
+      snackPosition: SnackPosition.BOTTOM,
+    );
+    receivedQuote.clear();
+  }
+
+  // 新增：更新预订详情
+  void updateBookingDetails(String key, dynamic value) {
+    bookingDetails[key] = value;
+  }
+
+  // 新增：提交预订
+  Future<void> submitBooking() async {
+    if (bookingDetails['serviceDate']?.toString().isEmpty ?? true) {
+      Get.snackbar(
+        'Error',
+        'Please select a service date',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    if (bookingDetails['serviceTime']?.toString().isEmpty ?? true) {
+      Get.snackbar(
+        'Error',
+        'Please select a service time',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    isLoadingBooking.value = true;
+    try {
+      // 模拟API调用
+      await Future.delayed(const Duration(seconds: 2));
+      
+      Get.snackbar(
+        'Success',
+        'Booking submitted successfully',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      
+      // 这里可以添加跳转到支付页面的逻辑
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to submit booking: $e',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isLoadingBooking.value = false;
     }
   }
 
@@ -880,152 +999,6 @@ class ServiceDetailController extends GetxController {
   }
 
   /// 接受报价
-  Future<void> acceptQuote() async {
-    if (receivedQuote == null) return;
-    
-    try {
-      // TODO: 调用API接受报价
-      // await QuoteApiService.acceptQuote(receivedQuote!['id']);
-      
-      // 模拟API调用
-      await Future.delayed(const Duration(seconds: 1));
-      
-      // 更新状态
-      quoteRequestStatus = 'accepted';
-      
-      Get.snackbar(
-        'Quote Accepted',
-        'You have accepted the quote. The provider will contact you soon.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-      );
-      
-    } catch (e) {
-      print('Error accepting quote: $e');
-      Get.snackbar(
-        'Error',
-        'Failed to accept quote. Please try again.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-    }
-  }
-
-  /// 拒绝报价
-  Future<void> declineQuote() async {
-    if (receivedQuote == null) return;
-    
-    try {
-      // TODO: 调用API拒绝报价
-      // await QuoteApiService.declineQuote(receivedQuote!['id']);
-      
-      // 模拟API调用
-      await Future.delayed(const Duration(seconds: 1));
-      
-      // 更新状态
-      quoteRequestStatus = 'declined';
-      
-      Get.snackbar(
-        'Quote Declined',
-        'You have declined the quote.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.orange,
-        colorText: Colors.white,
-      );
-      
-    } catch (e) {
-      print('Error declining quote: $e');
-    }
-  }
-
-  // 新增：初始化评价系统
-  void _initializeReviewSystem() {
-    // 加载评价数据
-    loadReviews();
-    // 计算评分分布
-    _calculateRatingDistribution();
-    // 应用当前筛选和排序
-    _applyReviewFilters();
-  }
-
-  // 新增：加载评价数据
-  Future<void> loadReviews() async {
-    isLoadingReviews = true;
-    reviewsError = '';
-    update();
-    
-    try {
-      // 模拟API调用
-      await Future.delayed(const Duration(milliseconds: 800));
-      
-      // 使用mock数据
-      reviews = [
-        Review(
-          id: '1',
-          serviceId: 'service1',
-          userId: 'user1',
-          userName: 'John D.',
-          rating: 5,
-          content: 'Excellent service! The provider was very professional and completed the work on time. Highly recommended!',
-          createdAt: DateTime.now().subtract(const Duration(days: 2)),
-          images: ['assets/images/review_placeholder_1.jpg'],
-          isVerified: true,
-          helpfulCount: 12,
-        ),
-        Review(
-          id: '2',
-          serviceId: 'service1',
-          userId: 'user2',
-          userName: 'Sarah M.',
-          rating: 4,
-          content: 'Good quality work, but took a bit longer than expected. Still satisfied with the result.',
-          createdAt: DateTime.now().subtract(const Duration(days: 5)),
-          images: [],
-          isVerified: true,
-          helpfulCount: 8,
-        ),
-        Review(
-          id: '3',
-          serviceId: 'service1',
-          userId: 'user3',
-          userName: 'Mike R.',
-          rating: 5,
-          content: 'Amazing experience! The provider went above and beyond my expectations. Will definitely use again.',
-          createdAt: DateTime.now().subtract(const Duration(days: 1)),
-          images: ['assets/images/review_placeholder_2.jpg', 'assets/images/review_placeholder_3.jpg'],
-          isVerified: false,
-          helpfulCount: 15,
-        ),
-        Review(
-          id: '4',
-          serviceId: 'service1',
-          userId: 'user4',
-          userName: 'Lisa K.',
-          rating: 3,
-          content: 'Service was okay, but communication could have been better. The work quality was acceptable.',
-          createdAt: DateTime.now().subtract(const Duration(days: 7)),
-          images: [],
-          isVerified: true,
-          helpfulCount: 3,
-        ),
-        Review(
-          id: '5',
-          serviceId: 'service1',
-          userId: 'user5',
-          userName: 'David W.',
-          rating: 5,
-          content: 'Perfect service from start to finish. Very responsive and professional. Highly recommend!',
-          createdAt: DateTime.now().subtract(const Duration(days: 3)),
-          images: ['assets/images/review_placeholder_4.jpg'],
-          isVerified: true,
-          helpfulCount: 20,
-        ),
-      ];
-      
-      _calculateRatingDistribution();
-      _applyReviewFilters();
       
     } catch (e) {
       reviewsError = 'Failed to load reviews: $e';
@@ -1524,37 +1497,17 @@ ${currentRoute['route']}
     return _serviceMapController.markers.where((marker) => marker.id != service?.id).toList();
   }
 
-  // 新增：收藏和分享方法
-  void toggleFavorite() {
-    isFavorite.value = !isFavorite.value;
-    Get.snackbar(
-      isFavorite.value ? 'Added to Favorites' : 'Removed from Favorites',
-      '',
-      snackPosition: SnackPosition.BOTTOM,
-    );
-  }
-
-  void shareService() {
-    final serviceDetail = service.value;
-    if (serviceDetail != null) {
-      Get.snackbar(
-        'Share',
-        'Sharing service: ${serviceDetail.title}',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-      // TODO: 实现实际的分享功能
-    }
-  }
-
   // 新增：联系系统方法
   void callProvider() {
     final serviceDetail = service.value;
-    if (serviceDetail?.provider?.contactPhone != null) {
+    if (serviceDetail?.provider?.phone != null) {
+      // 使用url_launcher拨打电话
       Get.snackbar(
         'Calling',
-        'Calling ${serviceDetail!.provider!.contactPhone}',
+        'Calling ${serviceDetail!.provider!.phone}',
         snackPosition: SnackPosition.BOTTOM,
       );
+      // TODO: 实现实际的电话拨打功能
     } else {
       Get.snackbar(
         'Error',
@@ -1566,12 +1519,13 @@ ${currentRoute['route']}
 
   void emailProvider() {
     final serviceDetail = service.value;
-    if (serviceDetail?.provider?.contactEmail != null) {
+    if (serviceDetail?.provider?.email != null) {
       Get.snackbar(
         'Email',
-        'Opening email client for ${serviceDetail!.provider!.contactEmail}',
+        'Opening email client for ${serviceDetail!.provider!.email}',
         snackPosition: SnackPosition.BOTTOM,
       );
+      // TODO: 实现实际的邮件发送功能
     } else {
       Get.snackbar(
         'Error',
@@ -1589,6 +1543,7 @@ ${currentRoute['route']}
         'Opening ${serviceDetail!.provider!.website}',
         snackPosition: SnackPosition.BOTTOM,
       );
+      // TODO: 实现实际的网站访问功能
     } else {
       Get.snackbar(
         'Error',
@@ -1603,149 +1558,11 @@ ${currentRoute['route']}
     if (serviceDetail != null) {
       Get.snackbar(
         'Chat',
-        'Starting chat with ${serviceDetail.provider?.companyName ?? 'Provider'}',
+        'Starting chat with ${serviceDetail.provider?.name ?? 'Provider'}',
         snackPosition: SnackPosition.BOTTOM,
       );
+      // TODO: 实现实际的聊天功能
     }
-  }
-
-  // 新增：报价系统方法
-  void updateQuoteDetails(String key, dynamic value) {
-    quoteDetails[key] = value;
-  }
-
-  Future<void> submitQuoteRequest() async {
-    if (quoteDetails['requirements']?.toString().isEmpty ?? true) {
-      Get.snackbar(
-        'Error',
-        'Please describe your service requirements',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-      return;
-    }
-
-    isLoadingQuote.value = true;
-    try {
-      await Future.delayed(const Duration(seconds: 2));
-      quoteRequestStatus.value = 'pending';
-      Get.snackbar(
-        'Success',
-        'Quote request submitted successfully',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-    } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to submit quote request: $e',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-    } finally {
-      isLoadingQuote.value = false;
-    }
-  }
-
-  void acceptQuote() {
-    Get.snackbar(
-      'Success',
-      'Quote accepted successfully',
-      snackPosition: SnackPosition.BOTTOM,
-    );
-  }
-
-  void declineQuote() {
-    Get.snackbar(
-      'Info',
-      'Quote declined',
-      snackPosition: SnackPosition.BOTTOM,
-    );
-    receivedQuote.clear();
-  }
-
-  // 新增：预订系统方法
-  void updateBookingDetails(String key, dynamic value) {
-    bookingDetails[key] = value;
-  }
-
-  Future<void> submitBooking() async {
-    if (bookingDetails['serviceDate']?.toString().isEmpty ?? true) {
-      Get.snackbar(
-        'Error',
-        'Please select a service date',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-      return;
-    }
-
-    if (bookingDetails['serviceTime']?.toString().isEmpty ?? true) {
-      Get.snackbar(
-        'Error',
-        'Please select a service time',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-      return;
-    }
-
-    isLoadingBooking.value = true;
-    try {
-      await Future.delayed(const Duration(seconds: 2));
-      Get.snackbar(
-        'Success',
-        'Booking submitted successfully',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-    } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to submit booking: $e',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-    } finally {
-      isLoadingBooking.value = false;
-    }
-  }
-
-  // 新增：评价系统方法
-  void sortReviews(String sortType) {
-    currentReviewSort.value = sortType;
-    
-    switch (sortType) {
-      case 'newest':
-        filteredReviews.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-        break;
-      case 'oldest':
-        filteredReviews.sort((a, b) => a.createdAt.compareTo(b.createdAt));
-        break;
-      case 'highest':
-        filteredReviews.sort((a, b) => b.rating.compareTo(a.rating));
-        break;
-      case 'lowest':
-        filteredReviews.sort((a, b) => a.rating.compareTo(b.rating));
-        break;
-    }
-  }
-
-  void updateReviewFilter(String filterKey, bool value) {
-    if (filterKey == 'all') {
-      reviewFilters.forEach((key, _) {
-        reviewFilters[key] = key == 'all';
-      });
-    } else {
-      reviewFilters['all'] = false;
-      reviewFilters[filterKey] = value;
-      
-      bool hasStarFilter = false;
-      for (int i = 1; i <= 5; i++) {
-        if (reviewFilters['${i}star']!) {
-          hasStarFilter = true;
-          break;
-        }
-      }
-      if (!hasStarFilter) {
-        reviewFilters['all'] = true;
-      }
-    }
-    
-    _applyReviewFilters();
   }
 }
 
