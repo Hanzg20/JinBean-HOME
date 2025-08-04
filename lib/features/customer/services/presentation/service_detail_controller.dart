@@ -162,17 +162,14 @@ class ServiceDetailController extends GetxController {
   ProviderProfile? provider;
   bool isLoading = false;
   String errorMessage = '';
-  bool isFavorite = false;
   
   // 新增相似服务相关属性
-  List<SimilarService> similarServices = [];
+  List<dynamic> similarServices = [];
   bool isLoadingSimilarServices = false;
   String similarServicesError = '';
   
   // 新增评价相关属性
-  List<Review> reviews = [];
-  bool isLoadingReviews = false;
-  String reviewsError = '';
+  bool isLoadingReviewStats = false;
   
   // 新增聊天相关属性
   ChatSession? currentChatSession;
@@ -195,10 +192,6 @@ class ServiceDetailController extends GetxController {
   String personalizationError = '';
 
   // 报价相关数据
-  String? quoteRequestStatus; // 'pending', 'reviewing', 'quoted', 'expired'
-  Map<String, dynamic> quoteDetails = {};
-  Map<String, dynamic>? receivedQuote;
-  bool isLoadingQuote = false;
   String quoteError = '';
   
   // 聊天服务实例
@@ -226,7 +219,6 @@ class ServiceDetailController extends GetxController {
   // 移除重复的路线导航相关属性，使用ServiceMapController的公共方法
   
   // 新增：评价系统优化相关属性
-  String currentReviewSort = 'newest'; // 'newest', 'oldest', 'highest', 'lowest'
   Map<String, bool> reviewFilters = {
     'all': true,
     '5star': false,
@@ -239,7 +231,6 @@ class ServiceDetailController extends GetxController {
   };
   List<Review> filteredReviews = [];
   Map<String, int> ratingDistribution = {};
-  bool isLoadingReviewStats = false;
   
   // 评价系统数据 - 响应式变量
   final RxList<Review> reviews = <Review>[].obs;
@@ -1771,4 +1762,33 @@ ${currentRoute['route']}
     // 应用排序
     sortReviews(currentReviewSort.value);
   }
+}
+
+// 新增相似服务模型
+class SimilarService {
+  final String id;
+  final String providerId;
+  final String providerName;
+  final String serviceTitle;
+  final double price;
+  final double rating;
+  final int reviewCount;
+  final double similarityScore;
+  final String providerAvatar;
+  final List<String> advantages;
+  final List<String> disadvantages;
+
+  SimilarService({
+    required this.id,
+    required this.providerId,
+    required this.providerName,
+    required this.serviceTitle,
+    required this.price,
+    required this.rating,
+    required this.reviewCount,
+    required this.similarityScore,
+    required this.providerAvatar,
+    this.advantages = const [],
+    this.disadvantages = const [],
+  });
 }
