@@ -241,7 +241,7 @@ class ServiceDetailController extends GetxController {
   Map<String, int> ratingDistribution = {};
   bool isLoadingReviewStats = false;
   
-  // 评价系统数据
+  // 评价系统数据 - 响应式变量
   final RxList<Review> reviews = <Review>[].obs;
   final RxList<Review> filteredReviews = <Review>[].obs;
   final RxBool isLoadingReviews = false.obs;
@@ -1519,11 +1519,6 @@ ${currentRoute['route']}
     );
   }
 
-  // 新增：获取附近服务
-  List<ServiceMarkerModel> getNearbyServices() {
-    return _serviceMapController.markers.where((marker) => marker.id != service?.id).toList();
-  }
-
   // 新增：收藏和分享方法
   void toggleFavorite() {
     isFavorite.value = !isFavorite.value;
@@ -1535,24 +1530,23 @@ ${currentRoute['route']}
   }
 
   void shareService() {
-    final serviceDetail = service.value;
+    final serviceDetail = service;
     if (serviceDetail != null) {
       Get.snackbar(
         'Share',
         'Sharing service: ${serviceDetail.title}',
         snackPosition: SnackPosition.BOTTOM,
       );
-      // TODO: 实现实际的分享功能
     }
   }
 
   // 新增：联系系统方法
   void callProvider() {
-    final serviceDetail = service.value;
-    if (serviceDetail?.provider?.contactPhone != null) {
+    final serviceDetail = service;
+    if (serviceDetail != null && provider?.contactPhone != null) {
       Get.snackbar(
         'Calling',
-        'Calling ${serviceDetail!.provider!.contactPhone}',
+        'Calling ${provider!.contactPhone}',
         snackPosition: SnackPosition.BOTTOM,
       );
     } else {
@@ -1565,11 +1559,11 @@ ${currentRoute['route']}
   }
 
   void emailProvider() {
-    final serviceDetail = service.value;
-    if (serviceDetail?.provider?.contactEmail != null) {
+    final serviceDetail = service;
+    if (serviceDetail != null && provider?.contactEmail != null) {
       Get.snackbar(
         'Email',
-        'Opening email client for ${serviceDetail!.provider!.contactEmail}',
+        'Opening email client for ${provider!.contactEmail}',
         snackPosition: SnackPosition.BOTTOM,
       );
     } else {
@@ -1582,11 +1576,11 @@ ${currentRoute['route']}
   }
 
   void visitWebsite() {
-    final serviceDetail = service.value;
-    if (serviceDetail?.provider?.website != null) {
+    final serviceDetail = service;
+    if (serviceDetail != null && provider?.website != null) {
       Get.snackbar(
         'Website',
-        'Opening ${serviceDetail!.provider!.website}',
+        'Opening ${provider!.website}',
         snackPosition: SnackPosition.BOTTOM,
       );
     } else {
@@ -1599,11 +1593,11 @@ ${currentRoute['route']}
   }
 
   void startChat() {
-    final serviceDetail = service.value;
+    final serviceDetail = service;
     if (serviceDetail != null) {
       Get.snackbar(
         'Chat',
-        'Starting chat with ${serviceDetail.provider?.companyName ?? 'Provider'}',
+        'Starting chat with ${provider?.companyName ?? 'Provider'}',
         snackPosition: SnackPosition.BOTTOM,
       );
     }
@@ -1747,33 +1741,34 @@ ${currentRoute['route']}
     
     _applyReviewFilters();
   }
+
+  // 新增：应用评价筛选
+  void _applyReviewFilters() {
+    filteredReviews.value = List.from(reviews);
+    
+    // 应用星级筛选
+    if (!reviewFilters['all']!) {
+      List<int> selectedRatings = [];
+      for (int i = 1; i <= 5; i++) {
+        if (reviewFilters['${i}star']!) {
+          selectedRatings.add(i);
+        }
+      }
+      if (selectedRatings.isNotEmpty) {
+        filteredReviews.value = filteredReviews.where((r) => selectedRatings.contains(r.rating)).toList();
+      }
+    }
+    
+    // 应用其他筛选
+    if (reviewFilters['withPhotos']!) {
+      filteredReviews.value = filteredReviews.where((r) => r.images?.isNotEmpty == true).toList();
+    }
+    
+    if (reviewFilters['verified']!) {
+      filteredReviews.value = filteredReviews.where((r) => r.isVerified).toList();
+    }
+    
+    // 应用排序
+    sortReviews(currentReviewSort.value);
+  }
 }
-
-// 新增相似服务模型
-class SimilarService {
-  final String id;
-  final String providerId;
-  final String providerName;
-  final String serviceTitle;
-  final double price;
-  final double rating;
-  final int reviewCount;
-  final double similarityScore;
-  final String providerAvatar;
-  final List<String> advantages;
-  final List<String> disadvantages;
-
-  SimilarService({
-    required this.id,
-    required this.providerId,
-    required this.providerName,
-    required this.serviceTitle,
-    required this.price,
-    required this.rating,
-    required this.reviewCount,
-    required this.similarityScore,
-    required this.providerAvatar,
-    this.advantages = const [],
-    this.disadvantages = const [],
-  });
-} 
