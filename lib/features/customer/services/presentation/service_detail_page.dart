@@ -375,35 +375,280 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 价格信息
-          _buildPricingSection(controller, theme),
+          // 服务基本信息
+          _buildServiceBasicInfo(controller, theme),
           const SizedBox(height: 16),
           
-          // 服务描述
-          _buildDescriptionSection(controller, theme),
-          const SizedBox(height: 16),
-          
-          // 服务时间
-          _buildServiceTimeSection(controller, theme),
-          const SizedBox(height: 16),
-          
-          // 增强的地图组件
-          _buildEnhancedMapSection(controller, theme),
+          // 增强的地图组件 - 简化版本
+          _buildSimplifiedMapSection(controller, theme),
           const SizedBox(height: 16),
           
           // 服务区域信息
           _buildSimplifiedServiceAreaInfo(controller, theme),
           
-          const SizedBox(height: 12),
-          
-          // 导航操作按钮
-          _buildNavigationActions(controller, theme),
-          
           const SizedBox(height: 24),
           
-          // 核心操作区域 - 整合报价、预订、联系功能
-          _buildCoreActionsSection(controller, theme),
+          // 核心操作区域 - 整合所有操作
+          _buildUnifiedActionsSection(controller, theme),
         ],
+      ),
+    );
+  }
+
+  // 新增：简化的地图组件 - 消除重复信息
+  Widget _buildSimplifiedMapSection(ServiceDetailController controller, ThemeData theme) {
+    return CustomerCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 地图标题
+          Row(
+            children: [
+              Icon(Icons.location_on, color: theme.colorScheme.primary, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'Location & Route',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const Spacer(),
+              IconButton(
+                onPressed: () => _toggleMapFullscreen(),
+                icon: const Icon(Icons.fullscreen),
+                tooltip: 'Fullscreen Map',
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          
+          // 地图容器
+          Container(
+            height: 200,
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Stack(
+                children: [
+                  // 地图背景
+                  Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.blue[50],
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.map, size: 48, color: Colors.blue),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Interactive Map',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.blue,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Route visualization coming soon',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // 地图控制按钮
+                  Positioned(
+                    right: 8,
+                    top: 8,
+                    child: Column(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(4),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 2,
+                                offset: const Offset(0, 1),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.add, size: 18),
+                                onPressed: () => _zoomIn(),
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.remove, size: 18),
+                                onPressed: () => _zoomOut(),
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          
+          const SizedBox(height: 12),
+          
+          // 统一的路线信息 - 消除重复
+          _buildUnifiedRouteInfo(controller, theme),
+        ],
+      ),
+    );
+  }
+
+  // 新增：统一的路线信息组件
+  Widget _buildUnifiedRouteInfo(ServiceDetailController controller, ThemeData theme) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.route, color: theme.colorScheme.primary, size: 20),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '15 min • 4.7 km via TTC Bus 501',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Text(
+                  'Estimated cost: \$3.25',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // 统一的导航操作按钮
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                onPressed: () => _openNavigation(controller),
+                icon: const Icon(Icons.directions, size: 20),
+                tooltip: 'Navigate',
+                style: IconButton.styleFrom(
+                  backgroundColor: theme.colorScheme.primary,
+                  foregroundColor: theme.colorScheme.onPrimary,
+                ),
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                onPressed: () => _copyAddress(controller),
+                icon: const Icon(Icons.copy, size: 20),
+                tooltip: 'Copy Address',
+                style: IconButton.styleFrom(
+                  backgroundColor: Colors.grey[100],
+                  foregroundColor: theme.colorScheme.primary,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 新增：统一的操作区域 - 整合所有操作
+  Widget _buildUnifiedActionsSection(ServiceDetailController controller, ThemeData theme) {
+    return CustomerCard(
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 标题
+            Row(
+              children: [
+                Icon(Icons.work, color: theme.colorScheme.primary),
+                const SizedBox(width: 8),
+                Text(
+                  'Service Actions',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            
+            // 主要操作按钮
+            Row(
+              children: [
+                // 报价按钮
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => _showQuickQuoteDialog(controller),
+                    icon: const Icon(Icons.request_quote, size: 18),
+                    label: const Text('Get Quote'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: theme.colorScheme.primary,
+                      foregroundColor: theme.colorScheme.onPrimary,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                
+                // 预订按钮
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => _showQuickBookingDialog(controller),
+                    icon: const Icon(Icons.calendar_today, size: 18),
+                    label: const Text('Book Now'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: theme.colorScheme.secondary,
+                      foregroundColor: theme.colorScheme.onSecondary,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            
+            const SizedBox(height: 16),
+            
+            // 联系选项
+            _buildQuickContactOptions(controller, theme),
+            
+            const SizedBox(height: 16),
+            
+            // 状态信息
+            if (controller.quoteRequestStatus.value.isNotEmpty) ...[
+              _buildQuoteStatus(controller, theme),
+              const SizedBox(height: 16),
+            ],
+          ],
+        ),
       ),
     );
   }
@@ -4563,12 +4808,12 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
   }
 
   // 新增：增强的地图组件 - 移除重复的Get Quote功能
-  Widget _buildEnhancedMapSection(ServiceDetailController controller, ThemeData theme) {
+  Widget _buildSimplifiedMapSection(ServiceDetailController controller, ThemeData theme) {
     return CustomerCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 地图标题和操作按钮
+          // 地图标题
           Row(
             children: [
               Icon(Icons.location_on, color: theme.colorScheme.primary, size: 20),
@@ -4591,7 +4836,7 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
           
           // 地图容器
           Container(
-            height: 250,
+            height: 200,
             decoration: BoxDecoration(
               color: Colors.grey[200],
               borderRadius: BorderRadius.circular(12),
@@ -4631,7 +4876,6 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
                       ],
                     ),
                   ),
-                  
                   // 地图控制按钮
                   Positioned(
                     right: 8,
@@ -4675,55 +4919,17 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
             ),
           ),
           
-          const SizedBox(height: 16),
-          
-          // 路线信息 - 简化版本，移除重复内容
-          _buildRouteInfo(controller, theme),
           const SizedBox(height: 12),
           
-          // 导航操作按钮
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () => _openNavigation(controller),
-                  icon: const Icon(Icons.directions),
-                  label: const Text('Navigate'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: theme.colorScheme.primary,
-                    foregroundColor: theme.colorScheme.onPrimary,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => _copyAddress(controller),
-                  icon: const Icon(Icons.copy),
-                  label: const Text('Copy Address'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: theme.colorScheme.primary,
-                    side: BorderSide(color: theme.colorScheme.primary),
-                  ),
-                ),
-              ),
-            ],
-          ),
+          // 统一的路线信息 - 消除重复
+          _buildUnifiedRouteInfo(controller, theme),
         ],
       ),
     );
   }
 
-  // 新增：简化的路线信息组件 - 修复重复内容
-  Widget _buildRouteInfo(ServiceDetailController controller, ThemeData theme) {
-    // 使用模拟数据，避免重复内容
-    final routeInfo = {
-      'duration': '15 min',
-      'distance': '4.7 km',
-      'transportMode': 'TTC Bus 501',
-      'estimatedCost': '3.25'
-    };
-    
+  // 新增：统一的路线信息组件
+  Widget _buildUnifiedRouteInfo(ServiceDetailController controller, ThemeData theme) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -4740,13 +4946,13 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${routeInfo['duration']} • ${routeInfo['distance']} via ${routeInfo['transportMode']}',
+                  '15 min • 4.7 km via TTC Bus 501',
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w500,
                   ),
                 ),
                 Text(
-                  'Estimated cost: \$${routeInfo['estimatedCost']}',
+                  'Estimated cost: \$3.25',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: Colors.grey[600],
                   ),
@@ -4754,1449 +4960,38 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
               ],
             ),
           ),
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert),
-            onSelected: (value) => _switchTransportMode(value),
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'car',
-                child: Row(
-                  children: [
-                    Icon(Icons.directions_car),
-                    SizedBox(width: 8),
-                    Text('Car'),
-                  ],
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'transit',
-                child: Row(
-                  children: [
-                    Icon(Icons.directions_bus),
-                    SizedBox(width: 8),
-                    Text('Transit'),
-                  ],
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'walking',
-                child: Row(
-                  children: [
-                    Icon(Icons.directions_walk),
-                    SizedBox(width: 8),
-                    Text('Walking'),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  // 新增：地图Widget
-  Widget _buildMapWidget(ServiceDetailController controller, ThemeData theme) {
-    return GetBuilder<ServiceDetailController>(
-      builder: (controller) {
-        final serviceMapController = controller.serviceMapController;
-        
-        // 检查是否全屏模式
-        if (serviceMapController.isMapFullScreen.value) {
-          return _buildFullScreenMap(controller, theme);
-        }
-        
-        return Stack(
-          children: [
-            // 复用ServiceMapController的地图
-            GoogleMap(
-              initialCameraPosition: CameraPosition(
-                target: controller.currentServiceLocation ?? const LatLng(43.6532, -79.3832),
-                zoom: 15.0,
-              ),
-              mapType: serviceMapController.currentMapType.value,
-              myLocationEnabled: true,
-              myLocationButtonEnabled: true,
-              zoomControlsEnabled: false,
-              markers: _buildMapMarkers(controller),
-              circles: serviceMapController.serviceAreaCircles,
-              polylines: serviceMapController.routePolylines, // 添加路线显示
-              onMapCreated: (GoogleMapController mapController) {
-                // 可以在这里进行地图初始化
-              },
-            ),
-            
-            // 加载指示器
-            if (serviceMapController.isLoadingMapData.value || serviceMapController.isLoadingRoute.value)
-              const Center(
-                child: CircularProgressIndicator(),
-              ),
-            
-            // 地图控制按钮
-            Positioned(
-              right: 8,
-              top: 8,
-              child: Column(
-                children: [
-                  FloatingActionButton.small(
-                    onPressed: () => controller.toggleMapType(),
-                    heroTag: 'mapType',
-                    child: Icon(
-                      serviceMapController.currentMapType.value == MapType.normal
-                          ? Icons.map
-                          : serviceMapController.currentMapType.value == MapType.satellite
-                              ? Icons.satellite
-                              : Icons.terrain,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  FloatingActionButton.small(
-                    onPressed: () => controller.navigateToService(),
-                    heroTag: 'navigate',
-                    child: const Icon(Icons.navigation),
-                  ),
-                  const SizedBox(height: 8),
-                  FloatingActionButton.small(
-                    onPressed: () => controller.calculateRouteToProvider(),
-                    heroTag: 'route',
-                    child: const Icon(Icons.route),
-                  ),
-                  const SizedBox(height: 8),
-                  FloatingActionButton.small(
-                    onPressed: () {
-                      print('[ServiceDetailPage] Toggling fullscreen mode');
-                      controller.toggleMapFullScreen();
-                    },
-                    heroTag: 'fullscreen',
-                    child: const Icon(Icons.fullscreen),
-                  ),
-                ],
-              ),
-            ),
-            
-            // 新增：地图交互控制
-            _buildMapInteractionControls(controller, theme),
-            
-            // 路线信息显示 - 简化
-            if (serviceMapController.getCurrentRouteInfo() != null)
-              Positioned(
-                left: 8,
-                top: 8,
-                child: Container(
-                  constraints: const BoxConstraints(maxWidth: 180), // 减小最大宽度
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.95),
-                    borderRadius: BorderRadius.circular(8),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.15),
-                        blurRadius: 6,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        '${serviceMapController.getCurrentRouteInfo()!['duration']} • ${serviceMapController.getCurrentRouteInfo()!['distance']}',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      Text(
-                        serviceMapController.getCurrentRouteInfo()!['route'],
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[600],
-                          fontSize: 10,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            
-            // 新增：地图状态指示器
-            if (serviceMapController.markers.isEmpty && !serviceMapController.isLoadingMapData.value)
-              Positioned(
-                top: 50,
-                left: 16,
-                right: 16,
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.9),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.info_outline, color: Colors.white, size: 20),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'No services found in this area. Try expanding search radius.',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () => serviceMapController.searchNearbyServices(radiusKm: 100.0),
-                        icon: const Icon(Icons.refresh, color: Colors.white, size: 20),
-                        tooltip: 'Expand Search',
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-          ],
-        );
-      },
-    );
-  }
-
-  // 新增：全屏地图模式
-  Widget _buildFullScreenMap(ServiceDetailController controller, ThemeData theme) {
-    final serviceMapController = controller.serviceMapController;
-    
-    print('[ServiceDetailPage] Building fullscreen map');
-    
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Stack(
-        children: [
-          // 全屏地图
-          GoogleMap(
-            initialCameraPosition: CameraPosition(
-              target: controller.currentServiceLocation ?? const LatLng(43.6532, -79.3832),
-              zoom: 15.0,
-            ),
-            mapType: serviceMapController.currentMapType.value,
-            myLocationEnabled: true,
-            myLocationButtonEnabled: true,
-            zoomControlsEnabled: true,
-            markers: _buildMapMarkers(controller),
-            circles: serviceMapController.serviceAreaCircles,
-            polylines: serviceMapController.routePolylines,
-            onMapCreated: (GoogleMapController mapController) {
-              print('[ServiceDetailPage] Fullscreen map created');
-            },
-          ),
-          
-          // 顶部控制栏
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(16, 50, 16, 16),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.black.withOpacity(0.7),
-                    Colors.transparent,
-                  ],
-                ),
-              ),
-              child: Row(
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      print('[ServiceDetailPage] Exiting fullscreen mode');
-                      controller.toggleMapFullScreen();
-                    },
-                    icon: const Icon(Icons.close, color: Colors.white),
-                    tooltip: 'Exit Fullscreen',
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Location & Route',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    onPressed: () => controller.toggleMapType(),
-                    icon: Icon(
-                      serviceMapController.currentMapType.value == MapType.normal
-                          ? Icons.map
-                          : serviceMapController.currentMapType.value == MapType.satellite
-                              ? Icons.satellite
-                              : Icons.terrain,
-                      color: Colors.white,
-                    ),
-                    tooltip: 'Map Type',
-                  ),
-                ],
-              ),
-            ),
-          ),
-          
-          // 底部操作栏
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter,
-                  colors: [
-                    Colors.black.withOpacity(0.7),
-                    Colors.transparent,
-                  ],
-                ),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () => controller.navigateToService(),
-                      icon: const Icon(Icons.navigation),
-                      label: const Text('Navigate'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: theme.colorScheme.primary,
-                        foregroundColor: theme.colorScheme.onPrimary,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () => controller.copyServiceAddress(),
-                      icon: const Icon(Icons.copy),
-                      label: const Text('Copy'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        side: BorderSide(color: Colors.white),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          
-          // 路线信息显示
-          if (serviceMapController.getCurrentRouteInfo() != null)
-            Positioned(
-              left: 16,
-              top: 120,
-              child: Container(
-                constraints: const BoxConstraints(maxWidth: 200),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.95),
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '${serviceMapController.getCurrentRouteInfo()!['duration']} • ${serviceMapController.getCurrentRouteInfo()!['distance']}',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      serviceMapController.getCurrentRouteInfo()!['route'],
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  // 新增：获取交通方式图标
-  IconData _getTransportIcon(String mode) {
-    switch (mode) {
-      case 'car':
-        return Icons.directions_car;
-      case 'transit':
-        return Icons.directions_bus;
-      case 'walking':
-        return Icons.directions_walk;
-      case 'bicycle':
-        return Icons.directions_bike;
-      default:
-        return Icons.directions;
-    }
-  }
-
-  // 新增：构建地图标记
-  Set<Marker> _buildMapMarkers(ServiceDetailController controller) {
-    Set<Marker> markers = {};
-    
-    // 添加当前服务标记
-    if (controller.currentServiceLocation != null) {
-      markers.add(Marker(
-        markerId: MarkerId('current_service_${controller.service?.id}'),
-        position: controller.currentServiceLocation!,
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-        infoWindow: InfoWindow(
-          title: controller.service?.title ?? 'Service',
-          snippet: 'Current service location',
-        ),
-      ));
-    }
-    
-    // 添加附近服务标记
-    final nearbyServices = controller.getNearbyServices();
-    for (int i = 0; i < nearbyServices.length && i < 5; i++) {
-      final service = nearbyServices[i];
-      markers.add(Marker(
-        markerId: MarkerId('nearby_service_${service.id}'),
-        position: service.location,
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-        infoWindow: InfoWindow(
-          title: service.name,
-          snippet: '${service.rating}★ (${service.reviewCount} reviews)',
-        ),
-      ));
-    }
-    
-    return markers;
-  }
-
-  // 新增：构建服务区域圆形
-  Set<Circle> _buildServiceAreaCircles(ServiceDetailController controller) {
-    Set<Circle> circles = {};
-    
-    if (controller.currentServiceLocation != null && controller.serviceRadiusKm != null) {
-      circles.add(Circle(
-        circleId: CircleId('service_area_${controller.service?.id}'),
-        center: controller.currentServiceLocation!,
-        radius: controller.serviceRadiusKm! * 1000, // 转换为米
-        strokeWidth: 2,
-        strokeColor: Colors.blue.withOpacity(0.5),
-        fillColor: Colors.blue.withOpacity(0.1),
-      ));
-    }
-    
-    return circles;
-  }
-
-  // 新增：服务区域信息
-  Widget _buildServiceAreaInfo(ServiceDetailController controller, ThemeData theme) {
-    if (controller.serviceAreaInfo == null) return const SizedBox.shrink();
-    
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Service Coverage',
-          style: theme.textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              child: _buildInfoItem(
-                Icons.radio_button_checked,
-                '${controller.serviceRadiusKm?.toStringAsFixed(1)} km radius',
-                theme,
-              ),
-            ),
-            Expanded(
-              child: _buildInfoItem(
-                Icons.access_time,
-                controller.serviceAreaInfo!['responseTime'] ?? '2-4 hours',
-                theme,
-              ),
-            ),
-            Expanded(
-              child: _buildInfoItem(
-                Icons.location_on,
-                controller.serviceAreaInfo!['arrivalTime'] ?? '15-30 min',
-                theme,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  // 新增：信息项组件
-  Widget _buildInfoItem(IconData icon, String text, ThemeData theme) {
-    return Row(
-      children: [
-        Icon(icon, size: 16, color: theme.colorScheme.primary),
-        const SizedBox(width: 4),
-        Expanded(
-          child: Text(
-            text,
-            style: theme.textTheme.bodySmall,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ],
-    );
-  }
-
-  // 新增：导航操作按钮
-  Widget _buildNavigationActions(ServiceDetailController controller, ThemeData theme) {
-    final serviceMapController = controller.serviceMapController;
-    final currentRoute = serviceMapController.getCurrentRouteInfo();
-    final selectedTransportMode = serviceMapController.selectedTransportMode.value;
-    
-    return Column(
-      children: [
-        // 路线信息显示 - 简化
-        if (currentRoute != null) ...[
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.blue.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.blue.withOpacity(0.3)),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  serviceMapController.getTransportIcon(selectedTransportMode),
-                  color: Colors.blue,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '${currentRoute['duration']} • ${currentRoute['distance']}',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      Text(
-                        currentRoute['route'],
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 12,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-                IconButton(
-                  onPressed: () => controller.showRouteSelectionDialog(),
-                  icon: const Icon(Icons.more_vert),
-                  tooltip: 'Options',
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-        ],
-        
-        // 操作按钮 - 简化文字
-        Row(
-          children: [
-            Expanded(
-              child: ElevatedButton.icon(
-                onPressed: () => controller.navigateToService(),
-                icon: const Icon(Icons.navigation),
-                label: Text(
-                  currentRoute != null ? 'Navigate' : 'Directions', // 简化文字
-                  overflow: TextOverflow.ellipsis,
-                ),
-                style: ElevatedButton.styleFrom(
+          // 统一的导航操作按钮
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                onPressed: () => _openNavigation(controller),
+                icon: const Icon(Icons.directions, size: 20),
+                tooltip: 'Navigate',
+                style: IconButton.styleFrom(
                   backgroundColor: theme.colorScheme.primary,
                   foregroundColor: theme.colorScheme.onPrimary,
                 ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () => controller.copyServiceAddress(),
-                icon: const Icon(Icons.copy),
-                label: const Text(
-                  'Copy', // 简化文字
-                  overflow: TextOverflow.ellipsis,
-                ),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: theme.colorScheme.primary,
-                ),
-              ),
-            ),
-          ],
-        ),
-        
-        // 路线计算按钮 - 简化
-        if (currentRoute == null) ...[
-          const SizedBox(height: 8),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () => controller.calculateRouteToProvider(),
-              icon: const Icon(Icons.route),
-              label: const Text('Get Route'), // 简化文字
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.orange,
-                side: BorderSide(color: Colors.orange),
-              ),
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-
-  // 新增：简化的服务区域信息
-  Widget _buildSimplifiedServiceAreaInfo(ServiceDetailController controller, ThemeData theme) {
-    final serviceAreaInfo = controller.serviceMapController.serviceAreaInfo.value;
-    
-    if (serviceAreaInfo == null) {
-      return const SizedBox.shrink();
-    }
-    
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.blue.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.blue.withOpacity(0.2)),
-      ),
-      child: Column(
-        children: [
-          // 第一行：服务半径和响应时间
-          Row(
-            children: [
-              // 服务半径
-              Expanded(
-                child: Row(
-                  children: [
-                    Icon(Icons.radio_button_checked, size: 16, color: Colors.blue),
-                    const SizedBox(width: 4),
-                    Flexible(
-                      child: Text(
-                        '${serviceAreaInfo['radius']?.toStringAsFixed(0)}km',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          fontWeight: FontWeight.w500,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // 响应时间
-              Expanded(
-                child: Row(
-                  children: [
-                    Icon(Icons.access_time, size: 16, color: Colors.orange),
-                    const SizedBox(width: 4),
-                    Flexible(
-                      child: Text(
-                        serviceAreaInfo['responseTime'] ?? 'N/A',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          fontWeight: FontWeight.w500,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          // 第二行：到达时间
-          Row(
-            children: [
-              Icon(Icons.location_on, size: 16, color: Colors.green),
-              const SizedBox(width: 4),
-              Flexible(
-                child: Text(
-                  'Arrival: ${serviceAreaInfo['arrivalTime'] ?? 'N/A'}',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  // 新增：地图交互优化
-  Widget _buildMapInteractionControls(ServiceDetailController controller, ThemeData theme) {
-    final serviceMapController = controller.serviceMapController;
-    
-    return Positioned(
-      left: 8,
-      bottom: 8,
-      child: Column(
-        children: [
-          // 定位到用户位置按钮
-          FloatingActionButton.small(
-            onPressed: () => serviceMapController.centerOnUserLocation(),
-            heroTag: 'location',
-            backgroundColor: Colors.white,
-            child: const Icon(Icons.my_location, color: Colors.blue),
-          ),
-          const SizedBox(height: 8),
-          // 自动适应markers按钮
-          FloatingActionButton.small(
-            onPressed: () => serviceMapController.autoFitMapToMarkers(),
-            heroTag: 'fit',
-            backgroundColor: Colors.white,
-            child: const Icon(Icons.fit_screen, color: Colors.green),
-          ),
-          const SizedBox(height: 8),
-          // 搜索附近服务按钮
-          FloatingActionButton.small(
-            onPressed: () => serviceMapController.searchNearbyServices(),
-            heroTag: 'search',
-            backgroundColor: Colors.white,
-            child: const Icon(Icons.search, color: Colors.orange),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // 新增：报价系统UI组件
-  Widget _buildQuoteSystem(ServiceDetailController controller, ThemeData theme) {
-    return CustomerCard(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 报价系统标题
-            Row(
-              children: [
-                Icon(Icons.request_quote, color: theme.colorScheme.primary),
-                const SizedBox(width: 8),
-                Text(
-                  'Get Quote',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            
-            // 报价状态显示
-            if (controller.quoteRequestStatus != null) ...[
-              _buildQuoteStatus(controller, theme),
-              const SizedBox(height: 16),
-            ],
-            
-            // 报价表单
-            if (controller.quoteRequestStatus == null || controller.quoteRequestStatus == 'pending') ...[
-              _buildQuoteForm(controller, theme),
-            ],
-            
-            // 已收到报价显示
-            if (controller.receivedQuote != null) ...[
-              _buildReceivedQuote(controller, theme),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  // 新增：报价状态显示
-  Widget _buildQuoteStatus(ServiceDetailController controller, ThemeData theme) {
-    final status = controller.quoteRequestStatus.value;
-    Color statusColor;
-    IconData statusIcon;
-    String statusText;
-    
-    switch (status) {
-      case 'pending':
-        statusColor = Colors.orange;
-        statusIcon = Icons.schedule;
-        statusText = 'Quote request submitted';
-        break;
-      case 'accepted':
-        statusColor = Colors.green;
-        statusIcon = Icons.check_circle;
-        statusText = 'Quote accepted';
-        break;
-      case 'declined':
-        statusColor = Colors.red;
-        statusIcon = Icons.cancel;
-        statusText = 'Quote declined';
-        break;
-      default:
-        statusColor = Colors.grey;
-        statusIcon = Icons.info;
-        statusText = 'Quote status: $status';
-    }
-    
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: statusColor.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: statusColor.withOpacity(0.3)),
-      ),
-      child: Row(
-        children: [
-          Icon(statusIcon, color: statusColor, size: 20),
-          const SizedBox(width: 8),
-          Text(
-            statusText,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: statusColor,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // 新增：已收到报价显示
-  Widget _buildReceivedQuote(ServiceDetailController controller, ThemeData theme) {
-    final quote = controller.receivedQuote!;
-    
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.green.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.green.withOpacity(0.3)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.check_circle, color: Colors.green),
               const SizedBox(width: 8),
-              Text(
-                'Quote Received',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.green,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          
-          // 报价金额
-          Row(
-            children: [
-              Text(
-                'Quote Amount:',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const Spacer(),
-              Text(
-                '\$${quote['amount']?.toStringAsFixed(2)}',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: theme.colorScheme.primary,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          
-          // 服务描述
-          if (quote['description'] != null) ...[
-            Text(
-              'Service Description:',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              quote['description'],
-              style: theme.textTheme.bodySmall,
-            ),
-            const SizedBox(height: 8),
-          ],
-          
-          // 时间线
-          if (quote['timeline'] != null) ...[
-            Row(
-              children: [
-                Text(
-                  'Timeline:',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const Spacer(),
-                Text(
-                  quote['timeline'],
-                  style: theme.textTheme.bodyMedium,
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-          ],
-          
-          // 有效期
-          if (quote['validUntil'] != null) ...[
-            Row(
-              children: [
-                Text(
-                  'Valid Until:',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const Spacer(),
-                Text(
-                  DateTime.parse(quote['validUntil']).toString().split(' ')[0],
-                  style: theme.textTheme.bodyMedium,
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-          ],
-          
-          // 操作按钮
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: () => controller.declineQuote(),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.red,
-                    side: BorderSide(color: Colors.red),
-                  ),
-                  child: const Text('Decline'),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () => controller.acceptQuote(),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    foregroundColor: Colors.white,
-                  ),
-                  child: const Text('Accept'),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  // 新增：预订系统UI组件
-  Widget _buildBookingSystem(ServiceDetailController controller, ThemeData theme) {
-    return CustomerCard(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 预订系统标题
-            Row(
-              children: [
-                Icon(Icons.calendar_today, color: theme.colorScheme.primary),
-                const SizedBox(width: 8),
-                Text(
-                  'Book Service',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            
-            // 价格信息
-            _buildPricingInfo(controller, theme),
-            const SizedBox(height: 16),
-            
-            // 预订表单
-            _buildBookingForm(controller, theme),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // 新增：价格信息显示
-  Widget _buildPricingInfo(ServiceDetailController controller, ThemeData theme) {
-    final serviceDetail = controller.serviceDetail;
-    if (serviceDetail == null) return const SizedBox.shrink();
-    
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.blue.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.blue.withOpacity(0.3)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(
-                'Service Price',
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const Spacer(),
-              Text(
-                '\$${serviceDetail.price?.toStringAsFixed(2)}',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: theme.colorScheme.primary,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          
-          // 价格类型
-          Row(
-            children: [
-              Icon(Icons.info_outline, size: 16, color: Colors.grey[600]),
-              const SizedBox(width: 4),
-              Text(
-                '${serviceDetail.pricingType.toUpperCase()} pricing',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: Colors.grey[600],
-                ),
-              ),
-            ],
-          ),
-          
-          // 服务时长
-          if (serviceDetail.duration != null) ...[
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Icon(Icons.schedule, size: 16, color: Colors.grey[600]),
-                const SizedBox(width: 4),
-                Text(
-                  'Duration: ${serviceDetail.duration!.inHours}h ${serviceDetail.duration!.inMinutes % 60}m',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ],
-            ),
-          ],
-          
-          // 协商详情
-          if (serviceDetail.negotiationDetails != null) ...[
-            const SizedBox(height: 8),
-            Text(
-              serviceDetail.negotiationDetails!,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: Colors.grey[600],
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  // 新增：预订表单
-  Widget _buildBookingForm(ServiceDetailController controller, ThemeData theme) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // 服务日期
-        Text(
-          'Service Date',
-          style: theme.textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 8),
-        TextField(
-          decoration: InputDecoration(
-            hintText: 'Select service date',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            filled: true,
-            fillColor: Colors.grey[50],
-            suffixIcon: Icon(Icons.calendar_today),
-          ),
-          onTap: () => _selectBookingDate(controller),
-          readOnly: true,
-          controller: TextEditingController(
-            text: controller.bookingDetails['serviceDate'] ?? '',
-          ),
-        ),
-        const SizedBox(height: 16),
-        
-        // 服务时间
-        Text(
-          'Service Time',
-          style: theme.textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 8),
-        TextField(
-          decoration: InputDecoration(
-            hintText: 'Select service time',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            filled: true,
-            fillColor: Colors.grey[50],
-            suffixIcon: Icon(Icons.access_time),
-          ),
-          onTap: () => _selectBookingTime(controller),
-          readOnly: true,
-          controller: TextEditingController(
-            text: controller.bookingDetails['serviceTime'] ?? '',
-          ),
-        ),
-        const SizedBox(height: 16),
-        
-        // 特殊要求
-        Text(
-          'Special Requirements (Optional)',
-          style: theme.textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 8),
-        TextField(
-          maxLines: 3,
-          decoration: InputDecoration(
-            hintText: 'Any special requirements or notes...',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            filled: true,
-            fillColor: Colors.grey[50],
-          ),
-          onChanged: (value) => controller.updateBookingDetails('specialRequirements', value),
-        ),
-        const SizedBox(height: 24),
-        
-        // 预订按钮
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: controller.isLoadingBooking.value ? null : () => controller.submitBooking(),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: theme.colorScheme.primary,
-              foregroundColor: theme.colorScheme.onPrimary,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-            ),
-            child: controller.isLoadingBooking.value
-                ? const CircularProgressIndicator(color: Colors.white)
-                : const Text('Book Now'),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // 新增：选择预订日期
-  void _selectBookingDate(ServiceDetailController controller) {
-    showDatePicker(
-      context: context,
-      initialDate: DateTime.now().add(const Duration(days: 1)),
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
-    ).then((date) {
-      if (date != null) {
-        controller.updateBookingDetails('serviceDate', date.toString().split(' ')[0]);
-      }
-    });
-  }
-
-  // 新增：选择预订时间
-  void _selectBookingTime(ServiceDetailController controller) {
-    showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-    ).then((time) {
-      if (time != null) {
-        controller.updateBookingDetails('serviceTime', '${time.hour}:${time.minute.toString().padLeft(2, '0')}');
-      }
-    });
-  }
-
-  // 新增：联系系统UI组件
-  Widget _buildContactSystem(ServiceDetailController controller, ThemeData theme) {
-    return CustomerCard(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 联系系统标题
-            Row(
-              children: [
-                Icon(Icons.contact_support, color: theme.colorScheme.primary),
-                const SizedBox(width: 8),
-                Text(
-                  'Contact Provider',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            
-            // 联系信息
-            _buildContactInfo(controller, theme),
-            const SizedBox(height: 16),
-            
-            // 联系选项
-            _buildContactOptions(controller, theme),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // 新增：联系信息显示
-  Widget _buildContactInfo(ServiceDetailController controller, ThemeData theme) {
-    final serviceDetail = controller.serviceDetail;
-    if (serviceDetail == null) return const SizedBox.shrink();
-    
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey[300]!),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 提供商名称
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundImage: controller.provider?.profileImageUrl != null
-                    ? NetworkImage(controller.provider!.profileImageUrl!)
-                    : null,
-                child: controller.provider?.profileImageUrl == null
-                    ? Text(controller.provider?.companyName[0].toUpperCase() ?? 'P')
-                    : null,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      controller.provider?.companyName ?? 'Provider',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      'Professional Service Provider',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          
-          // 联系详情
-          if (controller.provider?.contactPhone != null) ...[
-            _buildContactItem(
-              Icons.phone,
-              'Phone',
-              controller.provider!.contactPhone,
-              () => controller.callProvider(),
-              theme,
-            ),
-            const SizedBox(height: 8),
-          ],
-          
-          if (controller.provider?.contactEmail != null) ...[
-            _buildContactItem(
-              Icons.email,
-              'Email',
-              controller.provider!.contactEmail,
-              () => controller.emailProvider(),
-              theme,
-            ),
-            const SizedBox(height: 8),
-          ],
-          
-          if (controller.provider?.contactEmail != null) ...[
-            _buildContactItem(
-              Icons.language,
-              'Website',
-              'Visit Website',
-              () => controller.visitWebsite(),
-              theme,
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  // 新增：联系项目
-  Widget _buildContactItem(
-    IconData icon,
-    String label,
-    String value,
-    VoidCallback onTap,
-    ThemeData theme,
-  ) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Row(
-          children: [
-            Icon(icon, size: 20, color: theme.colorScheme.primary),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    label,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                  Text(
-                    value,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[400]),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // 新增：联系选项
-  Widget _buildContactOptions(ServiceDetailController controller, ThemeData theme) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Quick Actions',
-          style: theme.textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 12),
-        
-        // 聊天按钮
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton.icon(
-            onPressed: () => controller.startChat(),
-            icon: const Icon(Icons.chat_bubble_outline),
-            label: const Text('Start Chat'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: theme.colorScheme.primary,
-              foregroundColor: theme.colorScheme.onPrimary,
-              padding: const EdgeInsets.symmetric(vertical: 12),
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        
-        // 其他联系选项
-        Row(
-          children: [
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () => controller.callProvider(),
-                icon: const Icon(Icons.phone),
-                label: const Text('Call'),
-                style: OutlinedButton.styleFrom(
+              IconButton(
+                onPressed: () => _copyAddress(controller),
+                icon: const Icon(Icons.copy, size: 20),
+                tooltip: 'Copy Address',
+                style: IconButton.styleFrom(
+                  backgroundColor: Colors.grey[100],
                   foregroundColor: theme.colorScheme.primary,
-                  side: BorderSide(color: theme.colorScheme.primary),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () => controller.emailProvider(),
-                icon: const Icon(Icons.email),
-                label: const Text('Email'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: theme.colorScheme.primary,
-                  side: BorderSide(color: theme.colorScheme.primary),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
+            ],
+          ),
+        ],
+      ),
     );
   }
 
-  // 新增：整合的核心操作区域
-  Widget _buildCoreActionsSection(ServiceDetailController controller, ThemeData theme) {
+  // 新增：统一的操作区域 - 整合所有操作
+  Widget _buildUnifiedActionsSection(ServiceDetailController controller, ThemeData theme) {
     return CustomerCard(
       child: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -6221,7 +5016,7 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
             // 主要操作按钮
             Row(
               children: [
-                // 报价按钮 - 始终显示
+                // 报价按钮
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: () => _showQuickQuoteDialog(controller),
@@ -6236,7 +5031,7 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
                 ),
                 const SizedBox(width: 12),
                 
-                // 预订按钮 - 始终显示
+                // 预订按钮
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: () => _showQuickBookingDialog(controller),
@@ -6597,6 +5392,130 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: Colors.orange,
       colorText: Colors.white,
+    );
+  }
+
+  // 新增：服务基本信息组件
+  Widget _buildServiceBasicInfo(ServiceDetailController controller, ThemeData theme) {
+    final serviceDetail = controller.serviceDetail;
+    if (serviceDetail == null) return const SizedBox.shrink();
+    
+    return CustomerCard(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 价格信息
+            Row(
+              children: [
+                Text(
+                  'Service Price',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  '\$${serviceDetail.price?.toStringAsFixed(2)}',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            
+            // 服务描述
+            if (serviceDetail.description != null) ...[
+              Text(
+                serviceDetail.description!,
+                style: theme.textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 12),
+            ],
+            
+            // 服务时间
+            Row(
+              children: [
+                Icon(Icons.schedule, size: 16, color: theme.colorScheme.primary),
+                const SizedBox(width: 8),
+                Text(
+                  'Duration: ${serviceDetail.duration?.inHours ?? 0}h ${serviceDetail.duration?.inMinutes != null ? (serviceDetail.duration!.inMinutes % 60) : 0}m',
+                  style: theme.textTheme.bodyMedium,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // 新增：简化的服务区域信息
+  Widget _buildSimplifiedServiceAreaInfo(ServiceDetailController controller, ThemeData theme) {
+    return CustomerCard(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Service Coverage',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      Icon(Icons.radio_button_checked, size: 16, color: Colors.blue),
+                      const SizedBox(width: 4),
+                      Text(
+                        '5000km',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Icon(Icons.access_time, size: 16, color: Colors.orange),
+                      const SizedBox(width: 4),
+                      Text(
+                        '2-4 hours',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(Icons.location_on, size: 16, color: Colors.green),
+                const SizedBox(width: 4),
+                Text(
+                  'Arrival: 15-30 minutes',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
