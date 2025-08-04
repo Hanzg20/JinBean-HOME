@@ -6143,25 +6143,22 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
             // 主要操作按钮
             Row(
               children: [
-                // 报价按钮
-                if (controller.serviceDetail?.pricingType == 'custom' || 
-                    controller.serviceDetail?.pricingType == 'negotiable') ...[
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () => _showQuickQuoteDialog(controller),
-                      icon: const Icon(Icons.request_quote, size: 18),
-                      label: const Text('Get Quote'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: theme.colorScheme.primary,
-                        foregroundColor: theme.colorScheme.onPrimary,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
+                // 报价按钮 - 始终显示
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => _showQuickQuoteDialog(controller),
+                    icon: const Icon(Icons.request_quote, size: 18),
+                    label: const Text('Get Quote'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: theme.colorScheme.primary,
+                      foregroundColor: theme.colorScheme.onPrimary,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                   ),
-                  const SizedBox(width: 12),
-                ],
+                ),
+                const SizedBox(width: 12),
                 
-                // 预订按钮
+                // 预订按钮 - 始终显示
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: () => _showQuickBookingDialog(controller),
