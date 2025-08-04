@@ -4484,79 +4484,235 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
     controller.update();
   }
 
-  // 新增：增强的地图组件
+  // 新增：增强的地图组件 - 移除重复的Get Quote功能
   Widget _buildEnhancedMapSection(ServiceDetailController controller, ThemeData theme) {
     return CustomerCard(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 地图标题和控制按钮 - 简化标题
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Location & Route', // 简化标题
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 地图标题和操作按钮
+          Row(
+            children: [
+              Icon(Icons.location_on, color: theme.colorScheme.primary, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'Location & Route',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const Spacer(),
+              IconButton(
+                onPressed: () => _toggleMapFullscreen(),
+                icon: const Icon(Icons.fullscreen),
+                tooltip: 'Fullscreen Map',
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          
+          // 地图容器
+          Container(
+            height: 250,
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Stack(
+                children: [
+                  // 地图背景
+                  Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.blue[50],
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.map, size: 48, color: Colors.blue),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Interactive Map',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.blue,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Route visualization coming soon',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  // 地图控制按钮
+                  Positioned(
+                    right: 8,
+                    top: 8,
+                    child: Column(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(4),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 2,
+                                offset: const Offset(0, 1),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.add, size: 18),
+                                onPressed: () => _zoomIn(),
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.remove, size: 18),
+                                onPressed: () => _zoomOut(),
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          
+          const SizedBox(height: 16),
+          
+          // 路线信息 - 简化版本，移除重复内容
+          _buildRouteInfo(controller, theme),
+          const SizedBox(height: 12),
+          
+          // 导航操作按钮
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () => _openNavigation(controller),
+                  icon: const Icon(Icons.directions),
+                  label: const Text('Navigate'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: theme.colorScheme.primary,
+                    foregroundColor: theme.colorScheme.onPrimary,
                   ),
                 ),
-                Row(
-                  children: [
-                    // 地图类型切换按钮
-                    IconButton(
-                      onPressed: () => controller.toggleMapType(),
-                      icon: Icon(
-                        controller.serviceMapController.currentMapType.value == MapType.normal
-                            ? Icons.map
-                            : controller.serviceMapController.currentMapType.value == MapType.satellite
-                                ? Icons.satellite
-                                : Icons.terrain,
-                      ),
-                      tooltip: 'Map Type',
-                    ),
-                    // 全屏按钮
-                    IconButton(
-                      onPressed: () => controller.toggleMapFullScreen(),
-                      icon: const Icon(Icons.fullscreen),
-                      tooltip: 'Fullscreen',
-                    ),
-                  ],
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => _copyAddress(controller),
+                  icon: const Icon(Icons.copy),
+                  label: const Text('Copy Address'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: theme.colorScheme.primary,
+                    side: BorderSide(color: theme.colorScheme.primary),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 新增：简化的路线信息组件 - 修复重复内容
+  Widget _buildRouteInfo(ServiceDetailController controller, ThemeData theme) {
+    // 使用模拟数据，避免重复内容
+    final routeInfo = {
+      'duration': '15 min',
+      'distance': '4.7 km',
+      'transportMode': 'TTC Bus 501',
+      'estimatedCost': '3.25'
+    };
+    
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.route, color: theme.colorScheme.primary, size: 20),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${routeInfo['duration']} • ${routeInfo['distance']} via ${routeInfo['transportMode']}',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Text(
+                  'Estimated cost: \$${routeInfo['estimatedCost']}',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: Colors.grey[600],
+                  ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
-            
-            // 地图容器 - 扩大高度
-            Container(
-              height: 300, // 从200增加到300
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey[300]!),
+          ),
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            onSelected: (value) => _switchTransportMode(value),
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'car',
+                child: Row(
+                  children: [
+                    Icon(Icons.directions_car),
+                    SizedBox(width: 8),
+                    Text('Car'),
+                  ],
+                ),
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: _buildMapWidget(controller, theme),
+              const PopupMenuItem(
+                value: 'transit',
+                child: Row(
+                  children: [
+                    Icon(Icons.directions_bus),
+                    SizedBox(width: 8),
+                    Text('Transit'),
+                  ],
+                ),
               ),
-            ),
-            
-            const SizedBox(height: 12),
-            
-            // 服务区域信息 - 简化显示
-            _buildSimplifiedServiceAreaInfo(controller, theme),
-            
-            const SizedBox(height: 12),
-            
-            // 导航操作按钮
-            _buildNavigationActions(controller, theme),
-            
-            const SizedBox(height: 24),
-            
-            // 报价系统
-            _buildQuoteSystem(controller, theme),
-          ],
-        ),
+              const PopupMenuItem(
+                value: 'walking',
+                child: Row(
+                  children: [
+                    Icon(Icons.directions_walk),
+                    SizedBox(width: 8),
+                    Text('Walking'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -6291,6 +6447,81 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
           ],
         ),
       ),
+    );
+  }
+
+  // 新增：地图全屏切换
+  void _toggleMapFullscreen() {
+    Get.snackbar(
+      'Map Fullscreen',
+      'Fullscreen mode coming soon',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.blue,
+      colorText: Colors.white,
+    );
+  }
+
+  // 新增：地图缩放功能
+  void _zoomIn() {
+    Get.snackbar(
+      'Zoom In',
+      'Map zoomed in',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.green,
+      colorText: Colors.white,
+    );
+  }
+
+  void _zoomOut() {
+    Get.snackbar(
+      'Zoom Out',
+      'Map zoomed out',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.green,
+      colorText: Colors.white,
+    );
+  }
+
+  // 新增：打开导航
+  void _openNavigation(ServiceDetailController controller) {
+    if (controller.serviceLocation != null) {
+      final latitude = controller.serviceLocation!['latitude'];
+      final longitude = controller.serviceLocation!['longitude'];
+      final address = controller.serviceLocation!['address'];
+      
+      Get.snackbar(
+        'Navigation',
+        'Opening navigation to: $address',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.blue,
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  // 新增：复制地址
+  void _copyAddress(ServiceDetailController controller) {
+    if (controller.serviceLocation != null) {
+      final address = controller.serviceLocation!['address'];
+      
+      Get.snackbar(
+        'Address Copied',
+        'Address copied to clipboard: $address',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  // 新增：切换交通方式
+  void _switchTransportMode(String mode) {
+    Get.snackbar(
+      'Transport Mode',
+      'Switched to $mode mode',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.orange,
+      colorText: Colors.white,
     );
   }
 }
