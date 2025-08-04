@@ -407,18 +407,8 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
           
           const SizedBox(height: 24),
           
-          // 报价系统
-          _buildQuoteSystem(controller, theme),
-          
-          const SizedBox(height: 24),
-          
-          // 预订系统
-          _buildBookingSystem(controller, theme),
-          
-          const SizedBox(height: 24),
-          
-          // 联系系统
-          _buildContactSystem(controller, theme),
+          // 核心操作区域 - 整合报价、预订、联系功能
+          _buildCoreActionsSection(controller, theme),
         ],
       ),
     );
@@ -484,8 +474,8 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 提供商信息
-          _buildProviderSection(controller, theme),
+          // 提供商详细信息
+          _buildDetailedProviderSection(controller, theme),
           const SizedBox(height: 16),
           
           // 提供商组合 - 只在有数据时显示
@@ -494,8 +484,8 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
             const SizedBox(height: 16),
           ],
           
-          // 联系信息
-          _buildContactSection(controller, theme),
+          // 信任和安全信息
+          _buildTrustAndSecuritySection(controller, theme),
           const SizedBox(height: 32),
         ],
       ),
@@ -1702,7 +1692,7 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
     );
   }
 
-  Widget _buildProviderSection(ServiceDetailController controller, ThemeData theme) {
+  Widget _buildDetailedProviderSection(ServiceDetailController controller, ThemeData theme) {
     final colorScheme = theme.colorScheme;
     final provider = controller.provider;
     
@@ -2089,1062 +2079,6 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
         ),
       ),
     );
-  }
-
-  Widget _buildContactSection(ServiceDetailController controller, ThemeData theme) {
-    final colorScheme = theme.colorScheme;
-    
-    return CustomerCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.chat, color: colorScheme.primary, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                'Contact Provider',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          
-          // 聊天状态
-          if (controller.currentChatSession != null) ...[
-            _buildChatStatus(controller, theme),
-            const SizedBox(height: 16),
-          ],
-          
-          // 联系按钮
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () => _startChat(controller),
-                  icon: const Icon(Icons.chat_bubble_outline),
-                  label: const Text('Start Chat'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: colorScheme.primary,
-                    foregroundColor: colorScheme.onPrimary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(
-                        topLeft: const Radius.circular(8),
-                        topRight: const Radius.circular(32),
-                        bottomLeft: const Radius.circular(8),
-                        bottomRight: const Radius.circular(8),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => _contactProvider(controller),
-                  icon: const Icon(Icons.phone),
-                  label: const Text('Call'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: colorScheme.primary,
-                    side: BorderSide(color: colorScheme.primary),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(
-                        topLeft: const Radius.circular(8),
-                        topRight: const Radius.circular(32),
-                        bottomLeft: const Radius.circular(8),
-                        bottomRight: const Radius.circular(8),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          
-          const SizedBox(height: 12),
-          
-          // 响应时间信息
-          Row(
-            children: [
-              Icon(Icons.access_time, color: colorScheme.primary, size: 16),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'Average response time: ${controller.serviceAvailability?['response_time'] ?? '2-4 hours'}',
-                  style: theme.textTheme.bodySmall,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Icon(Icons.schedule, color: colorScheme.primary, size: 16),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'Available: ${controller.serviceAvailability?['availability'] ?? 'Mon-Fri 9AM-6PM'}',
-                  style: theme.textTheme.bodySmall,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildChatStatus(ServiceDetailController controller, ThemeData theme) {
-    final colorScheme = theme.colorScheme;
-    final isOnline = controller.serviceAvailability?['is_online'] ?? false;
-    
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: isOnline ? Colors.green[50] : Colors.grey[50],
-        borderRadius: BorderRadius.only(
-          topLeft: const Radius.circular(8),
-          topRight: const Radius.circular(32),
-          bottomLeft: const Radius.circular(8),
-          bottomRight: const Radius.circular(8),
-        ),
-        border: Border.all(
-          color: isOnline ? Colors.green : Colors.grey,
-          width: 1,
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(
-              color: isOnline ? Colors.green : Colors.grey,
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              isOnline ? 'Provider is online' : 'Provider is offline',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: isOnline ? Colors.green[700] : Colors.grey[600],
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-          if (controller.chatMessages.isNotEmpty) ...[
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: colorScheme.primary,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Text(
-                '${controller.chatMessages.length}',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  void _startChat(ServiceDetailController controller) {
-    if (controller.service == null) return;
-    
-    // 检查是否已有聊天会话
-    if (controller.currentChatSession != null) {
-      // 打开现有聊天
-      _openChatDialog(controller);
-    } else {
-      // 创建新聊天会话
-      controller.startChat().then((_) {
-        if (controller.currentChatSession != null) {
-          _openChatDialog(controller);
-        }
-      });
-    }
-  }
-
-  void _openChatDialog(ServiceDetailController controller) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final textController = TextEditingController();
-    
-    Get.dialog(
-      Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(16),
-            topRight: const Radius.circular(64),
-            bottomLeft: const Radius.circular(16),
-            bottomRight: const Radius.circular(16),
-          ),
-        ),
-        child: Container(
-          height: MediaQuery.of(context).size.height * 0.7,
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              // 聊天头部
-              Row(
-                children: [
-                  CircleAvatar(
-                    radius: 20,
-                    backgroundColor: colorScheme.primary.withOpacity(0.1),
-                    child: Icon(
-                      Icons.person,
-                      color: colorScheme.primary,
-                      size: 20,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          controller.provider?.companyName ?? 'Provider',
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        Text(
-                          controller.service?.title ?? 'Service',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: colorScheme.onSurface.withOpacity(0.7),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () => Get.back(),
-                    icon: const Icon(Icons.close),
-                  ),
-                ],
-              ),
-              
-              const Divider(height: 32),
-              
-              // 聊天消息区域
-              Expanded(
-                child: controller.chatMessages.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.chat_bubble_outline,
-                              size: 48,
-                              color: Colors.grey[400],
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'Start a conversation',
-                              style: theme.textTheme.titleMedium?.copyWith(
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Ask questions about this service',
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: Colors.grey[500],
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    : ListView.builder(
-                        itemCount: controller.chatMessages.length,
-                        itemBuilder: (context, index) {
-                          final message = controller.chatMessages[index];
-                          final isUser = message.senderId == 'user';
-                          
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4),
-                            child: Row(
-                              mainAxisAlignment: isUser 
-                                  ? MainAxisAlignment.end 
-                                  : MainAxisAlignment.start,
-                              children: [
-                                if (!isUser) ...[
-                                  CircleAvatar(
-                                    radius: 16,
-                                    backgroundColor: colorScheme.primary.withOpacity(0.1),
-                                    child: Icon(
-                                      Icons.person,
-                                      color: colorScheme.primary,
-                                      size: 16,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                ],
-                                Flexible(
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 8,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: isUser 
-                                          ? colorScheme.primary 
-                                          : colorScheme.surfaceVariant,
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: const Radius.circular(12),
-                                        topRight: const Radius.circular(12),
-                                        bottomLeft: Radius.circular(isUser ? 12 : 4),
-                                        bottomRight: Radius.circular(isUser ? 4 : 12),
-                                      ),
-                                    ),
-                                    child: Text(
-                                      message.content.content,
-                                      style: theme.textTheme.bodyMedium?.copyWith(
-                                        color: isUser 
-                                            ? colorScheme.onPrimary 
-                                            : colorScheme.onSurfaceVariant,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                if (isUser) ...[
-                                  const SizedBox(width: 8),
-                                  CircleAvatar(
-                                    radius: 16,
-                                    backgroundColor: colorScheme.secondary.withOpacity(0.1),
-                                    child: Icon(
-                                      Icons.person,
-                                      color: colorScheme.secondary,
-                                      size: 16,
-                                    ),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-              ),
-              
-              const SizedBox(height: 16),
-              
-              // 输入区域
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: textController,
-                      decoration: InputDecoration(
-                        hintText: 'Type your message...',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.only(
-                            topLeft: const Radius.circular(20),
-                            topRight: const Radius.circular(20),
-                            bottomLeft: const Radius.circular(20),
-                            bottomRight: const Radius.circular(20),
-                          ),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                      ),
-                      maxLines: null,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    onPressed: () {
-                      if (textController.text.trim().isNotEmpty) {
-                        controller.sendMessage(textController.text.trim());
-                        textController.clear();
-                      }
-                    },
-                    icon: Icon(
-                      Icons.send,
-                      color: colorScheme.primary,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _contactProvider(ServiceDetailController controller) {
-    if (controller.provider == null) return;
-    
-    final phone = controller.provider!.contactPhone;
-    if (phone != null && phone.isNotEmpty) {
-      // TODO: 实现拨打电话功能
-      // 可以使用 url_launcher 包
-      Get.snackbar(
-        'Call Provider',
-        'Calling: $phone',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-      );
-    } else {
-      Get.snackbar(
-        'No Phone Number',
-        'Provider phone number not available',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.orange,
-        colorText: Colors.white,
-      );
-    }
-  }
-
-  Widget _buildProviderInfoRow(String label, String value, ThemeData theme) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2.0),
-      child: Row(
-        children: [
-          Icon(Icons.verified, size: 16, color: Colors.green[600]),
-          const SizedBox(width: 8),
-          Text(
-            '$label: ',
-            style: theme.textTheme.bodySmall?.copyWith(
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: Colors.grey[600],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildServiceDetails(ServiceDetailController controller, ThemeData theme) {
-    return CustomerCard(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Service Details',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                IconButton(
-                  onPressed: () {
-                    _showServiceDetailsDialog(controller, theme);
-                  },
-                  icon: Icon(Icons.info_outline, color: theme.colorScheme.primary),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            _buildDetailRow('Category', _getCategoryName(controller.service?.categoryLevel1Id ?? ''), theme),
-            _buildDetailRow('Delivery Method', _getDeliveryMethodName(controller.service?.serviceDeliveryMethod ?? ''), theme),
-            _buildDetailRow('Status', controller.service?.status ?? 'N/A', theme),
-            if (controller.serviceDetail?.serviceAreaCodes.isNotEmpty == true)
-              _buildDetailRow('Service Areas', controller.serviceDetail!.serviceAreaCodes.join(', '), theme),
-            if (controller.serviceDetail?.duration != null)
-              _buildDetailRow('Duration', _formatDuration(controller.serviceDetail!.duration!), theme),
-            if (controller.serviceDetail?.pricingType != null)
-              _buildDetailRow('Pricing Type', controller.serviceDetail!.pricingType, theme),
-            
-            // 服务特色
-            if (controller.serviceDetail?.tags.isNotEmpty == true) ...[
-              const SizedBox(height: 16),
-              Text(
-                'Service Features',
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: controller.serviceDetail!.tags.map((tag) {
-                  return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.primary.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      tag,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.primary,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ],
-            
-            // 服务图片
-            if (controller.serviceDetail?.images.isNotEmpty == true) ...[
-              const SizedBox(height: 16),
-              Text(
-                'Service Images',
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 8),
-              SizedBox(
-                height: 100,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: controller.serviceDetail!.images.length,
-                  itemBuilder: (context, index) {
-                    return Container(
-                      width: 100,
-                      margin: const EdgeInsets.only(right: 8),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          controller.serviceDetail!.images[index],
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              color: Colors.grey[300],
-                              child: const Icon(
-                                Icons.image_not_supported,
-                                color: Colors.grey,
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showServiceDetailsDialog(ServiceDetailController controller, ThemeData theme) {
-    Get.dialog(
-      AlertDialog(
-        title: Text('Service Details'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                controller.service?.title ?? 'Service Title',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              _buildDetailRow('Category', _getCategoryName(controller.service?.categoryLevel1Id ?? ''), theme),
-              _buildDetailRow('Delivery Method', _getDeliveryMethodName(controller.service?.serviceDeliveryMethod ?? ''), theme),
-              _buildDetailRow('Status', controller.service?.status ?? 'N/A', theme),
-              if (controller.serviceDetail?.serviceAreaCodes.isNotEmpty == true)
-                _buildDetailRow('Service Areas', controller.serviceDetail!.serviceAreaCodes.join(', '), theme),
-              if (controller.serviceDetail?.duration != null)
-                _buildDetailRow('Duration', _formatDuration(controller.serviceDetail!.duration!), theme),
-              if (controller.serviceDetail?.pricingType != null)
-                _buildDetailRow('Pricing Type', controller.serviceDetail!.pricingType, theme),
-              if (controller.serviceDetail?.price != null)
-                _buildDetailRow('Price', '\$${controller.serviceDetail!.price!.toStringAsFixed(2)}', theme),
-              if (controller.serviceDetail?.negotiationDetails != null)
-                _buildDetailRow('Negotiation', controller.serviceDetail!.negotiationDetails!, theme),
-              if (controller.service?.description != null)
-                _buildDetailRow('Description', controller.service!.description!, theme),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: Text('Close'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Get.back();
-              _showBookingOptions(controller);
-            },
-            child: Text('Book Now'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildServiceAreaSection(ServiceDetailController controller, ThemeData theme) {
-    final colorScheme = theme.colorScheme;
-    
-    return CustomerCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.location_on, color: colorScheme.primary, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                'Service Area',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const Spacer(),
-              // 地图类型切换按钮
-              PopupMenuButton<String>(
-                icon: const Icon(Icons.map),
-                onSelected: (value) => _switchMapType(value),
-                itemBuilder: (context) => [
-                  const PopupMenuItem(
-                    value: 'standard',
-                    child: Row(
-                      children: [
-                        Icon(Icons.map),
-                        SizedBox(width: 8),
-                        Text('Standard Map'),
-                      ],
-                    ),
-                  ),
-                  const PopupMenuItem(
-                    value: 'satellite',
-                    child: Row(
-                      children: [
-                        Icon(Icons.satellite),
-                        SizedBox(width: 8),
-                        Text('Satellite View'),
-                      ],
-                    ),
-                  ),
-                  const PopupMenuItem(
-                    value: 'terrain',
-                    child: Row(
-                      children: [
-                        Icon(Icons.terrain),
-                        SizedBox(width: 8),
-                        Text('Terrain View'),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          
-          // 地图容器
-          Container(
-            height: 250,
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.only(
-                topLeft: const Radius.circular(8),
-                topRight: const Radius.circular(32),
-                bottomLeft: const Radius.circular(8),
-                bottomRight: const Radius.circular(8),
-              ),
-            ),
-            child: Stack(
-              children: [
-                // 地图背景
-                Container(
-                  width: double.infinity,
-                  height: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.blue[50],
-                    borderRadius: BorderRadius.only(
-                      topLeft: const Radius.circular(8),
-                      topRight: const Radius.circular(32),
-                      bottomLeft: const Radius.circular(8),
-                      bottomRight: const Radius.circular(8),
-                    ),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.map, size: 48, color: Colors.blue),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Service Area Map',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.blue,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Interactive map coming soon',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      // 服务区域信息
-                      if (controller.serviceLocation != null) ...[
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          margin: const EdgeInsets.symmetric(horizontal: 20),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(8),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(Icons.radio_button_checked, color: colorScheme.primary, size: 16),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Service Coverage',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: colorScheme.primary,
-                                      ),
-                                    ),
-                                    Text(
-                                      '${controller.serviceLocation!['radius'] ?? '5'} km radius',
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        color: Colors.grey[600],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: Colors.green[100],
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Text(
-                                  'Available',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    color: Colors.green[700],
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                
-                // 服务区域圆圈
-                if (controller.serviceLocation != null) ...[
-                  Positioned(
-                    left: 100,
-                    top: 80,
-                    child: Container(
-                      width: 60,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        color: colorScheme.primary.withOpacity(0.2),
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: colorScheme.primary,
-                          width: 2,
-                        ),
-                      ),
-                      child: Center(
-                        child: Icon(
-                          Icons.location_on,
-                          color: colorScheme.primary,
-                          size: 24,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-                
-                // 地图控制按钮
-                Positioned(
-                  right: 8,
-                  top: 8,
-                  child: Column(
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(4),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 2,
-                              offset: const Offset(0, 1),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.add, size: 18),
-                              onPressed: () => _zoomIn(),
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.remove, size: 18),
-                              onPressed: () => _zoomOut(),
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          
-          const SizedBox(height: 16),
-          
-          // 导航信息
-          if (controller.serviceLocation != null) ...[
-            _buildNavigationInfo(controller, theme),
-            const SizedBox(height: 12),
-          ],
-          
-          // 服务区域详情
-          _buildServiceAreaDetails(controller, theme),
-        ],
-      ),
-    );
-  }
-
-  void _switchMapType(String mapType) {
-    Get.snackbar(
-      'Map Type',
-      'Switched to $mapType view',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.blue,
-      colorText: Colors.white,
-    );
-  }
-
-  void _zoomIn() {
-    Get.snackbar(
-      'Zoom',
-      'Zoomed in',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.green,
-      colorText: Colors.white,
-    );
-  }
-
-  void _zoomOut() {
-    Get.snackbar(
-      'Zoom',
-      'Zoomed out',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.green,
-      colorText: Colors.white,
-    );
-  }
-
-  Widget _buildServiceAreaDetails(ServiceDetailController controller, ThemeData theme) {
-    final colorScheme = theme.colorScheme;
-    
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Service Coverage Details',
-          style: theme.textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 8),
-        
-        // 服务区域信息卡片
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.grey[50],
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.grey[200]!),
-          ),
-          child: Column(
-            children: [
-              _buildServiceAreaRow(
-                Icons.radio_button_checked,
-                'Service Radius',
-                '${controller.serviceLocation?['radius'] ?? '5'} km',
-                colorScheme.primary,
-                theme,
-              ),
-              const SizedBox(height: 8),
-              _buildServiceAreaRow(
-                Icons.access_time,
-                'Response Time',
-                '${controller.serviceLocation?['responseTime'] ?? '2-4'} hours',
-                Colors.orange,
-                theme,
-              ),
-              const SizedBox(height: 8),
-              _buildServiceAreaRow(
-                Icons.local_shipping,
-                'Travel Time',
-                '${controller.serviceLocation?['travelTime'] ?? '15-30'} minutes',
-                Colors.green,
-                theme,
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildServiceAreaRow(IconData icon, String label, String value, Color color, ThemeData theme) {
-    return Row(
-      children: [
-        Icon(icon, size: 16, color: color),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            label,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: Colors.grey[600],
-            ),
-          ),
-        ),
-        Text(
-          value,
-          style: theme.textTheme.bodySmall?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: color,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildNavigationInfo(ServiceDetailController controller, ThemeData theme) {
-    final colorScheme = theme.colorScheme;
-    
-    return Row(
-      children: [
-        Expanded(
-          child: ElevatedButton.icon(
-            onPressed: () => _openNavigation(controller),
-            icon: const Icon(Icons.directions),
-            label: const Text('Get Directions'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: colorScheme.primary,
-              foregroundColor: colorScheme.onPrimary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(8),
-                  topRight: const Radius.circular(32),
-                  bottomLeft: const Radius.circular(8),
-                  bottomRight: const Radius.circular(8),
-                ),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: OutlinedButton.icon(
-            onPressed: () => _copyAddress(controller),
-            icon: const Icon(Icons.copy),
-            label: const Text('Copy Address'),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: colorScheme.primary,
-              side: BorderSide(color: colorScheme.primary),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(8),
-                  topRight: const Radius.circular(32),
-                  bottomLeft: const Radius.circular(8),
-                  bottomRight: const Radius.circular(8),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  void _openNavigation(ServiceDetailController controller) {
-    if (controller.serviceLocation != null) {
-      final latitude = controller.serviceLocation!['latitude'];
-      final longitude = controller.serviceLocation!['longitude'];
-      final address = controller.serviceLocation!['address'];
-      
-      // 这里应该调用地图应用或导航服务
-      Get.snackbar(
-        'Navigation',
-        'Opening navigation to: $address',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.blue,
-        colorText: Colors.white,
-      );
-      
-      // TODO: 实现实际的导航功能
-      // 可以使用 url_launcher 包打开地图应用
-    }
-  }
-
-  void _copyAddress(ServiceDetailController controller) {
-    if (controller.serviceLocation != null) {
-      final address = controller.serviceLocation!['address'];
-      
-      // TODO: 实现复制到剪贴板功能
-      // 可以使用 flutter_clipboard 包
-      
-      Get.snackbar(
-        'Address Copied',
-        'Address copied to clipboard: $address',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-      );
-    }
   }
 
   Widget _buildTrustAndSecuritySection(ServiceDetailController controller, ThemeData theme) {
@@ -6370,35 +5304,31 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
 
   // 新增：报价状态显示
   Widget _buildQuoteStatus(ServiceDetailController controller, ThemeData theme) {
+    final status = controller.quoteRequestStatus.value;
     Color statusColor;
     IconData statusIcon;
     String statusText;
     
-    switch (controller.quoteRequestStatus) {
+    switch (status) {
       case 'pending':
         statusColor = Colors.orange;
         statusIcon = Icons.schedule;
-        statusText = 'Quote Request Pending';
+        statusText = 'Quote request submitted';
         break;
-      case 'reviewing':
-        statusColor = Colors.blue;
-        statusIcon = Icons.visibility;
-        statusText = 'Provider Reviewing Request';
-        break;
-      case 'quoted':
+      case 'accepted':
         statusColor = Colors.green;
         statusIcon = Icons.check_circle;
-        statusText = 'Quote Received';
+        statusText = 'Quote accepted';
         break;
-      case 'expired':
+      case 'declined':
         statusColor = Colors.red;
-        statusIcon = Icons.error;
-        statusText = 'Quote Expired';
+        statusIcon = Icons.cancel;
+        statusText = 'Quote declined';
         break;
       default:
         statusColor = Colors.grey;
         statusIcon = Icons.info;
-        statusText = 'No Quote Request';
+        statusText = 'Quote status: $status';
     }
     
     return Container(
@@ -7029,6 +5959,436 @@ class _ServiceDetailPageState extends State<ServiceDetailPage>
         ),
       ],
     );
+  }
+
+  // 新增：整合的核心操作区域
+  Widget _buildCoreActionsSection(ServiceDetailController controller, ThemeData theme) {
+    return CustomerCard(
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 标题
+            Row(
+              children: [
+                Icon(Icons.work, color: theme.colorScheme.primary),
+                const SizedBox(width: 8),
+                Text(
+                  'Service Actions',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            
+            // 主要操作按钮
+            Row(
+              children: [
+                // 报价按钮
+                if (controller.serviceDetail?.pricingType == 'custom' || 
+                    controller.serviceDetail?.pricingType == 'negotiable') ...[
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () => _showQuickQuoteDialog(controller),
+                      icon: const Icon(Icons.request_quote, size: 18),
+                      label: const Text('Get Quote'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: theme.colorScheme.primary,
+                        foregroundColor: theme.colorScheme.onPrimary,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                ],
+                
+                // 预订按钮
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => _showQuickBookingDialog(controller),
+                    icon: const Icon(Icons.calendar_today, size: 18),
+                    label: const Text('Book Now'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: theme.colorScheme.secondary,
+                      foregroundColor: theme.colorScheme.onSecondary,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            
+            const SizedBox(height: 16),
+            
+            // 联系选项
+            _buildQuickContactOptions(controller, theme),
+            
+            const SizedBox(height: 16),
+            
+            // 状态信息
+            if (controller.quoteRequestStatus.value.isNotEmpty) ...[
+              _buildQuoteStatus(controller, theme),
+              const SizedBox(height: 16),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  // 新增：快速联系选项
+  Widget _buildQuickContactOptions(ServiceDetailController controller, ThemeData theme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Quick Contact',
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            if (controller.provider?.contactPhone != null) ...[
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => controller.callProvider(),
+                  icon: const Icon(Icons.phone, size: 16),
+                  label: const Text('Call'),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+            ],
+            if (controller.provider?.contactEmail != null) ...[
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => controller.emailProvider(),
+                  icon: const Icon(Icons.email, size: 16),
+                  label: const Text('Email'),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+            ],
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: () => controller.startChat(),
+                icon: const Icon(Icons.chat, size: 16),
+                label: const Text('Chat'),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // 新增：快速预订对话框
+  void _showQuickBookingDialog(ServiceDetailController controller) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
+    Get.dialog(
+      AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.calendar_today, color: colorScheme.primary),
+            const SizedBox(width: 8),
+            const Text('Quick Booking'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Book this service quickly',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: () {
+                Get.back();
+                controller.updateBookingDetails('serviceDate', DateTime.now().add(const Duration(days: 1)).toString().split(' ')[0]);
+                controller.updateBookingDetails('serviceTime', '09:00');
+                controller.submitBooking();
+              },
+              icon: const Icon(Icons.schedule),
+              label: const Text('Book for Tomorrow 9 AM'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: colorScheme.primary,
+                foregroundColor: colorScheme.onPrimary,
+              ),
+            ),
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              onPressed: () {
+                Get.back();
+                // 打开详细预订表单
+                _showDetailedBookingDialog(controller);
+              },
+              icon: const Icon(Icons.edit_calendar),
+              label: const Text('Custom Booking'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: colorScheme.primary,
+                side: BorderSide(color: colorScheme.primary),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 新增：详细预订对话框
+  void _showDetailedBookingDialog(ServiceDetailController controller) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
+    Get.dialog(
+      AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.edit_calendar, color: colorScheme.primary),
+            const SizedBox(width: 8),
+            const Text('Custom Booking'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              decoration: const InputDecoration(
+                labelText: 'Service Date',
+                hintText: 'Select date',
+              ),
+              onTap: () => _selectDate(controller),
+              readOnly: true,
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              decoration: const InputDecoration(
+                labelText: 'Service Time',
+                hintText: 'Select time',
+              ),
+              onTap: () => _selectTime(controller),
+              readOnly: true,
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              decoration: const InputDecoration(
+                labelText: 'Special Requirements',
+                hintText: 'Any special requests?',
+              ),
+              maxLines: 3,
+              onChanged: (value) => controller.updateBookingDetails('specialRequirements', value),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Get.back();
+              controller.submitBooking();
+            },
+            child: const Text('Confirm Booking'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 新增：开始聊天方法
+  void _startChat(ServiceDetailController controller) {
+    controller.startChat();
+  }
+
+  // 新增：服务详情方法
+  Widget _buildServiceDetails(ServiceDetailController controller, ThemeData theme) {
+    return CustomerCard(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Service Details',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
+            _buildDetailRow('Category', _getCategoryName(controller.service?.categoryLevel1Id ?? ''), theme),
+            _buildDetailRow('Delivery Method', _getDeliveryMethodName(controller.service?.serviceDeliveryMethod ?? ''), theme),
+            _buildDetailRow('Status', controller.service?.status ?? 'N/A', theme),
+            if (controller.serviceDetail?.serviceAreaCodes.isNotEmpty == true)
+              _buildDetailRow('Service Areas', controller.serviceDetail!.serviceAreaCodes.join(', '), theme),
+            if (controller.serviceDetail?.duration != null)
+              _buildDetailRow('Duration', _formatDuration(controller.serviceDetail!.duration!), theme),
+            if (controller.serviceDetail?.pricingType != null)
+              _buildDetailRow('Pricing Type', controller.serviceDetail!.pricingType, theme),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // 新增：服务区域方法
+  Widget _buildServiceAreaSection(ServiceDetailController controller, ThemeData theme) {
+    return CustomerCard(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.location_on, color: theme.colorScheme.primary, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  'Service Area',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            if (controller.serviceLocation != null) ...[
+              _buildDetailRow('Coverage Radius', '${controller.serviceLocation!['radius'] ?? '5'} km', theme),
+              _buildDetailRow('Response Time', '${controller.serviceLocation?['responseTime'] ?? '2-4'} hours', theme),
+            ] else ...[
+              Text(
+                'Service area information not available',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: Colors.grey[600],
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  // 新增：选择日期方法
+  void _selectDate(ServiceDetailController controller) {
+    showDatePicker(
+      context: context,
+      initialDate: DateTime.now().add(const Duration(days: 1)),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    ).then((date) {
+      if (date != null) {
+        controller.updateBookingDetails('serviceDate', date.toString().split(' ')[0]);
+      }
+    });
+  }
+
+  // 新增：选择时间方法
+  void _selectTime(ServiceDetailController controller) {
+    showTimePicker(
+      context: context,
+      initialTime: const TimeOfDay(hour: 9, minute: 0),
+    ).then((time) {
+      if (time != null) {
+        controller.updateBookingDetails('serviceTime', '${time.hour}:${time.minute.toString().padLeft(2, '0')}');
+      }
+    });
+  }
+
+  // 新增：详情行方法
+  Widget _buildDetailRow(String label, String value, ThemeData theme) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 120,
+            child: Text(
+              '$label:',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w500,
+                color: Colors.grey[700],
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: Colors.grey[800],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 新增：获取分类名称方法
+  String _getCategoryName(String categoryId) {
+    switch (categoryId) {
+      case '1020000':
+        return 'Home Services';
+      case '1030000':
+        return 'Transportation';
+      case '1040000':
+        return 'Professional Services';
+      case '1050000':
+        return 'Health & Wellness';
+      case '1060000':
+        return 'Entertainment';
+      default:
+        return 'Other';
+    }
+  }
+
+  // 新增：获取交付方式名称方法
+  String _getDeliveryMethodName(String method) {
+    switch (method) {
+      case 'on_site':
+        return 'On-site Service';
+      case 'remote':
+        return 'Remote Service';
+      case 'pickup':
+        return 'Pickup & Delivery';
+      default:
+        return method;
+    }
+  }
+
+  // 新增：格式化持续时间方法
+  String _formatDuration(Duration duration) {
+    if (duration.inHours > 0) {
+      return '${duration.inHours}h ${duration.inMinutes % 60}m';
+    } else {
+      return '${duration.inMinutes}m';
+    }
   }
 }
 
