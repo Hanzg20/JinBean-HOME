@@ -4,8 +4,9 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
 import '../../../../core/ui/components/customer_theme_components.dart';
 import '../../../../core/utils/app_logger.dart';
+import '../../../../core/components/platform_core.dart';
 import 'service_detail_controller.dart';
-import 'widgets/service_detail_loading.dart';
+import 'widgets/service_detail_loading.dart' hide ProgressiveLoadingWidget, OfflineSupportWidget;
 import 'sections/service_basic_info_section.dart';
 import 'sections/service_actions_section.dart';
 import 'sections/service_map_section.dart';
@@ -98,20 +99,7 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
     // 这里可以集成connectivity_plus包或其他网络状态检测库
     
     // 模拟网络状态检查
-    Future.delayed(const Duration(seconds: 1), () {
-      if (mounted) {
-        setState(() {
-          _isOnline = DateTime.now().millisecond % 2 == 0;
-        });
-        if (_isOnline) {
-          _loadingManager.setOnline();
-          AppLogger.info('Network status: Online', tag: 'ServiceDetailPage');
-        } else {
-          _loadingManager.setOffline();
-          AppLogger.warning('Network status: Offline', tag: 'ServiceDetailPage');
-        }
-      }
-    });
+    _isOnline = true;
   }
 
   Future<void> _loadServiceDetailWithId(String serviceId) async {
@@ -189,14 +177,68 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
             onRetry: () => _loadServiceDetailWithId(widget.serviceId.isNotEmpty ? widget.serviceId : Get.parameters['serviceId'] ?? ''),
             onBack: () => Get.back(),
             showSkeleton: _useSkeleton, // 恢复骨架屏选项
-            child: OfflineSupportWidget(
-              isOnline: _isOnline,
-              onRetry: () => _loadServiceDetailWithId(widget.serviceId.isNotEmpty ? widget.serviceId : Get.parameters['serviceId'] ?? ''),
-              offlineMessage: 'Currently offline, showing cached data',
-              child: _buildPageContent(), // 恢复原有的页面内容
+            child: PlatformCore.createOfflineSupport(
+              type: OfflineType.hybrid,
+              onlineBuilder: (context) => _buildPageContent(), // 恢复原有的页面内容
+              offlineBuilder: (context) => _buildOfflineContent(),
+              syncIndicator: _buildSyncIndicator(),
             ),
           );
         },
+      ),
+    );
+  }
+
+  // 离线内容
+  Widget _buildOfflineContent() {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(16),
+          color: Colors.orange.withOpacity(0.1),
+          child: Row(
+            children: [
+              Icon(Icons.wifi_off, color: Colors.orange),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Currently offline, showing cached data',
+                  style: TextStyle(color: Colors.orange[800]),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Expanded(child: _buildPageContent()),
+      ],
+    );
+  }
+
+  // 同步指示器
+  Widget _buildSyncIndicator() {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.blue,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 16,
+            height: 16,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            'Syncing...',
+            style: TextStyle(color: Colors.white, fontSize: 12),
+          ),
+        ],
       ),
     );
   }
@@ -210,37 +252,52 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // 服务基本信息 - 渐进式加载
-          ProgressiveLoadingWidget(
-            delay: const Duration(milliseconds: 100),
-            child: _buildServiceBasicInfo(),
+          PlatformCore.createProgressiveLoading(
+            type: ProgressiveType.sequential,
+            loadFunction: () async {
+              await Future.delayed(Duration(milliseconds: 100));
+            },
+            contentBuilder: (context) => _buildServiceBasicInfo(),
           ),
           const SizedBox(height: 24),
           
           // 服务描述 - 渐进式加载
-          ProgressiveLoadingWidget(
-            delay: const Duration(milliseconds: 200),
-            child: _buildServiceDescription(),
+          PlatformCore.createProgressiveLoading(
+            type: ProgressiveType.sequential,
+            loadFunction: () async {
+              await Future.delayed(Duration(milliseconds: 200));
+            },
+            contentBuilder: (context) => _buildServiceDescription(),
           ),
           const SizedBox(height: 24),
           
           // 服务图片 - 渐进式加载
-          ProgressiveLoadingWidget(
-            delay: const Duration(milliseconds: 300),
-            child: _buildServiceImages(),
+          PlatformCore.createProgressiveLoading(
+            type: ProgressiveType.sequential,
+            loadFunction: () async {
+              await Future.delayed(Duration(milliseconds: 300));
+            },
+            contentBuilder: (context) => _buildServiceImages(),
           ),
           const SizedBox(height: 24),
           
           // 操作按钮 - 渐进式加载
-          ProgressiveLoadingWidget(
-            delay: const Duration(milliseconds: 400),
-            child: _buildActionButtons(),
+          PlatformCore.createProgressiveLoading(
+            type: ProgressiveType.sequential,
+            loadFunction: () async {
+              await Future.delayed(Duration(milliseconds: 400));
+            },
+            contentBuilder: (context) => _buildActionButtons(),
           ),
           const SizedBox(height: 24),
           
           // 服务详情 - 渐进式加载
-          ProgressiveLoadingWidget(
-            delay: const Duration(milliseconds: 500),
-            child: _buildServiceDetails(),
+          PlatformCore.createProgressiveLoading(
+            type: ProgressiveType.sequential,
+            loadFunction: () async {
+              await Future.delayed(Duration(milliseconds: 500));
+            },
+            contentBuilder: (context) => _buildServiceDetails(),
           ),
         ],
       ),
@@ -516,21 +573,68 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
   
   // 原有的复杂页面内容构建方法
   Widget _buildPageContent() {
-    return NestedScrollView(
-      headerSliverBuilder: (context, innerBoxIsScrolled) {
-        return [
-          _buildSliverAppBar(),
-          _buildSliverTabBar(),
-        ];
-      },
-      body: TabBarView(
-        controller: _tabController,
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
         children: [
-          _buildOverviewTab(),
-          _buildDetailsTab(),
-          _buildProviderTab(),
-          _buildReviewsTab(),
-          _buildPersonalizedTab(),
+          // 服务基本信息 - 渐进式加载
+          PlatformCore.createProgressiveLoading(
+            type: ProgressiveType.sequential,
+            loadFunction: () async {
+              await Future.delayed(Duration(milliseconds: 100));
+            },
+            contentBuilder: (context) => ServiceBasicInfoSection(controller: controller),
+          ),
+          const SizedBox(height: 16),
+          
+          // 操作按钮 - 渐进式加载
+          PlatformCore.createProgressiveLoading(
+            type: ProgressiveType.sequential,
+            loadFunction: () async {
+              await Future.delayed(Duration(milliseconds: 200));
+            },
+            contentBuilder: (context) => ServiceActionsSection(controller: controller),
+          ),
+          const SizedBox(height: 16),
+          
+          // 服务特色 - 渐进式加载
+          PlatformCore.createProgressiveLoading(
+            type: ProgressiveType.sequential,
+            loadFunction: () async {
+              await Future.delayed(Duration(milliseconds: 300));
+            },
+            contentBuilder: (context) => _buildServiceFeaturesSection(),
+          ),
+          const SizedBox(height: 16),
+          
+          // 质量保证 - 渐进式加载
+          PlatformCore.createProgressiveLoading(
+            type: ProgressiveType.sequential,
+            loadFunction: () async {
+              await Future.delayed(Duration(milliseconds: 400));
+            },
+            contentBuilder: (context) => _buildQualityAssuranceSection(),
+          ),
+          const SizedBox(height: 16),
+          
+          // 地图 - 渐进式加载
+          PlatformCore.createProgressiveLoading(
+            type: ProgressiveType.sequential,
+            loadFunction: () async {
+              await Future.delayed(Duration(milliseconds: 500));
+            },
+            contentBuilder: (context) => ServiceMapSection(controller: controller),
+          ),
+          const SizedBox(height: 16),
+          
+          // 相似服务 - 渐进式加载
+          PlatformCore.createProgressiveLoading(
+            type: ProgressiveType.sequential,
+            loadFunction: () async {
+              await Future.delayed(Duration(milliseconds: 600));
+            },
+            contentBuilder: (context) => SimilarServicesSection(controller: controller),
+          ),
         ],
       ),
     );
@@ -659,44 +763,62 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
       child: Column(
         children: [
           // 服务基本信息 - 渐进式加载
-          ProgressiveLoadingWidget(
-            delay: const Duration(milliseconds: 100),
-            child: ServiceBasicInfoSection(controller: controller),
+          PlatformCore.createProgressiveLoading(
+            type: ProgressiveType.sequential,
+            loadFunction: () async {
+              await Future.delayed(Duration(milliseconds: 100));
+            },
+            contentBuilder: (context) => ServiceBasicInfoSection(controller: controller),
           ),
           const SizedBox(height: 16),
           
           // 操作按钮 - 渐进式加载
-          ProgressiveLoadingWidget(
-            delay: const Duration(milliseconds: 200),
-            child: ServiceActionsSection(controller: controller),
+          PlatformCore.createProgressiveLoading(
+            type: ProgressiveType.sequential,
+            loadFunction: () async {
+              await Future.delayed(Duration(milliseconds: 200));
+            },
+            contentBuilder: (context) => ServiceActionsSection(controller: controller),
           ),
           const SizedBox(height: 16),
           
           // 服务特色 - 渐进式加载
-          ProgressiveLoadingWidget(
-            delay: const Duration(milliseconds: 300),
-            child: _buildServiceFeaturesSection(),
+          PlatformCore.createProgressiveLoading(
+            type: ProgressiveType.sequential,
+            loadFunction: () async {
+              await Future.delayed(Duration(milliseconds: 300));
+            },
+            contentBuilder: (context) => _buildServiceFeaturesSection(),
           ),
           const SizedBox(height: 16),
           
           // 质量保证 - 渐进式加载
-          ProgressiveLoadingWidget(
-            delay: const Duration(milliseconds: 400),
-            child: _buildQualityAssuranceSection(),
+          PlatformCore.createProgressiveLoading(
+            type: ProgressiveType.sequential,
+            loadFunction: () async {
+              await Future.delayed(Duration(milliseconds: 400));
+            },
+            contentBuilder: (context) => _buildQualityAssuranceSection(),
           ),
           const SizedBox(height: 16),
           
           // 地图 - 渐进式加载
-          ProgressiveLoadingWidget(
-            delay: const Duration(milliseconds: 500),
-            child: ServiceMapSection(controller: controller),
+          PlatformCore.createProgressiveLoading(
+            type: ProgressiveType.sequential,
+            loadFunction: () async {
+              await Future.delayed(Duration(milliseconds: 500));
+            },
+            contentBuilder: (context) => ServiceMapSection(controller: controller),
           ),
           const SizedBox(height: 16),
           
           // 相似服务 - 渐进式加载
-          ProgressiveLoadingWidget(
-            delay: const Duration(milliseconds: 600),
-            child: SimilarServicesSection(controller: controller),
+          PlatformCore.createProgressiveLoading(
+            type: ProgressiveType.sequential,
+            loadFunction: () async {
+              await Future.delayed(Duration(milliseconds: 600));
+            },
+            contentBuilder: (context) => SimilarServicesSection(controller: controller),
           ),
         ],
       ),
