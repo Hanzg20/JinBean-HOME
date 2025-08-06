@@ -317,7 +317,7 @@ class ProfilePage extends GetView<ProfileController> {
               _buildMenuItem(
                 icon: Icons.language_outlined,
                 title: 'Language',
-                subtitle: 'Change app language',
+                subtitle: _getCurrentLanguageText(),
                 onTap: () => _showLanguageDialog(),
               ),
               _buildDivider(),
@@ -348,6 +348,18 @@ class ProfilePage extends GetView<ProfileController> {
         );
       },
     );
+  }
+
+  // 获取当前语言显示文本
+  String _getCurrentLanguageText() {
+    final currentLocale = Get.locale ?? const Locale('en');
+    switch (currentLocale.languageCode) {
+      case 'zh':
+        return '当前语言: 简体中文';
+      case 'en':
+      default:
+        return 'Current Language: English';
+    }
   }
 
   Widget _buildHelpCard() {
@@ -621,30 +633,64 @@ class ProfilePage extends GetView<ProfileController> {
   }
 
   void _showLanguageDialog() {
+    final currentLocale = Get.locale ?? const Locale('en');
+    
     Get.dialog(
       AlertDialog(
-        title: const Text('Select Language'),
+        title: const Text('Select Language / 选择语言'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ListTile(
+            RadioListTile<Locale>(
               title: const Text('English'),
-              onTap: () {
-                Get.back();
-                // TODO: Implement language change
+              subtitle: const Text('English'),
+              value: const Locale('en'),
+              groupValue: currentLocale,
+              onChanged: (locale) {
+                if (locale != null) {
+                  Get.back();
+                  _changeLanguage(locale);
+                }
               },
             ),
-            ListTile(
-              title: const Text('中文'),
-              onTap: () {
-                Get.back();
-                // TODO: Implement language change
+            RadioListTile<Locale>(
+              title: const Text('简体中文'),
+              subtitle: const Text('Simplified Chinese'),
+              value: const Locale('zh'),
+              groupValue: currentLocale,
+              onChanged: (locale) {
+                if (locale != null) {
+                  Get.back();
+                  _changeLanguage(locale);
+                }
               },
             ),
           ],
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('Cancel / 取消'),
+          ),
+        ],
       ),
     );
+  }
+
+  // 切换语言的方法
+  void _changeLanguage(Locale locale) {
+    Get.updateLocale(locale);
+    
+    // 显示切换成功的提示
+    Get.snackbar(
+      'Language Changed / 语言已切换',
+      locale.languageCode == 'zh' ? '已切换到简体中文' : 'Switched to English',
+      snackPosition: SnackPosition.BOTTOM,
+      duration: const Duration(seconds: 2),
+    );
+    
+    // 使用GetX的方式刷新UI
+    Get.forceAppUpdate();
   }
 
   void _contactSupport() {

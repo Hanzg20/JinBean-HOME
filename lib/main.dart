@@ -173,7 +173,7 @@ void main() async {
             GetPage(name: '/provider/language_settings', page: () => const ProviderLanguageSettingsPage(), binding: ProviderLanguageSettingsBinding()),
             GetPage(name: '/simulator', page: () => const SimulatorLauncher()),
             GetPage(name: '/provider_theme_demo', page: () => const ProviderThemeDemoPage()),
-            GetPage(name: '/service_detail', page: () => const ServiceDetailPage(), binding: ServiceDetailBinding()),
+            GetPage(name: '/service_detail', page: () => ServiceDetailPageNew(serviceId: Get.parameters['serviceId'] ?? ''), binding: ServiceDetailBinding()),
             GetPage(
               name: '/similar_services', 
               page: () => SimilarServicesPage(

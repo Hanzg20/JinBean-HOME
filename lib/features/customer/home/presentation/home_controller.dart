@@ -262,8 +262,8 @@ class HomeController extends GetxController {
     final banner = carouselItems[index];
     if (banner.actionType == 'service') {
       // 跳转到服务详情页
-      Get.toNamed('/service_detail', arguments: {
-        'serviceId': banner.serviceId,
+      Get.toNamed('/service_detail', parameters: {
+        'serviceId': banner.serviceId ?? '',
         'serviceName': banner.title,
       });
     } else if (banner.actionType == 'category') {
@@ -360,9 +360,10 @@ class HomeController extends GetxController {
         print('服务描述: $serviceDescription');
         print('分类ID: $categoryLevel1Id');
         print('图标名称: $iconData');
+        print('DEBUG: service id: ${service['id']}, type: ${service['id'].runtimeType}');
 
         processedServices.add(ServiceRecommendation(
-          id: service['id'],
+          id: service['id'].toString(), // 确保转换为字符串
           serviceName: safeServiceTitle,
           serviceDescription: safeServiceDescription,
           serviceIcon: iconData,

@@ -82,6 +82,19 @@ Thumbs.db
 .env.development.local
 .env.test.local
 .env.production.local
+.env.example
+
+# Security and sensitive files
+secrets/
+config/secrets/
+*.key
+*.pem
+*.p12
+*.keystore
+*.jks
+api_keys.txt
+secrets.json
+credentials.json
 
 # Coverage reports
 coverage/
@@ -90,3 +103,12 @@ coverage/
 # Test artifacts
 test/coverage/
 test/reports/
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Documentation drafts
+docs/drafts/
+*.draft.md

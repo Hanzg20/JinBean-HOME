@@ -62,7 +62,8 @@ import 'app_localizations_zh.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale)
+      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -70,7 +71,8 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -82,7 +84,8 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
     delegate,
     GlobalMaterialLocalizations.delegate,
     GlobalCupertinoLocalizations.delegate,
@@ -560,13 +563,13 @@ abstract class AppLocalizations {
   /// No description provided for @robOrderHall.
   ///
   /// In en, this message translates to:
-  /// **'Rob Order Hall'**
+  /// **'Order Acceptance Hall'**
   String get robOrderHall;
 
   /// No description provided for @robOrderHallDescription.
   ///
   /// In en, this message translates to:
-  /// **'Here is the rob order hall where you can view and grab new orders.'**
+  /// **'Here is the order acceptance hall where you can view and accept new orders.'**
   String get robOrderHallDescription;
 
   /// No description provided for @securityAndCompliance.
@@ -592,6 +595,522 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Here is the order management page where you can view and process all orders.'**
   String get orderManagementDescription;
+
+  /// No description provided for @serviceDetailPageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Service Details'**
+  String get serviceDetailPageTitle;
+
+  /// No description provided for @overview.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get overview;
+
+  /// No description provided for @details.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get details;
+
+  /// No description provided for @provider.
+  ///
+  /// In en, this message translates to:
+  /// **'Provider'**
+  String get provider;
+
+  /// No description provided for @reviews.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviews'**
+  String get reviews;
+
+  /// No description provided for @forYou.
+  ///
+  /// In en, this message translates to:
+  /// **'For You'**
+  String get forYou;
+
+  /// No description provided for @serviceFeatures.
+  ///
+  /// In en, this message translates to:
+  /// **'Service Features'**
+  String get serviceFeatures;
+
+  /// No description provided for @qualityAssurance.
+  ///
+  /// In en, this message translates to:
+  /// **'Quality Assurance'**
+  String get qualityAssurance;
+
+  /// No description provided for @professionalQualification.
+  ///
+  /// In en, this message translates to:
+  /// **'Professional Qualification'**
+  String get professionalQualification;
+
+  /// No description provided for @serviceExperience.
+  ///
+  /// In en, this message translates to:
+  /// **'Service Experience'**
+  String get serviceExperience;
+
+  /// No description provided for @bookNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Book Now'**
+  String get bookNow;
+
+  /// No description provided for @contactProvider.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact Provider'**
+  String get contactProvider;
+
+  /// No description provided for @getQuote.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Quote'**
+  String get getQuote;
+
+  /// No description provided for @startChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Chat'**
+  String get startChat;
+
+  /// No description provided for @callProvider.
+  ///
+  /// In en, this message translates to:
+  /// **'Call Provider'**
+  String get callProvider;
+
+  /// No description provided for @sendEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Email'**
+  String get sendEmail;
+
+  /// No description provided for @viewContactInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'View Contact Info'**
+  String get viewContactInfo;
+
+  /// No description provided for @requestQuote.
+  ///
+  /// In en, this message translates to:
+  /// **'Request Quote'**
+  String get requestQuote;
+
+  /// No description provided for @serviceName.
+  ///
+  /// In en, this message translates to:
+  /// **'Service Name'**
+  String get serviceName;
+
+  /// No description provided for @serviceDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Service Description'**
+  String get serviceDescription;
+
+  /// No description provided for @pricingType.
+  ///
+  /// In en, this message translates to:
+  /// **'Pricing Type'**
+  String get pricingType;
+
+  /// No description provided for @price.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get price;
+
+  /// No description provided for @currency.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get currency;
+
+  /// No description provided for @serviceDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Service Duration'**
+  String get serviceDuration;
+
+  /// No description provided for @serviceArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Service Area'**
+  String get serviceArea;
+
+  /// No description provided for @tags.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags'**
+  String get tags;
+
+  /// No description provided for @serviceTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Service Terms'**
+  String get serviceTerms;
+
+  /// No description provided for @serviceTermsContent.
+  ///
+  /// In en, this message translates to:
+  /// **'• Service provider commits to complete the service within the agreed time\n• Customer must provide accurate service address and contact information\n• For service cancellation, please notify 24 hours in advance\n• Service quality issues will be handled within 7 days\n• Payment will be processed after service completion'**
+  String get serviceTermsContent;
+
+  /// No description provided for @trustAndSecurity.
+  ///
+  /// In en, this message translates to:
+  /// **'Trust & Security'**
+  String get trustAndSecurity;
+
+  /// No description provided for @verifiedProvider.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified Provider'**
+  String get verifiedProvider;
+
+  /// No description provided for @verifiedProviderDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'This provider has been verified by our team to ensure reliability and quality.'**
+  String get verifiedProviderDescription;
+
+  /// No description provided for @securePayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Secure Payment'**
+  String get securePayment;
+
+  /// No description provided for @securePaymentDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'All transactions are protected by our secure payment system.'**
+  String get securePaymentDescription;
+
+  /// No description provided for @licensedBusiness.
+  ///
+  /// In en, this message translates to:
+  /// **'Licensed Business'**
+  String get licensedBusiness;
+
+  /// No description provided for @insuredAndBonded.
+  ///
+  /// In en, this message translates to:
+  /// **'Insured & Bonded'**
+  String get insuredAndBonded;
+
+  /// No description provided for @contactInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact Information'**
+  String get contactInformation;
+
+  /// No description provided for @chooseContactMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your preferred way to contact the provider'**
+  String get chooseContactMethod;
+
+  /// No description provided for @chooseBookingMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your preferred booking method. You can book immediately or discuss details with the provider first.'**
+  String get chooseBookingMethod;
+
+  /// No description provided for @bookingOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking Options'**
+  String get bookingOptions;
+
+  /// No description provided for @bookNowDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule service for a specific date and time'**
+  String get bookNowDescription;
+
+  /// No description provided for @checkAvailability.
+  ///
+  /// In en, this message translates to:
+  /// **'Check Availability'**
+  String get checkAvailability;
+
+  /// No description provided for @checkAvailabilityDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'View provider\'s available time slots'**
+  String get checkAvailabilityDescription;
+
+  /// No description provided for @discussDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Discuss details before booking'**
+  String get discussDetails;
+
+  /// No description provided for @quoteOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Quote Options'**
+  String get quoteOptions;
+
+  /// No description provided for @quickQuote.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Quote'**
+  String get quickQuote;
+
+  /// No description provided for @quickQuoteDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit basic requirements for a quick estimate'**
+  String get quickQuoteDescription;
+
+  /// No description provided for @detailedQuote.
+  ///
+  /// In en, this message translates to:
+  /// **'Detailed Quote'**
+  String get detailedQuote;
+
+  /// No description provided for @detailedQuoteDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Provide detailed requirements for accurate pricing'**
+  String get detailedQuoteDescription;
+
+  /// No description provided for @chatFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat First'**
+  String get chatFirst;
+
+  /// No description provided for @chatFirstDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Discuss your needs with the provider'**
+  String get chatFirstDescription;
+
+  /// No description provided for @quoteResponseTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Provider will respond within 24 hours with a detailed quote'**
+  String get quoteResponseTime;
+
+  /// No description provided for @loadingServiceDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading service details...'**
+  String get loadingServiceDetails;
+
+  /// No description provided for @serviceDetailsLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load service details'**
+  String get serviceDetailsLoadFailed;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @back.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get back;
+
+  /// No description provided for @error.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get error;
+
+  /// No description provided for @success.
+  ///
+  /// In en, this message translates to:
+  /// **'Success'**
+  String get success;
+
+  /// No description provided for @warning.
+  ///
+  /// In en, this message translates to:
+  /// **'Warning'**
+  String get warning;
+
+  /// No description provided for @info.
+  ///
+  /// In en, this message translates to:
+  /// **'Info'**
+  String get info;
+
+  /// No description provided for @networkStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Network Status'**
+  String get networkStatus;
+
+  /// No description provided for @networkOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Online'**
+  String get networkOnline;
+
+  /// No description provided for @networkOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get networkOffline;
+
+  /// No description provided for @networkOfflineMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Currently offline, some features may be limited'**
+  String get networkOfflineMessage;
+
+  /// No description provided for @professionalRemarksTest.
+  ///
+  /// In en, this message translates to:
+  /// **'Professional Remarks Test'**
+  String get professionalRemarksTest;
+
+  /// No description provided for @selectServiceType.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Service Type'**
+  String get selectServiceType;
+
+  /// No description provided for @cleaningService.
+  ///
+  /// In en, this message translates to:
+  /// **'Cleaning Service'**
+  String get cleaningService;
+
+  /// No description provided for @maintenanceService.
+  ///
+  /// In en, this message translates to:
+  /// **'Maintenance Service'**
+  String get maintenanceService;
+
+  /// No description provided for @beautyService.
+  ///
+  /// In en, this message translates to:
+  /// **'Beauty Service'**
+  String get beautyService;
+
+  /// No description provided for @educationService.
+  ///
+  /// In en, this message translates to:
+  /// **'Education Service'**
+  String get educationService;
+
+  /// No description provided for @transportationService.
+  ///
+  /// In en, this message translates to:
+  /// **'Transportation Service'**
+  String get transportationService;
+
+  /// No description provided for @foodService.
+  ///
+  /// In en, this message translates to:
+  /// **'Food Service'**
+  String get foodService;
+
+  /// No description provided for @healthService.
+  ///
+  /// In en, this message translates to:
+  /// **'Health Service'**
+  String get healthService;
+
+  /// No description provided for @technologyService.
+  ///
+  /// In en, this message translates to:
+  /// **'Technology Service'**
+  String get technologyService;
+
+  /// No description provided for @generalService.
+  ///
+  /// In en, this message translates to:
+  /// **'General Service'**
+  String get generalService;
+
+  /// No description provided for @adjustProviderData.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust Provider Data'**
+  String get adjustProviderData;
+
+  /// No description provided for @completedOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed Orders'**
+  String get completedOrders;
+
+  /// No description provided for @rating.
+  ///
+  /// In en, this message translates to:
+  /// **'Rating'**
+  String get rating;
+
+  /// No description provided for @reviewCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Review Count'**
+  String get reviewCount;
+
+  /// No description provided for @verified.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified'**
+  String get verified;
+
+  /// No description provided for @yes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get yes;
+
+  /// No description provided for @no.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get no;
+
+  /// No description provided for @testServiceData.
+  ///
+  /// In en, this message translates to:
+  /// **'Test Service Data'**
+  String get testServiceData;
+
+  /// No description provided for @testServiceDataLoaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Test service data loaded successfully'**
+  String get testServiceDataLoaded;
+
+  /// No description provided for @simulatedNetworkError.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulated network timeout error'**
+  String get simulatedNetworkError;
+
+  /// No description provided for @networkTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'Network connection timeout'**
+  String get networkTimeout;
+
+  /// No description provided for @manuallySwitchState.
+  ///
+  /// In en, this message translates to:
+  /// **'Manually switching loading state to: {state}'**
+  String manuallySwitchState(String state);
 
   /// No description provided for @themeSettings.
   ///
@@ -677,23 +1196,11 @@ abstract class AppLocalizations {
   /// **'Select time'**
   String get selectTime;
 
-  /// No description provided for @serviceDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Service Description'**
-  String get serviceDescription;
-
   /// No description provided for @serviceDescriptionHint.
   ///
   /// In en, this message translates to:
   /// **'Describe your service requirements...'**
   String get serviceDescriptionHint;
-
-  /// No description provided for @pricingType.
-  ///
-  /// In en, this message translates to:
-  /// **'Pricing Type'**
-  String get pricingType;
 
   /// No description provided for @fixedPrice.
   ///
@@ -730,12 +1237,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'TBD'**
   String get tbd;
-
-  /// No description provided for @requestQuote.
-  ///
-  /// In en, this message translates to:
-  /// **'Request Quote'**
-  String get requestQuote;
 
   /// No description provided for @serviceMap.
   ///
@@ -948,7 +1449,8 @@ abstract class AppLocalizations {
   String get registerAsProvider;
 }
 
-class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -957,25 +1459,25 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['en', 'zh'].contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      <String>['en', 'zh'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
-
-
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'en': return AppLocalizationsEn();
-    case 'zh': return AppLocalizationsZh();
+    case 'en':
+      return AppLocalizationsEn();
+    case 'zh':
+      return AppLocalizationsZh();
   }
 
   throw FlutterError(
-    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-    'an issue with the localizations generation tool. Please file an issue '
-    'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.'
-  );
+      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+      'an issue with the localizations generation tool. Please file an issue '
+      'on GitHub with a reproducible sample app and the gen-l10n configuration '
+      'that was used.');
 }

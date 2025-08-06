@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../provider_registration_controller.dart';
+import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
+import '../provider_registration_controller.dart';
 
 class StepBasicInfo extends StatelessWidget {
   final ProviderRegistrationController controller;
@@ -8,19 +9,20 @@ class StepBasicInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text((AppLocalizations.of(context) ?? AppLocalizationsEn()).selectProviderType, style: TextStyle(fontWeight: FontWeight.bold)),
+        Text(l10n?.selectProviderType ?? 'Select Provider Type', style: TextStyle(fontWeight: FontWeight.bold)),
         Row(
           children: ProviderType.values
               .map((type) => Expanded(
                     child: RadioListTile<ProviderType>(
                       title: Text(type == ProviderType.individual
-                          ? (AppLocalizations.of(context) ?? AppLocalizationsEn()).individual
+                          ? l10n?.individual ?? 'Individual'
                           : type == ProviderType.team
-                              ? (AppLocalizations.of(context) ?? AppLocalizationsEn()).team
-                              : (AppLocalizations.of(context) ?? AppLocalizationsEn()).enterprise),
+                              ? l10n?.team ?? 'Team'
+                              : l10n?.enterprise ?? 'Enterprise'),
                       value: type,
                       groupValue: controller.providerType,
                       onChanged: (val) => controller.setProviderType(val!),
@@ -29,21 +31,21 @@ class StepBasicInfo extends StatelessWidget {
               .toList(),
         ),
         TextField(
-          decoration: InputDecoration(labelText: (AppLocalizations.of(context) ?? AppLocalizationsEn()).providerName),
+          decoration: InputDecoration(labelText: l10n?.providerName ?? 'Provider Name'),
           onChanged: (v) => controller.displayName = v,
         ),
         TextField(
-          decoration: InputDecoration(labelText: (AppLocalizations.of(context) ?? AppLocalizationsEn()).phoneNumber),
+          decoration: InputDecoration(labelText: l10n?.phoneNumber ?? 'Phone Number'),
           keyboardType: TextInputType.phone,
           onChanged: (v) => controller.phone = v,
         ),
         TextField(
-          decoration: InputDecoration(labelText: (AppLocalizations.of(context) ?? AppLocalizationsEn()).email),
+          decoration: InputDecoration(labelText: l10n?.email ?? 'Email'),
           keyboardType: TextInputType.emailAddress,
           onChanged: (v) => controller.email = v,
         ),
         TextField(
-          decoration: InputDecoration(labelText: (AppLocalizations.of(context) ?? AppLocalizationsEn()).setPassword),
+          decoration: InputDecoration(labelText: l10n?.setPassword ?? 'Set Password'),
           obscureText: true,
           onChanged: (v) => controller.password = v,
         ),

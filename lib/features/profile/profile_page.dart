@@ -20,8 +20,9 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text((AppLocalizations.of(context) ?? AppLocalizationsEn()).profile)),
+      appBar: AppBar(title: Text(l10n?.profile ?? 'Profile')),
       body: Column(
         children: [
           // ... 其它 profile 信息 ...
@@ -46,13 +47,13 @@ class _ProfilePageState extends State<ProfilePage> {
                     // 热重启App，彻底切换到provider端
                     Phoenix.rebirth(context);
                   },
-                  child: Text((AppLocalizations.of(context) ?? AppLocalizationsEn()).switchToProvider),
+                  child: Text(l10n?.switchToProvider ?? 'Switch to Provider'),
                 );
               } else if (status == ProviderStatus.pending) {
                 print('[ProfilePage] 显示"等待审核中"按钮');
                 return ElevatedButton(
                   onPressed: null,
-                  child: Text((AppLocalizations.of(context) ?? AppLocalizationsEn()).waitingForApproval),
+                  child: Text(l10n?.waitingForApproval ?? 'Waiting for Approval'),
                 );
               } else {
                 print('[ProfilePage] 显示"注册服务商"按钮');
@@ -61,7 +62,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     print('[ProfilePage] 用户点击"注册服务商"');
                     Get.toNamed('/provider_registration');
                   },
-                  child: Text((AppLocalizations.of(context) ?? AppLocalizationsEn()).registerAsProvider),
+                  child: Text(l10n?.registerAsProvider ?? 'Register as Provider'),
                 );
               }
             },

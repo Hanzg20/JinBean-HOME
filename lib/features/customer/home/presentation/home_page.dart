@@ -828,7 +828,19 @@ class HomePage extends GetView<HomeController> {
                   isPopular: recommendation.isPopular,
                   isNearby: recommendation.isNearby,
                   onTap: () {
-                    Get.toNamed('/service_detail', arguments: {'serviceId': recommendation.id});
+                    print('DEBUG: Navigating to service detail with serviceId: ${recommendation.id}');
+                    print('DEBUG: recommendation object: $recommendation');
+                    print('DEBUG: recommendation.id type: ${recommendation.id.runtimeType}');
+                    print('DEBUG: recommendation.id length: ${recommendation.id.length}');
+                    print('DEBUG: recommendation.id isEmpty: ${recommendation.id.isEmpty}');
+                    print('DEBUG: recommendation.id == "": ${recommendation.id == ""}');
+                    print('DEBUG: recommendation.id == null: ${recommendation.id == null}');
+                    
+                    // 使用Get.toNamed的正确方式传递参数
+                    final parameters = {'serviceId': recommendation.id};
+                    print('DEBUG: Navigation parameters: $parameters');
+                    
+                    Get.toNamed('/service_detail', parameters: parameters);
                   },
                 );
               },

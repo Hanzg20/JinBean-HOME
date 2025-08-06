@@ -1,4 +1,7 @@
 import 'dart:math';
+import 'package:jinbeanpod_83904710/features/customer/domain/entities/service.dart';
+import 'package:jinbeanpod_83904710/features/customer/domain/entities/service_detail.dart';
+import 'package:jinbeanpod_83904710/features/customer/domain/entities/similar_service.dart';
 import 'package:jinbeanpod_83904710/features/customer/services/presentation/service_detail_controller.dart';
 
 class SimilarityCalculatorService {
@@ -26,16 +29,14 @@ class SimilarityCalculatorService {
   static double _calculateCategorySimilarity(Service service1, Service service2) {
     double score = 0.0;
     
-    // 一级分类匹配 (60%)
-    if (service1.categoryLevel1Id == service2.categoryLevel1Id) {
-      score += 0.6;
+    // 一级分类匹配
+    if (service1.categoryId == service2.categoryId) {
+      score += 0.4;
     }
     
-    // 二级分类匹配 (40%)
-    if (service1.categoryLevel2Id != null && 
-        service2.categoryLevel2Id != null &&
-        service1.categoryLevel2Id == service2.categoryLevel2Id) {
-      score += 0.4;
+    // 二级分类匹配
+    if (service1.categoryLevel2Id == service2.categoryLevel2Id) {
+      score += 0.3;
     }
     
     return score;
@@ -60,6 +61,31 @@ class SimilarityCalculatorService {
     // 这里需要从ServiceDetail中获取标签信息
     // 暂时返回默认值
     return 0.5;
+  }
+  
+  /// 计算评分相似度
+  static double _calculateRatingSimilarity(Service service1, Service service2) {
+    double score = 0.0;
+    
+    // 评分差异计算
+    final rating1 = service1.rating ?? 0.0;
+    final rating2 = service2.rating ?? 0.0;
+    
+    final ratingDiff = (rating1 - rating2).abs();
+    if (ratingDiff <= 0.5) {
+      score += 0.3;
+    } else if (ratingDiff <= 1.0) {
+      score += 0.2;
+    }
+    
+    // 状态匹配
+    final isActive1 = service1.isActive ?? false;
+    final isActive2 = service2.isActive ?? false;
+    if (isActive1 == isActive2) {
+      score += 0.1;
+    }
+    
+    return score;
   }
   
   /// 计算距离（使用Haversine公式）
@@ -103,21 +129,27 @@ class SimilarityCalculatorService {
     }
     
     // 评分比较
-    if (similarService.averageRating > currentService.averageRating) {
+    final currentRating = currentService.rating ?? 0.0;
+    final similarRating = similarService.rating ?? 0.0;
+    if (similarRating > currentRating) {
       advantages.add('Higher rating');
-    } else if (similarService.averageRating < currentService.averageRating) {
+    } else if (similarRating < currentRating) {
       disadvantages.add('Lower rating');
     }
     
     // 评价数量比较
-    if (similarService.reviewCount > currentService.reviewCount) {
+    final currentReviewCount = currentService.reviewCount ?? 0;
+    final similarReviewCount = similarService.reviewCount ?? 0;
+    if (similarReviewCount > currentReviewCount) {
       advantages.add('More reviews');
-    } else if (similarService.reviewCount < currentService.reviewCount) {
+    } else if (similarReviewCount < currentReviewCount) {
       disadvantages.add('Fewer reviews');
     }
     
     // 服务状态比较
-    if (similarService.status == 'active' && currentService.status != 'active') {
+    final currentIsActive = currentService.isActive ?? false;
+    final similarIsActive = similarService.isActive ?? false;
+    if (similarIsActive && !currentIsActive) {
       advantages.add('Currently available');
     }
     
@@ -129,7 +161,7 @@ class SimilarityCalculatorService {
   
   /// 根据相似度分数排序服务列表
   static List<SimilarService> sortBySimilarity(List<SimilarService> services) {
-    services.sort((a, b) => b.similarityScore.compareTo(a.similarityScore));
+    services.sort((a, b) => (b.similarityScore ?? 0.0).compareTo(a.similarityScore ?? 0.0));
     return services;
   }
   
@@ -138,6 +170,6 @@ class SimilarityCalculatorService {
     List<SimilarService> services, 
     double threshold
   ) {
-    return services.where((service) => service.similarityScore >= threshold).toList();
+    return services.where((service) => (service.similarityScore ?? 0.0) >= threshold).toList();
   }
 } 

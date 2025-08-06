@@ -238,16 +238,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get enterprise => '企业';
 
   @override
-  String get providerName => '服务商名称';
+  String get providerName => '提供商名称';
 
   @override
   String get setPassword => '设置密码';
 
   @override
-  String get robOrderHall => '抢单大厅';
+  String get robOrderHall => '接单大厅';
 
   @override
-  String get robOrderHallDescription => '这里是抢单大厅，可以查看并抢取新订单。';
+  String get robOrderHallDescription => '这里是接单大厅，可以查看并接取新订单。';
 
   @override
   String get securityAndCompliance => '安全与合规';
@@ -260,6 +260,267 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get orderManagementDescription => '这里是订单管理页面，可以查看、处理所有订单。';
+
+  @override
+  String get serviceDetailPageTitle => '服务详情';
+
+  @override
+  String get overview => '概览';
+
+  @override
+  String get details => '详情';
+
+  @override
+  String get provider => '提供商';
+
+  @override
+  String get reviews => '评价';
+
+  @override
+  String get forYou => '为您推荐';
+
+  @override
+  String get serviceFeatures => '服务特色';
+
+  @override
+  String get qualityAssurance => '质量保证';
+
+  @override
+  String get professionalQualification => '专业资质';
+
+  @override
+  String get serviceExperience => '服务经验';
+
+  @override
+  String get bookNow => '立即预订';
+
+  @override
+  String get contactProvider => '联系提供商';
+
+  @override
+  String get getQuote => '获取报价';
+
+  @override
+  String get startChat => '开始聊天';
+
+  @override
+  String get callProvider => '拨打电话';
+
+  @override
+  String get sendEmail => '发送邮件';
+
+  @override
+  String get viewContactInfo => '查看联系信息';
+
+  @override
+  String get requestQuote => '请求报价';
+
+  @override
+  String get serviceName => '服务名称';
+
+  @override
+  String get serviceDescription => '服务描述';
+
+  @override
+  String get pricingType => '定价类型';
+
+  @override
+  String get price => '价格';
+
+  @override
+  String get currency => '货币';
+
+  @override
+  String get serviceDuration => '服务时长';
+
+  @override
+  String get serviceArea => '服务区域';
+
+  @override
+  String get tags => '标签';
+
+  @override
+  String get serviceTerms => '服务条款';
+
+  @override
+  String get serviceTermsContent =>
+      '• 服务提供商承诺在约定时间内完成服务\n• 客户需提供准确的服务地址和联系方式\n• 如需取消服务，请提前24小时通知\n• 服务质量问题将在7天内处理\n• 付款将在服务完成后进行';
+
+  @override
+  String get trustAndSecurity => '信任与安全';
+
+  @override
+  String get verifiedProvider => '已验证提供商';
+
+  @override
+  String get verifiedProviderDescription => '此提供商已通过我们团队的验证，确保可靠性和质量。';
+
+  @override
+  String get securePayment => '安全支付';
+
+  @override
+  String get securePaymentDescription => '所有交易都受到我们安全支付系统的保护。';
+
+  @override
+  String get licensedBusiness => '持照企业';
+
+  @override
+  String get insuredAndBonded => '投保担保';
+
+  @override
+  String get contactInformation => '联系信息';
+
+  @override
+  String get chooseContactMethod => '选择您偏好的联系方式';
+
+  @override
+  String get chooseBookingMethod => '选择您偏好的预订方式。您可以立即预订或先与提供商讨论详情。';
+
+  @override
+  String get bookingOptions => '预订选项';
+
+  @override
+  String get bookNowDescription => '为特定日期和时间安排服务';
+
+  @override
+  String get checkAvailability => '查看可用时间';
+
+  @override
+  String get checkAvailabilityDescription => '查看提供商的可用时间段';
+
+  @override
+  String get discussDetails => '预订前讨论详情';
+
+  @override
+  String get quoteOptions => '报价选项';
+
+  @override
+  String get quickQuote => '快速报价';
+
+  @override
+  String get quickQuoteDescription => '提交基本需求以获得快速估算';
+
+  @override
+  String get detailedQuote => '详细报价';
+
+  @override
+  String get detailedQuoteDescription => '提供详细需求以获得准确定价';
+
+  @override
+  String get chatFirst => '先聊天';
+
+  @override
+  String get chatFirstDescription => '与提供商讨论您的需求';
+
+  @override
+  String get quoteResponseTime => '提供商将在24小时内回复详细报价';
+
+  @override
+  String get loadingServiceDetails => '正在加载服务详情...';
+
+  @override
+  String get serviceDetailsLoadFailed => '服务详情加载失败';
+
+  @override
+  String get retry => '重试';
+
+  @override
+  String get back => '返回';
+
+  @override
+  String get error => '错误';
+
+  @override
+  String get success => '成功';
+
+  @override
+  String get warning => '警告';
+
+  @override
+  String get info => '信息';
+
+  @override
+  String get networkStatus => '网络状态';
+
+  @override
+  String get networkOnline => '在线';
+
+  @override
+  String get networkOffline => '离线';
+
+  @override
+  String get networkOfflineMessage => '当前离线，部分功能可能受限';
+
+  @override
+  String get professionalRemarksTest => '专业说明文字测试';
+
+  @override
+  String get selectServiceType => '选择服务类型';
+
+  @override
+  String get cleaningService => '清洁服务';
+
+  @override
+  String get maintenanceService => '维修服务';
+
+  @override
+  String get beautyService => '美容服务';
+
+  @override
+  String get educationService => '教育服务';
+
+  @override
+  String get transportationService => '运输服务';
+
+  @override
+  String get foodService => '餐饮服务';
+
+  @override
+  String get healthService => '健康服务';
+
+  @override
+  String get technologyService => '技术服务';
+
+  @override
+  String get generalService => '通用服务';
+
+  @override
+  String get adjustProviderData => '调整提供商数据';
+
+  @override
+  String get completedOrders => '完成订单数';
+
+  @override
+  String get rating => '评分';
+
+  @override
+  String get reviewCount => '评价数量';
+
+  @override
+  String get verified => '已验证';
+
+  @override
+  String get yes => '是';
+
+  @override
+  String get no => '否';
+
+  @override
+  String get testServiceData => '测试服务数据';
+
+  @override
+  String get testServiceDataLoaded => '测试服务数据加载成功';
+
+  @override
+  String get simulatedNetworkError => '模拟网络超时错误';
+
+  @override
+  String get networkTimeout => '网络连接超时';
+
+  @override
+  String manuallySwitchState(String state) {
+    return '手动切换加载状态到: $state';
+  }
 
   @override
   String get themeSettings => '主题设置';
@@ -304,13 +565,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get selectTime => '选择时间';
 
   @override
-  String get serviceDescription => '服务描述';
-
-  @override
   String get serviceDescriptionHint => '描述您的服务需求...';
-
-  @override
-  String get pricingType => '定价类型';
 
   @override
   String get fixedPrice => '固定价格';
@@ -329,9 +584,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get tbd => '待定';
-
-  @override
-  String get requestQuote => '请求报价';
 
   @override
   String get serviceMap => '服务地图';
@@ -373,7 +625,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get usageInstructions => '使用说明';
 
   @override
-  String get addressInputInstructions => '1. 点击定位图标（📍）打开位置选择对话框\n2. 选择\"使用当前位置\"获取GPS定位\n3. 选择\"搜索地址\"手动输入地址搜索\n4. 选择\"常用城市\"快速选择加拿大主要城市\n5. 手动输入地址时，系统会实时解析和验证\n6. 输入时会显示常用城市建议\n7. 点击帮助图标（❓）查看地址格式说明\n8. 地图选点功能正在开发中\n\n支持的地址格式：\n• 123 Bank St, Ottawa, ON K2P 1L4\n• 456 Queen St W, Toronto, ON M5V 2A9\n• 789 Robson St, Vancouver, BC V6Z 1C3';
+  String get addressInputInstructions =>
+      '1. 点击定位图标（📍）打开位置选择对话框\n2. 选择\"使用当前位置\"获取GPS定位\n3. 选择\"搜索地址\"手动输入地址搜索\n4. 选择\"常用城市\"快速选择加拿大主要城市\n5. 手动输入地址时，系统会实时解析和验证\n6. 输入时会显示常用城市建议\n7. 点击帮助图标（❓）查看地址格式说明\n8. 地图选点功能正在开发中\n\n支持的地址格式：\n• 123 Bank St, Ottawa, ON K2P 1L4\n• 456 Queen St W, Toronto, ON M5V 2A9\n• 789 Robson St, Vancouver, BC V6Z 1C3';
 
   @override
   String get removed => '已移除';

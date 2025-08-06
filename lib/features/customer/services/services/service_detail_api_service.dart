@@ -1,5 +1,8 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:jinbeanpod_83904710/features/customer/services/presentation/service_detail_controller.dart';
+import 'package:jinbeanpod_83904710/features/customer/domain/entities/service.dart';
+import 'package:jinbeanpod_83904710/features/customer/domain/entities/service_detail.dart';
+import 'package:jinbeanpod_83904710/features/customer/domain/entities/provider_profile.dart';
 
 class ServiceDetailApiService {
   static final SupabaseClient _supabase = Supabase.instance.client;
@@ -26,12 +29,12 @@ class ServiceDetailApiService {
         id: serviceId,
         title: 'Professional Home Cleaning Service',
         description: 'Comprehensive home cleaning service including kitchen, bathroom, living areas, and bedrooms.',
-        averageRating: 4.8,
+        rating: 4.8,
         reviewCount: 127,
         providerId: 'provider_456',
-        categoryLevel1Id: '1020000',
+        categoryId: '1020000',
         categoryLevel2Id: '1020100',
-        status: 'active',
+        isActive: true,
         serviceDeliveryMethod: 'on_site',
         createdAt: DateTime.now(),
       );
@@ -52,13 +55,14 @@ class ServiceDetailApiService {
       print('Error fetching service detail: $e');
       // 返回Mock数据
       return ServiceDetail(
+        id: 'detail_$serviceId',
         serviceId: serviceId,
         pricingType: 'hourly',
         price: 45.0,
         currency: 'USD',
         negotiationDetails: 'Price may vary based on home size and specific requirements',
         durationType: 'fixed',
-        duration: Duration(hours: 3),
+        duration: 3,
         images: [
           'https://picsum.photos/400/300?random=1',
           'https://picsum.photos/400/300?random=2',
@@ -93,19 +97,20 @@ class ServiceDetailApiService {
       // 返回Mock数据
       return ProviderProfile(
         id: providerId,
-        companyName: 'CleanPro Services',
-        contactPhone: '+1 (555) 123-4567',
-        contactEmail: 'contact@cleanproservices.com',
-        companyDescription: 'Leading professional cleaning service with over 10 years of experience.',
-        ratingsAvg: 4.9,
-        reviewCount: 342,
-        businessLicense: 'LIC-2024-001234',
-        insuranceInfo: 'Fully insured and bonded for your peace of mind',
-        serviceCategories: ['cleaning', 'maintenance', 'sanitization'],
-        profileImageUrl: 'https://picsum.photos/100/100?random=4',
-        status: 'approved',
-        createdAt: DateTime.now().subtract(Duration(days: 365)),
-        updatedAt: DateTime.now(),
+        name: 'CleanPro Services',
+        phone: '+1 (555) 123-4567',
+        email: 'contact@cleanproservices.com',
+        description: 'Leading professional cleaning service with over 10 years of experience.',
+        rating: 4.9,
+        reviewCount: 156,
+        completedOrders: 342,
+        businessLicense: 'CA123456789',
+        isVerified: true,
+        createdAt: DateTime.now(),
+        metadata: {
+          'insurance': 'Fully insured and bonded',
+          'serviceCategories': ['cleaning', 'maintenance', 'deep-cleaning'],
+        },
       );
     }
   }

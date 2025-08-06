@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/features/customer/services/presentation/service_detail_controller.dart';
 import 'package:jinbeanpod_83904710/core/ui/components/customer_theme_components.dart';
 import 'package:jinbeanpod_83904710/core/ui/themes/customer_theme_utils.dart';
+import '../../domain/entities/similar_service.dart';
 
 class SimilarServicesPage extends StatelessWidget {
   final String currentServiceId;
@@ -104,68 +105,68 @@ class SimilarServicesPage extends StatelessWidget {
     final similarServices = [
       SimilarService(
         id: 'similar_1',
-        providerId: 'provider_789',
-        providerName: 'CleanMaster Pro',
-        serviceTitle: 'Professional Home Cleaning',
+        title: 'Professional Home Cleaning',
+        description: 'Complete home cleaning service with professional equipment',
         price: 42.0,
+        currency: 'USD',
+        categoryId: 'cleaning',
+        providerId: 'provider_789',
+        images: ['https://picsum.photos/300/200?random=1'],
         rating: 4.7,
         reviewCount: 89,
         similarityScore: 0.92,
-        providerAvatar: 'https://picsum.photos/80/80?random=1',
-        advantages: ['Lower price', 'Faster response'],
-        disadvantages: ['Smaller service area'],
       ),
       SimilarService(
         id: 'similar_2',
-        providerId: 'provider_101',
-        providerName: 'Sparkle & Shine',
-        serviceTitle: 'Complete Home Cleaning Service',
+        title: 'Complete Home Cleaning Service',
+        description: 'Comprehensive cleaning service for all areas of your home',
         price: 48.0,
+        currency: 'USD',
+        categoryId: 'cleaning',
+        providerId: 'provider_101',
+        images: ['https://picsum.photos/300/200?random=2'],
         rating: 4.9,
         reviewCount: 156,
         similarityScore: 0.88,
-        providerAvatar: 'https://picsum.photos/80/80?random=2',
-        advantages: ['Higher rating', 'More reviews'],
-        disadvantages: ['Higher price'],
       ),
       SimilarService(
         id: 'similar_3',
-        providerId: 'provider_202',
-        providerName: 'EcoClean Solutions',
-        serviceTitle: 'Eco-Friendly Home Cleaning',
+        title: 'Eco-Friendly Home Cleaning',
+        description: 'Environmentally friendly cleaning service using green products',
         price: 45.0,
+        currency: 'USD',
+        categoryId: 'cleaning',
+        providerId: 'provider_202',
+        images: ['https://picsum.photos/300/200?random=3'],
         rating: 4.6,
         reviewCount: 67,
         similarityScore: 0.85,
-        providerAvatar: 'https://picsum.photos/80/80?random=3',
-        advantages: ['Eco-friendly', 'Same price'],
-        disadvantages: ['Fewer reviews'],
       ),
       SimilarService(
         id: 'similar_4',
-        providerId: 'provider_303',
-        providerName: 'QuickClean Express',
-        serviceTitle: 'Fast & Efficient Cleaning',
+        title: 'Fast & Efficient Cleaning',
+        description: 'Quick and efficient cleaning service for busy households',
         price: 38.0,
+        currency: 'USD',
+        categoryId: 'cleaning',
+        providerId: 'provider_303',
+        images: ['https://picsum.photos/300/200?random=4'],
         rating: 4.4,
         reviewCount: 45,
         similarityScore: 0.82,
-        providerAvatar: 'https://picsum.photos/80/80?random=4',
-        advantages: ['Lowest price', 'Quick service'],
-        disadvantages: ['Lower rating'],
       ),
       SimilarService(
         id: 'similar_5',
-        providerId: 'provider_404',
-        providerName: 'Premium Clean Co',
-        serviceTitle: 'Luxury Home Cleaning',
+        title: 'Luxury Home Cleaning',
+        description: 'Premium cleaning service with attention to detail',
         price: 55.0,
+        currency: 'USD',
+        categoryId: 'cleaning',
+        providerId: 'provider_404',
+        images: ['https://picsum.photos/300/200?random=5'],
         rating: 4.8,
         reviewCount: 203,
         similarityScore: 0.80,
-        providerAvatar: 'https://picsum.photos/80/80?random=5',
-        advantages: ['Premium service', 'High rating'],
-        disadvantages: ['Higher price'],
       ),
     ];
 
@@ -182,16 +183,11 @@ class SimilarServicesPage extends StatelessWidget {
   Widget _buildServiceCard(SimilarService service, ThemeData theme) {
     final colorScheme = theme.colorScheme;
     
-    return CustomerCard(
+    return Card(
       margin: const EdgeInsets.only(bottom: 16),
       child: InkWell(
         onTap: () => Get.toNamed('/service_detail', parameters: {'serviceId': service.id}),
-        borderRadius: BorderRadius.only(
-          topLeft: const Radius.circular(16),
-          topRight: const Radius.circular(64),
-          bottomLeft: const Radius.circular(16),
-          bottomRight: const Radius.circular(16),
-        ),
+        borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -199,31 +195,46 @@ class SimilarServicesPage extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  // 提供商头像
-                  CircleAvatar(
-                    backgroundImage: NetworkImage(service.providerAvatar),
-                    radius: 32,
-                    onBackgroundImageError: (exception, stackTrace) {
-                      // 处理图片加载错误
-                    },
-                  ),
-                  const SizedBox(width: 16),
-                  
-                  // 服务信息
+                  if (service.images != null && service.images!.isNotEmpty)
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(
+                        service.images!.first,
+                        width: 80,
+                        height: 80,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            width: 80,
+                            height: 80,
+                            color: colorScheme.surfaceVariant,
+                            child: Icon(
+                              Icons.image,
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          service.providerName,
+                          service.title,
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          service.serviceTitle,
-                          style: theme.textTheme.bodyMedium,
+                          service.description,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 8),
                         Row(
@@ -243,77 +254,35 @@ class SimilarServicesPage extends StatelessWidget {
                       ],
                     ),
                   ),
-                  
-                  // 相似度标签
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: colorScheme.primary.withOpacity(0.1),
-                      borderRadius: BorderRadius.only(
-                        topLeft: const Radius.circular(6),
-                        topRight: const Radius.circular(24),
-                        bottomLeft: const Radius.circular(6),
-                        bottomRight: const Radius.circular(6),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        '\$${service.price}',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.primary,
+                        ),
                       ),
-                    ),
-                    child: Text(
-                      '${(service.similarityScore * 100).toInt()}% Match',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: colorScheme.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              
-              const SizedBox(height: 16),
-              
-              // 价格和优势信息
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '\$${service.price}',
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      color: colorScheme.primary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  if (service.advantages.isNotEmpty)
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            'Advantages:',
+                      if (service.similarityScore != null)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: colorScheme.primary.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            '${(service.similarityScore! * 100).toInt()}% match',
                             style: theme.textTheme.bodySmall?.copyWith(
+                              color: colorScheme.primary,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          Text(
-                            service.advantages.join(', '),
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: Colors.green[600],
-                            ),
-                            textAlign: TextAlign.end,
-                          ),
-                        ],
-                      ),
-                    ),
+                        ),
+                    ],
+                  ),
                 ],
               ),
-              
-              if (service.disadvantages.isNotEmpty) ...[
-                const SizedBox(height: 8),
-                Text(
-                  'Note: ${service.disadvantages.join(', ')}',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: Colors.orange[600],
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-              ],
             ],
           ),
         ),
