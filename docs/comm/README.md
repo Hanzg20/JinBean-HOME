@@ -19,6 +19,7 @@
 - **[JINBEAN_BOTTOM_NAVIGATION_GUIDE.md](./JINBEAN_BOTTOM_NAVIGATION_GUIDE.md)** - 底部导航设计指南
 - **[JINBEAN_BOTTOM_NAVIGATION_SUMMARY.md](./JINBEAN_BOTTOM_NAVIGATION_SUMMARY.md)** - 底部导航设计总结
 - **[JINBEAN_UI_COMPONENT_LIBRARY_FEASIBILITY.md](./JINBEAN_UI_COMPONENT_LIBRARY_FEASIBILITY.md)** - UI组件库可行性分析
+- **[LoadingStateDesign_Implementation_Guide.md](./LoadingStateDesign_Implementation_Guide.md)** - 加载状态设计实现指南
 
 ### 🔧 **开发规范和流程**
 - **[development_standards.md](./development_standards.md)** - 开发标准和编码规范
@@ -39,16 +40,19 @@
 2. 查看 **[developer_guide.md](./developer_guide.md)** 搭建开发环境
 3. 学习 **[development_standards.md](./development_standards.md)** 了解开发规范
 4. 参考 **[UI_REFACTORING_PRINCIPLES.md](./UI_REFACTORING_PRINCIPLES.md)** 了解UI设计规范
+5. 学习 **[LoadingStateDesign_Implementation_Guide.md](./LoadingStateDesign_Implementation_Guide.md)** 了解加载状态设计
 
 ### **功能开发**
 - **UI组件开发**: 参考UI/UX设计规范文档
 - **平台级组件**: 参考平台级组件技术方案
 - **系统集成**: 参考系统设计文档
+- **加载状态设计**: 参考加载状态设计实现指南
 
 ### **架构设计**
 - **系统架构**: 参考system_design.md
 - **组件设计**: 参考平台级组件技术方案
 - **优化策略**: 参考系统优化路线图
+- **加载状态**: 参考LoadingStateDesign_Implementation_Guide.md
 
 ## 📝 文档维护
 
@@ -75,9 +79,9 @@
 
 ## 📊 文档统计
 
-- **总文档数**: 14个
+- **总文档数**: 15个
 - **系统架构**: 3个文档
-- **UI/UX设计**: 5个文档
+- **UI/UX设计**: 6个文档
 - **开发规范**: 2个文档
 - **平台组件**: 2个文档
 - **安全配置**: 2个文档

@@ -30,6 +30,9 @@
 - `SECURITY_GUIDELINES.md` → `docs/comm/SECURITY_GUIDELINES.md` - 安全指南
 - `ENVIRONMENT_SETUP.md` → `docs/comm/ENVIRONMENT_SETUP.md` - 环境配置
 
+### **已存在的全局文档**
+- `LoadingStateDesign_Implementation_Guide.md` - 加载状态设计实现指南（已在docs/comm目录中）
+
 ## 📊 整理结果
 
 ### **docs/comm目录结构**
@@ -47,6 +50,7 @@ docs/comm/
 ├── JINBEAN_BOTTOM_NAVIGATION_GUIDE.md         # 底部导航指南
 ├── JINBEAN_BOTTOM_NAVIGATION_SUMMARY.md       # 底部导航总结
 ├── JINBEAN_UI_COMPONENT_LIBRARY_FEASIBILITY.md # UI组件库可行性
+├── LoadingStateDesign_Implementation_Guide.md  # 加载状态设计实现指南
 ├── PLATFORM_LEVEL_COMPONENTS_TECHNICAL_PLAN.md # 平台级组件技术方案
 ├── SYSTEM_OPTIMIZATION_ROADMAP.md             # 系统优化路线图
 ├── SECURITY_GUIDELINES.md                     # 安全指南
@@ -55,11 +59,11 @@ docs/comm/
 
 ### **文档分类统计**
 - **系统架构设计**: 3个文档
-- **UI/UX设计规范**: 5个文档
+- **UI/UX设计规范**: 6个文档
 - **开发规范和流程**: 2个文档
 - **平台级组件**: 2个文档
 - **安全和环境配置**: 2个文档
-- **总计**: 14个文档
+- **总计**: 15个文档
 
 ## 🎯 整理目标
 
@@ -102,4 +106,4 @@ docs/comm/
 
 *整理时间: 2024-12-19*
 *整理者: Development Team*
-*文档版本: 1.0* 
+*文档版本: 1.1* 
