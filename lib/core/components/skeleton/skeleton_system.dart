@@ -305,7 +305,7 @@ class SkeletonDetailWidget extends StatelessWidget {
           const SizedBox(height: 16),
           
           // 内容区域骨架屏
-          _buildContentSkeleton(),
+          _buildContentSkeleton(context),
         ],
       ),
     );
@@ -427,7 +427,7 @@ class SkeletonDetailWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildContentSkeleton() {
+  Widget _buildContentSkeleton(BuildContext context) {
     return Column(
       children: List.generate(5, (index) => Container(
         margin: const EdgeInsets.symmetric(vertical: 8),
