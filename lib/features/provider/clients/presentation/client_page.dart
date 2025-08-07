@@ -4,6 +4,11 @@ import 'package:jinbeanpod_83904710/core/ui/design_system/colors.dart';
 import 'package:jinbeanpod_83904710/features/provider/clients/presentation/client_controller.dart';
 import 'package:jinbeanpod_83904710/core/ui/components/provider_theme_components.dart';
 import 'package:jinbeanpod_83904710/core/ui/themes/provider_theme_utils.dart';
+// Import platform components
+import 'package:jinbeanpod_83904710/core/components/platform_core.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
+// Import loading components
+import 'package:jinbeanpod_83904710/features/customer/services/presentation/widgets/service_detail_loading.dart';
 
 class ClientPage extends StatefulWidget {
   const ClientPage({super.key});
@@ -14,66 +19,113 @@ class ClientPage extends StatefulWidget {
 
 class _ClientPageState extends State<ClientPage> {
   late ClientController controller;
+  
+  // 平台组件状态管理
+  final LoadingStateManager _loadingManager = LoadingStateManager();
 
   @override
   void initState() {
     super.initState();
+    AppLogger.debug('[ClientPage] initState called', tag: 'ClientPage');
+    
+    // 初始化网络状态为在线
+    _loadingManager.setOnline();
+    
     // 确保Controller被注册
     if (!Get.isRegistered<ClientController>()) {
       Get.put(ClientController());
     }
     controller = Get.find<ClientController>();
+    
+    // 数据已经在controller中加载完成，直接设置为成功状态
+    _loadingManager.setSuccess();
+  }
+
+  @override
+  void dispose() {
+    _loadingManager.dispose();
+    super.dispose();
+  }
+
+  /// 加载客户数据
+  Future<void> _loadClientsData() async {
+    try {
+      _loadingManager.setLoading();
+      
+      // 加载客户数据
+      await controller.loadClients();
+      
+      _loadingManager.setSuccess();
+      AppLogger.info('Clients data loaded successfully', tag: 'ClientPage');
+    } catch (e) {
+      AppLogger.error('Error loading clients data: $e', tag: 'ClientPage');
+      _loadingManager.setError('Failed to load clients data: ${e.toString()}');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    
-    return Container(
-      color: Colors.white,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.people,
-              size: 64,
-              color: Colors.blue,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Client Management',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.blue,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Client Page',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[600],
-              ),
-            ),
-          ],
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text(
+          '客户管理',
+          style: TextStyle(
+            color: Colors.black87,
+            fontWeight: FontWeight.bold,
+          ),
         ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.black87),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () => _showAddClientDialog(),
+          ),
+        ],
+      ),
+      body: ListenableBuilder(
+        listenable: _loadingManager,
+        builder: (context, child) {
+          return ServiceDetailLoading(
+            state: _loadingManager.state,
+            loadingMessage: '加载客户数据...',
+            errorMessage: _loadingManager.errorMessage,
+            onRetry: () => _loadClientsData(),
+            onBack: () => Get.back(),
+            showSkeleton: true,
+            child: Column(
+              children: [
+                // 搜索筛选区域
+                _buildSearchAndFilterSection(),
+                
+                const SizedBox(height: 16),
+                
+                // 统计概览区域
+                _buildStatisticsSection(),
+                
+                const SizedBox(height: 16),
+                
+                // 客户列表区域
+                Expanded(
+                  child: _buildClientsList(),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
 
   Widget _buildSearchAndFilterSection() {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: colorScheme.surface,
+        color: Colors.white,
         border: Border(
-          bottom: BorderSide(color: colorScheme.outline.withOpacity(0.1), width: 1),
+          bottom: BorderSide(color: Colors.grey.shade200, width: 1),
         ),
       ),
       child: Column(
@@ -81,10 +133,24 @@ class _ClientPageState extends State<ClientPage> {
           // 搜索栏
           TextField(
             onChanged: (value) => controller.searchClients(value),
-            decoration: ProviderThemeUtils.getInputDecoration(
-              context,
+            decoration: InputDecoration(
               hintText: '搜索客户姓名或邮箱...',
-              prefixIcon: Icon(Icons.search, color: colorScheme.onSurfaceVariant),
+              prefixIcon: const Icon(Icons.search, color: Colors.grey),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.grey.shade300),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.grey.shade300),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.blue, width: 2),
+              ),
+              filled: true,
+              fillColor: Colors.grey.shade50,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
           ),
           const SizedBox(height: 12),
@@ -92,44 +158,32 @@ class _ClientPageState extends State<ClientPage> {
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
-              children: [
-                _buildFilterChip('全部', 'all'),
-                const SizedBox(width: 8),
-                _buildFilterChip('活跃', 'active'),
-                const SizedBox(width: 8),
-                _buildFilterChip('新客户', 'new'),
-                const SizedBox(width: 8),
-                _buildFilterChip('VIP', 'vip'),
-              ],
+              children: controller.categories.map((category) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: Obx(() => FilterChip(
+                    label: Text(controller.getCategoryDisplayText(category)),
+                    selected: controller.selectedCategory.value == category,
+                    onSelected: (selected) {
+                      if (selected) {
+                        controller.filterByCategory(category);
+                      }
+                    },
+                    backgroundColor: Colors.grey.shade100,
+                    selectedColor: Colors.blue.shade100,
+                    labelStyle: TextStyle(
+                      color: controller.selectedCategory.value == category 
+                          ? Colors.blue 
+                          : Colors.grey.shade700,
+                    ),
+                  )),
+                );
+              }).toList(),
             ),
           ),
         ],
       ),
     );
-  }
-
-  Widget _buildFilterChip(String label, String value) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    
-    return Obx(() => FilterChip(
-      label: Text(label),
-      selected: controller.selectedCategory.value == value,
-      onSelected: (selected) {
-        if (selected) {
-          controller.selectedCategory.value = value;
-          controller.loadClients(refresh: true);
-        }
-      },
-      backgroundColor: colorScheme.surfaceVariant,
-      selectedColor: colorScheme.primary.withOpacity(0.1),
-      checkmarkColor: colorScheme.primary,
-      labelStyle: TextStyle(
-        color: controller.selectedCategory.value == value
-            ? colorScheme.primary
-            : colorScheme.onSurfaceVariant,
-      ),
-    ));
   }
 
   Widget _buildStatisticsSection() {
@@ -140,20 +194,20 @@ class _ClientPageState extends State<ClientPage> {
           Row(
             children: [
               Expanded(
-                child: ProviderStatCard(
-                  title: '总客户数',
-                  value: controller.clients.length.toString(),
-                  icon: Icons.people,
-                  iconColor: Theme.of(context).colorScheme.primary,
+                child: _buildStatCard(
+                  '总客户数',
+                  controller.clients.length.toString(),
+                  Icons.people,
+                  Colors.blue,
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: ProviderStatCard(
-                  title: '已服务',
-                  value: controller.clients.where((c) => c['relationship_type'] == 'served').length.toString(),
-                  icon: Icons.person_add,
-                  iconColor: Theme.of(context).colorScheme.secondary,
+                child: _buildStatCard(
+                  '已服务',
+                  controller.clients.where((c) => c['relationship_type'] == 'served').length.toString(),
+                  Icons.person_add,
+                  Colors.green,
                 ),
               ),
             ],
@@ -162,20 +216,20 @@ class _ClientPageState extends State<ClientPage> {
           Row(
             children: [
               Expanded(
-                child: ProviderStatCard(
-                  title: '谈判中',
-                  value: controller.clients.where((c) => c['relationship_type'] == 'in_negotiation').length.toString(),
-                  icon: Icons.person_add_alt,
-                  iconColor: Theme.of(context).colorScheme.tertiary,
+                child: _buildStatCard(
+                  '谈判中',
+                  controller.clients.where((c) => c['relationship_type'] == 'in_negotiation').length.toString(),
+                  Icons.person_add_alt,
+                  Colors.orange,
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: ProviderStatCard(
-                  title: '潜在客户',
-                  value: controller.clients.where((c) => c['relationship_type'] == 'potential').length.toString(),
-                  icon: Icons.star,
-                  iconColor: Theme.of(context).colorScheme.error,
+                child: _buildStatCard(
+                  '潜在客户',
+                  controller.clients.where((c) => c['relationship_type'] == 'potential').length.toString(),
+                  Icons.star,
+                  Colors.purple,
                 ),
               ),
             ],
@@ -185,22 +239,86 @@ class _ClientPageState extends State<ClientPage> {
     );
   }
 
+  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.shade200,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: color, size: 32),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey.shade600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildClientsList() {
     return Obx(() {
       if (controller.isLoading.value) {
-        return const ProviderLoadingState(message: '加载客户数据...');
+        return const Center(child: CircularProgressIndicator());
       }
       
       if (controller.clients.isEmpty) {
-        return const ProviderEmptyState(
-          icon: Icons.people,
-          title: '暂无客户数据',
-          subtitle: '完成订单后将自动添加客户',
-          actionText: '添加客户',
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.people,
+                size: 64,
+                color: Colors.grey.shade400,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                '暂无客户数据',
+                style: TextStyle(
+                  fontSize: 18,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '完成订单后将自动添加客户',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey.shade500,
+                ),
+              ),
+            ],
+          ),
         );
       }
       
-      return ListView.builder(
+      return RefreshIndicator(
+        onRefresh: () => controller.loadClients(refresh: true),
+        child: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: controller.clients.length + (controller.hasMoreData.value ? 1 : 0),
         itemBuilder: (context, index) {
@@ -219,176 +337,129 @@ class _ClientPageState extends State<ClientPage> {
           }
           
           final client = controller.clients[index];
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: ProviderCard(
-              onTap: () => _showClientDetail(client),
-              child: Row(
-                children: [
-                  // 客户头像
-                  CircleAvatar(
-                    radius: 24,
-                    backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+            return Card(
+              margin: const EdgeInsets.only(bottom: 8),
+              child: ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: Colors.blue.shade100,
                     child: Text(
                       controller.getClientName(client)[0].toUpperCase(),
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
+                    style: const TextStyle(
+                      color: Colors.blue,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  // 客户信息
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                title: Text(
+                  controller.getClientName(client),
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: Text(controller.getClientEmail(client)),
+                trailing: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text(
-                          controller.getClientName(client),
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: Theme.of(context).colorScheme.onSurface,
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: _getStatusColor(client['relationship_type']),
+                        borderRadius: BorderRadius.circular(12),
+                        ),
+                      child: Text(
+                        controller.getCategoryDisplayText(client['relationship_type']),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
                           ),
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          controller.getClientEmail(client),
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
                             Text(
-                              '订单: ${controller.getTotalOrders(client)}',
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      '${controller.getTotalOrders(client)} 订单',
+                      style: TextStyle(
                                 fontSize: 12,
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Text(
-                              '消费: ${controller.formatPrice(controller.getTotalAmount(client))}',
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  // 状态徽章
-                  Column(
-                    children: [
-                      ProviderBadge(
-                        text: controller.getCategoryDisplayText(client['relationship_type']),
-                        type: _getClientBadgeType(client),
+                        color: Colors.grey.shade600,
                       ),
-                      const SizedBox(height: 4),
-                      Icon(
-                        Icons.arrow_forward_ios,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        size: 14,
                       ),
                     ],
                   ),
-                ],
-              ),
+                onTap: () => _showClientDetail(client),
             ),
           );
         },
+        ),
       );
     });
   }
 
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case 'served':
+        return Colors.green;
+      case 'in_negotiation':
+        return Colors.orange;
+      case 'potential':
+        return Colors.purple;
+      default:
+        return Colors.grey;
+    }
+  }
+
   void _showAddClientDialog() {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
     final clientIdController = TextEditingController();
     final notesController = TextEditingController();
     String selectedCategory = 'potential';
     
     Get.dialog(
       AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        backgroundColor: colorScheme.surface,
-        title: Row(
+        title: const Text('添加客户'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            ProviderIconContainer(
-              icon: Icons.person_add,
-              size: 32,
-            ),
-            const SizedBox(width: 12),
-            Text(
-              '添加客户',
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: colorScheme.onSurface,
-              ),
-            ),
-          ],
-        ),
-        content: StatefulBuilder(
-          builder: (context, setState) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: clientIdController,
-                  decoration: ProviderThemeUtils.getInputDecoration(
-                    context,
+            TextField(
+              controller: clientIdController,
+              decoration: const InputDecoration(
                     labelText: '客户ID',
-                    hintText: '请输入客户用户ID',
+                hintText: '输入客户用户ID',
                   ),
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
                   value: selectedCategory,
-                  decoration: ProviderThemeUtils.getInputDecoration(
-                    context,
+              decoration: const InputDecoration(
                     labelText: '关系类型',
                   ),
                   items: controller.categories
-                      .where((cat) => cat != 'all')
+                  .where((c) => c != 'all')
                       .map((category) => DropdownMenuItem(
                         value: category,
                         child: Text(controller.getCategoryDisplayText(category)),
                       ))
                       .toList(),
                   onChanged: (value) {
-                    setState(() {
-                      selectedCategory = value!;
-                    });
+                if (value != null) {
+                  selectedCategory = value;
+                }
                   },
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: notesController,
-                  decoration: ProviderThemeUtils.getInputDecoration(
-                    context,
+              decoration: const InputDecoration(
                     labelText: '备注',
                     hintText: '添加关于此客户的任何备注',
                   ),
                   maxLines: 3,
                 ),
               ],
-            );
-          },
         ),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: Text(
-              '取消',
-              style: TextStyle(color: colorScheme.onSurfaceVariant),
-            ),
+            child: const Text('取消'),
           ),
-          ProviderButton(
+          ElevatedButton(
             onPressed: () {
               if (clientIdController.text.isNotEmpty) {
                 controller.addClient(
@@ -399,8 +470,7 @@ class _ClientPageState extends State<ClientPage> {
                 Get.back();
               }
             },
-            text: '添加',
-            type: ProviderButtonType.primary,
+            child: const Text('添加'),
           ),
         ],
       ),
@@ -408,22 +478,9 @@ class _ClientPageState extends State<ClientPage> {
   }
 
   void _showClientDetail(Map<String, dynamic> client) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    
     Get.dialog(
       AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        backgroundColor: colorScheme.surface,
-        title: Text(
-          '客户详情',
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: colorScheme.onSurface,
-          ),
-        ),
+        title: const Text('客户详情'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -440,10 +497,9 @@ class _ClientPageState extends State<ClientPage> {
           ],
         ),
         actions: [
-          ProviderButton(
+          TextButton(
             onPressed: () => Get.back(),
-            text: '关闭',
-            type: ProviderButtonType.secondary,
+            child: const Text('关闭'),
           ),
         ],
       ),
@@ -451,9 +507,6 @@ class _ClientPageState extends State<ClientPage> {
   }
 
   Widget _buildDetailRow(String label, String value) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -463,48 +516,14 @@ class _ClientPageState extends State<ClientPage> {
             width: 80,
             child: Text(
               '$label:',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: colorScheme.onSurfaceVariant,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
           Expanded(
-            child: Text(
-              value,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurface,
-              ),
-            ),
+            child: Text(value),
           ),
         ],
       ),
     );
-  }
-
-  String _getClientStatus(Map<String, dynamic> client) {
-    final orderCount = client['order_count'] ?? 0;
-    final totalSpent = client['total_spent'] ?? 0;
-    
-    if (totalSpent > 1000) return 'VIP';
-    if (orderCount > 5) return '活跃';
-    if (orderCount > 0) return '普通';
-    return '新客户';
-  }
-
-  ProviderBadgeType _getClientBadgeType(Map<String, dynamic> client) {
-    final status = _getClientStatus(client);
-    switch (status) {
-      case 'VIP':
-        return ProviderBadgeType.error;
-      case '活跃':
-        return ProviderBadgeType.primary;
-      case '普通':
-        return ProviderBadgeType.secondary;
-      case '新客户':
-        return ProviderBadgeType.warning;
-      default:
-        return ProviderBadgeType.secondary;
-    }
   }
 } 

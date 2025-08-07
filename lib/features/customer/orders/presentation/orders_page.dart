@@ -3,9 +3,49 @@ import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/features/customer/orders/presentation/orders_controller.dart';
 import 'package:jinbeanpod_83904710/core/ui/components/customer_theme_components.dart';
 import 'package:jinbeanpod_83904710/core/ui/themes/customer_theme_utils.dart';
+// Import platform components
+import 'package:jinbeanpod_83904710/core/components/platform_core.dart';
+import 'package:jinbeanpod_83904710/features/customer/services/presentation/widgets/service_detail_loading.dart';
 
-class OrdersPage extends GetView<OrdersController> {
+class OrdersPage extends StatefulWidget {
   const OrdersPage({super.key});
+
+  @override
+  State<OrdersPage> createState() => _OrdersPageState();
+}
+
+class _OrdersPageState extends State<OrdersPage> {
+  // 平台组件状态管理
+  final LoadingStateManager _loadingManager = LoadingStateManager();
+  
+  @override
+  void initState() {
+    super.initState();
+    // 初始化网络状态为在线
+    _loadingManager.setOnline();
+    // 数据已经在controller中加载完成，直接设置为成功状态
+    _loadingManager.setSuccess();
+  }
+
+  @override
+  void dispose() {
+    _loadingManager.dispose();
+    super.dispose();
+  }
+
+  /// 加载订单数据
+  Future<void> _loadOrdersData() async {
+    try {
+      _loadingManager.setLoading();
+      
+      // 加载订单列表
+      await Get.find<OrdersController>().loadOrders();
+      
+      _loadingManager.setSuccess();
+    } catch (e) {
+      _loadingManager.setError('加载订单数据失败: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,40 +60,29 @@ class OrdersPage extends GetView<OrdersController> {
         foregroundColor: colorScheme.onPrimary,
         elevation: 0,
       ),
-      body: Column(
-        children: [
-          // 状态筛选栏
-          _buildStatusFilter(),
-          
-          // 订单列表
-          Expanded(
-            child: Obx(() {
-              if (controller.isLoading.value) {
-                return const CustomerLoadingState(message: 'Loading orders...');
-              }
-              
-              if (controller.orders.isEmpty) {
-                return const CustomerEmptyState(
-                  icon: Icons.receipt_long,
-                  title: 'No Orders Yet',
-                  subtitle: 'Your orders will appear here once you book a service',
-                );
-              }
-              
-              return RefreshIndicator(
-                onRefresh: controller.loadOrders,
-                child: ListView.builder(
-                  padding: const EdgeInsets.all(16.0),
-                  itemCount: controller.orders.length,
-                  itemBuilder: (context, index) {
-                    final order = controller.orders[index];
-                    return _buildOrderCard(order, index);
-                  },
+      body: ListenableBuilder(
+        listenable: _loadingManager,
+        builder: (context, child) {
+          return ServiceDetailLoading(
+            state: _loadingManager.state,
+            loadingMessage: '加载订单数据...',
+            errorMessage: _loadingManager.errorMessage,
+            onRetry: () => _loadOrdersData(),
+            onBack: () => Get.back(),
+            showSkeleton: true,
+            child: Column(
+              children: [
+                // 状态筛选栏
+                _buildStatusFilter(),
+                
+                // 订单列表
+                Expanded(
+                  child: _buildOrdersList(),
                 ),
-              );
-            }),
-          ),
-        ],
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -63,6 +92,7 @@ class OrdersPage extends GetView<OrdersController> {
       builder: (context) {
         final theme = Theme.of(context);
         final colorScheme = theme.colorScheme;
+        final controller = Get.find<OrdersController>();
         
         return Container(
           height: 60,
@@ -345,7 +375,7 @@ class OrdersPage extends GetView<OrdersController> {
           Icon(icon, size: 14, color: textColor),
           const SizedBox(width: 4),
           Text(
-            controller.getStatusText(status),
+            Get.find<OrdersController>().getStatusText(status),
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w600,
@@ -574,7 +604,7 @@ class OrdersPage extends GetView<OrdersController> {
   }
 
   void _showOrderDetails(dynamic order) {
-    controller.navigateToOrderDetail(order.id);
+    Get.find<OrdersController>().navigateToOrderDetail(order.id);
   }
 
   void _cancelOrder(dynamic order) {
@@ -590,7 +620,7 @@ class OrdersPage extends GetView<OrdersController> {
           ElevatedButton(
             onPressed: () {
               Get.back();
-              controller.cancelOrder(order.id);
+              Get.find<OrdersController>().cancelOrder(order.id);
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('Yes, Cancel'),
@@ -638,5 +668,33 @@ class OrdersPage extends GetView<OrdersController> {
 
   String _formatDateTime(DateTime dateTime) {
     return '${dateTime.month}/${dateTime.day}/${dateTime.year} ${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
+  }
+
+  Widget _buildOrdersList() {
+    return Obx(() {
+      final controller = Get.find<OrdersController>();
+      
+      if (controller.orders.isEmpty) {
+        return const CustomerEmptyState(
+          icon: Icons.receipt_long,
+          title: 'No Orders Yet',
+          subtitle: 'Your orders will appear here once you book a service',
+        );
+      }
+      
+      return RefreshIndicator(
+        onRefresh: () async {
+          await _loadOrdersData();
+        },
+        child: ListView.builder(
+          padding: const EdgeInsets.all(16.0),
+          itemCount: controller.orders.length,
+          itemBuilder: (context, index) {
+            final order = controller.orders[index];
+            return _buildOrderCard(order, index);
+          },
+        ),
+      );
+    });
   }
 } 

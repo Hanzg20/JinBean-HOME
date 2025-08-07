@@ -6,53 +6,128 @@ import 'package:jinbeanpod_83904710/core/plugin_management/plugin_manager.dart';
 import 'package:jinbeanpod_83904710/core/ui/components/provider_theme_components.dart';
 import 'package:jinbeanpod_83904710/core/ui/themes/provider_theme_utils.dart';
 import 'package:jinbeanpod_83904710/core/ui/design_system/colors.dart';
-// Import the new ProfileDetailsPage
-import '../profile/provider_profile_controller.dart'; // Corrected import path for controller
+import '../profile/provider_profile_controller.dart';
+// Import platform components
+import 'package:jinbeanpod_83904710/core/components/platform_core.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
+// Import loading components
+import 'package:jinbeanpod_83904710/features/customer/services/presentation/widgets/service_detail_loading.dart';
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
 
   @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  final controller = Get.put(ProviderProfileController());
+  
+  // 平台组件状态管理
+  final LoadingStateManager _loadingManager = LoadingStateManager();
+
+  @override
+  void initState() {
+    super.initState();
+    AppLogger.debug('[SettingsPage] initState called', tag: 'SettingsPage');
+    
+    // 初始化网络状态为在线
+    _loadingManager.setOnline();
+    // 数据已经在controller中加载完成，直接设置为成功状态
+    _loadingManager.setSuccess();
+  }
+
+  @override
+  void dispose() {
+    _loadingManager.dispose();
+    super.dispose();
+  }
+
+  /// 加载设置数据
+  Future<void> _loadSettingsData() async {
+    try {
+      _loadingManager.setLoading();
+      
+      // 加载设置数据
+      // 这里可以添加实际的设置数据加载逻辑
+      
+      _loadingManager.setSuccess();
+    } catch (e) {
+      _loadingManager.setError('加载设置数据失败: $e');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final controller = Get.put(ProviderProfileController());
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-
-    return Container(
-      color: Colors.white,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.settings,
-              size: 64,
-              color: Colors.blue,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Settings',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.blue,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Settings Page',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[600],
-              ),
-            ),
-          ],
+    
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text(
+          '设置',
+          style: TextStyle(
+            color: Colors.black87,
+            fontWeight: FontWeight.bold,
+          ),
         ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.black87),
+      ),
+      body: ListenableBuilder(
+        listenable: _loadingManager,
+        builder: (context, child) {
+          return ServiceDetailLoading(
+            state: _loadingManager.state,
+            loadingMessage: '加载设置数据...',
+            errorMessage: _loadingManager.errorMessage,
+            onRetry: () => _loadSettingsData(),
+            onBack: () => Get.back(),
+            showSkeleton: true,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 个人资料卡片
+                  _buildProfileCard(context),
+                  
+                  const SizedBox(height: 16),
+                  
+                  // 业务设置
+                  _buildBusinessSection(context),
+                  
+                  const SizedBox(height: 16),
+                  
+                  // 账户设置
+                  _buildAccountSection(context),
+                  
+                  const SizedBox(height: 16),
+                  
+                  // 应用设置
+                  _buildAppSettingsSection(context),
+                  
+                  const SizedBox(height: 16),
+                  
+                  // 安全设置
+                  _buildSecuritySection(context),
+                  
+                  const SizedBox(height: 16),
+                  
+                  // 退出登录
+                  _buildLogoutSection(context),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildProviderInfoCard(BuildContext context) {
+  Widget _buildProfileCard(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         gradient: const LinearGradient(
@@ -62,7 +137,7 @@ class SettingsPage extends StatelessWidget {
         ),
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(16),
-          topRight: Radius.circular(64), // 右上角圆角半径比其他三个角大4倍
+          topRight: Radius.circular(64),
           bottomLeft: Radius.circular(16),
           bottomRight: Radius.circular(16),
         ),
@@ -107,92 +182,34 @@ class SettingsPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 16),
-                
-                // 信息区域
+                // 用户信息
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          const Expanded(
-                            child: Text(
-                              '张师傅',
+                      const Text(
+                        '服务商',
                               style: TextStyle(
+                          color: Colors.white,
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
                           ),
-                          // 编辑按钮
-                          Container(
-                            width: 28,
-                            height: 28,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                            child: const Icon(
-                              Icons.edit_outlined,
-                              color: Colors.white,
-                              size: 16,
-                            ),
-                          ),
-                        ],
                       ),
                       const SizedBox(height: 4),
-                      const Text(
-                        '专业服务提供者',
+                      Text(
+                        '管理您的账户设置',
                         style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.8),
                           fontSize: 14,
-                          color: Colors.white70,
                         ),
-                      ),
-                      const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Text(
-                              '已认证',
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Text(
-                              '4.8★',
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ],
                       ),
                     ],
                   ),
                 ),
-                
                 // 箭头
-                const Icon(
+                Icon(
                   Icons.arrow_forward_ios,
-                  color: Colors.white70,
+                  color: Colors.white.withValues(alpha: 0.7),
                   size: 16,
                 ),
               ],
@@ -204,14 +221,12 @@ class SettingsPage extends StatelessWidget {
   }
 
   Widget _buildSectionHeader(BuildContext context, String title) {
-    final theme = Theme.of(context);
-    
     return Text(
       title,
-      style: theme.textTheme.titleMedium?.copyWith(
+      style: const TextStyle(
         fontWeight: FontWeight.w600,
         color: JinBeanColors.primaryDark,
-        fontSize: 14,
+        fontSize: 16,
       ),
     );
   }
@@ -227,7 +242,7 @@ class SettingsPage extends StatelessWidget {
           subtitle: '管理您的服务项目',
           badge: '6',
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
         _buildSettingsCard(
           context,
           onTap: () => Get.toNamed('/provider/schedule'),
@@ -235,7 +250,7 @@ class SettingsPage extends StatelessWidget {
           title: '日程安排',
           subtitle: '管理工作时间',
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
         _buildSettingsCard(
           context,
           onTap: () => Get.toNamed('/provider/reviews'),
@@ -244,7 +259,7 @@ class SettingsPage extends StatelessWidget {
           subtitle: '查看客户评价',
           badge: '12',
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
         _buildSettingsCard(
           context,
           onTap: () => Get.toNamed('/provider/promotions'),
@@ -267,7 +282,7 @@ class SettingsPage extends StatelessWidget {
           subtitle: '收入统计与设置',
           badge: 'NEW',
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
         _buildSettingsCard(
           context,
           onTap: () => Get.toNamed('/provider/verification'),
@@ -291,7 +306,7 @@ class SettingsPage extends StatelessWidget {
           title: '主题设置',
           subtitle: '自定义外观',
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
         _buildSettingsCard(
           context,
           onTap: () => Get.toNamed('/provider/language_settings'),
@@ -299,7 +314,7 @@ class SettingsPage extends StatelessWidget {
           title: '语言设置',
           subtitle: '选择显示语言',
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
         _buildSettingsCard(
           context,
           onTap: () => Get.toNamed('/provider/notifications'),
@@ -322,7 +337,7 @@ class SettingsPage extends StatelessWidget {
           title: '隐私设置',
           subtitle: '数据隐私管理',
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
         _buildSettingsCard(
           context,
           onTap: () => Get.toNamed('/provider/security'),
@@ -330,13 +345,42 @@ class SettingsPage extends StatelessWidget {
           title: '安全设置',
           subtitle: '账户安全配置',
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
         _buildSettingsCard(
           context,
           onTap: () => Get.toNamed('/provider/data_export'),
           icon: Icons.download_outlined,
           title: '数据导出',
           subtitle: '导出个人数据',
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLogoutSection(BuildContext context) {
+    return Column(
+      children: [
+        const SizedBox(height: 16),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: () => _showLogoutDialog(context),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text(
+              '退出登录',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
         ),
       ],
     );
@@ -351,182 +395,64 @@ class SettingsPage extends StatelessWidget {
     String? badge,
     Color? badgeColor,
   }) {
-    return Container(
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: ListTile(
+        leading: Container(
+          padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: JinBeanColors.surface,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: JinBeanColors.shadow.withValues(alpha: 0.06),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [JinBeanColors.primary, JinBeanColors.primaryDark],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
+            color: JinBeanColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
-                    boxShadow: [
-                      BoxShadow(
-                        color: JinBeanColors.primary.withValues(alpha: 0.2),
-                        blurRadius: 4,
-                        offset: const Offset(0, 1),
-                      ),
-                    ],
                   ),
                   child: Icon(
                     icon,
-                    color: Colors.white,
-                    size: 18,
+            color: JinBeanColors.primary,
+            size: 24,
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
+        title: Text(
                               title,
                               style: const TextStyle(
-                                fontSize: 15,
                                 fontWeight: FontWeight.w600,
-                                color: JinBeanColors.textPrimary,
+            color: Colors.black87,
+          ),
+        ),
+        subtitle: Text(
+          subtitle,
+          style: TextStyle(
+            color: Colors.grey.shade600,
+            fontSize: 12,
                               ),
                             ),
-                          ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
                           if (badge != null)
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
                                 color: badgeColor ?? JinBeanColors.primary,
-                                borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
                                 badge,
                                 style: const TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        subtitle,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: JinBeanColors.textSecondary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Icon(
-                  Icons.arrow_forward_ios,
-                  color: JinBeanColors.textTertiary,
-                  size: 14,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLogoutSection(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [JinBeanColors.error, JinBeanColors.errorLight],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: JinBeanColors.error.withValues(alpha: 0.2),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => _showLogoutDialog(context),
-          borderRadius: BorderRadius.circular(12),
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(
-                    Icons.logout_outlined,
                     color: Colors.white,
-                    size: 18,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
                   ),
-                ),
-                const SizedBox(width: 12),
-                const Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '退出登录',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
                         ),
                       ),
-                      SizedBox(height: 2),
-                      Text(
-                        '安全退出账户',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.white70,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Icon(
+            const SizedBox(width: 8),
+            Icon(
                   Icons.arrow_forward_ios,
-                  color: Colors.white70,
-                  size: 14,
+              color: Colors.grey.shade400,
+              size: 16,
                 ),
               ],
             ),
-          ),
-        ),
+        onTap: onTap,
       ),
     );
   }
@@ -534,122 +460,35 @@ class SettingsPage extends StatelessWidget {
   void _showLogoutDialog(BuildContext context) {
     Get.dialog(
       AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        backgroundColor: JinBeanColors.surface,
-        title: Row(
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [JinBeanColors.error, JinBeanColors.errorLight],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(
-                Icons.logout_outlined,
-                color: Colors.white,
-                size: 18,
-              ),
-            ),
-            const SizedBox(width: 12),
-            const Text(
-              '确认退出',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: JinBeanColors.textPrimary,
-              ),
-            ),
-          ],
-        ),
-        content: const Text(
-          '您确定要退出登录吗？',
-          style: TextStyle(
-            fontSize: 14,
-            color: JinBeanColors.textSecondary,
-          ),
-        ),
+        title: const Text('退出登录'),
+        content: const Text('确定要退出登录吗？'),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text(
-              '取消',
-              style: TextStyle(
-                fontSize: 14,
-                color: JinBeanColors.textSecondary,
-              ),
-            ),
+            child: const Text('取消'),
           ),
           ElevatedButton(
             onPressed: () {
               Get.back();
-              _logout(context);
+              _logout();
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: JinBeanColors.error,
-              foregroundColor: Colors.white,
-              elevation: 4,
-              shadowColor: JinBeanColors.error.withValues(alpha: 0.3),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            ),
-            child: const Text(
-              '退出登录',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('退出'),
           ),
         ],
       ),
     );
   }
 
-  Future<void> _logout(BuildContext context) async {
+  void _logout() async {
     try {
-      print('[SettingsPage] Direct logout started.');
-      
-      // Step 1: Sign out from Supabase
       await Supabase.instance.client.auth.signOut();
-      print('[SettingsPage] Supabase sign out completed.');
-      
-      // Step 2: Clear local storage
-      final storage = GetStorage();
-      await storage.remove('userId');
-      await storage.remove('userProfile');
-      await storage.remove('lastRole');
-      print('[SettingsPage] Local storage cleared.');
-      
-      // Step 3: Reset PluginManager role
-      if (Get.isRegistered<PluginManager>()) {
-        final pluginManager = Get.find<PluginManager>();
-        pluginManager.currentRole.value = 'customer';
-        print('[SettingsPage] PluginManager role reset to customer.');
-      }
-      
-      // Step 4: Navigate to login page
-      print('[SettingsPage] About to navigate to /auth');
       Get.offAllNamed('/auth');
-      print('[SettingsPage] Navigation to /auth completed');
-      
     } catch (e) {
-      print('[SettingsPage] Logout error: $e');
       Get.snackbar(
-        '退出失败',
-        '退出登录时发生错误，请重试',
+        '错误',
+        '退出登录失败，请重试',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: JinBeanColors.error,
-        colorText: Colors.white,
       );
     }
   }

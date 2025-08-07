@@ -11,7 +11,7 @@ class ServiceManagePlugin extends AppPlugin {
     icon: Icons.build,
     enabled: true,
     order: 2,
-    type: PluginType.standalonePage,
+    type: PluginType.bottomTab,
     routeName: '/provider/service_manage',
     role: 'provider',
   );

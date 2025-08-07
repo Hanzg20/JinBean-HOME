@@ -72,15 +72,16 @@ class ServiceDetailController extends GetxController {
 
   /// 加载服务详情
   Future<void> loadServiceDetail(String serviceId) async {
+    if (serviceId.isEmpty) {
+      throw Exception('Service ID is required');
+    }
+
     isLoading.value = true;
     errorMessage.value = '';
-    
+
     try {
-      // TODO: 调用API获取服务详情
+      // TODO: 调用真实API
       // final response = await ServiceApiService.getServiceDetail(serviceId);
-      
-      // 模拟API调用延迟
-      await Future.delayed(const Duration(milliseconds: 500));
       
       // 模拟数据 - 使用更可靠的图片URL
       final mockService = Service(
@@ -145,9 +146,6 @@ class ServiceDetailController extends GetxController {
   /// 加载相似服务推荐
   Future<void> loadSimilarServices() async {
     try {
-      // 模拟加载相似服务数据
-      await Future.delayed(const Duration(milliseconds: 500));
-      
       final mockSimilarServices = [
         SimilarService(
           id: 'similar_1',
@@ -200,8 +198,6 @@ class ServiceDetailController extends GetxController {
   /// 加载服务提供商信息
   Future<void> loadProviderProfile() async {
     try {
-      await Future.delayed(const Duration(milliseconds: 300));
-      
       final mockProvider = ProviderProfile(
         id: 'provider_123',
         name: '专业清洁服务公司',
@@ -268,7 +264,6 @@ class ServiceDetailController extends GetxController {
       // await QuoteApiService.submitQuoteRequest(quoteRequest);
       
       // 模拟API调用
-      await Future.delayed(const Duration(seconds: 2));
       
       // 更新状态
       quoteRequestStatus.value = 'pending';
@@ -298,7 +293,6 @@ class ServiceDetailController extends GetxController {
       // receivedQuote = await QuoteApiService.getQuoteDetails(service!.value!.id);
       
       // 模拟数据
-      await Future.delayed(const Duration(seconds: 1));
       receivedQuote.value = {
         'id': 'quote_123',
         'serviceId': service!.value!.id,
@@ -326,7 +320,6 @@ class ServiceDetailController extends GetxController {
       // await QuoteApiService.acceptQuote(receivedQuote.value['id']);
       
       // 模拟API调用
-      await Future.delayed(const Duration(seconds: 1));
       
       // 更新状态
       quoteRequestStatus.value = 'accepted';
@@ -358,7 +351,6 @@ class ServiceDetailController extends GetxController {
       // await QuoteApiService.declineQuote(receivedQuote.value['id']);
       
       // 模拟API调用
-      await Future.delayed(const Duration(seconds: 1));
       
       // 更新状态
       quoteRequestStatus.value = 'declined';
@@ -393,7 +385,6 @@ class ServiceDetailController extends GetxController {
       isLoadingReviews.value = true;
       
       // 模拟加载评价数据
-      await Future.delayed(const Duration(milliseconds: 800));
       
       final mockReviews = [
         Review(

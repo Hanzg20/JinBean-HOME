@@ -17,14 +17,16 @@
 ## 1. System Overview
 
 ### 1.1 Purpose
-The Provider platform is designed to serve service providers with a comprehensive business management tool, enabling them to manage orders, clients, services, and income efficiently.
+The Provider platform is designed to serve service providers with a comprehensive business management tool, enabling them to manage orders, clients, services, income, and schedules efficiently.
 
 ### 1.2 Core Objectives
-- **Order Management**: Complete order lifecycle management
-- **Client Relationship Management**: Build and maintain client relationships
-- **Service Management**: Create and manage service offerings
-- **Income Management**: Track and analyze financial performance
-- **Business Intelligence**: Provide insights for business growth
+- **Order Management**: Complete order lifecycle management with order management and rob order hall
+- **Client Relationship Management**: Build and maintain client relationships with automatic conversion
+- **Service Management**: Create and manage service offerings with status management
+- **Income Management**: Track and analyze financial performance with detailed reports
+- **Schedule Management**: Manage work schedules and availability
+- **Notification System**: Real-time notifications and communication
+- **Settings Management**: Comprehensive provider settings and preferences
 
 ### 1.3 Target Users
 - **Service Providers**: Individual professionals and small businesses
@@ -42,21 +44,26 @@ The Provider platform is designed to serve service providers with a comprehensiv
 │                    Provider Platform                        │
 ├─────────────────────────────────────────────────────────────┤
 │   Presentation Layer (UI/UX)                                │
-│  ├── Pages (Dashboard, Orders, Clients, Services, Income)   │
+│  ├── Pages (Dashboard, Orders, Clients, Settings)          │
 │  ├── Widgets (Common Components)                            │
 │  └── Navigation (Bottom Tabs, Routing)                      │
 ├─────────────────────────────────────────────────────────────┤
 │   Business Logic Layer (Controllers)                        │
 │  ├── OrderManageController                                  │
+│  ├── RobOrderHallController                                 │
 │  ├── ClientController                                       │
-│  ├── ServiceManageController                                │
-│  └── IncomeController                                       │
+│  ├── ServiceManagementController                            │
+│  ├── IncomeController                                       │
+│  ├── NotificationController                                 │
+│  └── ScheduleManagementController                           │
 ├─────────────────────────────────────────────────────────────┤
 │   Data Access Layer (Services)                              │
-│  ├── OrderService                                           │
-│  ├── ClientService                                          │
-│  ├── ServiceService                                         │
-│  └── IncomeService                                          │
+│  ├── ProviderSettingsService                                │
+│  ├── ClientConversionService                                │
+│  ├── IncomeManagementService                                │
+│  ├── NotificationService                                    │
+│  ├── ServiceManagementService                               │
+│  └── ScheduleManagementService                              │
 ├─────────────────────────────────────────────────────────────┤
 │   Infrastructure Layer                                      │
 │  ├── Database (Supabase PostgreSQL)                         │
@@ -69,9 +76,9 @@ The Provider platform is designed to serve service providers with a comprehensiv
 ### 2.2 Plugin Architecture
 
 #### 2.2.1 Plugin System Design
-- **IPlugin Interface**: Defines plugin contract
-- **BasePlugin Class**: Provides common functionality
-- **PluginManager**: Manages plugin lifecycle
+- **AppPlugin Interface**: Defines plugin contract
+- **PluginManager**: Manages plugin lifecycle and role-based loading
+- **PluginMetadata**: Plugin configuration and metadata
 - **EventBus**: Enables inter-plugin communication
 
 #### 2.2.2 Plugin Types
@@ -104,69 +111,107 @@ class OrderManagePlugin extends AppPlugin {
 ### 2.3 State Management
 
 #### 2.3.1 GetX Architecture
-- **Reactive State**: Rx variables for UI updates
-- **Dependency Injection**: Automatic controller injection
-- **Route Management**: Declarative routing
-- **Internationalization**: Multi-language support
+- **Controllers**: Business logic and state management
+- **Services**: Data access and business operations
+- **Bindings**: Dependency injection and controller registration
+- **Reactive Programming**: Rx variables for reactive UI updates
 
-#### 2.3.2 State Flow
-```
-User Action → Controller → Service → Database
-     ↑                                        ↓
-     └────────── UI Update ← State ← Response
+#### 2.3.2 Controller Structure
+```dart
+class OrderManageController extends GetxController {
+  final RxList<Map<String, dynamic>> orders = <Map<String, dynamic>>[].obs;
+  final RxBool isLoading = false.obs;
+  final RxString currentStatus = 'all'.obs;
+  final RxString searchQuery = ''.obs;
+  final RxInt currentPage = 1.obs;
+  final RxBool hasMoreData = true.obs;
+}
 ```
 
 ---
 
 ## 3. Functional Modules
 
-### 3.1 Order Management Module
+### 3.1 Dashboard Module
 
 #### 3.1.1 Core Features
-- **Order Dashboard**: Overview of all orders
-- **Order List**: Paginated list with filtering
-- **Order Details**: Complete order information
-- **Order Actions**: Accept, reject, start, complete
-- **Order Search**: Multi-criteria search
-- **Order Statistics**: Performance metrics
+- **Overview Cards**: Today's earnings, completed orders, rating, pending orders
+- **Recent Orders**: Latest order activities
+- **Top Services**: Most popular services
+- **Weekly Statistics**: Performance trends
+- **Quick Actions**: Common provider actions
 
-#### 3.1.2 Order States
+#### 3.1.2 Dashboard Components
 ```dart
-enum OrderStatus {
-  pendingAcceptance,  // Waiting for provider acceptance
-  accepted,           // Provider accepted the order
-  inProgress,         // Service in progress
-  completed,          // Service completed
-  cancelled,          // Order cancelled
-  disputed            // Order under dispute
+class ProviderHomePage extends StatefulWidget {
+  final Function(int) onNavigateToTab;
+  
+  // Key metrics
+  final RxInt todayEarnings = 320.obs;
+  final RxInt completedOrders = 8.obs;
+  final RxDouble rating = 4.8.obs;
+  final RxInt pendingOrders = 3.obs;
+  final RxInt totalClients = 45.obs;
+  final RxInt thisMonthEarnings = 2840.obs;
 }
 ```
 
-#### 3.1.3 Order Flow
-```
-New Order → Pending Acceptance → Accepted → In Progress → Completed
-    ↓              ↓                ↓           ↓           ↓
-Notification   Review Order    Start Service  Update Status  Request Payment
+### 3.2 Order Management Module
+
+#### 3.2.1 Core Features
+- **Order List**: Complete order listing with filtering and search
+- **Order Details**: Detailed order information and actions
+- **Status Management**: Order status updates and tracking
+- **Client Conversion**: Automatic client conversion on order completion
+- **Rob Order Hall**: Available orders for providers to accept
+
+#### 3.2.2 Order Model
+```dart
+class Order {
+  final String id;
+  final String orderNumber;
+  final String customerId;
+  final String providerId;
+  final String serviceId;
+  final OrderStatus status;
+  final double amount;
+  final DateTime scheduledTime;
+  final DateTime createdAt;
+  final Map<String, dynamic>? metadata;
+}
 ```
 
-#### 3.1.4 Key Components
-- **OrderListPage**: Main order listing
+#### 3.2.3 Order States
+```dart
+enum OrderStatus {
+  pending,           // Waiting for provider acceptance
+  accepted,          // Provider accepted the order
+  inProgress,        // Service in progress
+  completed,         // Service completed
+  cancelled,         // Order cancelled
+  disputed           // Order under dispute
+}
+```
+
+#### 3.2.4 Key Components
+- **OrdersShellPage**: Tab-based interface with order management and rob order hall
+- **OrderManagePage**: Order listing and management
+- **RobOrderHallPage**: Available orders for acceptance
 - **OrderDetailPage**: Detailed order view
-- **OrderActionButtons**: Accept/Reject/Start/Complete
+- **OrderActionButtons**: Accept/Reject/Start/Complete actions
 - **OrderFilterPanel**: Status and date filtering
 - **OrderStatisticsCard**: Performance metrics
 
-### 3.2 Client Management Module
+### 3.3 Client Management Module
 
-#### 3.2.1 Core Features
+#### 3.3.1 Core Features
 - **Client Dashboard**: Client overview and metrics
 - **Client List**: All clients with relationship status
 - **Client Profile**: Detailed client information
-- **Communication History**: Message and call logs
-- **Client Notes**: Private notes and reminders
-- **Client Analytics**: Relationship insights
+- **Client Conversion**: Automatic client conversion from orders
+- **Client Analytics**: Relationship insights and statistics
 
-#### 3.2.2 Client Categories
+#### 3.3.2 Client Categories
 ```dart
 enum ClientCategory {
   served,           // Previously served clients
@@ -176,7 +221,7 @@ enum ClientCategory {
 }
 ```
 
-#### 3.2.3 Client Relationship Model
+#### 3.3.3 Client Relationship Model
 ```dart
 class ClientRelationship {
   final String id;
@@ -190,24 +235,24 @@ class ClientRelationship {
 }
 ```
 
-#### 3.2.4 Key Components
-- **ClientListPage**: Client listing with categories
+#### 3.3.4 Key Components
+- **ClientPage**: Client listing with categories and search
 - **ClientDetailPage**: Client profile and history
 - **ClientCommunicationPanel**: Message and call interface
 - **ClientNotesWidget**: Notes management
-- **ClientAnalyticsCard**: Relationship metrics
+- **ClientStatisticsCard**: Client metrics and insights
 
-### 3.3 Service Management Module
+### 3.4 Service Management Module
 
-#### 3.3.1 Core Features
+#### 3.4.1 Core Features
 - **Service Dashboard**: Service overview and performance
-- **Service List**: All offered services
-- **Service Creation**: Add new services
+- **Service List**: All offered services with status management
+- **Service Creation**: Add new services with detailed configuration
 - **Service Editing**: Modify existing services
 - **Service Pricing**: Dynamic pricing management
 - **Service Availability**: Schedule management
 
-#### 3.3.2 Service Model
+#### 3.4.2 Service Model
 ```dart
 class Service {
   final String id;
@@ -219,12 +264,16 @@ class Service {
   final ServiceStatus status;
   final double averageRating;
   final int reviewCount;
-  final ServicePricing pricing;
-  final ServiceAvailability availability;
+  final double price;
+  final String? location;
+  final List<String> imagesUrl;
+  final Map<String, dynamic>? extraData;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 }
 ```
 
-#### 3.3.3 Service States
+#### 3.4.3 Service States
 ```dart
 enum ServiceStatus {
   active,      // Available for booking
@@ -234,24 +283,24 @@ enum ServiceStatus {
 }
 ```
 
-#### 3.3.4 Key Components
-- **ServiceListPage**: Service listing and management
+#### 3.4.4 Key Components
+- **ServiceManagementPage**: Service listing and management
 - **ServiceCreatePage**: New service creation
 - **ServiceEditPage**: Service modification
 - **ServicePricingPanel**: Pricing configuration
 - **ServiceAvailabilityWidget**: Schedule management
 
-### 3.4 Income Management Module
+### 3.5 Income Management Module
 
-#### 3.4.1 Core Features
-- **Income Dashboard**: Financial overview
+#### 3.5.1 Core Features
+- **Income Dashboard**: Financial overview and trends
 - **Income Reports**: Detailed financial reports
 - **Payment Tracking**: Payment status monitoring
 - **Settlement Management**: Payment processing
 - **Tax Records**: Tax documentation
 - **Financial Analytics**: Performance insights
 
-#### 3.4.2 Income Model
+#### 3.5.2 Income Model
 ```dart
 class IncomeRecord {
   final String id;
@@ -267,7 +316,7 @@ class IncomeRecord {
 }
 ```
 
-#### 3.4.3 Payment States
+#### 3.5.3 Payment States
 ```dart
 enum PaymentStatus {
   pending,     // Payment pending
@@ -278,12 +327,67 @@ enum PaymentStatus {
 }
 ```
 
-#### 3.4.4 Key Components
-- **IncomeDashboardPage**: Financial overview
+#### 3.5.4 Key Components
+- **IncomePage**: Financial overview and reports
 - **IncomeReportPage**: Detailed reports
 - **PaymentTrackingWidget**: Payment status
 - **SettlementPanel**: Payment processing
 - **FinancialAnalyticsCard**: Performance metrics
+
+### 3.6 Notification Management Module
+
+#### 3.6.1 Core Features
+- **Notification List**: All notifications with filtering
+- **Unread Management**: Unread notification tracking
+- **Notification Types**: Different notification categories
+- **Real-time Updates**: Live notification updates
+- **Action Integration**: Direct actions from notifications
+
+#### 3.6.2 Notification Model
+```dart
+class Notification {
+  final String id;
+  final String providerId;
+  final String title;
+  final String message;
+  final NotificationType type;
+  final bool isRead;
+  final DateTime createdAt;
+  final Map<String, dynamic>? metadata;
+}
+```
+
+#### 3.6.3 Notification Types
+```dart
+enum NotificationType {
+  order,           // Order-related notifications
+  payment,         // Payment-related notifications
+  client,          // Client-related notifications
+  system,          // System notifications
+  marketing        // Marketing notifications
+}
+```
+
+### 3.7 Settings Management Module
+
+#### 3.7.1 Core Features
+- **Profile Management**: Provider profile and information
+- **Business Settings**: Business configuration and preferences
+- **App Settings**: Application settings and preferences
+- **Security Settings**: Security and privacy settings
+- **Notification Settings**: Notification preferences
+- **Account Management**: Account and billing management
+
+#### 3.7.2 Settings Structure
+```dart
+class ProviderSettings {
+  final String providerId;
+  final Map<String, dynamic> autoConvertToClient;
+  final Map<String, dynamic> notificationPreferences;
+  final Map<String, dynamic> businessSettings;
+  final Map<String, dynamic> appSettings;
+}
+```
 
 ---
 
@@ -293,11 +397,11 @@ enum PaymentStatus {
 
 #### 4.1.1 Color Palette
 ```dart
-class ProviderColors {
+class JinBeanColors {
   // Primary Colors
-  static const Color primary = Color(0xFFFFC300);      // Golden
-  static const Color primaryDark = Color(0xFFE6B800);
-  static const Color primaryLight = Color(0xFFFFD54F);
+  static const Color primary = Color(0xFF1976D2);      // Blue
+  static const Color primaryDark = Color(0xFF1565C0);
+  static const Color primaryLight = Color(0xFF42A5F5);
   
   // Status Colors
   static const Color success = Color(0xFF4CAF50);      // Green
@@ -319,25 +423,25 @@ class ProviderTypography {
   static const TextStyle headline1 = TextStyle(
     fontSize: 32,
     fontWeight: FontWeight.bold,
-    color: ProviderColors.textPrimary,
+    color: JinBeanColors.textPrimary,
   );
   
   static const TextStyle headline2 = TextStyle(
     fontSize: 24,
     fontWeight: FontWeight.w600,
-    color: ProviderColors.textPrimary,
+    color: JinBeanColors.textPrimary,
   );
   
   static const TextStyle body1 = TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.normal,
-    color: ProviderColors.textPrimary,
+    color: JinBeanColors.textPrimary,
   );
   
   static const TextStyle caption = TextStyle(
     fontSize: 12,
     fontWeight: FontWeight.normal,
-    color: ProviderColors.textSecondary,
+    color: JinBeanColors.textSecondary,
   );
 }
 ```
@@ -436,149 +540,107 @@ class ProviderTypography {
 
 ```
 lib/features/provider/
-├── provider_home_page.dart           # Main provider app
+├── provider_home_page.dart           # Main provider dashboard
+├── provider_bindings.dart            # Controller bindings
+├── orders/                           # Order management
+│   └── presentation/
+│       └── orders_shell_page.dart    # Orders shell with tabs
+├── clients/                          # Client management
+│   └── presentation/
+│       ├── client_controller.dart    # Client controller
+│       └── client_page.dart          # Client management page
+├── settings/                         # Settings management
+│   ├── settings_page.dart            # Main settings page
+│   └── provider_settings_page.dart   # Provider-specific settings
+├── income/                           # Income management
+│   ├── income_controller.dart        # Income controller
+│   └── income_page.dart              # Income management page
+├── notifications/                    # Notification management
+│   ├── notification_controller.dart  # Notification controller
+│   └── notification_page.dart        # Notification page
+├── services/                         # Service management
+│   ├── service_management_controller.dart
+│   ├── service_management_page.dart
+│   └── service_management_service.dart
 ├── plugins/                          # Plugin modules
-│   ├── order_manage/                 # Order management
+│   ├── order_manage/                 # Order management plugin
 │   │   ├── order_manage_controller.dart
-│   │   ├── order_manage_page.dart
-│   │   └── order_manage_plugin.dart
-│   ├── client/                       # Client management
-│   │   ├── client_controller.dart
-│   │   ├── client_page.dart
-│   │   └── client_plugin.dart
-│   ├── service_manage/               # Service management
-│   │   ├── service_manage_controller.dart
-│   │   ├── service_manage_page.dart
-│   │   └── service_manage_plugin.dart
-│   └── income/                       # Income management
-│       ├── income_controller.dart
-│       ├── income_page.dart
-│       └── income_plugin.dart
-├── shared/                           # Shared components
-│   ├── widgets/                      # Common widgets
-│   ├── models/                       # Data models
-│   └── services/                     # Shared services
-└── settings/                         # Settings module
-    ├── settings_page.dart
-    └── settings_controller.dart
+│   │   └── order_manage_page.dart
+│   ├── rob_order_hall/               # Rob order hall plugin
+│   │   ├── rob_order_hall_controller.dart
+│   │   └── presentation/
+│   │       └── rob_order_hall_page.dart
+│   ├── service_manage/               # Service management plugin
+│   ├── message_center/               # Message center plugin
+│   ├── provider_registration/        # Provider registration plugin
+│   ├── profile/                      # Provider profile plugin
+│   ├── provider_home/                # Provider home plugin
+│   └── provider_identity/            # Provider identity plugin
+└── services/                         # Business services
+    ├── provider_settings_service.dart
+    ├── client_conversion_service.dart
+    ├── income_management_service.dart
+    ├── notification_service.dart
+    ├── service_management_service.dart
+    └── schedule_management_service.dart
 ```
 
-### 5.3 Data Models
+### 5.3 Database Design
 
-#### 5.3.1 Base Models
+#### 5.3.1 Core Tables
+1. **provider_settings** - Provider个性化设置
+2. **client_relationships** - 客户关系管理
+3. **income_records** - 收入记录管理
+4. **notifications** - 通知系统
+5. **orders** - 订单管理（已存在）
+6. **services** - 服务管理（已存在）
+7. **provider_schedules** - 日程管理
+
+#### 5.3.2 Table Relationships
+- Provider ↔ Client Relationships (1:N)
+- Provider ↔ Income Records (1:N)
+- Provider ↔ Notifications (1:N)
+- Provider ↔ Services (1:N)
+- Provider ↔ Schedules (1:N)
+- Orders ↔ Income Records (1:1)
+
+### 5.4 State Management
+
+#### 5.4.1 GetX Controllers
 ```dart
-abstract class BaseEntity {
-  final String id;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+// Example: OrderManageController
+class OrderManageController extends GetxController {
+  final RxList<Map<String, dynamic>> orders = <Map<String, dynamic>>[].obs;
+  final RxBool isLoading = false.obs;
+  final RxString currentStatus = 'all'.obs;
+  final RxString searchQuery = ''.obs;
+  final RxInt currentPage = 1.obs;
+  final RxBool hasMoreData = true.obs;
   
-  BaseEntity({
-    required this.id,
-    required this.createdAt,
-    required this.updatedAt,
-  });
-}
-
-abstract class BaseUser extends BaseEntity {
-  final String email;
-  final String displayName;
-  final String? avatarUrl;
-  final String phone;
-  
-  BaseUser({
-    required super.id,
-    required this.email,
-    required this.displayName,
-    this.avatarUrl,
-    required this.phone,
-    required super.createdAt,
-    required super.updatedAt,
-  });
-}
-```
-
-#### 5.3.2 Provider Models
-```dart
-class ProviderUser extends BaseUser {
-  final String businessName;
-  final String businessDescription;
-  final CertificationStatus certificationStatus;
-  final bool isActive;
-  final double rating;
-  final int reviewCount;
-  final List<String> serviceCategories;
-  final List<String> serviceAreas;
-  
-  ProviderUser({
-    required super.id,
-    required super.email,
-    required super.displayName,
-    super.avatarUrl,
-    required super.phone,
-    required this.businessName,
-    required this.businessDescription,
-    required this.certificationStatus,
-    required this.isActive,
-    required this.rating,
-    required this.reviewCount,
-    required this.serviceCategories,
-    required this.serviceAreas,
-    required super.createdAt,
-    required super.updatedAt,
-  });
-}
-```
-
-### 5.4 Service Layer
-
-#### 5.4.1 Base Service
-```dart
-abstract class BaseService {
-  final SupabaseClient _supabase = Supabase.instance.client;
-  
-  Future<T?> getById<T>(String id, String table);
-  Future<List<T>> getAll<T>(String table, {Map<String, dynamic>? filters});
-  Future<T> create<T>(String table, Map<String, dynamic> data);
-  Future<T> update<T>(String id, String table, Map<String, dynamic> data);
-  Future<void> delete(String id, String table);
-}
-```
-
-#### 5.4.2 Order Service
-```dart
-class OrderService extends BaseService {
-  Future<List<Order>> getProviderOrders({
-    String? status,
-    DateTime? startDate,
-    DateTime? endDate,
-    int page = 1,
-    int limit = 20,
-  }) async {
-    var query = _supabase
-        .from('orders')
-        .select('*, customer:users(*), service:services(*)')
-        .eq('provider_id', _supabase.auth.currentUser?.id);
-    
-    if (status != null) query = query.eq('status', status);
-    if (startDate != null) query = query.gte('created_at', startDate.toIso8601String());
-    if (endDate != null) query = query.lte('created_at', endDate.toIso8601String());
-    
-    final response = await query
-        .order('created_at', ascending: false)
-        .range((page - 1) * limit, page * limit - 1);
-    
-    return (response as List).map((json) => Order.fromJson(json)).toList();
+  @override
+  void onInit() {
+    super.onInit();
+    loadOrders();
   }
   
-  Future<Order> updateOrderStatus(String orderId, OrderStatus status) async {
-    final response = await _supabase
-        .from('orders')
-        .update({'status': status.name})
-        .eq('id', orderId)
-        .select()
-        .single();
-    
-    return Order.fromJson(response);
+  Future<void> loadOrders({bool refresh = false}) async {
+    // Implementation
+  }
+}
+```
+
+#### 5.4.2 Service Layer
+```dart
+// Example: ProviderSettingsService
+class ProviderSettingsService {
+  final SupabaseClient _supabase = Supabase.instance.client;
+  
+  Future<Map<String, dynamic>?> getSetting(String settingKey) async {
+    // Implementation
+  }
+  
+  Future<bool> setSetting(String settingKey, Map<String, dynamic> settingValue) async {
+    // Implementation
   }
 }
 ```
@@ -589,77 +651,31 @@ class OrderService extends BaseService {
 
 ### 6.1 Supabase Integration
 
-#### 6.1.1 Database Connection
-```dart
-class SupabaseService {
-  static final SupabaseClient _client = Supabase.instance.client;
-  
-  static SupabaseClient get client => _client;
-  
-  static Future<void> initialize() async {
-    await Supabase.initialize(
-      url: AppConfig.supabaseUrl,
-      anonKey: AppConfig.supabaseAnonKey,
-    );
-  }
-}
-```
+#### 6.1.1 Database Operations
+- **CRUD Operations**: Standard database operations
+- **Real-time Subscriptions**: Live data updates
+- **Row Level Security**: Data access control
+- **Stored Procedures**: Complex business logic
 
-#### 6.1.2 Real-time Subscriptions
-```dart
-class RealtimeService {
-  final SupabaseClient _client = Supabase.instance.client;
-  
-  Stream<List<Order>> subscribeToOrders(String providerId) {
-    return _client
-        .from('orders')
-        .stream(primaryKey: ['id'])
-        .eq('provider_id', providerId)
-        .map((event) => event.map((json) => Order.fromJson(json)).toList());
-  }
-}
-```
+#### 6.1.2 Authentication
+- **User Management**: User registration and login
+- **Role-based Access**: Provider and customer roles
+- **Session Management**: Secure session handling
+- **Profile Management**: User profile data
 
-### 6.2 External APIs
+### 6.2 External Integrations
 
-#### 6.2.1 Payment Integration
-```dart
-class PaymentService {
-  Future<PaymentResult> processPayment(PaymentRequest request) async {
-    // Integrate with Stripe or other payment providers
-    final response = await _stripeClient.charges.create({
-      'amount': request.amount,
-      'currency': 'usd',
-      'source': request.paymentMethodId,
-      'description': request.description,
-    });
-    
-    return PaymentResult.fromStripeResponse(response);
-  }
-}
-```
+#### 6.2.1 Payment Processing
+- **Payment Gateways**: Multiple payment method support
+- **Transaction Management**: Payment tracking and reconciliation
+- **Refund Processing**: Automated refund handling
+- **Tax Calculation**: Automated tax calculations
 
-#### 6.2.2 Notification Service
-```dart
-class NotificationService {
-  Future<void> sendPushNotification({
-    required String userId,
-    required String title,
-    required String body,
-    Map<String, dynamic>? data,
-  }) async {
-    // Integrate with Firebase Cloud Messaging or similar
-    await _fcmClient.send({
-      'to': userId,
-      'notification': {
-        'title': title,
-        'body': body,
-      },
-      'data': data,
-    });
-  }
-}
-```
+#### 6.2.2 Communication
+- **Push Notifications**: Real-time notifications
+- **Email Integration**: Email notifications and marketing
+- **SMS Integration**: SMS notifications
+- **In-app Messaging**: Internal messaging system
 
 ---
 
@@ -667,43 +683,31 @@ class NotificationService {
 
 ### 7.1 Security Measures
 
-#### 7.1.1 Authentication
-- **JWT Tokens**: Secure token-based authentication
-- **Role-based Access**: Provider-specific permissions
-- **Session Management**: Secure session handling
-- **Password Policies**: Strong password requirements
+#### 7.1.1 Data Protection
+- **Encryption**: Data encryption at rest and in transit
+- **Access Control**: Role-based access control
+- **Audit Logging**: Comprehensive audit trails
+- **Data Backup**: Regular data backups
 
-#### 7.1.2 Data Protection
-- **Row Level Security**: Database-level access control
-- **Data Encryption**: Encrypted data transmission
-- **Input Validation**: Comprehensive input sanitization
+#### 7.1.2 Application Security
+- **Input Validation**: Comprehensive input validation
 - **SQL Injection Prevention**: Parameterized queries
-
-#### 7.1.3 Privacy Compliance
-- **GDPR Compliance**: Data protection regulations
-- **Data Minimization**: Collect only necessary data
-- **User Consent**: Explicit consent management
-- **Data Portability**: User data export capabilities
+- **XSS Protection**: Cross-site scripting protection
+- **CSRF Protection**: Cross-site request forgery protection
 
 ### 7.2 Performance Optimization
 
 #### 7.2.1 Database Optimization
-- **Indexing Strategy**: Optimized database indexes
-- **Query Optimization**: Efficient SQL queries
-- **Connection Pooling**: Database connection management
-- **Caching**: Redis-based caching layer
+- **Indexing**: Strategic database indexing
+- **Query Optimization**: Optimized database queries
+- **Connection Pooling**: Efficient connection management
+- **Caching**: Application-level caching
 
-#### 7.2.2 Frontend Optimization
-- **Lazy Loading**: On-demand component loading
-- **Image Optimization**: Compressed and cached images
-- **State Management**: Efficient state updates
-- **Memory Management**: Proper resource cleanup
-
-#### 7.2.3 Network Optimization
-- **API Caching**: Response caching strategies
-- **Compression**: Gzip compression for responses
-- **CDN Integration**: Content delivery optimization
-- **Rate Limiting**: API rate limiting protection
+#### 7.2.2 Application Performance
+- **Lazy Loading**: On-demand data loading
+- **Pagination**: Efficient data pagination
+- **Image Optimization**: Optimized image handling
+- **Code Splitting**: Efficient code organization
 
 ---
 
@@ -712,237 +716,63 @@ class NotificationService {
 ### 8.1 Code Standards
 
 #### 8.1.1 Naming Conventions
-```dart
-// Classes: PascalCase
-class OrderManageController extends GetxController {}
-
-// Variables: camelCase
-final RxList<Order> orders = <Order>[].obs;
-
-// Constants: SCREAMING_SNAKE_CASE
-const String API_BASE_URL = 'https://api.example.com';
-
-// Files: snake_case
-order_manage_controller.dart
-```
+- **Files**: snake_case for file names
+- **Classes**: PascalCase for class names
+- **Variables**: camelCase for variable names
+- **Constants**: UPPER_SNAKE_CASE for constants
 
 #### 8.1.2 Code Organization
-```dart
-class ExampleController extends GetxController {
-  // 1. Constants
-  static const int PAGE_SIZE = 20;
-  
-  // 2. Dependencies
-  final _orderService = Get.find<OrderService>();
-  
-  // 3. Observable variables
-  final RxList<Order> orders = <Order>[].obs;
-  final RxBool isLoading = false.obs;
-  
-  // 4. Lifecycle methods
-  @override
-  void onInit() {
-    super.onInit();
-    loadOrders();
-  }
-  
-  // 5. Public methods
-  Future<void> loadOrders() async {
-    // Implementation
-  }
-  
-  // 6. Private methods
-  void _handleError(String message) {
-    // Error handling
-  }
-}
-```
+- **Separation of Concerns**: Clear separation of business logic
+- **Dependency Injection**: Use GetX for dependency injection
+- **Error Handling**: Comprehensive error handling
+- **Documentation**: Clear code documentation
 
 ### 8.2 Testing Strategy
 
 #### 8.2.1 Unit Testing
-```dart
-void main() {
-  group('OrderManageController', () {
-    late OrderManageController controller;
-    late MockOrderService mockOrderService;
-    
-    setUp(() {
-      mockOrderService = MockOrderService();
-      controller = OrderManageController();
-    });
-    
-    test('should load orders successfully', () async {
-      // Arrange
-      final orders = [Order(id: '1'), Order(id: '2')];
-      when(mockOrderService.getOrders()).thenAnswer((_) async => orders);
-      
-      // Act
-      await controller.loadOrders();
-      
-      // Assert
-      expect(controller.orders.length, equals(2));
-      expect(controller.isLoading.value, isFalse);
-    });
-  });
-}
-```
+- **Controller Testing**: Test business logic
+- **Service Testing**: Test data access layer
+- **Widget Testing**: Test UI components
+- **Integration Testing**: Test complete workflows
 
-#### 8.2.2 Integration Testing
-```dart
-void main() {
-  group('Provider App Integration', () {
-    testWidgets('should navigate between tabs', (tester) async {
-      await tester.pumpWidget(ProviderShellApp());
-      
-      // Test navigation to orders tab
-      await tester.tap(find.byIcon(Icons.assignment));
-      await tester.pumpAndSettle();
-      expect(find.text('Order Management'), findsOneWidget);
-      
-      // Test navigation to clients tab
-      await tester.tap(find.byIcon(Icons.people));
-      await tester.pumpAndSettle();
-      expect(find.text('Client Management'), findsOneWidget);
-    });
-  });
-}
-```
+#### 8.2.2 Quality Assurance
+- **Code Review**: Peer code review process
+- **Automated Testing**: CI/CD pipeline integration
+- **Performance Testing**: Load and stress testing
+- **Security Testing**: Security vulnerability testing
 
-### 8.3 Documentation Standards
+### 8.3 Deployment
 
-#### 8.3.1 Code Documentation
-```dart
-/// Controller for managing provider orders
-/// 
-/// This controller handles all order-related operations including:
-/// - Loading order lists
-/// - Updating order status
-/// - Filtering and searching orders
-/// - Order statistics
-class OrderManageController extends GetxController {
-  /// Loads orders for the current provider
-  /// 
-  /// [refresh] - If true, clears existing orders and reloads
-  /// [status] - Optional status filter
-  /// 
-  /// Returns a Future that completes when orders are loaded
-  Future<void> loadOrders({bool refresh = false, String? status}) async {
-    // Implementation
-  }
-}
-```
+#### 8.3.1 Environment Management
+- **Development**: Local development environment
+- **Staging**: Pre-production testing environment
+- **Production**: Live production environment
+- **Monitoring**: Application monitoring and alerting
 
-#### 8.3.2 API Documentation
-```dart
-/// Order Management API
-/// 
-/// Provides endpoints for managing provider orders
-class OrderApi {
-  /// Get provider orders
-  /// 
-  /// GET /api/provider/orders
-  /// 
-  /// Query Parameters:
-  /// - status: Order status filter
-  /// - page: Page number (default: 1)
-  /// - limit: Items per page (default: 20)
-  /// 
-  /// Returns: List of orders with customer and service details
-  Future<List<Order>> getOrders({
-    String? status,
-    int page = 1,
-    int limit = 20,
-  }) async {
-    // Implementation
-  }
-}
-```
+#### 8.3.2 Release Management
+- **Version Control**: Git-based version control
+- **Release Process**: Automated release process
+- **Rollback Strategy**: Quick rollback capabilities
+- **Documentation**: Release documentation
 
 ---
 
-## 9. Deployment & Maintenance
+## 9. Future Enhancements
 
-### 9.1 Deployment Strategy
+### 9.1 Planned Features
+- **AI-powered Recommendations**: Intelligent service recommendations
+- **Advanced Analytics**: Comprehensive business analytics
+- **Mobile App**: Native mobile applications
+- **Third-party Integrations**: External service integrations
 
-#### 9.1.1 Environment Configuration
-```dart
-class AppConfig {
-  static const String supabaseUrl = String.fromEnvironment(
-    'SUPABASE_URL',
-    defaultValue: 'https://your-project.supabase.co',
-  );
-  
-  static const String supabaseAnonKey = String.fromEnvironment(
-    'SUPABASE_ANON_KEY',
-    defaultValue: 'your-anon-key',
-  );
-}
-```
-
-#### 9.1.2 Build Configuration
-```yaml
-# pubspec.yaml
-flutter:
-  assets:
-    - assets/images/
-    - assets/icons/
-  
-  fonts:
-    - family: Roboto
-      fonts:
-        - asset: assets/fonts/Roboto-Regular.ttf
-        - asset: assets/fonts/Roboto-Bold.ttf
-          weight: 700
-```
-
-### 9.2 Monitoring & Analytics
-
-#### 9.2.1 Error Tracking
-```dart
-class ErrorTrackingService {
-  static void trackError(dynamic error, StackTrace? stackTrace) {
-    // Integrate with Sentry or similar service
-    Sentry.captureException(
-      error,
-      stackTrace: stackTrace,
-    );
-  }
-}
-```
-
-#### 9.2.2 Analytics
-```dart
-class AnalyticsService {
-  static void trackEvent(String eventName, Map<String, dynamic>? parameters) {
-    // Integrate with Firebase Analytics or similar
-    FirebaseAnalytics.instance.logEvent(
-      name: eventName,
-      parameters: parameters,
-    );
-  }
-}
-```
+### 9.2 Scalability Considerations
+- **Microservices Architecture**: Scalable service architecture
+- **Cloud Infrastructure**: Cloud-based deployment
+- **Load Balancing**: Efficient load distribution
+- **Auto-scaling**: Automatic resource scaling
 
 ---
 
-## 10. Future Enhancements
-
-### 10.1 Planned Features
-- **AI-Powered Insights**: Machine learning for business optimization
-- **Advanced Analytics**: Comprehensive business intelligence
-- **Multi-language Support**: Internationalization
-- **Offline Mode**: Offline functionality
-- **Advanced Scheduling**: Intelligent scheduling algorithms
-
-### 10.2 Technical Improvements
-- **Microservices Architecture**: Scalable backend services
-- **Real-time Collaboration**: Multi-user real-time features
-- **Advanced Security**: Biometric authentication
-- **Performance Optimization**: Advanced caching strategies
-
----
-
-**Document Version**: 1.0  
-**Last Updated**: December 2024  
-**Maintained By**: Provider Development Team 
+**Last Updated**: 2025-01-08
+**Version**: v1.1.0
+**Status**: Core functionality implemented and tested 

@@ -39,7 +39,7 @@ import 'package:jinbeanpod_83904710/core/ui/themes/provider_theme.dart';
 import 'package:jinbeanpod_83904710/features/customer/services/presentation/service_detail_page.dart';
 import 'package:jinbeanpod_83904710/features/customer/services/presentation/service_detail_binding.dart';
 import 'package:jinbeanpod_83904710/features/customer/services/presentation/similar_services_page.dart';
-
+import 'package:jinbeanpod_83904710/app/provider_shell_app.dart';
 void main() async {
   print('[main] App starting...');
   WidgetsFlutterBinding.ensureInitialized();
@@ -130,18 +130,24 @@ void main() async {
         
         // 根据角色选择主题
         ThemeData theme;
-        if (role == 'provider') {
-          // Provider角色使用ProviderTheme
-          theme = JinBeanProviderTheme.lightTheme;
-          print('Applying Provider Theme');
-        } else if (role == 'customer') {
-          // Customer角色使用CustomerTheme
-          theme = JinBeanCustomerTheme.lightTheme;
-          print('Applying Customer Theme');
-        } else {
-          // 默认使用Customer主题
-          theme = JinBeanCustomerTheme.lightTheme;
-          print('Applying Default Customer Theme');
+        try {
+          if (role == 'provider') {
+            // Provider角色使用ProviderTheme
+            theme = JinBeanProviderTheme.lightTheme;
+            print('Applying Provider Theme');
+          } else if (role == 'customer') {
+            // Customer角色使用CustomerTheme
+            theme = JinBeanCustomerTheme.lightTheme;
+            print('Applying Customer Theme');
+          } else {
+            // 默认使用Customer主题
+            theme = JinBeanCustomerTheme.lightTheme;
+            print('Applying Default Customer Theme');
+          }
+        } catch (e) {
+          print('Error applying theme: $e');
+          // 如果主题应用失败，使用默认主题
+          theme = ThemeData.light();
         }
         
         return GetMaterialApp(
@@ -182,7 +188,8 @@ void main() async {
               ),
             ),
             // 只保留 ProviderShellApp 相关静态路由，其它 provider 插件式页面全部移除
-          ],
+            GetPage(name: '/provider_shell', page: () => const ProviderShellApp()),
+            GetPage(name: '/provider_home', page: () => ProviderHomePage(onNavigateToTab: (index) {})),          ],
         );
       }),
     ),

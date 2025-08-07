@@ -26,9 +26,46 @@ class SplashPage extends StatelessWidget {
               return Stack(
                 fit: StackFit.expand,
                 children: [
+                  // 添加错误处理的图片加载
                   Image.asset(
                     page.imagePath,
                     fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      // 如果图片加载失败，显示一个渐变背景
+                      return Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              AppColors.primaryColor,
+                              AppColors.primaryLightColor,
+                            ],
+                          ),
+                        ),
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.home,
+                                size: 100,
+                                color: Colors.white,
+                              ),
+                              const SizedBox(height: 20),
+                              Text(
+                                'JinBean Home',
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
                   ),
                   Container(
                     decoration: BoxDecoration(

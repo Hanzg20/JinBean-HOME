@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 // Corrected import for PluginManager
 import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
+import 'package:jinbeanpod_83904710/core/plugin_management/plugin_manager.dart';
 
 class OnboardingPageModel {
   final String imagePath;
@@ -47,31 +48,64 @@ class SplashController extends GetxController {
   }
 
   Future<void> _initializeApp() async {
+    try {
     AppLogger.info('[SplashController] _initializeApp called.', tag: 'SplashController');
     final session = Supabase.instance.client.auth.currentSession;
     AppLogger.debug('[SplashController] Supabase session: $session', tag: 'SplashController');
+      
     if (session != null) {
       // 拉取 profile
       final user = Supabase.instance.client.auth.currentUser;
+        if (user != null) {
+          try {
       final profile = await Supabase.instance.client
           .from('user_profiles')
           .select('role')
-          .eq('id', user?.id ?? '')
+                .eq('id', user.id)
           .maybeSingle();
       final role = profile?['role'] ?? 'customer';
       AppLogger.info('[SplashController] User profile role: $role', tag: 'SplashController');
+            
       if (role == 'customer+provider') {
         AppLogger.info('[SplashController] User is customer+provider, navigating to /auth with showRoleSwitch', tag: 'SplashController');
         Get.offAllNamed('/auth', arguments: {'showRoleSwitch': true});
       } else if (role == 'provider') {
-        AppLogger.info('[SplashController] Navigating to /provider_home', tag: 'SplashController');
-        Get.offAllNamed('/provider_home');
+              AppLogger.info('[SplashController] User is provider, navigating to /provider_shell', tag: 'SplashController');
+              // 设置PluginManager的角色为provider
+              try {
+                final pluginManager = Get.find<PluginManager>();
+                pluginManager.setRole('provider');
+              } catch (e) {
+                AppLogger.error('[SplashController] Error setting provider role: $e', tag: 'SplashController');
+              }
+              Get.offAllNamed('/provider_shell');
       } else {
-        AppLogger.info('[SplashController] Navigating to /main_shell', tag: 'SplashController');
+              AppLogger.info('[SplashController] User is customer, navigating to /main_shell', tag: 'SplashController');
+              // 设置PluginManager的角色为customer
+              try {
+                final pluginManager = Get.find<PluginManager>();
+                pluginManager.setRole('customer');
+              } catch (e) {
+                AppLogger.error('[SplashController] Error setting customer role: $e', tag: 'SplashController');
+              }
+              Get.offAllNamed('/main_shell');
+            }
+          } catch (e) {
+            AppLogger.error('[SplashController] Error fetching profile: $e', tag: 'SplashController');
+            // 如果获取profile失败，默认导航到main_shell
         Get.offAllNamed('/main_shell');
+          }
+        } else {
+          AppLogger.info('[SplashController] No user found, staying on splash.', tag: 'SplashController');
+          isReadyToNavigate.value = true;
       }
     } else {
       AppLogger.info('[SplashController] No session, staying on splash.', tag: 'SplashController');
+        isReadyToNavigate.value = true;
+      }
+    } catch (e) {
+      AppLogger.error('[SplashController] Error in _initializeApp: $e', tag: 'SplashController');
+      // 如果出现错误，确保用户可以继续使用应用
       isReadyToNavigate.value = true;
     }
   }

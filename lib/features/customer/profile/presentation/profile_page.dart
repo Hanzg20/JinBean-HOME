@@ -6,9 +6,51 @@ import 'package:jinbeanpod_83904710/features/provider/plugins/provider_identity/
 import 'package:jinbeanpod_83904710/features/customer/auth/presentation/auth_controller.dart';
 import 'package:jinbeanpod_83904710/core/ui/components/customer_theme_components.dart';
 import 'package:jinbeanpod_83904710/core/ui/themes/customer_theme_utils.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+// Import platform components
+import 'package:jinbeanpod_83904710/core/components/platform_core.dart';
+import 'package:jinbeanpod_83904710/features/customer/services/presentation/widgets/service_detail_loading.dart';
 
-class ProfilePage extends GetView<ProfileController> {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  // 平台组件状态管理
+  final LoadingStateManager _loadingManager = LoadingStateManager();
+  
+  @override
+  void initState() {
+    super.initState();
+    // 初始化网络状态为在线
+    _loadingManager.setOnline();
+    // 数据已经在controller中加载完成，直接设置为成功状态
+    _loadingManager.setSuccess();
+  }
+
+  @override
+  void dispose() {
+    _loadingManager.dispose();
+    super.dispose();
+  }
+
+  /// 加载用户资料数据
+  Future<void> _loadProfileData() async {
+    try {
+      _loadingManager.setLoading();
+      
+      // 加载用户资料
+      final controller = Get.put(ProfileController());
+      await controller.loadUserProfile();
+      
+      _loadingManager.setSuccess();
+    } catch (e) {
+      _loadingManager.setError('加载用户资料失败: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,155 +62,163 @@ class ProfilePage extends GetView<ProfileController> {
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
-      body: CustomScrollView(
-        slivers: [
-          // Profile Header
-          SliverAppBar(
-            expandedHeight: 200.0,
-            floating: false,
-            pinned: true,
-            backgroundColor: colorScheme.primary,
-            foregroundColor: colorScheme.onPrimary,
-            flexibleSpace: FlexibleSpaceBar(
-              background: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      colorScheme.primary,
-                      colorScheme.primary.withOpacity(0.8),
-                    ],
-                  ),
-                ),
-                child: Obx(() {
-                  print('[ProfilePage] Obx 1 (header) rebuild.'); // Added log
-                  return Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 60, 20, 20),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        // 头像和用户信息横向布局
-                        Row(
-                            children: [
-                            // 头像
-                                  GestureDetector(
-                              onTap: () => _showAvatarOptions(context),
-                                      child: Container(
-                                width: 80,
-                                height: 80,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                  border: Border.all(color: colorScheme.onPrimary, width: 3),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: colorScheme.shadow.withOpacity(0.2),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 2),
-                                      ),
-                                  ],
-                                ),
-                                child: CircleAvatar(
-                                  radius: 37,
-                                  backgroundColor: colorScheme.surfaceVariant,
-                                  backgroundImage: controller.avatarUrl.value.isNotEmpty
-                                      ? NetworkImage(controller.avatarUrl.value)
-                                      : null,
-                                  child: controller.avatarUrl.value.isEmpty
-                                      ? Icon(Icons.person, size: 40, color: colorScheme.onSurfaceVariant)
-                                      : null,
-                                      ),
-                              ),
-                              ),
-                            const SizedBox(width: 16),
-                            // 用户信息
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    controller.userName.value,
-                                    style: theme.textTheme.headlineMedium?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: colorScheme.onPrimary,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    controller.userBio.value.isNotEmpty ? controller.userBio.value : 'No bio yet',
-                                    style: theme.textTheme.bodyMedium?.copyWith(
-                                      color: colorScheme.onPrimary.withOpacity(0.8),
-                                    ),
-                                    ),
-                                  const SizedBox(height: 8),
-                                  // 用户统计信息
-                                  Row(
-                                    children: [
-                                      Expanded(child: _buildStatItem('Rating', '${controller.userRating.value}')),
-                                      const SizedBox(width: 16),
-                                      Expanded(child: _buildStatItem('Points', '${controller.userPoints.value}')),
-                                      const SizedBox(width: 16),
-                                      Expanded(child: _buildStatItem('Member', controller.memberSince.value)),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            // 编辑按钮
-                            IconButton(
-                              onPressed: () => Get.toNamed('/edit_profile'),
-                              icon: Icon(Icons.edit, color: colorScheme.onPrimary, size: 20),
-                              style: IconButton.styleFrom(
-                                backgroundColor: colorScheme.onPrimary.withOpacity(0.2),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  );
-                  }),
+      body: ListenableBuilder(
+        listenable: _loadingManager,
+        builder: (context, child) {
+          return ServiceDetailLoading(
+            state: _loadingManager.state,
+            loadingMessage: '加载用户资料...',
+            errorMessage: _loadingManager.errorMessage,
+            onRetry: () => _loadProfileData(),
+            onBack: () => Get.back(),
+            showSkeleton: true,
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  // Profile Header
+                  _buildProfileHeader(context, controller, theme, colorScheme),
+                  
+                  // Profile Content
+                  _buildProfileContent(context, controller, theme, colorScheme),
+                ],
               ),
             ),
-          ),
-
-          // 账户管理卡片组
-          SliverPadding(
-            padding: const EdgeInsets.all(16.0),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                _buildSectionTitle('Account Management'),
-                const SizedBox(height: 8), // 减少间距
-                _buildAccountCard(),
-                const SizedBox(height: 16), // 减少间距
-
-                // 服务管理卡片组
-                _buildSectionTitle('Service Management'),
-                const SizedBox(height: 8), // 减少间距
-                _buildServiceCard(),
-                const SizedBox(height: 16), // 减少间距
-
-                // 设置卡片组
-                _buildSectionTitle('Settings'),
-                const SizedBox(height: 8), // 减少间距
-                _buildSettingsCard(),
-                const SizedBox(height: 16), // 减少间距
-
-                // 帮助与支持卡片组
-                _buildSectionTitle('Help & Support'),
-                const SizedBox(height: 8), // 减少间距
-                _buildHelpCard(),
-                const SizedBox(height: 16), // 减少间距
-
-                // 角色切换按钮
-                _buildRoleSwitchCard(),
-                const SizedBox(height: 80), // 为底部留空间
-              ]),
-            ),
-          ),
-        ],
+          );
+        },
       ),
+    );
+  }
+
+  Widget _buildProfileHeader(BuildContext context, ProfileController controller, ThemeData theme, ColorScheme colorScheme) {
+    return Container(
+      height: 200.0,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            colorScheme.primary,
+            colorScheme.primary.withOpacity(0.8),
+          ],
+        ),
+      ),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              // 头像和用户信息横向布局
+              Row(
+                children: [
+                  // 头像
+                  GestureDetector(
+                    onTap: () => _showAvatarOptions(context),
+                    child: Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: colorScheme.onPrimary, width: 3),
+                        boxShadow: [
+                          BoxShadow(
+                            color: colorScheme.shadow.withOpacity(0.2),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: CircleAvatar(
+                        radius: 37,
+                        backgroundColor: colorScheme.surfaceVariant,
+                        backgroundImage: controller.avatarUrl.value.isNotEmpty
+                            ? NetworkImage(controller.avatarUrl.value)
+                            : null,
+                        child: controller.avatarUrl.value.isEmpty
+                            ? Icon(Icons.person, size: 40, color: colorScheme.onSurfaceVariant)
+                            : null,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  // 用户信息
+                  Expanded(
+                    child: Obx(() {
+                      print('[ProfilePage] Obx 1 (header) rebuild.'); // Added log
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            controller.userName.value.isNotEmpty
+                                ? controller.userName.value
+                                : 'User Name',
+                            style: theme.textTheme.headlineSmall?.copyWith(
+                              color: colorScheme.onPrimary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            controller.userBio.value.isNotEmpty
+                                ? controller.userBio.value
+                                : 'No bio yet',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: colorScheme.onPrimary.withOpacity(0.8),
+                            ),
+                          ),
+                        ],
+                      );
+                    }),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProfileContent(BuildContext context, ProfileController controller, ThemeData theme, ColorScheme colorScheme) {
+    return Column(
+      children: [
+        // 账户管理卡片组
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildSectionTitle('Account Management'),
+              const SizedBox(height: 8),
+              _buildAccountCard(),
+              const SizedBox(height: 16),
+
+              // 服务管理卡片组
+              _buildSectionTitle('Service Management'),
+              const SizedBox(height: 8),
+              _buildServiceCard(),
+              const SizedBox(height: 16),
+
+              // 设置卡片组
+              _buildSectionTitle('Settings'),
+              const SizedBox(height: 8),
+              _buildSettingsCard(),
+              const SizedBox(height: 16),
+
+              // 帮助与支持卡片组
+              _buildSectionTitle('Help & Support'),
+              const SizedBox(height: 8),
+              _buildHelpCard(),
+              const SizedBox(height: 16),
+
+              // 角色切换按钮
+              _buildRoleSwitchCard(),
+              const SizedBox(height: 80), // 为底部留空间
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -423,14 +473,14 @@ class ProfilePage extends GetView<ProfileController> {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.switch_account, color: colorScheme.primary, size: 24),
+                        Icon(Icons.business, color: colorScheme.primary, size: 24),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Switch to Provider Mode',
+                                'Provider Mode',
                                 style: theme.textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.w600,
                                   color: colorScheme.onSurface,
@@ -438,7 +488,7 @@ class ProfilePage extends GetView<ProfileController> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Manage your services and orders',
+                                'You are currently in provider mode',
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   color: colorScheme.onSurfaceVariant,
                                 ),
@@ -447,27 +497,6 @@ class ProfilePage extends GetView<ProfileController> {
                           ),
                         ),
                       ],
-                    ),
-                    const SizedBox(height: 16),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        icon: Icon(Icons.switch_account, color: colorScheme.onPrimary),
-                        label: Text(
-                          'Switch to Provider',
-                          style: TextStyle(color: colorScheme.onPrimary),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: colorScheme.primary,
-                          foregroundColor: colorScheme.onPrimary,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                        onPressed: () {
-                          Get.find<PluginManager>().setRole('provider');
-                          Get.offAllNamed('/provider_home');
-                        },
-                      ),
                     ),
                   ],
                 );
@@ -648,7 +677,7 @@ class ProfilePage extends GetView<ProfileController> {
               groupValue: currentLocale,
               onChanged: (locale) {
                 if (locale != null) {
-                  Get.back();
+                Get.back();
                   _changeLanguage(locale);
                 }
               },
@@ -660,7 +689,7 @@ class ProfilePage extends GetView<ProfileController> {
               groupValue: currentLocale,
               onChanged: (locale) {
                 if (locale != null) {
-                  Get.back();
+                Get.back();
                   _changeLanguage(locale);
                 }
               },

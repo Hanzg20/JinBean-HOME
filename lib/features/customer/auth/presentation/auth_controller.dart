@@ -8,8 +8,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:jinbeanpod_83904710/features/customer/profile/presentation/profile_controller.dart'; // Corrected import for ProfileController
 import 'package:jinbeanpod_83904710/core/plugin_management/plugin_manager.dart'; // Corrected import for PluginManager
 import 'package:jinbeanpod_83904710/features/provider/plugins/provider_identity/provider_identity_service.dart';
-import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
-import 'package:jinbeanpod_83904710/app/theme/app_theme_service.dart'; // Corrected import for AppThemeService
 
 class AuthController extends GetxController {
   final _storage = GetStorage();
@@ -35,12 +33,12 @@ class AuthController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    AppLogger.info('AuthController initialized', tag: 'AuthController');
+    print('AuthController initialized');
   }
 
   @override
   void onClose() {
-    AppLogger.info('[AuthController] onClose called.', tag: 'AuthController');
+    print('[AuthController] onClose called.');
     emailController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
@@ -52,7 +50,6 @@ class AuthController extends GetxController {
 
   void togglePasswordVisibility() {
     isPasswordVisible.value = !isPasswordVisible.value;
-    AppLogger.debug('Password visibility toggled: ${isPasswordVisible.value}', tag: 'AuthController');
   }
 
   Future<bool> login() async {
@@ -77,7 +74,7 @@ class AuthController extends GetxController {
       );
 
       if (response.user != null) {
-        print('[AuthController] Login successful for user: ${response.user?.id ?? ''}');
+        print('[AuthController] Login successful for user: ${response.user!.id}');
         
         // 立即检查并打印 provider 角色状态
         try {
@@ -91,18 +88,29 @@ class AuthController extends GetxController {
         final profile = await Supabase.instance.client
             .from('user_profiles')
             .select('role')
-            .eq('id', response.user?.id ?? '')
+            .eq('id', response.user!.id)
             .maybeSingle();
         print('[AuthController] User profile fetched: $profile');
         final String userProfileRoleFromDb = profile?['role'] ?? 'customer';
         userProfileRole.value = userProfileRoleFromDb;
-        String finalRole = userProfileRoleFromDb;
+        print('[AuthController] User profile role set to: $userProfileRoleFromDb');
+        
+        // 如果用户是customer+provider，不在这里设置finalRole，让login_page处理
         if (userProfileRoleFromDb == 'customer+provider') {
-          finalRole = selectedLoginRole.value;
-        }
+          print('[AuthController] User is customer+provider, will be handled by login_page');
+          // 不设置PluginManager的角色，让login_page处理角色选择
+          return true;
+        } else if (userProfileRoleFromDb == 'provider') {
+          print('[AuthController] User is provider, setting PluginManager role');
+          Get.find<PluginManager>().currentRole.value = 'provider';
+          return true;
+        } else {
+          // 单一角色用户，直接设置角色
+          String finalRole = userProfileRoleFromDb;
         Get.find<PluginManager>().currentRole.value = finalRole;
-        print('User ${response.user?.id ?? ''} logged in with final role: $finalRole');
+          print('[AuthController] User is single role: $finalRole, setting PluginManager role');
         return true;
+        }
       } else {
         errorMessage.value = 'Login failed. Please check your credentials.';
         print('[AuthController] Login failed: User is null.');
@@ -127,32 +135,25 @@ class AuthController extends GetxController {
     final password = passwordController.text.trim();
     final confirmPassword = confirmPasswordController.text.trim();
 
-    print('[Register] 用户输入: email=$email, password.length=${password.length}, confirmPassword.length=${confirmPassword.length}');
     if (email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
       errorMessage.value = 'Please fill all fields';
-      print('[Register] 有字段为空，注册终止');
       return;
     }
     if (password != confirmPassword) {
       errorMessage.value = 'Passwords do not match';
-      print('[Register] 两次密码不一致，注册终止');
       return;
     }
 
     isLoading.value = true;
     errorMessage.value = '';
-    print('[Register] 开始注册流程');
 
     try {
-      print('[Register] 调用 Supabase signUp, email=$email');
       final AuthResponse response = await Supabase.instance.client.auth.signUp(
         email: email,
         password: password,
       );
-      print('[Register] signUp 返回: user=${response.user}, session=${response.session}');
 
       final user = response.user ?? Supabase.instance.client.auth.currentUser;
-      print('[Register] 注册接口返回 user: ${user?.id}, response: ${response.user}, currentUser: ${Supabase.instance.client.auth.currentUser}');
       if (user != null) {
         // 等待 session 切换到新用户
         await Future.delayed(const Duration(milliseconds: 500));
@@ -192,38 +193,39 @@ class AuthController extends GetxController {
               'twitter': null,
               'instagram': null,
             }),
+            // created_at, updated_at 由数据库默认
           };
-          print('[Register] 插入 user_profiles 参数: $profileInsert');
           final insertResp = await Supabase.instance.client
               .from('user_profiles')
-              .insert(profileInsert)
-              .select()
-              .single();
-          print('[Register] user_profiles 插入返回: $insertResp');
-          if (insertResp['id'] == null) {
-            print('[Register] user_profiles 插入失败，返回为 null 或无 id');
-            errorMessage.value = 'Profile creation failed: insert returned null';
+              .insert(profileInsert);
+          if (insertResp.error != null) {
+            print(
+                'Supabase insert error: ${insertResp.error!.message}, details: ${insertResp.error!.details}');
+            errorMessage.value =
+                'Profile creation failed: ${insertResp.error!.message}';
+            Get.snackbar('Profile Error',
+                'Failed to create user profile. Please try again.',
+                snackPosition: SnackPosition.BOTTOM);
             return;
           }
-          print('[Register] User profile created successfully for ${user.id}');
-          // 注册成功后，自动初始化 profile、PluginManager、ProfileController 状态
-          await _handleSuccessfulLogin(user);
-        } catch (profileError, stack) {
-          print('[Register] Error creating user profile: $profileError\nStack: $stack');
+          print('User profile created successfully for ${user.id}');
+          // 注册成功后直接跳转客户主页面
+          Get.offAllNamed('/main_shell');
+        } catch (profileError) {
+          print('Error creating user profile: $profileError');
           Get.snackbar('Profile Error',
               'Failed to create user profile. Please try again.',
               snackPosition: SnackPosition.BOTTOM);
         }
       } else {
-        print('[Register] Registration failed: user is null');
+        print('Registration failed: user is null');
         errorMessage.value = 'Registration failed: user is null';
       }
-    } catch (e, stack) {
-      print('[Register] Registration error: $e\nStack: $stack');
+    } catch (e) {
+      print('Registration error: $e');
       errorMessage.value = 'Registration error: $e';
     } finally {
       isLoading.value = false;
-      print('[Register] 注册流程结束');
     }
   }
 
@@ -267,12 +269,13 @@ class AuthController extends GetxController {
                 cleanedProfile['avatar_url'] == '')) {
           cleanedProfile['avatar_url'] = ''; // Always store as empty string
         }
-        AppLogger.info('[AuthController] _handleSuccessfulLogin: Cleaned avatar_url before storing: \\${cleanedProfile['avatar_url']}', tag: 'AuthController');
+        print(
+            '[AuthController] _handleSuccessfulLogin: Cleaned avatar_url before storing: ${cleanedProfile['avatar_url']}');
 
         // Store profile data in local storage for quick access
         await _storage.write('userProfile', cleanedProfile);
-        AppLogger.info('[AuthController] User profile stored locally.', tag: 'AuthController');
-        AppLogger.info('User profile loaded successfully', tag: 'AuthController');
+        print('[AuthController] User profile stored locally.');
+        print('User profile loaded successfully');
       } else {
         print('[AuthController] No user profile found. Defaulting role to customer.');
       }
@@ -281,14 +284,14 @@ class AuthController extends GetxController {
       // 登录成功后直接根据 UI 选择的角色跳转主页面
       final String selectedRole = selectedLoginRole.value;
       Get.find<PluginManager>().currentRole.value = selectedRole;
-      AppLogger.info('[AuthController] 跳转主页面，selectedRole: $selectedRole', tag: 'AuthController');
+      print('[AuthController] 跳转主页面，selectedRole: $selectedRole');
       if (selectedRole == 'provider') {
         Get.offAllNamed('/provider_home');
       } else {
         Get.offAllNamed('/main_shell');
       }
-    } catch (e, stack) {
-      AppLogger.error('[AuthController] Error in _handleSuccessfulLogin', error: e, stackTrace: stack, tag: 'AuthController');
+    } catch (e) {
+      print('[AuthController] Error in _handleSuccessfulLogin: $e');
       errorMessage.value = 'Failed to process login: $e';
     }
   }
@@ -325,37 +328,48 @@ class AuthController extends GetxController {
 
   Future<void> logout() async {
     try {
-      print('[AuthController] logout: Starting logout process...');
-      
-      // Step 1: Sign out from Supabase first
-      await Supabase.instance.client.auth.signOut();
-      print('[AuthController] logout: Supabase sign out completed.');
-      
-      // Step 2: Clear local storage
-      await _storage.remove('userId');
-      await _storage.remove('userProfile');
-      await _storage.remove('lastRole');
-      print('[AuthController] logout: Local storage cleared.');
-      
-      // Step 3: Reset states
-      selectedLoginRole.value = 'customer';
-      userProfileRole.value = '';
-      errorMessage.value = '';
-      
-      // Step 4: Reset PluginManager role
-      if (Get.isRegistered<PluginManager>()) {
-        final pluginManager = Get.find<PluginManager>();
-        pluginManager.currentRole.value = 'customer';
-        print('[AuthController] logout: PluginManager role reset to customer.');
+      // Step 1: Immediately reset ProfileController's states to default safe values
+      // This ensures any active UI listeners bound to ProfileController see safe empty values
+      if (Get.isRegistered<ProfileController>()) {
+        final profileController = Get.find<ProfileController>();
+        print('[AuthController] logout: Resetting ProfileController states.');
+        profileController.userName.value = '';
+        profileController.memberSince.value = '';
+        profileController.avatarUrl.value = '';
+        profileController.userBio.value = '';
+        profileController.userLevel.value = 'Member';
+        profileController.userPoints.value = 0;
+        profileController.userRating.value = 0.0;
+        profileController.isEmailVerified.value = false;
+        profileController.isPhoneVerified.value = false;
+        profileController.isLoading.value =
+            false; // Set to false, as we are not loading.
+        print(
+            '[AuthController] logout: ProfileController avatarUrl after reset: ${profileController.avatarUrl.value}');
+      } else {
+        print('[AuthController] logout: ProfileController not registered.');
+      }
+
+      // Step 2: Dismiss any open dialogs or bottom sheets
+      if (Get.isDialogOpen == true || Get.isBottomSheetOpen == true) {
+        Get.back();
       }
       
-      // Step 5: Navigate to login page immediately
-      print('[AuthController] logout: About to navigate to /auth');
-      Get.offAllNamed('/auth');
-      print('[AuthController] logout: Navigation to /auth completed');
+      // Step 3: Clear stored user ID and user profile from local storage
+      await _storage.remove('userId');
+      await _storage.remove('userProfile');
+      print('Local storage userId and userProfile cleared.');
       
-    } catch (e, s) {
-      print('[AuthController] logout error: $e\nStackTrace: $s');
+      // Step 4: Sign out from Supabase
+      await Supabase.instance.client.auth.signOut();
+      print('User signed out successfully from Supabase.');
+
+      // Step 5: Give a small delay for UI repainting and then navigate
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      Get.offAllNamed('/auth');
+    } catch (e, s) { // Added StackTrace s
+      print('Logout error: $e\nStackTrace: $s'); // Print StackTrace
       Get.snackbar('Error', 'Failed to logout. Please try again.');
     }
   }
@@ -388,5 +402,27 @@ class AuthController extends GetxController {
     final bytes = utf8.encode(input);
     final digest = sha256.convert(bytes);
     return digest.toString();
+  }
+
+  // 临时测试方法：将当前用户设置为customer+provider角色
+  Future<void> setUserAsCustomerProvider() async {
+    try {
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user != null) {
+        final updateResp = await Supabase.instance.client
+            .from('user_profiles')
+            .update({'role': 'customer+provider'})
+            .eq('id', user.id);
+        
+        if (updateResp.error != null) {
+          print('[AuthController] Error updating user role: ${updateResp.error!.message}');
+        } else {
+          print('[AuthController] User role updated to customer+provider for ${user.id}');
+          userProfileRole.value = 'customer+provider';
+        }
+      }
+    } catch (e) {
+      print('[AuthController] Error setting user as customer+provider: $e');
+    }
   }
 }

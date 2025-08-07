@@ -3,14 +3,8 @@ import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/features/customer/auth/presentation/auth_controller.dart';
 import 'package:jinbeanpod_83904710/app/theme/app_colors.dart';
 import 'package:jinbeanpod_83904710/core/plugin_management/plugin_manager.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:animated_toggle_switch/animated_toggle_switch.dart';
-import 'package:jinbeanpod_83904710/app/theme/app_theme_service.dart';
-import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
-import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
-import 'package:jinbeanpod_83904710/l10n/app_localizations_en.dart';
-
-const Color customerColor = Color(0xFF006D77); // dark teal
-const Color providerColor = Color(0xFFFFC300); // golden
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -25,9 +19,9 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    _showRoleSwitch = Get.arguments?['showRoleSwitch'] == true || 
-                     Get.find<AuthController>().userProfileRole.value == 'customer+provider';
-    AppLogger.info('LoginPage initState, showRoleSwitch=[200m$_showRoleSwitch[0m', tag: 'LoginPage');
+    // 初始化时判断是否显示角色选择项
+    _showRoleSwitch = Get.arguments?['showRoleSwitch'] == true;
+    print('[LoginPage] initState: _showRoleSwitch = $_showRoleSwitch');
   }
 
   @override
@@ -69,9 +63,9 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 40),
                 // Welcome Text
-                Text(
-                  (AppLocalizations.of(context) ?? AppLocalizationsEn()).welcomeBack,
-                  style: const TextStyle(
+                const Text(
+                  'Welcome Back!',
+                  style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
                   ),
@@ -79,7 +73,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  (AppLocalizations.of(context) ?? AppLocalizationsEn()).signInToContinue,
+                  'Sign in to continue',
                   style: TextStyle(
                     fontSize: 16,
                     color: Theme.of(context).textTheme.bodySmall?.color,
@@ -91,7 +85,7 @@ class _LoginPageState extends State<LoginPage> {
                 TextField(
                   controller: controller.emailController,
                   decoration: InputDecoration(
-                    labelText: (AppLocalizations.of(context) ?? AppLocalizationsEn()).usernameHint,
+                    labelText: 'Email',
                     prefixIcon: Icon(Icons.email_outlined, color: Theme.of(context).colorScheme.primary),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -104,7 +98,7 @@ class _LoginPageState extends State<LoginPage> {
                   controller: controller.passwordController,
                   obscureText: !controller.isPasswordVisible.value,
                   decoration: InputDecoration(
-                    labelText: (AppLocalizations.of(context) ?? AppLocalizationsEn()).passwordHint,
+                    labelText: 'Password',
                     prefixIcon: Icon(Icons.lock_outline, color: Theme.of(context).colorScheme.primary),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -145,6 +139,7 @@ class _LoginPageState extends State<LoginPage> {
                             ],
                           ),
                           onChanged: (val) {
+                            print('[LoginPage] Role changed to: $val');
                             controller.selectedLoginRole.value = val;
                           },
                           iconBuilder: (role) => role == 'provider'
@@ -164,45 +159,52 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       )),
                 // Login Button
-                Obx(() => ElevatedButton(
-                  onPressed: controller.isLoading.value ? null : () async {
-                    AppLogger.info('Login button pressed, showRoleSwitch=$_showRoleSwitch, selectedRole=[200m${controller.selectedLoginRole.value}[0m', tag: 'LoginPage');
-                    // 登录逻辑保持不变
+                ElevatedButton(
+                  onPressed: () async {
                     if (!_showRoleSwitch) {
+                      // 未显示角色选择项，执行登录流程
                       final loginSuccess = await controller.login();
-                      AppLogger.info('Login result: $loginSuccess', tag: 'LoginPage');
                       if (!loginSuccess) return;
+                      
+                      // 登录成功后，重新判断是否显示角色选择项
                       final userRole = controller.userProfileRole.value;
-                      AppLogger.info('User role after login: $userRole', tag: 'LoginPage');
+                      print('[LoginPage] Login successful, user role: $userRole');
+                      
                       if (userRole == 'customer+provider') {
+                        // 多角色用户，显示角色选择项
+                        print('[LoginPage] User is customer+provider, showing role switch');
                         setState(() {
                           _showRoleSwitch = true;
                         });
-                        AppLogger.info('Switching to role selection UI', tag: 'LoginPage');
-                        return;
+                        return; // 不跳转，让用户选择角色
                       } else {
-                        // 登录成功后，保存 per-role 主题
-                        final themeService = Get.find<AppThemeService>();
-                        final themeName = userRole == 'provider' ? 'golden' : 'dark_teal';
-                        themeService.setThemeForRole(userRole, themeName);
+                        // 单一角色用户，直接跳转
+                        print('[LoginPage] User is single role: $userRole, navigating directly');
                         Get.find<PluginManager>().currentRole.value = userRole;
-                        AppLogger.info('Login success, navigating to main page, role=$userRole', tag: 'LoginPage');
                         if (userRole == 'provider') {
-                          Get.offAllNamed('/provider_home');
+                          Get.offAllNamed('/provider_shell');
                         } else {
                           Get.offAllNamed('/main_shell');
                         }
                       }
                     } else {
+                      // 已显示角色选择项，直接使用选择的角色进行跳转
                       final selectedRole = controller.selectedLoginRole.value;
-                      // 登录成功后，保存 per-role 主题
-                      final themeService = Get.find<AppThemeService>();
-                      final themeName = selectedRole == 'provider' ? 'golden' : 'dark_teal';
-                      themeService.setThemeForRole(selectedRole, themeName);
-                      Get.find<PluginManager>().currentRole.value = selectedRole;
-                      AppLogger.info('Login success, navigating to main page, selectedRole=$selectedRole', tag: 'LoginPage');
-                      if (selectedRole == 'provider') {
-                        Get.offAllNamed('/provider_home');
+                      print('[LoginPage] User selected role: $selectedRole');
+                      
+                      // 确保selectedRole不为空
+                      if (selectedRole.isEmpty) {
+                        controller.selectedLoginRole.value = 'customer';
+                        print('[LoginPage] Selected role was empty, defaulting to customer');
+                      }
+                      
+                      // 使用选择的角色进行跳转
+                      final finalRole = controller.selectedLoginRole.value;
+                      Get.find<PluginManager>().currentRole.value = finalRole;
+                      print('[LoginPage] Navigating with final role: $finalRole');
+                      
+                      if (finalRole == 'provider') {
+                        Get.offAllNamed('/provider_shell');
                       } else {
                         Get.offAllNamed('/main_shell');
                       }
@@ -213,34 +215,39 @@ class _LoginPageState extends State<LoginPage> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    backgroundColor: controller.selectedLoginRole.value == 'provider'
-                        ? providerColor
-                        : customerColor,
-                    foregroundColor: controller.selectedLoginRole.value == 'provider'
-                        ? Colors.black
-                        : Colors.white,
                   ),
-                  child: controller.isLoading.value
-                      ? CircularProgressIndicator(
-                          color: controller.selectedLoginRole.value == 'provider'
-                              ? Colors.black
-                              : Colors.white,
-                        )
-                      : Text(_showRoleSwitch ? (AppLocalizations.of(context) ?? AppLocalizationsEn()).continueText : (AppLocalizations.of(context) ?? AppLocalizationsEn()).loginButton),
-                )),
+                  child: Text(
+                    _showRoleSwitch ? '继续' : 'Sign In',
+                    style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onPrimary),
+                  ),
+                ),
                 const SizedBox(height: 16),
                 // Register Link
                 TextButton(
-                  onPressed: () {
-                    print('[LoginPage] 跳转注册页: /register');
-                    Get.toNamed('/register');
-                  },
-                  style: TextButton.styleFrom(
-                    foregroundColor: Theme.of(context).colorScheme.primary,
-                    textStyle: const TextStyle(inherit: true),
-                  ),
+                  onPressed: () => Get.toNamed('/register'),
                   child: Text(
-                    (AppLocalizations.of(context) ?? AppLocalizationsEn()).noAccountPrompt,
+                    'Don\'t have an account? Sign Up',
+                    style: TextStyle(color: Theme.of(context).colorScheme.primary),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // 临时测试按钮：将当前用户设置为customer+provider角色
+                if (controller.userProfileRole.value.isNotEmpty)
+                  TextButton(
+                    onPressed: () async {
+                      await controller.setUserAsCustomerProvider();
+                      setState(() {
+                        _showRoleSwitch = true;
+                      });
+                      Get.snackbar(
+                        '测试',
+                        '用户角色已设置为 customer+provider',
+                        snackPosition: SnackPosition.BOTTOM,
+                      );
+                    },
+                    child: Text(
+                      '测试：设置为多角色用户',
+                      style: TextStyle(color: Colors.orange),
                   ),
                 ),
                 const SizedBox(height: 40),

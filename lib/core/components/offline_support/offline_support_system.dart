@@ -92,23 +92,14 @@ class _OfflineSupportWidgetState extends State<OfflineSupportWidget> {
     //     .onConnectivityChanged
     //     .listen(_onConnectivityChanged);
     
-    // 临时实现：模拟网络状态变化
-    _simulateConnectivityChanges();
+    // 临时实现：默认在线状态，不模拟网络状态变化
+    _isOnline = true;
   }
 
   void _simulateConnectivityChanges() {
-    // 模拟网络状态变化，实际项目中应该使用connectivity_plus
-    Timer.periodic(Duration(seconds: 10), (timer) {
-      if (mounted) {
-        setState(() {
-          _isOnline = !_isOnline;
-        });
-        
-        if (_isOnline && widget.type == OfflineType.sync) {
-          _startSync();
-        }
-      }
-    });
+    // 移除模拟网络状态变化的定时器，默认保持在线状态
+    // 实际项目中应该使用connectivity_plus包来检测真实的网络状态
+    AppLogger.debug('OfflineSupportWidget: Using default online status');
   }
 
   Future<void> _checkInitialConnectivity() async {

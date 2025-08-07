@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/core/ui/design_system/colors.dart';
 import 'package:jinbeanpod_83904710/features/provider/plugins/order_manage/order_manage_controller.dart';
 import 'package:jinbeanpod_83904710/features/provider/plugins/order_manage/order_manage_binding.dart';
+import 'package:jinbeanpod_83904710/core/components/platform_core.dart';
 
 class OrderManagePage extends GetView<OrderManageController> {
   const OrderManagePage({super.key});
@@ -178,11 +179,12 @@ class OrderManagePage extends GetView<OrderManageController> {
   }
 
   Widget _buildOrdersList() {
+    return _buildOrdersContent();
+  }
+
+  /// 构建订单内容
+  Widget _buildOrdersContent() {
     return Obx(() {
-      if (controller.isLoading.value && controller.orders.isEmpty) {
-        return const Center(child: CircularProgressIndicator());
-      }
-      
       if (controller.orders.isEmpty) {
         return Center(
           child: Column(
@@ -240,6 +242,45 @@ class OrderManagePage extends GetView<OrderManageController> {
         ),
       );
     });
+  }
+
+  /// 构建错误组件
+  Widget _buildErrorWidget() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.error_outline,
+            size: 64,
+            color: Colors.red[300],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            '加载失败',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.red[700],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '无法加载订单数据，请检查网络连接',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[600],
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () => controller.loadOrders(refresh: true),
+            child: const Text('重试'),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildOrderCard(Map<String, dynamic> order) {

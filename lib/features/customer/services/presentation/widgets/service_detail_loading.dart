@@ -669,9 +669,16 @@ class ServiceDetailLoading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppLogger.debug('ServiceDetailLoading.build() called with state: $state');
+    AppLogger.debug('ServiceDetailLoading - child is null: ${child == null}');
+    AppLogger.debug('ServiceDetailLoading - showSkeleton: $showSkeleton');
     
     switch (state) {
       case LoadingState.initial:
+        AppLogger.debug('ServiceDetailLoading - showing initial state (loading)');
+        return showSkeleton 
+            ? const ServiceDetailSkeleton()
+            : _buildLoadingIndicator(context);
+      
       case LoadingState.loading:
         AppLogger.debug('ServiceDetailLoading - showing loading state');
         return showSkeleton 
@@ -695,7 +702,7 @@ class ServiceDetailLoading extends StatelessWidget {
         return OfflineSupportWidget(
           isOnline: false,
           onRetry: onRetry,
-          child: child ?? const SizedBox.shrink(),
+            child: child ?? const SizedBox.shrink(),
         );
     }
   }

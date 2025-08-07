@@ -64,15 +64,13 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
     AppLogger.debug('serviceId length: ${finalServiceId.length}', tag: 'ServiceDetailPage');
     AppLogger.debug('serviceId isEmpty: ${finalServiceId.isEmpty}', tag: 'ServiceDetailPage');
     
-    if (finalServiceId.isEmpty) {
-      AppLogger.warning('ServiceId is still empty after all attempts', tag: 'ServiceDetailPage');
-      AppLogger.warning('ServiceId is empty, showing error state', tag: 'ServiceDetailPage');
-    } else {
-      AppLogger.debug('SUCCESS - Final serviceId: "$finalServiceId"', tag: 'ServiceDetailPage');
-    }
-    
     controller = Get.put(ServiceDetailController());
     _tabController = TabController(length: 5, vsync: this);
+    
+    // 初始化网络状态为在线
+    _isOnline = true;
+    _loadingManager.setOnline();
+    AppLogger.debug('Network status initialized to online', tag: 'ServiceDetailPage');
     
     // 如果serviceId不为空，则加载服务详情
     if (finalServiceId.isNotEmpty) {
@@ -80,8 +78,6 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
     } else {
       _loadingManager.setError('Service ID is required');
     }
-    
-    _checkNetworkStatus();
   }
 
   @override
@@ -90,16 +86,6 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
     _tabController.dispose();
     _loadingManager.dispose();
     super.dispose();
-  }
-
-  /// 检查网络状态
-  void _checkNetworkStatus() {
-    AppLogger.debug('Checking network status', tag: 'ServiceDetailPage');
-    // TODO: 实现实际的网络状态检查
-    // 这里可以集成connectivity_plus包或其他网络状态检测库
-    
-    // 模拟网络状态检查
-    _isOnline = true;
   }
 
   Future<void> _loadServiceDetailWithId(String serviceId) async {
@@ -113,10 +99,10 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
       _loadingManager.setLoading();
       await controller.loadServiceDetail(serviceId);
       _loadingManager.setSuccess();
-      AppLogger.info('Service detail loaded successfully', tag: 'ServiceDetailPage');
-    } catch (e) {
+        AppLogger.info('Service detail loaded successfully', tag: 'ServiceDetailPage');
+      } catch (e) {
       final l10n = AppLocalizations.of(context);
-      AppLogger.error('Failed to load service detail: $e', tag: 'ServiceDetailPage');
+        AppLogger.error('Failed to load service detail: $e', tag: 'ServiceDetailPage');
       throw Exception(l10n?.serviceDetailsLoadFailed ?? 'Service details load failed: ${e.toString()}');
     }
   }
@@ -176,13 +162,8 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
             errorMessage: _loadingManager.errorMessage,
             onRetry: () => _loadServiceDetailWithId(widget.serviceId.isNotEmpty ? widget.serviceId : Get.parameters['serviceId'] ?? ''),
             onBack: () => Get.back(),
-            showSkeleton: _useSkeleton, // 恢复骨架屏选项
-            child: PlatformCore.createOfflineSupport(
-              type: OfflineType.hybrid,
-              onlineBuilder: (context) => _buildPageContent(), // 恢复原有的页面内容
-              offlineBuilder: (context) => _buildOfflineContent(),
-              syncIndicator: _buildSyncIndicator(),
-            ),
+            showSkeleton: _useSkeleton,
+            child: _buildPageContent(),
           );
         },
       ),
@@ -192,7 +173,7 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
   // 离线内容
   Widget _buildOfflineContent() {
     return Column(
-      children: [
+        children: [
         Container(
           padding: const EdgeInsets.all(16),
           color: Colors.orange.withOpacity(0.1),
@@ -216,7 +197,7 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
 
   // 同步指示器
   Widget _buildSyncIndicator() {
-    return Container(
+            return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.blue,
@@ -237,8 +218,8 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
           Text(
             'Syncing...',
             style: TextStyle(color: Colors.white, fontSize: 12),
-          ),
-        ],
+        ),
+      ],
       ),
     );
   }
@@ -251,54 +232,24 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 服务基本信息 - 渐进式加载
-          PlatformCore.createProgressiveLoading(
-            type: ProgressiveType.sequential,
-            loadFunction: () async {
-              await Future.delayed(Duration(milliseconds: 100));
-            },
-            contentBuilder: (context) => _buildServiceBasicInfo(),
-          ),
+          // 服务基本信息
+          _buildServiceBasicInfo(),
           const SizedBox(height: 24),
           
-          // 服务描述 - 渐进式加载
-          PlatformCore.createProgressiveLoading(
-            type: ProgressiveType.sequential,
-            loadFunction: () async {
-              await Future.delayed(Duration(milliseconds: 200));
-            },
-            contentBuilder: (context) => _buildServiceDescription(),
-          ),
+          // 服务描述
+          _buildServiceDescription(),
           const SizedBox(height: 24),
           
-          // 服务图片 - 渐进式加载
-          PlatformCore.createProgressiveLoading(
-            type: ProgressiveType.sequential,
-            loadFunction: () async {
-              await Future.delayed(Duration(milliseconds: 300));
-            },
-            contentBuilder: (context) => _buildServiceImages(),
-          ),
+          // 服务图片
+          _buildServiceImages(),
           const SizedBox(height: 24),
           
-          // 操作按钮 - 渐进式加载
-          PlatformCore.createProgressiveLoading(
-            type: ProgressiveType.sequential,
-            loadFunction: () async {
-              await Future.delayed(Duration(milliseconds: 400));
-            },
-            contentBuilder: (context) => _buildActionButtons(),
-          ),
+          // 操作按钮
+          _buildActionButtons(),
           const SizedBox(height: 24),
           
-          // 服务详情 - 渐进式加载
-          PlatformCore.createProgressiveLoading(
-            type: ProgressiveType.sequential,
-            loadFunction: () async {
-              await Future.delayed(Duration(milliseconds: 500));
-            },
-            contentBuilder: (context) => _buildServiceDetails(),
-          ),
+          // 服务详情
+          _buildServiceDetails(),
         ],
       ),
     );
@@ -320,9 +271,9 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
       return Card(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
               Text(
                 service.title ?? (l10n?.serviceName ?? 'Unknown Service'),
                 style: const TextStyle(
@@ -331,8 +282,8 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
                 ),
               ),
               const SizedBox(height: 8),
-              Row(
-                children: [
+          Row(
+            children: [
                   Icon(Icons.star, color: Colors.amber, size: 20),
                   const SizedBox(width: 4),
                   Text(
@@ -352,8 +303,8 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
               ),
             ],
           ),
-        ),
-      );
+      ),
+    );
     });
   }
 
@@ -366,9 +317,9 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
       return Card(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
               Text(
                 l10n?.serviceDescription ?? 'Service Description',
                 style: const TextStyle(
@@ -382,8 +333,8 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
                 style: const TextStyle(fontSize: 16),
               ),
             ],
-          ),
-        ),
+              ),
+            ),
       );
     });
   }
@@ -399,16 +350,16 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
       return Card(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
                 'Service Images',
-                style: const TextStyle(
+                  style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
               const SizedBox(height: 16),
               SizedBox(
                 height: 200,
@@ -442,10 +393,10 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
                       },
                     );
                   },
-                ),
-              ),
-            ],
+            ),
           ),
+        ],
+      ),
         ),
       );
     });
@@ -455,9 +406,9 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
     final l10n = AppLocalizations.of(context);
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -469,28 +420,28 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
                 },
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
+                      ),
                 child: Text(
                   l10n?.bookNow ?? 'Book Now',
                   style: const TextStyle(fontSize: 18),
-                ),
-              ),
-            ),
+                        ),
+                      ),
+                  ),
             const SizedBox(height: 12),
             Row(
-              children: [
+                      children: [
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () {
                       Get.snackbar(
                         'Notification', 
                         'Contact service coming soon'
-                      );
+                    );
                     },
                     child: Text(l10n?.contactProvider ?? 'Contact Provider'),
                   ),
-                ),
-                const SizedBox(width: 12),
+                    ),
+                    const SizedBox(width: 12),
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () {
@@ -500,12 +451,12 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
                       );
                     },
                     child: const Text('Share'),
-                  ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
       ),
     );
   }
@@ -518,16 +469,16 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
       
       return Card(
         child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
+      padding: const EdgeInsets.all(16),
+      child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+        children: [
               Text(
                 l10n?.serviceInformation ?? 'Service Information',
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                ),
+          ),
               ),
               const SizedBox(height: 16),
               _buildDetailItem(l10n?.serviceDuration ?? 'Service Duration', '${serviceDetail.duration} ${serviceDetail.durationType}'),
@@ -537,8 +488,8 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
                 _buildDetailItem(l10n?.priceInformation ?? 'Price Information', serviceDetail.negotiationDetails!),
             ],
           ),
-        ),
-      );
+      ),
+    );
     });
   }
 
@@ -573,68 +524,21 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
   
   // 原有的复杂页面内容构建方法
   Widget _buildPageContent() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
+    return NestedScrollView(
+      headerSliverBuilder: (context, innerBoxIsScrolled) {
+        return [
+          _buildSliverAppBar(),
+          _buildSliverTabBar(),
+        ];
+      },
+      body: TabBarView(
+        controller: _tabController,
         children: [
-          // 服务基本信息 - 渐进式加载
-          PlatformCore.createProgressiveLoading(
-            type: ProgressiveType.sequential,
-            loadFunction: () async {
-              await Future.delayed(Duration(milliseconds: 100));
-            },
-            contentBuilder: (context) => ServiceBasicInfoSection(controller: controller),
-          ),
-          const SizedBox(height: 16),
-          
-          // 操作按钮 - 渐进式加载
-          PlatformCore.createProgressiveLoading(
-            type: ProgressiveType.sequential,
-            loadFunction: () async {
-              await Future.delayed(Duration(milliseconds: 200));
-            },
-            contentBuilder: (context) => ServiceActionsSection(controller: controller),
-          ),
-          const SizedBox(height: 16),
-          
-          // 服务特色 - 渐进式加载
-          PlatformCore.createProgressiveLoading(
-            type: ProgressiveType.sequential,
-            loadFunction: () async {
-              await Future.delayed(Duration(milliseconds: 300));
-            },
-            contentBuilder: (context) => _buildServiceFeaturesSection(),
-          ),
-          const SizedBox(height: 16),
-          
-          // 质量保证 - 渐进式加载
-          PlatformCore.createProgressiveLoading(
-            type: ProgressiveType.sequential,
-            loadFunction: () async {
-              await Future.delayed(Duration(milliseconds: 400));
-            },
-            contentBuilder: (context) => _buildQualityAssuranceSection(),
-          ),
-          const SizedBox(height: 16),
-          
-          // 地图 - 渐进式加载
-          PlatformCore.createProgressiveLoading(
-            type: ProgressiveType.sequential,
-            loadFunction: () async {
-              await Future.delayed(Duration(milliseconds: 500));
-            },
-            contentBuilder: (context) => ServiceMapSection(controller: controller),
-          ),
-          const SizedBox(height: 16),
-          
-          // 相似服务 - 渐进式加载
-          PlatformCore.createProgressiveLoading(
-            type: ProgressiveType.sequential,
-            loadFunction: () async {
-              await Future.delayed(Duration(milliseconds: 600));
-            },
-            contentBuilder: (context) => SimilarServicesSection(controller: controller),
-          ),
+          _buildOverviewTab(),
+          _buildDetailsTab(),
+          _buildReviewsTab(),
+          _buildProviderTab(),
+          _buildPersonalizedTab(),
         ],
       ),
     );
@@ -671,7 +575,7 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
                             ? loadingProgress.cumulativeBytesLoaded /
                                 loadingProgress.expectedTotalBytes!
                             : null,
-                      ),
+                  ),
                     ),
                   );
                 },
@@ -698,9 +602,9 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
                   offset: Offset(0, 1),
                   blurRadius: 3,
                   color: Colors.black54,
-                ),
-              ],
-            ),
+                  ),
+                ],
+              ),
           );
         }),
       ),
@@ -743,7 +647,7 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
           unselectedLabelStyle: theme.textTheme.labelMedium?.copyWith(
             fontSize: 14,
             fontWeight: FontWeight.w400,
-          ),
+                  ),
           labelPadding: const EdgeInsets.symmetric(vertical: 8),
           tabs: [
             Tab(text: l10n?.overview ?? 'Overview'),
@@ -751,8 +655,8 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
             Tab(text: l10n?.provider ?? 'Provider'),
             Tab(text: l10n?.reviews ?? 'Reviews'),
             Tab(text: l10n?.forYou ?? 'For You'),
-          ],
-        ),
+              ],
+            ),
       ),
     );
   }
@@ -760,67 +664,31 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
   Widget _buildOverviewTab() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          // 服务基本信息 - 渐进式加载
-          PlatformCore.createProgressiveLoading(
-            type: ProgressiveType.sequential,
-            loadFunction: () async {
-              await Future.delayed(Duration(milliseconds: 100));
-            },
-            contentBuilder: (context) => ServiceBasicInfoSection(controller: controller),
-          ),
+              child: Column(
+                children: [
+          // 服务基本信息
+          ServiceBasicInfoSection(controller: controller),
           const SizedBox(height: 16),
           
-          // 操作按钮 - 渐进式加载
-          PlatformCore.createProgressiveLoading(
-            type: ProgressiveType.sequential,
-            loadFunction: () async {
-              await Future.delayed(Duration(milliseconds: 200));
-            },
-            contentBuilder: (context) => ServiceActionsSection(controller: controller),
-          ),
+          // 操作按钮
+          ServiceActionsSection(controller: controller),
+          const SizedBox(height: 16),
+            
+          // 服务特色
+          _buildServiceFeaturesSection(),
           const SizedBox(height: 16),
           
-          // 服务特色 - 渐进式加载
-          PlatformCore.createProgressiveLoading(
-            type: ProgressiveType.sequential,
-            loadFunction: () async {
-              await Future.delayed(Duration(milliseconds: 300));
-            },
-            contentBuilder: (context) => _buildServiceFeaturesSection(),
-          ),
+          // 质量保证
+          _buildQualityAssuranceSection(),
           const SizedBox(height: 16),
           
-          // 质量保证 - 渐进式加载
-          PlatformCore.createProgressiveLoading(
-            type: ProgressiveType.sequential,
-            loadFunction: () async {
-              await Future.delayed(Duration(milliseconds: 400));
-            },
-            contentBuilder: (context) => _buildQualityAssuranceSection(),
-          ),
+          // 地图
+          ServiceMapSection(controller: controller),
           const SizedBox(height: 16),
-          
-          // 地图 - 渐进式加载
-          PlatformCore.createProgressiveLoading(
-            type: ProgressiveType.sequential,
-            loadFunction: () async {
-              await Future.delayed(Duration(milliseconds: 500));
-            },
-            contentBuilder: (context) => ServiceMapSection(controller: controller),
-          ),
-          const SizedBox(height: 16),
-          
-          // 相似服务 - 渐进式加载
-          PlatformCore.createProgressiveLoading(
-            type: ProgressiveType.sequential,
-            loadFunction: () async {
-              await Future.delayed(Duration(milliseconds: 600));
-            },
-            contentBuilder: (context) => SimilarServicesSection(controller: controller),
-          ),
-        ],
+            
+          // 相似服务
+          SimilarServicesSection(controller: controller),
+                ],
       ),
     );
   }
@@ -831,12 +699,12 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+              Text(
             l10n?.serviceFeatures ?? 'Service Features',
             style: const TextStyle(
               fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+                  fontWeight: FontWeight.bold,
+                ),
           ),
           const SizedBox(height: 16),
           Text(l10n?.noData ?? 'No Data'),
@@ -848,45 +716,45 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
   Widget _buildQualityAssuranceSection() {
     final l10n = AppLocalizations.of(context);
     return CustomerCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
             l10n?.qualityAssurance ?? 'Quality Assurance',
-            style: const TextStyle(
+                style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-            ),
-          ),
+                ),
+              ),
           const SizedBox(height: 16),
           Text(l10n?.noData ?? 'No Data'),
-        ],
-      ),
+            ],
+          ),
     );
   }
 
   Widget _buildDetailsTab() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
+        child: Column(
+          children: [
           CustomerCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                 const Text(
                   'Service Details',
                   style: TextStyle(
                     fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 16),
+                          fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
                 // 服务详情内容
               ],
-            ),
-          ),
-        ],
+                    ),
+                  ),
+                ],
       ),
     );
   }
@@ -894,21 +762,21 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
   Widget _buildProviderTab() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
+        child: Column(
+          children: [
           ProviderDetailsSection(controller: controller),
         ],
-      ),
+                ),
     );
   }
 
   Widget _buildReviewsTab() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
+              child: Column(
+                children: [
           ServiceReviewsSection(controller: controller),
-        ],
+                ],
       ),
     );
   }
@@ -916,8 +784,8 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
   Widget _buildPersonalizedTab() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
+          child: Column(
+            children: [
           SimilarServicesSection(controller: controller),
         ],
       ),

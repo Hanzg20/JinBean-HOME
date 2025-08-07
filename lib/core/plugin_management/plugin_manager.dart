@@ -10,6 +10,7 @@ import 'package:jinbeanpod_83904710/features/service_map/service_map_plugin.dart
 import 'package:jinbeanpod_83904710/features/customer/orders/orders_plugin.dart';
 import 'package:jinbeanpod_83904710/features/provider/plugins/service_manage/service_manage_plugin.dart'; // Import ServiceManagePlugin
 import 'package:jinbeanpod_83904710/features/provider/plugins/rob_order_hall/rob_order_hall_plugin.dart'; // Import RobOrderHallPlugin
+import 'package:jinbeanpod_83904710/features/provider/plugins/provider_home/provider_home_plugin.dart'; // Import ProviderHomePlugin
 import 'package:jinbeanpod_83904710/app/shell_app_controller.dart';
 import 'package:jinbeanpod_83904710/app/theme/app_theme_service.dart';
 // TODO: 导入实际的插件文件，例如：
@@ -61,6 +62,7 @@ class PluginManager extends GetxController {
       CommunityPlugin(), // 注册社区插件
       ServiceMapPlugin(), // 注册服务地图插件
       // Provider 端插件
+      ProviderHomePlugin(), // 注册Provider主页插件
       ServiceManagePlugin(), // 注册服务管理插件
       RobOrderHallPlugin(), // 注册抢单大厅插件
     ]);
@@ -166,12 +168,22 @@ class PluginManager extends GetxController {
         },
         // Provider 端插件配置
         {
+          'id': 'provider_home',
+          'nameKey': 'provider_home',
+          'iconName': 'dashboard',
+          'enabled': true,
+          'order': 1,
+          'type': PluginType.bottomTab,
+          'routeName': '/provider/home',
+          'role': 'provider',
+        },
+        {
           'id': 'service_manage',
           'nameKey': 'service_manage',
           'iconName': 'build',
           'enabled': true,
-          'order': 1,
-          'type': PluginType.standalonePage,
+          'order': 2,
+          'type': PluginType.bottomTab,
           'routeName': '/provider/service_manage',
           'role': 'provider',
         },
@@ -180,8 +192,8 @@ class PluginManager extends GetxController {
           'nameKey': 'rob_order_hall',
           'iconName': 'campaign',
           'enabled': true,
-          'order': 2,
-          'type': PluginType.standalonePage,
+          'order': 3,
+          'type': PluginType.bottomTab,
           'routeName': '/provider/rob_order_hall',
           'role': 'provider',
         },
