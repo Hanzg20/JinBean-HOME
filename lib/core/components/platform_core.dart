@@ -3,12 +3,14 @@ import 'skeleton/skeleton_system.dart';
 import 'progressive_loading/progressive_loading_system.dart';
 import 'offline_support/offline_support_system.dart';
 import 'error_recovery/error_recovery_system.dart';
+import 'loading_state_manager.dart';
 
 /// 平台组件导出
 export 'skeleton/skeleton_system.dart';
 export 'progressive_loading/progressive_loading_system.dart';
 export 'offline_support/offline_support_system.dart';
 export 'error_recovery/error_recovery_system.dart';
+export 'loading_state_manager.dart';
 
 /// 平台核心类
 class PlatformCore {

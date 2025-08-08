@@ -1,22 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
-import '../../../../core/ui/components/customer_theme_components.dart';
 import '../../../../core/utils/app_logger.dart';
-import '../../../../core/components/platform_core.dart';
+import '../../domain/entities/service.dart';
 import 'service_detail_controller.dart';
-import 'widgets/service_detail_loading.dart' hide ProgressiveLoadingWidget, OfflineSupportWidget;
+import 'widgets/service_detail_error.dart';
+import 'widgets/service_detail_card.dart';
+import 'utils/professional_remarks_templates.dart';
 import 'sections/service_basic_info_section.dart';
 import 'sections/service_actions_section.dart';
 import 'sections/service_map_section.dart';
-import 'models/service_detail_state.dart';
 import 'sections/similar_services_section.dart';
 import 'sections/service_reviews_section.dart';
 import 'sections/provider_details_section.dart';
-import 'dialogs/service_quote_dialog.dart';
-import 'dialogs/service_schedule_dialog.dart';
-import 'utils/professional_remarks_templates.dart';
 
 class ServiceDetailPageNew extends StatefulWidget {
   final String serviceId;
@@ -32,113 +28,36 @@ class ServiceDetailPageNew extends StatefulWidget {
 
 class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
     with SingleTickerProviderStateMixin {
-  // 恢复原有的变量声明
   late TabController _tabController;
   late ServiceDetailController controller;
-  final ServiceDetailState state = ServiceDetailState();
-  final LoadingStateManager _loadingManager = LoadingStateManager();
-  bool _isOnline = true;
-  bool _useSkeleton = true; // 是否使用骨架屏
 
   @override
   void initState() {
     super.initState();
     
-    // 获取最终的serviceId - 优先从Get.parameters获取，如果为空则使用widget.serviceId
-    String finalServiceId = '';
-    
-    // 首先尝试从Get.parameters获取
-    if (Get.parameters.containsKey('serviceId') && Get.parameters['serviceId'] != null && Get.parameters['serviceId']!.isNotEmpty) {
-      finalServiceId = Get.parameters['serviceId']!;
-      AppLogger.debug('Retrieved serviceId from Get.parameters: "$finalServiceId"', tag: 'ServiceDetailPage');
-    }
-    
-    // 如果Get.parameters中没有，则使用widget.serviceId
-    if (finalServiceId.isEmpty && widget.serviceId.isNotEmpty) {
-      finalServiceId = widget.serviceId;
-      AppLogger.debug('Using serviceId from widget: "$finalServiceId"', tag: 'ServiceDetailPage');
-    }
-    
-    AppLogger.info('ServiceDetailPage initialized with serviceId: $finalServiceId', tag: 'ServiceDetailPage');
-    AppLogger.debug('ServiceDetailPage final serviceId: "$finalServiceId"', tag: 'ServiceDetailPage');
-    AppLogger.debug('serviceId length: ${finalServiceId.length}', tag: 'ServiceDetailPage');
-    AppLogger.debug('serviceId isEmpty: ${finalServiceId.isEmpty}', tag: 'ServiceDetailPage');
-    
+    String finalServiceId = Get.parameters['serviceId'] ?? widget.serviceId;
     controller = Get.put(ServiceDetailController());
     _tabController = TabController(length: 5, vsync: this);
     
-    // 初始化网络状态为在线
-    _isOnline = true;
-    _loadingManager.setOnline();
-    AppLogger.debug('Network status initialized to online', tag: 'ServiceDetailPage');
-    
-    // 如果serviceId不为空，则加载服务详情
     if (finalServiceId.isNotEmpty) {
-      _loadServiceDetailWithId(finalServiceId);
-    } else {
-      _loadingManager.setError('Service ID is required');
+      _loadServiceDetail(finalServiceId);
+    }
+  }
+
+  Future<void> _loadServiceDetail(String serviceId) async {
+    try {
+      await controller.loadServiceDetail(serviceId);
+      AppLogger.info('Service detail loaded successfully');
+    } catch (e) {
+      AppLogger.error('Failed to load service detail: $e');
     }
   }
 
   @override
   void dispose() {
-    AppLogger.debug('ServiceDetailPage disposed', tag: 'ServiceDetailPage');
     _tabController.dispose();
-    _loadingManager.dispose();
     super.dispose();
   }
-
-  Future<void> _loadServiceDetailWithId(String serviceId) async {
-    if (serviceId.isEmpty) {
-      AppLogger.warning('ServiceId is empty, showing error state', tag: 'ServiceDetailPage');
-      _loadingManager.setError('Service ID is required');
-      return;
-    }
-
-    try {
-      _loadingManager.setLoading();
-      await controller.loadServiceDetail(serviceId);
-      _loadingManager.setSuccess();
-        AppLogger.info('Service detail loaded successfully', tag: 'ServiceDetailPage');
-      } catch (e) {
-      final l10n = AppLocalizations.of(context);
-        AppLogger.error('Failed to load service detail: $e', tag: 'ServiceDetailPage');
-      throw Exception(l10n?.serviceDetailsLoadFailed ?? 'Service details load failed: ${e.toString()}');
-    }
-  }
-
-  // 保留原有的方法，但暂时不使用
-  // Future<void> _loadServiceDetail() async {
-  //   // 获取最终的serviceId
-  //   String finalServiceId = widget.serviceId;
-  //   if (finalServiceId.isEmpty && Get.parameters.containsKey('serviceId')) {
-  //     finalServiceId = Get.parameters['serviceId'] ?? '';
-  //     print('DEBUG: _loadServiceDetail - Retrieved serviceId from Get.parameters: "$finalServiceId"');
-  //   }
-  //   
-  //   AppLogger.info('Loading service detail for serviceId: $finalServiceId', tag: 'ServiceDetailPage');
-  //   
-  //   // Check if serviceId is empty or null
-  //   if (finalServiceId.isEmpty) {
-  //     AppLogger.warning('ServiceId is empty, showing error state', tag: 'ServiceDetailPage');
-  //     _loadingManager.setError('Service ID is required');
-  //     return;
-  //   }
-  //   
-  //   await _loadingManager.retry(() async {
-  //     try {
-  //       // 减少模拟延迟时间
-  //       await Future.delayed(const Duration(milliseconds: 500));
-  //       await controller.loadServiceDetail(finalServiceId);
-  //       state.service.value = controller.service.value;
-  //       state.serviceDetail.value = controller.serviceDetail.value;
-  //       AppLogger.info('Service detail loaded successfully', tag: 'ServiceDetailPage');
-  //     } catch (e) {
-  //       AppLogger.error('Failed to load service detail: $e', tag: 'ServiceDetailPage');
-  //       throw Exception(AppLocalizations.of(context)?.serviceDetailsLoadFailed ?? '服务详情加载失败: ${e.toString()}');
-  //     }
-  //   });
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -152,631 +71,545 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
           onPressed: () => Get.back(),
         ),
       ),
-      body: ListenableBuilder(
-        listenable: _loadingManager,
-        builder: (context, child) {
-          AppLogger.debug('DEBUG: ListenableBuilder called with state: ${_loadingManager.state}', tag: 'ServiceDetailPage');
-          return ServiceDetailLoading(
-            state: _loadingManager.state,
-            loadingMessage: l10n?.loadingServiceDetails ?? 'Loading service details...',
-            errorMessage: _loadingManager.errorMessage,
-            onRetry: () => _loadServiceDetailWithId(widget.serviceId.isNotEmpty ? widget.serviceId : Get.parameters['serviceId'] ?? ''),
-            onBack: () => Get.back(),
-            showSkeleton: _useSkeleton,
-            child: _buildPageContent(),
+      body: Obx(() {
+        // 统一状态检查，避免多重嵌套Obx
+        final isLoading = controller.isLoading.value;
+        final hasError = controller.hasError.value;
+        final service = controller.service.value;
+        
+        if (hasError) {
+          return ServiceDetailError(
+            message: controller.errorMessage.value,
+            onRetry: () => _loadServiceDetail(widget.serviceId),
           );
-        },
-      ),
+        }
+
+        if (isLoading || service == null) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        return _buildPageContent();
+      }),
     );
   }
 
-  // 离线内容
-  Widget _buildOfflineContent() {
-    return Column(
-        children: [
-        Container(
-          padding: const EdgeInsets.all(16),
-          color: Colors.orange.withOpacity(0.1),
-          child: Row(
-            children: [
-              Icon(Icons.wifi_off, color: Colors.orange),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'Currently offline, showing cached data',
-                  style: TextStyle(color: Colors.orange[800]),
-                ),
-              ),
-            ],
-          ),
-        ),
-        Expanded(child: _buildPageContent()),
-      ],
-    );
-  }
-
-  // 同步指示器
-  Widget _buildSyncIndicator() {
-            return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: Colors.blue,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(
-            width: 16,
-            height: 16,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Text(
-            'Syncing...',
-            style: TextStyle(color: Colors.white, fontSize: 12),
-        ),
-      ],
-      ),
-    );
-  }
-
-  // 简化版本的内容
-  Widget _buildSimplifiedPageContent() {
-    AppLogger.debug('DEBUG: _buildSimplifiedPageContent() called', tag: 'ServiceDetailPage');
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+  Widget _buildPageContent() {
+    return DefaultTabController(
+      length: 5,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 服务基本信息
-          _buildServiceBasicInfo(),
-          const SizedBox(height: 24),
-          
-          // 服务描述
-          _buildServiceDescription(),
-          const SizedBox(height: 24),
-          
-          // 服务图片
-          _buildServiceImages(),
-          const SizedBox(height: 24),
-          
-          // 操作按钮
-          _buildActionButtons(),
-          const SizedBox(height: 24),
-          
-          // 服务详情
-          _buildServiceDetails(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildServiceBasicInfo() {
-    final l10n = AppLocalizations.of(context);
-    return Obx(() {
-      final service = controller.service.value;
-      if (service == null) {
-        return Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Text(l10n?.loadingServiceDetails ?? 'Loading...'),
-          ),
-        );
-      }
-      
-      return Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-              Text(
-                service.title ?? (l10n?.serviceName ?? 'Unknown Service'),
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-          Row(
-            children: [
-                  Icon(Icons.star, color: Colors.amber, size: 20),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${service.rating?.toStringAsFixed(1) ?? '0.0'} (${service.reviewCount ?? 0} ${l10n?.reviews ?? 'reviews'})',
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                '${l10n?.price ?? 'Price'}: \$${service.price?.toStringAsFixed(2) ?? '0.00'}',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.green,
-                ),
-              ),
-            ],
-          ),
-      ),
-    );
-    });
-  }
-
-  Widget _buildServiceDescription() {
-    final l10n = AppLocalizations.of(context);
-    return Obx(() {
-      final service = controller.service.value;
-      if (service == null) return const SizedBox.shrink();
-      
-      return Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-              Text(
-                l10n?.serviceDescription ?? 'Service Description',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                service.description ?? (l10n?.noData ?? 'No Data'),
-                style: const TextStyle(fontSize: 16),
-              ),
-            ],
-              ),
-            ),
-      );
-    });
-  }
-
-  Widget _buildServiceImages() {
-    final l10n = AppLocalizations.of(context);
-    return Obx(() {
-      final service = controller.service.value;
-      if (service == null || service.images == null || service.images!.isEmpty) {
-        return const SizedBox.shrink();
-      }
-      
-      return Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          // 简化的图片展示区域
+          _buildSimpleImageHeader(),
+          // 简化的TabBar
+          _buildSimpleTabBar(),
+          // TabBarView内容
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              physics: const NeverScrollableScrollPhysics(),
               children: [
-                Text(
-                'Service Images',
-                  style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  ),
-                ),
-              const SizedBox(height: 16),
-              SizedBox(
-                height: 200,
-                child: PageView.builder(
-                  itemCount: service.images!.length,
-                  itemBuilder: (context, index) {
-                    final imageUrl = service.images![index];
-                    return Image.network(
-                      imageUrl,
-                      fit: BoxFit.cover,
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Container(
-                          color: Colors.grey[300],
-                          child: Center(
-                            child: CircularProgressIndicator(
-                              value: loadingProgress.expectedTotalBytes != null
-                                  ? loadingProgress.cumulativeBytesLoaded /
-                                      loadingProgress.expectedTotalBytes!
-                                  : null,
-                            ),
-                          ),
-                        );
-                      },
-                      errorBuilder: (context, error, stackTrace) {
-                        AppLogger.debug('DEBUG: Image loading failed for URL: $imageUrl, error: $error', tag: 'ServiceDetailPage');
-                        return Container(
-                          color: Colors.grey[300],
-                          child: const Icon(Icons.image_not_supported, size: 100, color: Colors.grey),
-                        );
-                      },
-                    );
-                  },
-            ),
-          ),
-        ],
-      ),
-        ),
-      );
-    });
-  }
-
-  Widget _buildActionButtons() {
-    final l10n = AppLocalizations.of(context);
-    return Card(
-      child: Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  Get.snackbar(
-                    'Notification', 
-                    'Booking feature coming soon'
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                child: Text(
-                  l10n?.bookNow ?? 'Book Now',
-                  style: const TextStyle(fontSize: 18),
-                        ),
-                      ),
-                  ),
-            const SizedBox(height: 12),
-            Row(
-                      children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () {
-                      Get.snackbar(
-                        'Notification', 
-                        'Contact service coming soon'
-                    );
-                    },
-                    child: Text(l10n?.contactProvider ?? 'Contact Provider'),
-                  ),
-                    ),
-                    const SizedBox(width: 12),
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () {
-                      Get.snackbar(
-                        'Notification', 
-                        'Share feature coming soon'
-                      );
-                    },
-                    child: const Text('Share'),
-                      ),
-                    ),
-                  ],
-                ),
+                _buildOverviewTab(),
+                _buildDetailsTab(),
+                _buildProviderTab(),
+                _buildReviewsTab(),
+                _buildPersonalizedTab(),
               ],
             ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildServiceDetails() {
+  Widget _buildSimpleImageHeader() {
+    final service = controller.service.value;
+    
+    return Container(
+      height: 200,
+      width: double.infinity,
+      child: _buildServiceImages(service),
+    );
+  }
+
+  Widget _buildSimpleTabBar() {
     final l10n = AppLocalizations.of(context);
-    return Obx(() {
-      final serviceDetail = controller.serviceDetail.value;
-      if (serviceDetail == null) return const SizedBox.shrink();
-      
-      return Card(
-        child: Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-              Text(
-                l10n?.serviceInformation ?? 'Service Information',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-          ),
-              ),
-              const SizedBox(height: 16),
-              _buildDetailItem(l10n?.serviceDuration ?? 'Service Duration', '${serviceDetail.duration} ${serviceDetail.durationType}'),
-              _buildDetailItem(l10n?.serviceArea ?? 'Service Area', serviceDetail.serviceAreaCodes?.join(', ') ?? (l10n?.noData ?? 'No Data')),
-              _buildDetailItem(l10n?.tags ?? 'Tags', serviceDetail.tags?.join(', ') ?? (l10n?.noData ?? 'No Data')),
-              if (serviceDetail.negotiationDetails != null)
-                _buildDetailItem(l10n?.priceInformation ?? 'Price Information', serviceDetail.negotiationDetails!),
-            ],
-          ),
-      ),
-    );
-    });
-  }
-
-  Widget _buildDetailItem(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 80,
-            child: Text(
-              '$label:',
-              style: const TextStyle(
-                fontWeight: FontWeight.w500,
-                color: Colors.grey,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(fontSize: 16),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ==================== 原有业务逻辑（注释保留） ====================
-  
-  // 原有的复杂页面内容构建方法
-  Widget _buildPageContent() {
-    return NestedScrollView(
-      headerSliverBuilder: (context, innerBoxIsScrolled) {
-        return [
-          _buildSliverAppBar(),
-          _buildSliverTabBar(),
-        ];
-      },
-      body: TabBarView(
+    
+    return Container(
+      color: Theme.of(context).colorScheme.surface,
+      child: TabBar(
         controller: _tabController,
-        children: [
-          _buildOverviewTab(),
-          _buildDetailsTab(),
-          _buildReviewsTab(),
-          _buildProviderTab(),
-          _buildPersonalizedTab(),
+        isScrollable: false,
+        labelColor: Colors.blue,
+        unselectedLabelColor: Colors.grey,
+        indicatorColor: Colors.blue,
+        indicatorWeight: 2,
+        tabs: [
+          Tab(text: l10n?.overview ?? 'Overview'),
+          Tab(text: l10n?.details ?? 'Details'),
+          Tab(text: l10n?.provider ?? 'Provider'),
+          Tab(text: l10n?.reviews ?? 'Reviews'),
+          Tab(text: l10n?.forYou ?? 'For You'),
         ],
       ),
     );
   }
 
-  Widget _buildSliverAppBar() {
-    return SliverAppBar(
-      expandedHeight: 300,
-      pinned: true,
-      flexibleSpace: FlexibleSpaceBar(
-        background: Obx(() {
-          final service = controller.service.value;
-          if (service == null || service.images == null || service.images!.isEmpty) {
+  Widget _buildServiceImages(Service? service) {
+    if (service == null || service.images == null || service.images!.isEmpty) {
+      return Container(
+        color: Colors.grey[300],
+        child: const Icon(Icons.image, size: 100, color: Colors.grey),
+      );
+    }
+    
+    return PageView.builder(
+      itemCount: service.images!.length,
+      itemBuilder: (context, index) {
+        final imageUrl = service.images![index];
+        
+        // 如果是placeholder图片或网络不可达，显示默认图片
+        if (imageUrl.contains('via.placeholder.com') || imageUrl.isEmpty) {
+          return Container(
+            color: Colors.grey[300],
+            child: const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.image, size: 80, color: Colors.grey),
+                  SizedBox(height: 8),
+                  Text('Service Image', style: TextStyle(color: Colors.grey)),
+                ],
+              ),
+            ),
+          );
+        }
+        
+        return Image.network(
+          imageUrl,
+          fit: BoxFit.cover,
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
             return Container(
               color: Colors.grey[300],
-              child: const Icon(Icons.image, size: 100, color: Colors.grey),
+              child: const Center(child: CircularProgressIndicator()),
             );
-          }
-          
-          return PageView.builder(
-            itemCount: service.images!.length,
-            itemBuilder: (context, index) {
-              final imageUrl = service.images![index];
-              return Image.network(
-                imageUrl,
-                fit: BoxFit.cover,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Container(
-                    color: Colors.grey[300],
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        value: loadingProgress.expectedTotalBytes != null
-                            ? loadingProgress.cumulativeBytesLoaded /
-                                loadingProgress.expectedTotalBytes!
-                            : null,
-                  ),
-                    ),
-                  );
-                },
-                errorBuilder: (context, error, stackTrace) {
-                  AppLogger.debug('DEBUG: Image loading failed for URL: $imageUrl, error: $error', tag: 'ServiceDetailPage');
-                  return Container(
-                    color: Colors.grey[300],
-                    child: const Icon(Icons.image_not_supported, size: 100, color: Colors.grey),
-                  );
-                },
-              );
-            },
-          );
-        }),
-        title: Obx(() {
-          final service = controller.service.value;
-          return Text(
-            service?.title ?? 'Service Details',
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              shadows: [
-                Shadow(
-                  offset: Offset(0, 1),
-                  blurRadius: 3,
-                  color: Colors.black54,
-                  ),
-                ],
-              ),
-          );
-        }),
-      ),
-      actions: [
-        IconButton(
-          icon: Obx(() => Icon(
-            controller.isFavorite.value ? Icons.favorite : Icons.favorite_border,
-            color: controller.isFavorite.value ? Colors.red : Colors.white,
-          )),
-          onPressed: () => controller.toggleFavorite(),
-        ),
-        IconButton(
-          icon: const Icon(Icons.share, color: Colors.white),
-          onPressed: () {
-            Get.snackbar('Share', 'Share feature coming soon');
           },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSliverTabBar() {
-    final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    
-    return SliverPersistentHeader(
-      pinned: true,
-      delegate: _SliverAppBarDelegate(
-        TabBar(
-          controller: _tabController,
-          labelColor: colorScheme.primary,
-          unselectedLabelColor: colorScheme.onSurface.withOpacity(0.6),
-          indicatorColor: colorScheme.primary,
-          indicatorWeight: 2,
-          labelStyle: theme.textTheme.labelMedium?.copyWith(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
-          unselectedLabelStyle: theme.textTheme.labelMedium?.copyWith(
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-                  ),
-          labelPadding: const EdgeInsets.symmetric(vertical: 8),
-          tabs: [
-            Tab(text: l10n?.overview ?? 'Overview'),
-            Tab(text: l10n?.details ?? 'Details'),
-            Tab(text: l10n?.provider ?? 'Provider'),
-            Tab(text: l10n?.reviews ?? 'Reviews'),
-            Tab(text: l10n?.forYou ?? 'For You'),
-              ],
-            ),
-      ),
+          errorBuilder: (context, error, stackTrace) {
+            // 记录错误但不让应用崩溃
+            AppLogger.warning('Image loading failed: $imageUrl - $error');
+            return Container(
+              color: Colors.grey[300],
+              child: const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.image_not_supported, size: 80, color: Colors.grey),
+                    SizedBox(height: 8),
+                    Text('Image not available', style: TextStyle(color: Colors.grey)),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
   Widget _buildOverviewTab() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-          // 服务基本信息
+      child: Column(
+        children: [
           ServiceBasicInfoSection(controller: controller),
           const SizedBox(height: 16),
-          
-          // 操作按钮
           ServiceActionsSection(controller: controller),
           const SizedBox(height: 16),
-            
-          // 服务特色
           _buildServiceFeaturesSection(),
           const SizedBox(height: 16),
-          
-          // 质量保证
           _buildQualityAssuranceSection(),
           const SizedBox(height: 16),
-          
-          // 地图
           ServiceMapSection(controller: controller),
           const SizedBox(height: 16),
-            
-          // 相似服务
           SimilarServicesSection(controller: controller),
-                ],
-      ),
-    );
-  }
-
-  Widget _buildServiceFeaturesSection() {
-    final l10n = AppLocalizations.of(context);
-    return CustomerCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-              Text(
-            l10n?.serviceFeatures ?? 'Service Features',
-            style: const TextStyle(
-              fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-          ),
-          const SizedBox(height: 16),
-          Text(l10n?.noData ?? 'No Data'),
         ],
       ),
-    );
-  }
-
-  Widget _buildQualityAssuranceSection() {
-    final l10n = AppLocalizations.of(context);
-    return CustomerCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-            l10n?.qualityAssurance ?? 'Quality Assurance',
-                style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-                ),
-              ),
-          const SizedBox(height: 16),
-          Text(l10n?.noData ?? 'No Data'),
-            ],
-          ),
     );
   }
 
   Widget _buildDetailsTab() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-          CustomerCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                const Text(
-                  'Service Details',
-                  style: TextStyle(
-                    fontSize: 18,
-                          fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-                // 服务详情内容
-              ],
-                    ),
-                  ),
-                ],
+      child: Column(
+        children: [
+          _buildServiceDetailsSection(),
+          const SizedBox(height: 16),
+          _buildProfessionalQualificationSection(),
+          const SizedBox(height: 16),
+          _buildServiceExperienceSection(),
+          const SizedBox(height: 16),
+          _buildServiceTermsSection(),
+          const SizedBox(height: 16),
+          _buildServiceProcessSection(),
+        ],
       ),
     );
+  }
+
+  // 服务特色说明 (专业模板系统)  
+  Widget _buildServiceFeaturesSection() {
+    // 提前获取值，避免嵌套Obx
+    final serviceType = _getServiceType();
+    final providerData = _getProviderData();
+    final features = ProfessionalRemarksTemplates.getServiceFeatures(serviceType, providerData);
+    
+    return ServiceDetailSection(
+      title: 'Service Features',
+      icon: Icons.star,
+      iconColor: Colors.orange[600],
+      content: Column(
+        children: features.map((feature) => Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                feature.icon,
+                color: feature.color,
+                size: 20,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      feature.title,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      feature.description,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        )).toList(),
+      ),
+    );
+  }
+
+  // 质量保证说明 (专业模板系统)
+  Widget _buildQualityAssuranceSection() {
+    // 提前获取值，避免嵌套Obx
+    final serviceType = _getServiceType();
+    final providerData = _getProviderData();
+    final qualityAssurance = ProfessionalRemarksTemplates.getQualityAssurance(serviceType, providerData);
+    
+    return ServiceDetailSection(
+      title: 'Quality Assurance',
+      icon: Icons.verified_user,
+      iconColor: Colors.green[600],
+      content: Text(
+        qualityAssurance,
+        style: Theme.of(context).textTheme.bodyMedium,
+      ),
+    );
+  }
+
+  // 服务详细信息
+  Widget _buildServiceDetailsSection() {
+    // 提前获取数据，避免在复杂组件中嵌套Obx
+    final service = controller.service.value;
+    final serviceDetail = controller.serviceDetail.value;
+    
+    return ServiceDetailSection(
+      title: 'Service Details',
+      icon: Icons.info_outline,
+      content: _buildServiceDetailsContent(service, serviceDetail),
+    );
+  }
+
+  Widget _buildServiceDetailsContent(Service? service, serviceDetail) {
+    if (service == null) {
+      return const Text('Loading service details...');
+    }
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ServiceDetailRow(
+          label: 'Category',
+          value: _getCategoryName(service.categoryId?.toString() ?? '0'),
+          icon: Icons.category,
+        ),
+        if (service.description?.isNotEmpty == true)
+          ServiceDetailRow(
+            label: 'Description',
+            value: service.description!,
+            icon: Icons.description,
+          ),
+        ServiceDetailRow(
+          label: 'Delivery Method',
+          value: _getDeliveryMethodName(service.serviceDeliveryMethod ?? 'unknown'),
+          icon: Icons.local_shipping,
+        ),
+        if (service.rating != null)
+          ServiceDetailRow(
+            label: 'Rating',
+            value: '${service.rating!.toStringAsFixed(1)} ⭐',
+            icon: Icons.star,
+          ),
+        if (service.reviewCount != null && service.reviewCount! > 0)
+          ServiceDetailRow(
+            label: 'Reviews',
+            value: '${service.reviewCount} reviews',
+            icon: Icons.reviews,
+          ),
+        if (service.price != null)
+          ServiceDetailRow(
+            label: 'Price',
+            value: '\$${service.price!.toStringAsFixed(2)}',
+            icon: Icons.attach_money,
+          ),
+        if (serviceDetail?.currency != null)
+          ServiceDetailRow(
+            label: 'Currency',
+            value: serviceDetail?.currency ?? 'CAD',
+            icon: Icons.monetization_on,
+          ),
+      ],
+    );
+  }
+
+  // 专业资质说明 (专业模板系统)
+  Widget _buildProfessionalQualificationSection() {
+    // 提前获取值，避免嵌套Obx
+    final serviceType = _getServiceType();
+    final providerData = _getProviderData();
+    final qualification = ProfessionalRemarksTemplates.getProfessionalQualification(serviceType, providerData);
+    
+    return ServiceDetailSection(
+      title: 'Professional Qualifications',
+      icon: Icons.workspace_premium,
+      iconColor: Colors.amber[700],
+      content: Text(
+        qualification,
+        style: Theme.of(context).textTheme.bodyMedium,
+      ),
+    );
+  }
+
+  // 服务经验说明 (专业模板系统)
+  Widget _buildServiceExperienceSection() {
+    // 提前获取值，避免嵌套Obx
+    final serviceType = _getServiceType();
+    final providerData = _getProviderData();
+    final experience = ProfessionalRemarksTemplates.getServiceExperience(serviceType, providerData);
+    
+    return ServiceDetailSection(
+      title: 'Service Experience',
+      icon: Icons.history,
+      iconColor: Colors.blue[600],
+      content: Text(
+        experience,
+        style: Theme.of(context).textTheme.bodyMedium,
+      ),
+    );
+  }
+
+  // 服务条款
+  Widget _buildServiceTermsSection() {
+    return ServiceDetailSection(
+      title: 'Service Terms',
+      icon: Icons.policy,
+      content: Column(
+        children: [
+          ServiceDetailRow(
+            label: 'Cancellation Policy',
+            value: 'Standard 24-hour cancellation policy',
+            icon: Icons.cancel,
+          ),
+          ServiceDetailRow(
+            label: 'Refund Policy',
+            value: 'Full refund within 48 hours if not satisfied',
+            icon: Icons.money,
+          ),
+          ServiceDetailRow(
+            label: 'Insurance Coverage',
+            value: 'Fully insured and bonded',
+            icon: Icons.security,
+          ),
+          ServiceDetailRow(
+            label: 'Quality Guarantee',
+            value: '100% satisfaction guarantee',
+            icon: Icons.verified,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 服务流程
+  Widget _buildServiceProcessSection() {
+    return ServiceDetailSection(
+      title: 'Service Process',
+      icon: Icons.route,
+      content: Column(
+        children: [
+          _buildProcessStep(1, 'Book Service', 'Choose your preferred time and date'),
+          _buildProcessStep(2, 'Confirmation', 'Receive booking confirmation and provider details'),
+          _buildProcessStep(3, 'Service Delivery', 'Professional service at your location'),
+          _buildProcessStep(4, 'Payment', 'Secure payment after service completion'),
+          _buildProcessStep(5, 'Review', 'Rate and review your experience'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProcessStep(int step, String title, String description) {
+    final theme = Theme.of(context);
+    
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 24,
+            height: 24,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primary,
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Text(
+                '$step',
+                style: TextStyle(
+                  color: theme.colorScheme.onPrimary,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  description,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Helper methods for professional remarks templates
+  String _getServiceType() {
+    final service = controller.service.value;
+    if (service?.categoryId != null) {
+      final categoryId = service!.categoryId!;
+      switch (categoryId) {
+        case '1010000': return ProfessionalRemarksTemplates.FOOD_SERVICE;
+        case '1020000': return ProfessionalRemarksTemplates.CLEANING_SERVICE;
+        case '1030000': return ProfessionalRemarksTemplates.TRANSPORTATION_SERVICE;
+        case '1040000': return ProfessionalRemarksTemplates.TECHNOLOGY_SERVICE;
+        case '1050000': return ProfessionalRemarksTemplates.EDUCATION_SERVICE;
+        case '1060000': return ProfessionalRemarksTemplates.HEALTH_SERVICE;
+        default: return ProfessionalRemarksTemplates.GENERAL_SERVICE;
+      }
+    }
+    return ProfessionalRemarksTemplates.GENERAL_SERVICE;
+  }
+
+  Map<String, dynamic>? _getProviderData() {
+    final provider = controller.providerProfile.value;
+    if (provider == null) return null;
+    
+    return {
+      'completedOrders': provider.completedOrders,
+      'rating': provider.rating,
+      'reviewCount': provider.reviewCount,
+      'isVerified': provider.isVerified,
+      'businessLicense': provider.businessLicense,
+    };
+  }
+
+  String _getCategoryName(String categoryId) {
+    switch (categoryId) {
+      case '1010000': return 'Food Court';
+      case '1020000': return 'Home Services';
+      case '1030000': return 'Transportation';
+      case '1040000': return 'Shared Services';
+      case '1050000': return 'Education';
+      case '1060000': return 'Life Assistance';
+      default: return 'General Service';
+    }
+  }
+
+  String _getDeliveryMethodName(String method) {
+    switch (method) {
+      case 'on_site': return 'On-site Service';
+      case 'online': return 'Online Service';
+      case 'remote': return 'Remote Service';
+      default: return 'Standard Delivery';
+    }
+  }
+
+  String _formatDuration(int minutes) {
+    if (minutes < 60) {
+      return '$minutes minutes';
+    } else {
+      final hours = minutes ~/ 60;
+      final remainingMinutes = minutes % 60;
+      if (remainingMinutes == 0) {
+        return '$hours hour${hours > 1 ? 's' : ''}';
+      } else {
+        return '$hours hour${hours > 1 ? 's' : ''} $remainingMinutes minutes';
+      }
+    }
   }
 
   Widget _buildProviderTab() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
+      child: Column(
+        children: [
           ProviderDetailsSection(controller: controller),
         ],
-                ),
+      ),
     );
   }
 
   Widget _buildReviewsTab() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
+      child: Column(
+        children: [
           ServiceReviewsSection(controller: controller),
-                ],
+        ],
       ),
     );
   }
@@ -784,79 +617,11 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
   Widget _buildPersonalizedTab() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
+      child: Column(
+        children: [
           SimilarServicesSection(controller: controller),
         ],
       ),
     );
-  }
-}
-
-class ServiceDetailError extends StatelessWidget {
-  final String message;
-  final VoidCallback onRetry;
-
-  const ServiceDetailError({
-    super.key,
-    required this.message,
-    required this.onRetry,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.error_outline, size: 64, color: Colors.red),
-          const SizedBox(height: 16),
-          Text(
-            'Error',
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            message,
-            style: Theme.of(context).textTheme.bodyMedium,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: onRetry,
-            child: const Text('Retry'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
-  final TabBar _tabBar;
-
-  _SliverAppBarDelegate(this._tabBar);
-
-  @override
-  double get minExtent => _tabBar.preferredSize.height + 16;
-
-  @override
-  double get maxExtent => _tabBar.preferredSize.height + 16;
-
-  @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    
-    return Container(
-      color: colorScheme.surface,
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: _tabBar,
-    );
-  }
-
-  @override
-  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
-    return false;
   }
 }

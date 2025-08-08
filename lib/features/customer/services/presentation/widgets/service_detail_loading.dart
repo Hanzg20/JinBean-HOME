@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import '../../../../../core/utils/app_logger.dart';
+import '../../../../../core/components/loading_state_manager.dart';
 
 /// 服务详情页面加载状态设计
 /// 包含骨架屏、渐进式加载、离线支持和错误恢复机制
@@ -15,12 +16,12 @@ class ShimmerSkeleton extends StatefulWidget {
   final Duration duration;
 
   const ShimmerSkeleton({
-    Key? key,
+    super.key,
     required this.child,
     this.baseColor,
     this.highlightColor,
     this.duration = const Duration(milliseconds: 1000), // 减少动画时长
-  }) : super(key: key);
+  });
 
   @override
   State<ShimmerSkeleton> createState() => _ShimmerSkeletonState();
@@ -50,7 +51,7 @@ class _ShimmerSkeletonState extends State<ShimmerSkeleton>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final baseColor = widget.baseColor ?? theme.colorScheme.surfaceVariant;
+    final baseColor = widget.baseColor ?? theme.colorScheme.surfaceContainerHighest;
     final highlightColor = widget.highlightColor ?? theme.colorScheme.surface;
 
     return AnimatedBuilder(
@@ -78,7 +79,7 @@ class _ShimmerSkeletonState extends State<ShimmerSkeleton>
 
 /// 服务详情页面骨架屏
 class ServiceDetailSkeleton extends StatelessWidget {
-  const ServiceDetailSkeleton({Key? key}) : super(key: key);
+  const ServiceDetailSkeleton({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -136,7 +137,7 @@ class ServiceDetailSkeleton extends StatelessWidget {
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.transparent,
-                    Colors.black.withOpacity(0.7),
+                    Colors.black.withValues(alpha: 0.7),
                   ],
                 ),
                 borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
@@ -255,12 +256,12 @@ class ProgressiveLoadingWidget extends StatefulWidget {
   final bool enabled;
 
   const ProgressiveLoadingWidget({
-    Key? key,
+    super.key,
     required this.child,
     this.delay = Duration.zero,
     this.curve = Curves.easeInOut,
     this.enabled = true,
-  }) : super(key: key);
+  });
 
   @override
   State<ProgressiveLoadingWidget> createState() => _ProgressiveLoadingWidgetState();
@@ -270,7 +271,6 @@ class _ProgressiveLoadingWidgetState extends State<ProgressiveLoadingWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
-  bool _isVisible = false;
 
   @override
   void initState() {
@@ -286,7 +286,6 @@ class _ProgressiveLoadingWidgetState extends State<ProgressiveLoadingWidget>
     if (widget.enabled) {
       _startAnimation();
     } else {
-      _isVisible = true;
       _controller.value = 1.0;
     }
   }
@@ -294,7 +293,7 @@ class _ProgressiveLoadingWidgetState extends State<ProgressiveLoadingWidget>
   void _startAnimation() async {
     await Future.delayed(widget.delay);
     if (mounted) {
-      setState(() => _isVisible = true);
+      setState(() {});
       _controller.forward();
     }
   }
@@ -332,12 +331,12 @@ class OfflineSupportWidget extends StatelessWidget {
   final String? offlineMessage;
 
   const OfflineSupportWidget({
-    Key? key,
+    super.key,
     required this.child,
     required this.isOnline,
     this.onRetry,
     this.offlineMessage,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -351,7 +350,7 @@ class OfflineSupportWidget extends StatelessWidget {
         Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          color: Colors.orange.withOpacity(0.1),
+          color: Colors.orange.withValues(alpha: 0.1),
           child: Row(
             children: [
               Icon(
@@ -402,14 +401,14 @@ class ServiceDetailError extends StatelessWidget {
   final List<Widget>? actions;
 
   const ServiceDetailError({
-    Key? key,
+    super.key,
     required this.message,
     this.title,
     this.icon,
     this.onRetry,
     this.onBack,
     this.actions,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -498,10 +497,10 @@ class NetworkErrorWidget extends StatelessWidget {
   final VoidCallback? onBack;
 
   const NetworkErrorWidget({
-    Key? key,
+    super.key,
     this.onRetry,
     this.onBack,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -522,11 +521,11 @@ class DataLoadErrorWidget extends StatelessWidget {
   final VoidCallback? onBack;
 
   const DataLoadErrorWidget({
-    Key? key,
+    super.key,
     required this.serviceName,
     this.onRetry,
     this.onBack,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -540,114 +539,11 @@ class DataLoadErrorWidget extends StatelessWidget {
   }
 }
 
-// ==================== 5. 加载状态管理器 ====================
-
-/// 加载状态枚举
-enum LoadingState {
-  initial,
-  loading,
-  success,
-  error,
-  offline,
-}
-
-/// 加载状态管理器
-class LoadingStateManager extends ChangeNotifier {
-  LoadingState _state = LoadingState.initial;
-  String _errorMessage = '';
-  bool _isOnline = true;
-  Timer? _retryTimer;
-  int _retryCount = 0;
-  static const int _maxRetries = 3;
-
-  LoadingState get state => _state;
-  String get errorMessage => _errorMessage;
-  bool get isOnline => _isOnline;
-  int get retryCount => _retryCount;
-
-  void setLoading() {
-    AppLogger.debug('LoadingStateManager.setLoading() called');
-    _state = LoadingState.loading;
-    _errorMessage = '';
-    notifyListeners();
-  }
-
-  void setSuccess() {
-    AppLogger.debug('LoadingStateManager.setSuccess() called');
-    _state = LoadingState.success;
-    _errorMessage = '';
-    _retryCount = 0;
-    AppLogger.debug('LoadingStateManager.setSuccess() - notifying listeners');
-    notifyListeners();
-    AppLogger.debug('LoadingStateManager.setSuccess() - listeners notified');
-  }
-
-  void setError(String message) {
-    AppLogger.debug('LoadingStateManager.setError() called with message: $message');
-    _state = LoadingState.error;
-    _errorMessage = message;
-    notifyListeners();
-  }
-
-  void setOffline() {
-    AppLogger.debug('LoadingStateManager.setOffline() called');
-    _state = LoadingState.offline;
-    _isOnline = false;
-    notifyListeners();
-  }
-
-  void setOnline() {
-    AppLogger.debug('LoadingStateManager.setOnline() called');
-    _isOnline = true;
-    if (_state == LoadingState.offline) {
-      _state = LoadingState.initial;
-    }
-    notifyListeners();
-  }
-
-  Future<void> retry(Future<void> Function() operation) async {
-    AppLogger.debug('LoadingStateManager.retry() called, retryCount: $_retryCount');
-    if (_retryCount >= _maxRetries) {
-      AppLogger.debug('Max retries reached, setting error');
-      setError('重试次数已达上限，请稍后重试');
-      return;
-    }
-
-    _retryCount++;
-    setLoading();
-
-    try {
-      AppLogger.debug('Executing operation...');
-      await operation();
-      AppLogger.debug('Operation completed successfully, setting success');
-      setSuccess();
-    } catch (e) {
-      AppLogger.debug('Operation failed with error: $e');
-      setError(e.toString());
-      
-      // 自动重试
-      if (_retryCount < _maxRetries) {
-        _retryTimer?.cancel();
-        _retryTimer = Timer(
-          Duration(seconds: _retryCount * 2), // 递增延迟
-          () => retry(operation),
-        );
-      }
-    }
-  }
-
-  @override
-  void dispose() {
-    _retryTimer?.cancel();
-    super.dispose();
-  }
-}
-
 // ==================== 6. 主加载组件 ====================
 
 /// 服务详情页面主加载组件
 class ServiceDetailLoading extends StatelessWidget {
-  final LoadingState state;
+  final LoadingStateType state;
   final Widget? child;
   final String? loadingMessage;
   final String? errorMessage;
@@ -656,7 +552,7 @@ class ServiceDetailLoading extends StatelessWidget {
   final bool showSkeleton;
 
   const ServiceDetailLoading({
-    Key? key,
+    super.key,
     required this.state,
     this.child,
     this.loadingMessage,
@@ -664,7 +560,7 @@ class ServiceDetailLoading extends StatelessWidget {
     this.onRetry,
     this.onBack,
     this.showSkeleton = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -673,23 +569,23 @@ class ServiceDetailLoading extends StatelessWidget {
     AppLogger.debug('ServiceDetailLoading - showSkeleton: $showSkeleton');
     
     switch (state) {
-      case LoadingState.initial:
+      case LoadingStateType.initial:
         AppLogger.debug('ServiceDetailLoading - showing initial state (loading)');
         return showSkeleton 
             ? const ServiceDetailSkeleton()
             : _buildLoadingIndicator(context);
       
-      case LoadingState.loading:
+      case LoadingStateType.loading:
         AppLogger.debug('ServiceDetailLoading - showing loading state');
         return showSkeleton 
             ? const ServiceDetailSkeleton()
             : _buildLoadingIndicator(context);
       
-      case LoadingState.success:
+      case LoadingStateType.success:
         AppLogger.debug('ServiceDetailLoading - showing success state with child: ${child != null ? 'has child' : 'no child'}');
         return child ?? const SizedBox.shrink();
       
-      case LoadingState.error:
+      case LoadingStateType.error:
         AppLogger.debug('ServiceDetailLoading - showing error state');
         return ServiceDetailError(
           message: errorMessage ?? '加载失败，请重试',
@@ -697,12 +593,12 @@ class ServiceDetailLoading extends StatelessWidget {
           onBack: onBack,
         );
       
-      case LoadingState.offline:
+      case LoadingStateType.offline:
         AppLogger.debug('ServiceDetailLoading - showing offline state');
         return OfflineSupportWidget(
           isOnline: false,
           onRetry: onRetry,
-            child: child ?? const SizedBox.shrink(),
+          child: child ?? const SizedBox.shrink(),
         );
     }
   }

@@ -1,540 +1,686 @@
-# ServiceDetailPage 全面设计文档
+# ServiceDetail页面动态适配功能设计文档
 
-## 📋 **文档概述**
+## 📋 **项目概述**
 
-### **版本信息**
-- **版本**: v2.3
-- **创建日期**: 2024-08-03
-- **最后更新**: 2024-12-19
-- **负责人**: UI/UX Team
-- **审核人**: 技术负责人
+### **功能名称**
+ServiceDetail Page Dynamic Tab Adaptation System
 
-### **文档目的**
-本设计文档旨在为JinBean应用的ServiceDetailPage提供全面的设计指导，确保开发团队能够按照统一的设计标准和功能要求进行开发。
+### **项目目标**
+为不同行业类型的服务提供专业化、个性化的详情展示界面，通过动态Tab页适配技术，提升用户体验和业务转化率。
 
-### **当前状态** 🎉
-- **开发阶段**: 稳定开发阶段
-- **总体进度**: 80%
-- **编译状态**: ✅ 成功 (0 错误)
-- **应用运行**: ✅ 成功启动并运行
-- **模块化重构**: ✅ 完成
-- **专业说明文字模板系统**: ✅ 完成
-- **优先级**: 中 - 功能完善和性能优化
+### **核心价值**
+- **用户体验提升**: 根据服务类型显示最相关的信息
+- **业务差异化**: 突出不同行业的专业特色
+- **系统可扩展性**: 支持未来新增行业类型
+- **维护效率**: 统一的架构框架，降低开发成本
 
 ---
 
-## 🎯 **1. 产品定位与目标**
+## 🎯 **功能需求分析**
 
-### **1.1 产品定位**
-ServiceDetailPage是JinBean应用的核心页面之一，负责展示服务详情、提供商信息、用户评价等关键信息，是用户决策和转化的关键节点。
+### **核心功能需求**
 
-### **1.2 设计目标**
-- **信息完整性**: 提供全面的服务信息展示
-- **用户体验**: 简洁直观的界面设计，快速获取关键信息
-- **转化优化**: 清晰的价值主张和行动引导
-- **信任建立**: 通过评价、认证等信息建立用户信任
-- **本地化**: 符合北美用户习惯的设计风格
+#### **1. 动态Tab生成**
+- **需求描述**: 根据服务的行业分类自动生成对应的Tab页
+- **业务价值**: 为用户提供最相关的信息展示
+- **技术要求**: 支持实时动态切换，响应迅速
 
-### **1.3 多语言支持策略**
-- **地址信息**: 统一使用英文，便于地图API和导航系统使用
-- **业务内容**: 使用jsonb字段存储多语言版本（title, description等）
-- **界面文本**: 使用Flutter国际化系统处理
-- **Fallback策略**: 优先显示用户语言，无对应语言时回退到英文
+#### **2. 行业特定内容**
+- **需求描述**: 不同行业显示专业化的详情内容
+- **业务价值**: 提升专业度，增强用户信任
+- **技术要求**: 内容结构标准化，易于扩展
 
-### **1.4 竞品对标**
-- **Yelp**: 信息密度高，评价系统完善
-- **Thumbtack**: 服务导向，询价流程简化
-- **Fiverr**: 模块化展示，强交互式设计
-- **阿里本地生活**: 本地化体验，统一支付系统
+#### **3. 向后兼容性**
+- **需求描述**: 现有服务不受影响，平滑过渡
+- **业务价值**: 保障现有业务稳定运行
+- **技术要求**: 渐进式迁移，零停机部署
+
+#### **4. 性能优化**
+- **需求描述**: 快速加载，流畅切换
+- **业务价值**: 提升用户体验，降低跳出率
+- **技术要求**: 延迟加载，智能缓存
+
+### **行业适配需求**
+
+#### **餐饮服务** (Category: 1010000)
+- **Tab名称**: Menu
+- **核心内容**: 菜单分类、价格体系、营业时间
+- **特色功能**: 多菜品选择、配送选项、营养信息
+- **业务场景**: 餐厅点餐、外卖订购
+
+#### **家政服务** (Category: 1020000)
+- **Tab名称**: Services
+- **核心内容**: 服务项目、价格标准、服务区域
+- **特色功能**: 服务时长、清洁标准、服务保障
+- **业务场景**: 家庭清洁、维修保养
+
+#### **交通出行** (Category: 1030000)
+- **Tab名称**: Details (默认)
+- **核心内容**: 车辆信息、路线规划、价格计算
+- **特色功能**: 实时定位、预约时间、安全保障
+- **业务场景**: 机场接送、城际出行
+
+#### **共享租赁** (Category: 1040000)
+- **Tab名称**: Inventory
+- **核心内容**: 物品清单、库存状态、租赁条件
+- **特色功能**: 可用性日历、押金管理、归还检查
+- **业务场景**: 工具租赁、设备共享
+
+#### **教育培训** (Category: 1050000)
+- **Tab名称**: Courses
+- **核心内容**: 课程体系、学习进度、认证证书
+- **特色功能**: 在线学习、作业提交、考试系统
+- **业务场景**: 技能培训、学历教育
+
+#### **生活帮忙** (Category: 1060000)
+- **Tab名称**: Treatments
+- **核心内容**: 服务项目、专业资质、预约管理
+- **特色功能**: 健康档案、治疗方案、效果跟踪
+- **业务场景**: 健康咨询、美容护理
 
 ---
 
-## 🏗️ **2. 技术架构设计**
+## 🏗️ **系统架构设计**
 
-### **2.1 整体架构**
-```
-ServiceDetailPage
-├── 数据层 (Data Layer)
-│   ├── ServiceDetailController
-│   ├── ServiceDetailState (响应式状态管理)
-│   └── 本地缓存管理
-├── 业务层 (Business Layer)
-│   ├── 服务信息管理
-│   ├── 评价系统
-│   ├── 聊天系统
-│   ├── 预订系统
-│   └── 专业说明文字模板系统
-└── 表现层 (Presentation Layer)
-    ├── 主页面 (service_detail_page.dart)
-    ├── 组件模块 (widgets/)
-    ├── 页面区块 (sections/)
-    ├── 对话框 (dialogs/)
-    └── 工具类 (utils/)
-```
+### **整体架构原则**
 
-### **2.2 技术栈**
-- **状态管理**: GetX (响应式编程)
-- **UI框架**: Flutter Material Design 3
-- **网络请求**: Dio
-- **消息服务**: MsgNexus API
-- **主题系统**: CustomerThemeComponents
-- **路由管理**: GetX Navigation
-- **地图服务**: Google Maps Flutter (复用现有服务地图功能)
+#### **1. 模块化设计**
+- **页面层**: 统一入口，动态组装
+- **组件层**: 可复用UI组件
+- **业务层**: 行业特定逻辑
+- **数据层**: 统一数据访问接口
 
-### **2.3 模块化架构** ✅ 已实现
+#### **2. 配置驱动**
+- **Tab配置**: 基于服务类型的动态配置
+- **内容配置**: 行业特定的内容模板
+- **样式配置**: 品牌一致性的主题系统
+
+#### **3. 扩展性设计**
+- **新行业支持**: 配置化添加，无需修改核心代码
+- **功能增强**: 插件化架构，独立开发部署
+- **国际化**: 多语言支持，本地化适配
+
+### **核心设计模式**
+
+#### **1. 工厂模式 (Factory Pattern)**
+- **应用场景**: Tab页动态生成
+- **设计目标**: 根据服务类型创建对应的Tab配置
+- **扩展策略**: 新增行业类型通过配置实现
+
+#### **2. 策略模式 (Strategy Pattern)**
+- **应用场景**: 行业特定内容渲染
+- **设计目标**: 不同行业采用不同的内容展示策略
+- **扩展策略**: 新增策略独立实现，不影响现有逻辑
+
+#### **3. 组合模式 (Composite Pattern)**
+- **应用场景**: 复杂内容结构组织
+- **设计目标**: 统一处理简单和复合内容元素
+- **扩展策略**: 新增内容类型按需组合
+
+### **分层架构设计**
+
+#### **表现层 (Presentation Layer)**
+- **ServiceDetailPage**: 主页面入口，负责整体布局和Tab协调
+- **Tab组件**: 各个Tab页的具体实现
+- **UI组件**: 可复用的界面组件
+
+#### **业务逻辑层 (Business Logic Layer)**
+- **ServiceDetailController**: 核心业务逻辑控制器
+- **TabConfiguration**: Tab页配置管理
+- **ProfessionalRemarksTemplates**: 专业说明文字模板
+
+#### **数据访问层 (Data Access Layer)**
+- **Service Repository**: 服务数据访问
+- **ServiceDetail Repository**: 服务详情数据访问
+- **IndustryConfig Repository**: 行业配置数据访问
+
+#### **领域层 (Domain Layer)**
+- **Service**: 服务实体
+- **ServiceDetail**: 服务详情实体
+- **TabInfo**: Tab信息实体
+
+---
+
+## 📁 **目录结构设计**
+
+### **功能模块组织**
+
 ```
 lib/features/customer/services/presentation/
-├── service_detail_page.dart                    # 主页面 (291行)
-├── service_detail_controller.dart              # 控制器 (90行)
-├── models/
-│   └── service_detail_state.dart               # 状态模型
-├── widgets/                                    # 固定组件
-│   ├── service_detail_card.dart
-│   ├── service_detail_loading.dart
-│   └── service_detail_error.dart
-├── sections/                                   # 页面区块
-│   ├── service_basic_info_section.dart         # 服务基本信息
-│   ├── service_actions_section.dart            # 操作按钮
-│   ├── service_map_section.dart                # 地图功能
-│   ├── similar_services_section.dart           # 相似服务
-│   ├── service_reviews_section.dart            # 评价系统
-│   └── provider_details_section.dart           # 提供商信息
-├── dialogs/                                    # 对话框
-│   ├── service_quote_dialog.dart               # 报价对话框
-│   └── service_schedule_dialog.dart            # 预订对话框
-└── utils/                                      # 工具类
-    └── professional_remarks_templates.dart      # 专业说明文字模板系统
+├── service_detail_page.dart              # 主页面入口 (300行以内)
+├── service_detail_controller.dart        # 状态管理控制器
+├── service_detail_binding.dart          # 依赖注入绑定
+│
+├── tabs/                                 # Tab页专用目录
+│   ├── tab_configuration.dart           # Tab配置工厂
+│   ├── base_tab_widget.dart            # Tab页基础类
+│   ├── overview_tab.dart               # 概览Tab (通用)
+│   ├── provider_tab.dart               # 服务商Tab (通用)
+│   ├── reviews_tab.dart                # 评价Tab (通用)
+│   ├── personalized_tab.dart           # 推荐Tab (通用)
+│   └── industry_tabs/                   # 行业特定Tab
+│       ├── menu_tab.dart               # 餐饮菜单Tab
+│       ├── services_tab.dart           # 家政服务Tab
+│       ├── inventory_tab.dart          # 租赁库存Tab
+│       ├── courses_tab.dart            # 教育课程Tab
+│       └── treatments_tab.dart         # 健康治疗Tab
+│
+├── components/                          # 可复用组件
+│   ├── service_detail_section.dart     # 通用区块组件
+│   ├── service_detail_row.dart         # 信息行组件
+│   ├── service_detail_card.dart        # 卡片组件
+│   ├── service_detail_error.dart       # 错误状态组件
+│   └── loading/                         # 加载状态组件
+│       ├── skeleton_loader.dart        # 骨架屏
+│       └── loading_indicator.dart      # 加载指示器
+│
+├── sections/                            # 页面区块
+│   ├── basic_info_section.dart         # 基础信息区块
+│   ├── actions_section.dart            # 操作按钮区块
+│   ├── map_section.dart               # 地图位置区块
+│   ├── reviews_section.dart            # 评价展示区块
+│   ├── similar_services_section.dart   # 相似服务区块
+│   └── provider_details_section.dart   # 服务商详情区块
+│
+├── dialogs/                             # 对话框组件
+│   ├── quote_dialog.dart               # 报价对话框
+│   ├── schedule_dialog.dart            # 预约对话框
+│   └── booking_dialog.dart             # 预订对话框
+│
+└── utils/                              # 工具类
+    ├── industry_detector.dart          # 行业类型识别
+    ├── content_formatter.dart          # 内容格式化
+    ├── professional_templates.dart     # 专业描述模板
+    └── validators.dart                 # 数据验证工具
+```
+
+### **数据模型组织**
+
+```
+lib/features/customer/services/domain/
+├── entities/
+│   ├── service.dart                    # 服务实体
+│   ├── service_detail.dart            # 服务详情实体
+│   ├── tab_info.dart                  # Tab信息实体
+│   └── industry_config.dart           # 行业配置实体
+│
+└── repositories/
+    ├── service_repository.dart         # 服务数据仓库
+    └── industry_repository.dart        # 行业配置仓库
 ```
 
 ---
 
-## ✅ **3. 当前实现状态**
+## 🎨 **用户界面设计**
 
-### **3.1 已完成功能** ✅
-#### **核心功能**
-- ✅ 服务基本信息展示
-- ✅ 提供商信息展示
-- ✅ Contact、Book Now、Get Quote功能边界划分
-- ✅ 专业备注说明文字模板系统
-- ✅ 模块化架构重构
-- ✅ 响应式状态管理
+### **整体设计原则**
 
-#### **UI组件**
-- ✅ Hero区域 (图片轮播 + 核心信息)
-- ✅ 导航标签 (Overview, Details, Provider, Reviews, For You)
-- ✅ 联系选项对话框
-- ✅ 预订选项对话框
-- ✅ 报价选项对话框
-- ✅ 信任与安全部分
+#### **1. 一致性设计**
+- **视觉统一**: 所有Tab页保持相同的视觉风格
+- **交互统一**: 操作方式和反馈机制保持一致
+- **信息架构**: 内容层级和组织方式标准化
 
-#### **技术实现**
-- ✅ 编译错误修复
-- ✅ 重复代码消除
-- ✅ 状态管理优化
-- ✅ 错误处理机制
-- ✅ 专业说明文字模板系统
+#### **2. 适应性设计**
+- **内容适配**: 根据行业特点调整内容展示重点
+- **功能适配**: 突出行业特有的功能特性
+- **布局适配**: 针对不同内容密度优化布局
 
-### **3.2 进行中功能** 🔄
-#### **评价系统**
-- 🔄 基础评价展示
-- ⏳ 评价筛选和排序
-- ⏳ 评价交互功能
-- ⏳ 评价撰写功能
+#### **3. 可用性设计**
+- **信息清晰**: 重要信息突出显示，次要信息合理收纳
+- **操作便捷**: 关键操作易于发现和执行
+- **反馈及时**: 用户操作获得即时反馈
 
-#### **地图功能**
-- 🔄 基础地图显示
-- ⏳ 地图控制功能
-- ⏳ 导航功能
-- ⏳ 服务区域可视化
+### **Tab页设计规范**
 
-### **3.3 待实现功能** ⏳
-#### **高级功能**
-- ⏳ 个性化推荐
-- ⏳ 图片上传功能
-- ⏳ 实时聊天集成
-- ⏳ 支付流程集成
+#### **1. 通用Tab页**
+- **Overview**: 服务概览，包含核心信息和亮点
+- **Provider**: 服务商信息，建立信任度
+- **Reviews**: 用户评价，提供社会证明
+- **For You**: 个性化推荐，提升转化
 
----
+#### **2. 行业特定Tab页**
+- **替换策略**: 动态替换Details Tab为行业特定Tab
+- **命名规范**: 使用行业通用术语，易于理解
+- **图标系统**: 与行业特征高度匹配的图标设计
 
-## 🎨 **4. UI/UX 设计规范**
+### **响应式设计**
 
-### **4.1 设计原则**
-1. **信息层次清晰**: 重要信息突出，次要信息弱化
-2. **行动导向**: 主要操作按钮始终可见
-3. **一致性**: 遵循Customer主题系统规范
-4. **响应式**: 适配不同屏幕尺寸
-5. **可访问性**: 支持无障碍访问
+#### **1. 屏幕适配**
+- **手机端**: 优先显示核心信息，次要信息可折叠
+- **平板端**: 利用更大空间展示更多详情
+- **桌面端**: 多栏布局，提升信息密度
 
-### **4.2 视觉规范**
+#### **2. 内容优先级**
+- **首屏内容**: 最重要的决策信息
+- **延迟加载**: 非关键内容按需加载
+- **渐进增强**: 基础功能优先，高级功能增强
 
-#### **A. 颜色系统**
-- **主色调**: 青色系 (#00BCD4, #0097A7, #26C6DA)
-- **状态颜色**: 成功绿、警告橙、错误红、信息蓝
-- **中性色**: 白色、浅灰、深灰、黑色
+### **Customer-Theme统一设计应用**
 
-#### **B. 字体规范**
-- **标题字体**: 32px/28px/24px 粗体
-- **正文字体**: 22px/16px/14px 常规
-- **辅助文字**: 12px 常规
+#### **1. CustomerCard组件**
+- **统一圆角**: 右上角使用64px圆角，其他角使用16px圆角
+- **渐变支持**: 可选择是否使用渐变背景
+- **阴影控制**: 可选择是否显示阴影效果
+- **点击支持**: 支持点击事件和涟漪效果
 
-#### **C. 间距规范**
-- **基础间距**: 4px/8px/12px/16px/24px/32px
-- **组件间距**: 卡片内边距16px，区块间距24px
+#### **2. CustomerIconContainer组件**
+- **圆形设计**: 默认圆形图标容器
+- **渐变支持**: 可选择是否使用渐变背景
+- **颜色定制**: 支持自定义图标颜色和背景色
+- **尺寸灵活**: 支持不同尺寸的图标容器
 
-#### **D. 圆角规范**
-- **4倍右上角圆角规则**: 右上角半径是其他角的4倍
-- **卡片圆角**: 16px/64px/16px/16px
-- **按钮圆角**: 12px/48px/12px/12px
-
-### **4.3 布局规范**
-
-#### **A. 页面结构**
-```
-┌─────────────────────────────────┐
-│           Hero区域               │
-│    (服务图片 + 基本信息)          │
-├─────────────────────────────────┤
-│          导航标签                │
-│  [Overview] [Details] [Provider] [Reviews] [For You] │
-├─────────────────────────────────┤
-│          内容区域                │
-│        (标签页内容)              │
-├─────────────────────────────────┤
-│          行动区域                │
-│    (Get Quote + Book Now)        │
-└─────────────────────────────────┘
-```
-
-#### **B. Overview Tab布局顺序** ✅ 已优化
-```
-1. 服务基本信息 (ServiceBasicInfoSection)
-2. 服务操作按钮 (ServiceActionsSection) - 重要操作前置
-3. 服务特色说明 (Service Features)
-4. 质量保证说明 (Quality Assurance)
-5. 地图和位置信息 (ServiceMapSection)
-```
-
-#### **C. 响应式设计**
-- **手机端**: 单列布局，垂直滚动
-- **平板端**: 双列布局，侧边栏固定
-- **桌面端**: 三列布局，信息密度优化
+#### **3. 设计系统优势**
+- **视觉一致性**: 所有组件使用相同的设计语言
+- **品牌识别**: 增强品牌识别度和专业感
+- **开发效率**: 减少重复代码，提高开发效率
 
 ---
 
-## 🔧 **5. 功能模块设计**
+## 📊 **数据结构设计**
 
-### **5.1 Overview Tab** ✅ 已实现
-#### **A. 服务基本信息**
-- **服务标题**: 多语言支持
-- **价格信息**: 显示价格范围和定价模式
-- **服务描述**: 详细的服务说明
-- **服务时长**: 预计服务时间
-- **服务分类**: 服务类别标签
+### **Tab配置数据结构**
 
-#### **B. 服务操作按钮** ✅ 已优化
-- **Get Quote**: 快速询价功能
-- **Book Now**: 直接预订功能
-- **Quick Contact**: 快速联系选项
+#### **TabInfo实体**
+- **字段定义**:
+  - `id`: 唯一标识符
+  - `title`: 显示标题 (支持多语言)
+  - `icon`: 图标标识
+  - `isIndustrySpecific`: 是否为行业特定Tab
+  - `industryType`: 关联的行业类型
+  - `sortOrder`: 显示顺序
 
-#### **C. 服务特色说明** ✅ 已实现
-- **模板化设计**: 根据服务类型显示不同特色
-- **动态内容**: 基于服务商数据生成个性化内容
-- **视觉层次**: 图标、标题、描述的清晰层次
+#### **IndustryConfig实体**
+- **字段定义**:
+  - `industryCode`: 行业代码
+  - `name`: 行业名称 (支持多语言)
+  - `tabConfiguration`: Tab页配置
+  - `contentTemplate`: 内容模板配置
+  - `validationRules`: 数据验证规则
 
-#### **D. 质量保证说明** ✅ 已实现
-- **模板化设计**: 根据服务类型显示不同保证条款
-- **信任建立**: 通过具体承诺建立用户信任
-- **专业展示**: 使用专业术语和具体措施
+### **服务详情数据结构**
 
-#### **E. 地图和位置**
-- **服务位置**: Google Maps集成
-- **距离信息**: 用户到服务地点的距离
-- **路线规划**: 多种交通方式的路由
-- **服务区域**: 服务覆盖范围
+#### **扩展字段设计**
+- **category**: 服务类别 (main/menu_item/rental_item等)
+- **subCategory**: 子分类标识
+- **attributes**: 扩展属性 (JSON格式)
+- **businessRules**: 业务规则 (JSON格式)
+- **isAvailable**: 可用状态
+- **sortOrder**: 排序权重
 
-### **5.2 Details Tab** ✅ 已实现
-#### **A. 服务详细信息**
-- **服务条款**: 服务条件和政策
-- **服务特色**: 服务亮点和优势
-- **服务流程**: 服务执行步骤
+### **service_details表重构设计**
 
-### **5.3 Provider Tab** ✅ 已实现
-#### **A. 提供商详细信息**
-- **基本信息**: 姓名、头像、评分
-- **认证信息**: 身份认证、专业认证
-- **服务统计**: 服务次数、客户数量
-- **响应时间**: 平均响应时间
+#### **重构目标**
+将单一服务详情表重构为支持子服务的灵活架构，实现一个主服务下包含多个子服务项目的功能。
 
-#### **B. 信任和安全**
-- **背景调查**: 安全认证状态
-- **保险信息**: 责任保险覆盖
-- **服务保障**: 服务质量和退款政策
-
-#### **C. 作品集展示**
-- **服务案例**: 历史服务照片
-- **客户评价**: 真实客户反馈
-- **服务特色**: 专业领域和特长
-
-### **5.4 Reviews Tab** 🔄 部分实现
-#### **A. 评价统计**
-- **总体评分**: 平均评分和评价数量
-- **评分分布**: 各星级评价分布
-- **评价筛选**: 按评分、时间等筛选
-
-#### **B. 评价列表**
-- **评价展示**: 评价内容和用户信息
-- **评价交互**: 点赞、回复、举报
-- **评价排序**: 按时间、评分排序
-
-### **5.5 For You Tab** ⏳ 待实现
-#### **A. 个性化推荐**
-- **相似服务**: 基于当前服务的推荐
-- **热门服务**: 同类别热门服务
-- **个性化洞察**: 基于用户行为的推荐
-
-#### **B. 用户行为分析**
-- **浏览历史**: 用户查看的服务记录
-- **偏好分析**: 用户兴趣和服务偏好
-- **推荐算法**: 智能推荐系统
-
----
-
-## 📊 **6. 数据模型设计**
-
-### **6.1 服务详情数据模型** ✅ 已实现
-```dart
-class ServiceDetail {
-  final String id;
-  final String serviceId;
-  final String? pricingType;
-  final double? price;
-  final String? currency;
-  final String? negotiationDetails;
-  final String? durationType;
-  final int? duration;
-  final List<String>? images;
-  final List<String>? tags;
-  final List<String>? serviceAreaCodes;
-  final Map<String, dynamic>? serviceDetailsJson;
-  final Map<String, dynamic>? details;
-}
+#### **重构后表结构**
+```sql
+CREATE TABLE public.service_details (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    service_id uuid NOT NULL REFERENCES public.services(id),
+    category text NOT NULL DEFAULT 'main',
+    name jsonb NOT NULL,
+    description text,
+    pricing_type text NOT NULL DEFAULT 'fixed_price',
+    price numeric,
+    currency text DEFAULT 'CAD',
+    negotiation_details text,
+    duration_type text NOT NULL DEFAULT 'hours',
+    duration interval,
+    images_url text[] DEFAULT '{}',
+    videos_url text[] DEFAULT '{}',
+    tags text[] DEFAULT '{}',
+    service_area_codes text[] DEFAULT '{}',
+    platform_service_fee_rate numeric DEFAULT 0.05,
+    
+    -- 新增字段：支持子服务功能
+    sub_category text,
+    is_available boolean DEFAULT true,
+    sort_order integer DEFAULT 0,
+    current_stock integer,
+    max_stock integer,
+    
+    -- 扩展属性字段
+    attributes jsonb DEFAULT '{}',
+    business_rules jsonb DEFAULT '{}',
+    
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+    
+    -- 复合索引
+    UNIQUE(service_id, category, name)
+);
 ```
 
-### **6.2 提供商数据模型** ✅ 已实现
-```dart
-class ProviderProfile {
-  final String id;
-  final String name;
-  final String? description;
-  final String? avatar;
-  final String? phone;
-  final String? email;
-  final String? address;
-  final double? rating;
-  final int? reviewCount;
-  final int? completedOrders;
-  final String? businessLicense;
-  final bool isVerified;
-  final DateTime? createdAt;
-  final Map<String, dynamic>? metadata;
-}
+#### **数据迁移策略**
+1. **保持表名不变**: 避免对现有代码造成大规模影响
+2. **主键改造**: 从service_id改为id，service_id变为外键
+3. **新增字段**: 添加子服务相关字段
+4. **向后兼容**: 通过category='main'保持主服务逻辑
+
+---
+
+## 🔧 **技术实现要求**
+
+### **性能要求**
+
+#### **1. 加载性能**
+- **首屏加载**: ≤ 2秒
+- **Tab切换**: ≤ 300ms
+- **数据刷新**: ≤ 1秒
+
+#### **2. 内存占用**
+- **页面内存**: ≤ 50MB
+- **图片缓存**: 智能清理，防止内存泄漏
+- **组件复用**: 最大化组件复用率
+
+#### **3. 网络优化**
+- **数据压缩**: API响应数据压缩
+- **缓存策略**: 合理的缓存过期时间
+- **离线支持**: 基础信息离线可用
+
+### **兼容性要求**
+
+#### **1. 平台兼容**
+- **iOS**: 13.0及以上版本
+- **Android**: API Level 21及以上
+- **Web**: 现代浏览器支持
+
+#### **2. 设备兼容**
+- **屏幕尺寸**: 4.7寸至12.9寸
+- **分辨率**: 1080p至4K
+- **操作方式**: 触摸、键盘、鼠标
+
+### **安全要求**
+
+#### **1. 数据安全**
+- **传输加密**: HTTPS/TLS 1.3
+- **存储加密**: 敏感数据本地加密
+- **访问控制**: 基于角色的权限控制
+
+#### **2. 隐私保护**
+- **数据最小化**: 只收集必要数据
+- **用户同意**: 明确的隐私授权
+- **数据删除**: 支持用户数据删除
+
+### **专业说明文字模板系统**
+
+#### **1. 智能判断机制**
+1. **分类ID优先**: 首先根据服务分类ID判断
+2. **标签匹配**: 其次根据服务标签关键词匹配
+3. **标题分析**: 最后根据服务标题关键词分析
+4. **默认兜底**: 提供默认服务类型作为兜底
+
+#### **2. 支持的服务类型**
+- **清洁服务** (CLEANING_SERVICE)
+- **维修服务** (MAINTENANCE_SERVICE)
+- **美容服务** (BEAUTY_SERVICE)
+- **教育服务** (EDUCATION_SERVICE)
+- **运输服务** (TRANSPORTATION_SERVICE)
+- **餐饮服务** (FOOD_SERVICE)
+- **健康服务** (HEALTH_SERVICE)
+- **技术服务** (TECHNOLOGY_SERVICE)
+
+### **加载状态设计**
+
+#### **1. LoadingStateManager**
+- **统一状态管理**: 管理loading、success、error、offline等状态
+- **重试机制**: 支持自动和手动重试
+- **网络检测**: 智能的网络状态检测
+
+#### **2. 骨架屏设计**
+- **ServiceDetailSkeleton**: 专门的骨架屏组件
+- **渐进式加载**: ProgressiveLoadingWidget支持分阶段加载
+- **性能优化**: 使用RepaintBoundary优化重绘
+
+### **统一日志系统**
+
+#### **1. AppLogger功能**
+- **四个日志级别**: debug、info、warning、error
+- **标签支持**: 每个日志可以添加标签进行分类
+- **开关控制**: 可以单独控制每个级别的日志输出
+- **格式化输出**: 统一的日志格式，包含时间戳和标签
+
+#### **2. 应用范围**
+- **页面生命周期**: 初始化、销毁、网络状态检查
+- **数据加载**: 服务详情加载、相似服务加载、提供商信息加载
+- **用户交互**: 聊天、电话、邮件、预订、报价等操作
+- **错误处理**: 所有异常和错误情况的记录
+
+---
+
+## 🗺️ **地图和评价系统增强**
+
+### **地图功能增强**
+
+#### **1. 地图控制功能**
+- **地图类型切换**: 标准地图、卫星视图、地形视图
+- **地图控制**: 缩放控制按钮、定位功能、全屏模式
+- **服务区域可视化**: 服务半径圆形覆盖、服务边界多边形、响应时间颜色区分
+
+#### **2. 路线导航功能**
+- **多交通方式**: 支持汽车、公交、步行、自行车路线计算
+- **路线轨迹显示**: 使用Polyline显示路线轨迹
+- **距离和时间信息**: 显示预计行驶时间和距离
+- **导航操作**: 获取路线、复制地址、查看街景
+
+#### **3. ServiceMapController架构重构**
+```
+ServiceMapController统一管理:
+├── 地图控制相关属性
+│   ├── currentMapType
+│   ├── isMapFullScreen
+│   ├── isLoadingMapData
+│   └── mapError
+├── 路线导航相关属性
+│   ├── routePoints
+│   ├── routePolylines
+│   ├── currentRoute
+│   ├── availableRoutes
+│   ├── isLoadingRoute
+│   ├── routeError
+│   └── selectedTransportMode
+└── 服务区域相关属性
+    ├── serviceAreaCircles
+    └── serviceAreaInfo
 ```
 
-### **6.3 评价数据模型** ✅ 已实现
-```dart
-class Review {
-  final String id;
-  final String serviceId;
-  final String userId;
-  final String? userName;
-  final String? userAvatar;
-  final double rating;
-  final String? content;
-  final List<String>? images;
-  final DateTime createdAt;
-  final DateTime? updatedAt;
-}
+### **评价系统优化**
+
+#### **1. 评价统计展示增强**
+- **总体评分展示**: 大字体显示评分（4.8/5.0）、可视化星级显示、评价数量统计
+- **统计信息增强**: 正面评价（4星以上）、有评论评价、总评价数量
+- **评分分布可视化**: 5星到1星的百分比进度条显示
+
+#### **2. 评价筛选和排序**
+- **排序选项**: 最新优先、最早优先、评分最高、评分最低
+- **筛选选项**: 全部评价、5星评价、4星评价、有图片、已验证
+
+#### **3. 评价交互功能**
+- **评价操作**: 点赞功能、回复功能、举报功能、分享功能
+- **评价撰写**: 总体评分（1-5星）、详细评分（质量、准时性、沟通、性价比）、评价内容、图片上传、标签选择、匿名选项
+
+---
+
+## 🚀 **实施策略**
+
+### **分阶段实施计划**
+
+#### **阶段一：基础架构** (2周)
+- **目标**: 建立动态Tab系统基础框架
+- **交付物**:
+  - TabConfiguration工厂类
+  - 基础Tab页组件
+  - 行业识别逻辑
+- **验收标准**: 能够根据服务类型动态生成Tab
+
+#### **阶段二：行业适配** (3周)
+- **目标**: 实现主要行业的特定Tab页
+- **交付物**:
+  - 餐饮Menu Tab
+  - 租赁Inventory Tab
+  - 教育Courses Tab
+- **验收标准**: 3个行业的专业化展示完成
+
+#### **阶段三：完善优化** (2周)
+- **目标**: 功能完善和性能优化
+- **交付物**:
+  - 剩余行业Tab页
+  - 性能优化
+  - 错误处理完善
+- **验收标准**: 全功能可用，性能达标
+
+#### **阶段四：测试发布** (1周)
+- **目标**: 全面测试和生产发布
+- **交付物**:
+  - 完整测试报告
+  - 生产环境部署
+  - 监控告警配置
+- **验收标准**: 生产环境稳定运行
+
+### **风险控制策略**
+
+#### **1. 技术风险**
+- **风险**: 动态Tab切换可能导致性能问题
+- **缓解**: 预加载策略和组件复用
+- **应急**: 降级到静态Tab页
+
+#### **2. 业务风险**
+- **风险**: 行业特定内容可能不符合用户期望
+- **缓解**: 用户调研和A/B测试验证
+- **应急**: 快速回滚到通用版本
+
+#### **3. 兼容性风险**
+- **风险**: 新功能可能影响现有用户体验
+- **缓解**: 向后兼容设计和渐进式发布
+- **应急**: 分批次发布，快速响应问题
+
+### **定价系统简化决策**
+
+#### **简化原因**
+1. **业务逻辑复杂**: 7种定价类型导致UI逻辑复杂，用户体验混乱
+2. **开发成本高**: 每种定价类型需要不同的处理逻辑和UI组件
+3. **维护困难**: 过多的定价类型增加了代码维护和测试的复杂度
+4. **用户困惑**: 过多的选项让用户难以理解和使用
+
+#### **简化方案**
+```
+原定价类型 → 简化后类型
+├── fixed_price → fixed_price (固定价格)
+├── hourly → hourly (按小时计费)
+├── by_project → negotiable (可协商)
+├── negotiable → negotiable (可协商)
+├── quote_based → negotiable (可协商)
+├── free → fixed_price (固定价格，价格为0)
+└── custom → negotiable (可协商)
 ```
 
-### **6.4 状态管理模型** ✅ 已实现
-```dart
-class ServiceDetailState {
-  // 服务数据
-  final Rx<Service?> service = Rx<Service?>(null);
-  final Rx<ServiceDetail?> serviceDetail = Rx<ServiceDetail?>(null);
-  
-  // 加载状态
-  final RxBool isLoading = false.obs;
-  final RxBool isLoadingReviews = false.obs;
-  final RxBool isLoadingProvider = false.obs;
-  
-  // 错误状态
-  final RxString errorMessage = ''.obs;
-  final RxBool hasError = false.obs;
-  
-  // 用户交互状态
-  final RxBool isFavorite = false.obs;
-  final RxString quoteRequestStatus = ''.obs;
-  final RxBool isBooking = false.obs;
-  
-  // 评价相关
-  final RxList<Review> reviews = <Review>[].obs;
-  final RxString currentReviewSort = 'newest'.obs;
-  final RxMap<String, bool> reviewFilters = <String, bool>{}.obs;
-}
-```
+---
 
-### **6.5 专业说明文字模板系统** ✅ 新增
-```dart
-class ProfessionalRemarksTemplates {
-  // 服务商类型枚举
-  static const String CLEANING_SERVICE = 'cleaning';
-  static const String MAINTENANCE_SERVICE = 'maintenance';
-  static const String BEAUTY_SERVICE = 'beauty';
-  static const String EDUCATION_SERVICE = 'education';
-  static const String TRANSPORTATION_SERVICE = 'transportation';
-  static const String FOOD_SERVICE = 'food';
-  static const String HEALTH_SERVICE = 'health';
-  static const String TECHNOLOGY_SERVICE = 'technology';
-  static const String GENERAL_SERVICE = 'general';
+## 📈 **成功指标**
 
-  // 模板方法
-  static List<FeatureItem> getServiceFeatures(String serviceType, Map<String, dynamic>? providerData);
-  static String getQualityAssurance(String serviceType, Map<String, dynamic>? providerData);
-  static String getProfessionalQualification(String serviceType, Map<String, dynamic>? providerData);
-  static String getServiceExperience(String serviceType, Map<String, dynamic>? providerData);
-  static String getServiceHighlights(String serviceType, Map<String, dynamic>? providerData);
-}
+### **用户体验指标**
+- **页面加载时间**: 较当前版本提升30%
+- **用户停留时间**: 增加20%
+- **Tab页点击率**: 行业特定Tab点击率>60%
+- **用户满意度**: NPS评分提升15分
 
-class FeatureItem {
-  final IconData icon;
-  final String title;
-  final String description;
-  final Color color;
-}
-```
+### **业务转化指标**
+- **询价转化率**: 提升25%
+- **订单转化率**: 提升20%
+- **客单价**: 提升15%
+- **复购率**: 提升10%
+
+### **技术质量指标**
+- **系统稳定性**: 可用性>99.9%
+- **响应时间**: P95<500ms
+- **错误率**: <0.1%
+- **内存使用**: 较当前版本降低20%
+
+### **模块化重构成果**
+- **编译状态**: 从❌ 失败到✅ 成功
+- **代码质量**: 大幅提升
+- **维护性**: 显著改善
+- **可扩展性**: 明显增强
 
 ---
 
-## 🚀 **7. 性能优化策略**
+## 🔄 **维护和扩展**
 
-### **7.1 加载优化** 🔄 部分实现
-- **图片懒加载**: 使用CachedNetworkImage
-- **分页加载**: 评价列表分页显示
-- **预加载**: 关键数据预加载
-- **缓存策略**: 本地缓存和内存缓存
+### **日常维护**
+- **内容更新**: 行业模板和配置的定期更新
+- **性能监控**: 关键指标的实时监控和告警
+- **用户反馈**: 持续收集和处理用户意见
 
-### **7.2 渲染优化** ✅ 已实现
-- **Widget复用**: 模块化组件复用
-- **状态管理**: 合理使用GetX状态管理
-- **动画优化**: 使用AnimatedBuilder
-- **布局优化**: 避免过度嵌套
+### **功能扩展**
+- **新行业**: 配置化添加新的行业类型
+- **新功能**: 基于用户需求的功能增强
+- **国际化**: 支持更多语言和地区
 
-### **7.3 网络优化** 🔄 部分实现
-- **请求合并**: 合并相关API请求
-- **错误重试**: 网络请求失败重试机制
-- **离线支持**: 离线数据缓存
-- **压缩传输**: 数据压缩传输
+### **技术演进**
+- **架构优化**: 基于实际使用情况的架构调整
+- **技术升级**: 框架和依赖的定期升级
+- **安全加固**: 持续的安全评估和改进
 
----
+### **公共文件依赖管理**
 
-## 🧪 **8. 测试策略**
+#### **核心依赖文件清单**
+1. **核心UI组件库**: customer_theme_components.dart
+2. **统一日志系统**: app_logger.dart
+3. **国际化支持**: app_localizations.dart
+4. **状态管理框架**: get.dart
+5. **网络请求工具**: url_launcher.dart
+6. **实体模型**: domain/entities/*.dart
+7. **加载状态组件**: service_detail_loading.dart
+8. **工具类**: professional_remarks_templates.dart
 
-### **8.1 单元测试** ⏳ 待实现
-- **数据模型测试**: 验证数据转换逻辑
-- **业务逻辑测试**: 测试核心业务功能
-- **工具函数测试**: 测试辅助函数
-
-### **8.2 集成测试** ⏳ 待实现
-- **API集成测试**: 测试网络请求
-- **数据库测试**: 测试数据持久化
-- **第三方服务测试**: 测试地图、支付等服务
-
-### **8.3 UI测试** ⏳ 待实现
-- **Widget测试**: 测试UI组件
-- **页面测试**: 测试页面交互
-- **端到端测试**: 测试完整用户流程
+#### **版本兼容性要求**
+- **Flutter版本**: >= 3.0.0
+- **GetX版本**: >= 4.6.0
+- **url_launcher版本**: >= 6.0.0
+- **customer_theme_components**: 项目统一版本
+- **app_logger**: 项目统一版本
 
 ---
 
-## 📋 **9. 开发计划**
+## 🌍 **多语言支持**
 
-### **9.1 当前阶段** (1-2周)
-#### **高优先级任务**
-- [x] **修复编译错误** ✅ 已完成
-- [x] **模块化重构** ✅ 已完成
-- [x] **基础功能实现** ✅ 已完成
-- [x] **专业说明文字模板系统** ✅ 已完成
-- [x] **Overview布局优化** ✅ 已完成
-- [ ] **评价系统完善**
-  - [ ] 评价筛选和排序
-  - [ ] 评价交互功能
-  - [ ] 评价撰写功能
-- [ ] **地图功能优化**
-  - [ ] 地图控制功能
-  - [ ] 导航功能
-  - [ ] 服务区域可视化
+### **国际化系统集成**
+- **翻译文件**: 更新app_en.arb和app_zh.arb翻译文件
+- **ServiceDetailPage集成**: 导入AppLocalizations国际化支持
+- **动态切换**: 支持运行时语言切换
 
-#### **中优先级任务**
-- [ ] **UI优化**
-  - [ ] 响应式设计优化
-  - [ ] 动画效果增强
-  - [ ] 用户体验改善
-- [ ] **功能完善**
-  - [ ] 错误处理优化
-  - [ ] 性能优化
-  - [ ] 测试添加
+### **支持的语言**
+- **英文 (en)**: 完整翻译覆盖
+- **中文 (zh)**: 完整翻译覆盖
 
-### **9.2 下一阶段** (2-4周)
-- [ ] **个性化推荐功能**
-- [ ] **图片上传功能**
-- [ ] **实时聊天集成**
-- [ ] **支付流程集成**
-
-### **9.3 长期规划** (1-2月)
-- [ ] **A/B测试**
-- [ ] **数据分析**
-- [ ] **用户反馈集成**
-- [ ] **持续优化**
+### **翻译覆盖范围**
+- **页面标题和Tab标签**: 所有用户可见标题
+- **服务特色和质量保证**: 专业说明文字
+- **联系和预订选项**: 交互功能文本
+- **加载状态和错误消息**: 系统反馈信息
 
 ---
 
-## 📈 **10. 成功指标**
+## 💡 **开发前核心原则**
 
-### **10.1 技术指标**
-- **页面加载时间**: < 3秒 ✅ 已达标
-- **首屏渲染时间**: < 1.5秒 ✅ 已达标
-- **错误率**: < 1% ✅ 已达标
-- **崩溃率**: < 0.1% ✅ 已达标
+### **架构设计原则**
+- **模块化设计原则**: 单一职责、高内聚低耦合、可扩展性、可维护性
+- **分层架构原则**: 表现层、业务逻辑层、数据访问层、领域层
 
-### **10.2 业务指标**
-- **页面停留时间**: > 2分钟 🔄 待优化
-- **转化率**: > 5% 🔄 待优化
-- **用户满意度**: > 4.5/5 🔄 待优化
-- **复购率**: > 20% ⏳ 待实现
+### **用户体验设计原则**
+- **性能优先原则**: 快速响应、渐进式加载、离线支持、错误恢复
+- **交互设计原则**: 一致性、可访问性、反馈及时、容错性
 
-### **10.3 用户体验指标**
-- **页面可用性**: > 99.9% ✅ 已达标
-- **响应时间**: < 100ms ✅ 已达标
-- **用户反馈**: 正面评价 > 80% 🔄 待优化
+### **代码质量原则**
+- **代码规范原则**: 命名规范、注释完整、代码复用、测试覆盖
+- **公共文件使用原则**: 强制使用、禁止重复、版本统一、文档完善
 
----
-
-## 📞 **11. 联系方式**
-
-### **技术支持**
-- **开发团队**: jinbean-dev@example.com
-- **问题反馈**: support@jinbean.com
-- **文档维护**: docs@jinbean.com
-
-### **相关资源**
-- **项目仓库**: https://github.com/jinbean/jinbean-01
-- **API 文档**: https://api.jinbean.com/docs
-- **设计规范**: https://design.jinbean.com
+### **国际化设计原则**
+- **多语言支持原则**: 早期规划、文本外部化、文化适应性、动态切换
+- **翻译管理原则**: 键值规范、上下文完整、版本控制、质量保证
 
 ---
 
-**文档版本**：v2.3  
-**最后更新**：2024-12-19  
-**维护人员**：开发团队  
-**审核状态**：已审核 
+*最后更新: 2025-08-07*  
+*版本: v3.0*  
+*状态: 设计完善，技术实现完成，持续优化中* 

@@ -111,6 +111,11 @@ class ServiceDetailController extends GetxController {
       final mockServiceDetail = ServiceDetail(
         id: 'detail_123',
         serviceId: serviceId,
+        name: {
+          'en': 'Professional Cleaning Service',
+          'zh': '专业清洁服务'
+        },
+        category: 'main',
         pricingType: 'fixed',
         price: 120.0,
         currency: 'USD',

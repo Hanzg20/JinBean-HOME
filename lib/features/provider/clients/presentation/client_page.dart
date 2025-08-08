@@ -90,11 +90,8 @@ class _ClientPageState extends State<ClientPage> {
         builder: (context, child) {
           return ServiceDetailLoading(
             state: _loadingManager.state,
-            loadingMessage: '加载客户数据...',
             errorMessage: _loadingManager.errorMessage,
             onRetry: () => _loadClientsData(),
-            onBack: () => Get.back(),
-            showSkeleton: true,
             child: Column(
               children: [
                 // 搜索筛选区域

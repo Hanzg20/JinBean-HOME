@@ -1,84 +1,143 @@
 import 'package:flutter/material.dart';
+import '../../../../../core/ui/components/customer_theme_components.dart';
 
-/// 服务详情页面通用卡片组件
 class ServiceDetailCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry? padding;
-  final VoidCallback? onTap;
-  final bool showShadow;
+  final EdgeInsetsGeometry? margin;
+  final Color? backgroundColor;
+  final double? elevation;
 
   const ServiceDetailCard({
-    Key? key,
+    super.key,
     required this.child,
     this.padding,
-    this.onTap,
-    this.showShadow = true,
-  }) : super(key: key);
+    this.margin,
+    this.backgroundColor,
+    this.elevation,
+  });
 
   @override
   Widget build(BuildContext context) {
-    Widget card = Card(
-      elevation: showShadow ? 2.0 : 0.0,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Padding(
-        padding: padding ?? const EdgeInsets.all(16.0),
-        child: child,
+    return Container(
+      margin: margin ?? const EdgeInsets.only(bottom: 16),
+      child: CustomerCard(
+        child: Padding(
+          padding: padding ?? const EdgeInsets.all(16),
+          child: child,
+        ),
       ),
     );
-
-    if (onTap != null) {
-      card = InkWell(
-        onTap: onTap,
-        child: card,
-      );
-    }
-
-    return card;
   }
 }
 
-/// 服务详情页面标题卡片
-class ServiceDetailTitleCard extends StatelessWidget {
+class ServiceDetailSection extends StatelessWidget {
   final String title;
-  final Widget? leading;
-  final List<Widget>? actions;
-  final Widget? subtitle;
+  final Widget content;
+  final IconData? icon;
+  final Color? iconColor;
+  final EdgeInsetsGeometry? padding;
+  final VoidCallback? onTap;
 
-  const ServiceDetailTitleCard({
-    Key? key,
+  const ServiceDetailSection({
+    super.key,
     required this.title,
-    this.leading,
-    this.actions,
-    this.subtitle,
-  }) : super(key: key);
+    required this.content,
+    this.icon,
+    this.iconColor,
+    this.padding,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return ServiceDetailCard(
+      padding: padding,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              if (leading != null) ...[
-                leading!,
+              if (icon != null) ...[
+                Icon(
+                  icon,
+                  color: iconColor ?? theme.colorScheme.primary,
+                  size: 20,
+                ),
                 const SizedBox(width: 8),
               ],
               Expanded(
                 child: Text(
                   title,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
-              if (actions != null) ...actions!,
+              if (onTap != null)
+                IconButton(
+                  icon: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onPressed: onTap,
+                ),
             ],
           ),
-          if (subtitle != null) ...[
-            const SizedBox(height: 8),
-            subtitle!,
+          const SizedBox(height: 12),
+          content,
+        ],
+      ),
+    );
+  }
+}
+
+class ServiceDetailRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final IconData? icon;
+  final Color? iconColor;
+
+  const ServiceDetailRow({
+    super.key,
+    required this.label,
+    required this.value,
+    this.icon,
+    this.iconColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (icon != null) ...[
+            Icon(
+              icon,
+              size: 16,
+              color: iconColor ?? theme.colorScheme.primary,
+            ),
+            const SizedBox(width: 8),
           ],
+          SizedBox(
+            width: 120,
+            child: Text(
+              '$label:',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w500,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: theme.textTheme.bodyMedium,
+            ),
+          ),
         ],
       ),
     );

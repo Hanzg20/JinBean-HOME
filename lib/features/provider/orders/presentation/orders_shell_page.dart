@@ -104,11 +104,8 @@ class _OrdersShellPageState extends State<OrdersShellPage> with SingleTickerProv
         builder: (context, child) {
           return ServiceDetailLoading(
             state: _loadingManager.state,
-            loadingMessage: '加载订单数据...',
             errorMessage: _loadingManager.errorMessage,
             onRetry: () => _loadOrdersData(),
-            onBack: () => Get.back(),
-            showSkeleton: true,
             child: TabBarView(
               controller: _tabController,
               children: [

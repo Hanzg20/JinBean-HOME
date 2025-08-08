@@ -38,7 +38,6 @@ import 'package:jinbeanpod_83904710/core/ui/themes/provider_theme.dart';
 // Add service detail imports
 import 'package:jinbeanpod_83904710/features/customer/services/presentation/service_detail_page.dart';
 import 'package:jinbeanpod_83904710/features/customer/services/presentation/service_detail_binding.dart';
-import 'package:jinbeanpod_83904710/features/customer/services/presentation/similar_services_page.dart';
 import 'package:jinbeanpod_83904710/app/provider_shell_app.dart';
 void main() async {
   print('[main] App starting...');
@@ -180,13 +179,6 @@ void main() async {
             GetPage(name: '/simulator', page: () => const SimulatorLauncher()),
             GetPage(name: '/provider_theme_demo', page: () => const ProviderThemeDemoPage()),
             GetPage(name: '/service_detail', page: () => ServiceDetailPageNew(serviceId: Get.parameters['serviceId'] ?? ''), binding: ServiceDetailBinding()),
-            GetPage(
-              name: '/similar_services', 
-              page: () => SimilarServicesPage(
-                currentServiceId: Get.parameters['currentServiceId'] ?? '',
-                categoryId: Get.parameters['categoryId'] ?? '',
-              ),
-            ),
             // 只保留 ProviderShellApp 相关静态路由，其它 provider 插件式页面全部移除
             GetPage(name: '/provider_shell', page: () => const ProviderShellApp()),
             GetPage(name: '/provider_home', page: () => ProviderHomePage(onNavigateToTab: (index) {})),          ],

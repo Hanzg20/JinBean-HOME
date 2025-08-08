@@ -18,9 +18,14 @@ class _OrdersPageState extends State<OrdersPage> {
   // 平台组件状态管理
   final LoadingStateManager _loadingManager = LoadingStateManager();
   
+  // 获取controller
+  late OrdersController controller;
+  
   @override
   void initState() {
     super.initState();
+    // 初始化controller
+    controller = Get.put(OrdersController());
     // 初始化网络状态为在线
     _loadingManager.setOnline();
     // 数据已经在controller中加载完成，直接设置为成功状态
@@ -39,7 +44,7 @@ class _OrdersPageState extends State<OrdersPage> {
       _loadingManager.setLoading();
       
       // 加载订单列表
-      await Get.find<OrdersController>().loadOrders();
+      await controller.loadOrders();
       
       _loadingManager.setSuccess();
     } catch (e) {
@@ -65,11 +70,8 @@ class _OrdersPageState extends State<OrdersPage> {
         builder: (context, child) {
           return ServiceDetailLoading(
             state: _loadingManager.state,
-            loadingMessage: '加载订单数据...',
             errorMessage: _loadingManager.errorMessage,
             onRetry: () => _loadOrdersData(),
-            onBack: () => Get.back(),
-            showSkeleton: true,
             child: Column(
               children: [
                 // 状态筛选栏
@@ -92,7 +94,6 @@ class _OrdersPageState extends State<OrdersPage> {
       builder: (context) {
         final theme = Theme.of(context);
         final colorScheme = theme.colorScheme;
-        final controller = Get.find<OrdersController>();
         
         return Container(
           height: 60,
@@ -375,7 +376,7 @@ class _OrdersPageState extends State<OrdersPage> {
           Icon(icon, size: 14, color: textColor),
           const SizedBox(width: 4),
           Text(
-            Get.find<OrdersController>().getStatusText(status),
+            controller.getStatusText(status),
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w600,
@@ -604,7 +605,7 @@ class _OrdersPageState extends State<OrdersPage> {
   }
 
   void _showOrderDetails(dynamic order) {
-    Get.find<OrdersController>().navigateToOrderDetail(order.id);
+    controller.navigateToOrderDetail(order.id);
   }
 
   void _cancelOrder(dynamic order) {
@@ -620,7 +621,7 @@ class _OrdersPageState extends State<OrdersPage> {
           ElevatedButton(
             onPressed: () {
               Get.back();
-              Get.find<OrdersController>().cancelOrder(order.id);
+              controller.cancelOrder(order.id);
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('Yes, Cancel'),
@@ -672,7 +673,6 @@ class _OrdersPageState extends State<OrdersPage> {
 
   Widget _buildOrdersList() {
     return Obx(() {
-      final controller = Get.find<OrdersController>();
       
       if (controller.orders.isEmpty) {
         return const CustomerEmptyState(

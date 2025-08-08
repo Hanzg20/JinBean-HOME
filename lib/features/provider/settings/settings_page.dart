@@ -81,11 +81,8 @@ class _SettingsPageState extends State<SettingsPage> {
         builder: (context, child) {
           return ServiceDetailLoading(
             state: _loadingManager.state,
-            loadingMessage: '加载设置数据...',
             errorMessage: _loadingManager.errorMessage,
             onRetry: () => _loadSettingsData(),
-            onBack: () => Get.back(),
-            showSkeleton: true,
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: Column(

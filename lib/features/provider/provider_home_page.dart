@@ -163,11 +163,8 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
         builder: (context, child) {
           return ServiceDetailLoading(
             state: _loadingManager.state,
-            loadingMessage: '加载仪表板数据...',
             errorMessage: _loadingManager.errorMessage,
             onRetry: () => _loadDashboardData(),
-            onBack: () => Get.back(),
-            showSkeleton: true,
             child: _buildDashboardContent(),
           );
         },

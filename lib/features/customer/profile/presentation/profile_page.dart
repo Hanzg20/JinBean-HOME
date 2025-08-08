@@ -67,11 +67,8 @@ class _ProfilePageState extends State<ProfilePage> {
         builder: (context, child) {
           return ServiceDetailLoading(
             state: _loadingManager.state,
-            loadingMessage: '加载用户资料...',
             errorMessage: _loadingManager.errorMessage,
             onRetry: () => _loadProfileData(),
-            onBack: () => Get.back(),
-            showSkeleton: true,
             child: SingleChildScrollView(
               child: Column(
                 children: [
