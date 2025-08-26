@@ -19,8 +19,8 @@ class CustomerThemeComponents {
     
     final colors = gradientColors ?? [
       colorScheme.primary,
-      colorScheme.primary.withOpacity(0.7),
-      colorScheme.primary.withOpacity(0.5),
+      colorScheme.primary.withValues(alpha: 0.7),
+      colorScheme.primary.withValues(alpha: 0.5),
     ];
     
     return Container(
@@ -47,7 +47,7 @@ class CustomerThemeComponents {
               width: 120,
               height: 120,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.15),
+                color: Colors.white.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(60),
               ),
             ),
@@ -59,7 +59,7 @@ class CustomerThemeComponents {
               width: 60,
               height: 60,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.white.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(30),
               ),
             ),
@@ -71,7 +71,7 @@ class CustomerThemeComponents {
               width: 140,
               height: 140,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.08),
+                color: Colors.white.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(70),
               ),
             ),
@@ -86,10 +86,10 @@ class CustomerThemeComponents {
                   width: 45,
                   height: 45,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(22.5),
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.3),
+                      color: Colors.white.withValues(alpha: 0.3),
                       width: 2,
                     ),
                   ),
@@ -123,7 +123,7 @@ class CustomerThemeComponents {
                       Text(
                         subtitle,
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          color: Colors.white.withOpacity(0.95),
+                          color: Colors.white.withValues(alpha: 0.95),
                           fontSize: 13,
                           shadows: [
                             Shadow(
@@ -173,7 +173,7 @@ class CustomerThemeComponents {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.15),
+              color: Colors.black.withValues(alpha: 0.15),
               blurRadius: 15,
               offset: const Offset(0, 6),
               spreadRadius: 2,
@@ -188,7 +188,7 @@ class CustomerThemeComponents {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: colorScheme.primary.withOpacity(0.1),
+                  color: colorScheme.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Icon(
@@ -223,7 +223,7 @@ class CustomerThemeComponents {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: Colors.grey.withOpacity(0.1),
+                      color: Colors.grey.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: IconButton(
@@ -239,7 +239,7 @@ class CustomerThemeComponents {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: colorScheme.primary.withOpacity(0.1),
+                      color: colorScheme.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: IconButton(
@@ -296,9 +296,9 @@ class CustomerThemeComponents {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: colorScheme.primary.withOpacity(0.1),
+                color: colorScheme.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: colorScheme.primary.withOpacity(0.2)),
+                border: Border.all(color: colorScheme.primary.withValues(alpha: 0.2)),
               ),
               child: TextButton(
                 onPressed: onActionTap,
@@ -347,7 +347,7 @@ class CustomerThemeComponents {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha: 0.08),
               blurRadius: 12,
               offset: const Offset(0, 4),
               spreadRadius: 1,
@@ -364,7 +364,7 @@ class CustomerThemeComponents {
                 width: 35,
                 height: 35,
                 decoration: BoxDecoration(
-                  color: colorScheme.primary.withOpacity(0.1),
+                  color: colorScheme.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(17.5),
                 ),
               ),
@@ -376,7 +376,7 @@ class CustomerThemeComponents {
                 width: 25,
                 height: 25,
                 decoration: BoxDecoration(
-                  color: colorScheme.primary.withOpacity(0.05),
+                  color: colorScheme.primary.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(12.5),
                 ),
               ),
@@ -397,13 +397,13 @@ class CustomerThemeComponents {
                         end: Alignment.bottomRight,
                         colors: [
                           colorScheme.primary,
-                          colorScheme.primary.withOpacity(0.8),
+                          colorScheme.primary.withValues(alpha: 0.8),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: colorScheme.primary.withOpacity(0.3),
+                          color: colorScheme.primary.withValues(alpha: 0.3),
                           blurRadius: 10,
                           offset: const Offset(0, 3),
                         ),
@@ -461,7 +461,7 @@ class CustomerThemeComponents {
       margin: const EdgeInsets.only(right: 16),
       child: Card(
         elevation: 4,
-        shadowColor: Colors.black.withOpacity(0.1),
+        shadowColor: Colors.black.withValues(alpha: 0.1),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(12),
@@ -502,7 +502,7 @@ class CustomerThemeComponents {
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                                 colors: [
-                                  colorScheme.primary.withOpacity(0.3),
+                                  colorScheme.primary.withValues(alpha: 0.3),
                                   colorScheme.primary,
                                 ],
                               ),
@@ -595,7 +595,7 @@ class CustomerThemeComponents {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
-                              color: Colors.amber.withOpacity(0.1),
+                              color: Colors.amber.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Row(
@@ -618,7 +618,7 @@ class CustomerThemeComponents {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: Colors.grey.withOpacity(0.1),
+                                color: Colors.grey.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Row(
@@ -646,7 +646,7 @@ class CustomerThemeComponents {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: colorScheme.primary.withOpacity(0.1),
+                              color: colorScheme.primary.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
@@ -702,7 +702,7 @@ class CustomerThemeComponents {
               width: containerSize,
               height: containerSize,
               decoration: BoxDecoration(
-                color: colorScheme.primary.withOpacity(0.1),
+                color: colorScheme.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(containerSize / 2),
               ),
               child: CircularProgressIndicator(
@@ -744,7 +744,7 @@ class CustomerThemeComponents {
             width: iconSize,
             height: iconSize,
             decoration: BoxDecoration(
-              color: colorScheme.primary.withOpacity(0.1),
+              color: colorScheme.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(iconSize / 2),
             ),
             child: Icon(
@@ -777,7 +777,7 @@ class CustomerThemeComponents {
               borderRadius: BorderRadius.circular(25),
               boxShadow: [
                 BoxShadow(
-                  color: colorScheme.primary.withOpacity(0.3),
+                  color: colorScheme.primary.withValues(alpha: 0.3),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),

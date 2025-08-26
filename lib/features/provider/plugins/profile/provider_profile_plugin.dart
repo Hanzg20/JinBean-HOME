@@ -1,9 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/core/plugin_management/app_plugin.dart';
-import 'package:jinbeanpod_83904710/core/plugin_management/plugin_manager.dart';
 import 'package:jinbeanpod_83904710/features/customer/auth/presentation/auth_controller.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProviderProfilePlugin extends AppPlugin {
   @override
@@ -108,7 +106,7 @@ class ProviderProfilePage extends StatelessWidget {
                             // 登出
                             await Get.find<AuthController>().logout();
                           } catch (e) {
-                            print('[ProviderProfilePage] Error signing out: $e');
+                            AppLogger.info('[ProviderProfilePage] Error signing out: $e');
                             Get.snackbar(
                               'Error',
                               'Failed to sign out. Please try again.',

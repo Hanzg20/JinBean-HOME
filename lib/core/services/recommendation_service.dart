@@ -1,4 +1,4 @@
-// 推荐系统服务层
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';// 推荐系统服务层
 // 实现推荐算法、用户行为分析、A/B测试等功能
 
 import 'package:get/get.dart';
@@ -19,7 +19,7 @@ class RecommendationService extends GetxService {
           .from('user_behaviors')
           .insert(behavior.toJson());
     } catch (e) {
-      print('Error recording user behavior: $e');
+      AppLogger.info('Error recording user behavior: $e');
       throw Exception('Failed to record user behavior: $e');
     }
   }
@@ -32,7 +32,7 @@ class RecommendationService extends GetxService {
           .from('user_behaviors')
           .insert(behaviorsJson);
     } catch (e) {
-      print('Error recording user behaviors: $e');
+      AppLogger.info('Error recording user behaviors: $e');
       throw Exception('Failed to record user behaviors: $e');
     }
   }
@@ -61,7 +61,7 @@ class RecommendationService extends GetxService {
           .map((json) => UserBehavior.fromJson(json))
           .toList();
     } catch (e) {
-      print('Error fetching user behaviors: $e');
+      AppLogger.info('Error fetching user behaviors: $e');
       throw Exception('Failed to fetch user behaviors: $e');
     }
   }
@@ -84,7 +84,7 @@ class RecommendationService extends GetxService {
       if (e.toString().contains('No rows found')) {
         return null;
       }
-      print('Error fetching user profile: $e');
+      AppLogger.info('Error fetching user profile: $e');
       throw Exception('Failed to fetch user profile: $e');
     }
   }
@@ -96,7 +96,7 @@ class RecommendationService extends GetxService {
           .from('user_profiles')
           .upsert(profile.toJson());
     } catch (e) {
-      print('Error updating user profile: $e');
+      AppLogger.info('Error updating user profile: $e');
       throw Exception('Failed to update user profile: $e');
     }
   }
@@ -183,7 +183,7 @@ class RecommendationService extends GetxService {
         lastUpdated: DateTime.now(),
       );
     } catch (e) {
-      print('Error calculating user profile: $e');
+      AppLogger.info('Error calculating user profile: $e');
       throw Exception('Failed to calculate user profile: $e');
     }
   }
@@ -211,7 +211,7 @@ class RecommendationService extends GetxService {
           return await _getHybridRecommendations(request);
       }
     } catch (e) {
-      print('Error getting recommendations: $e');
+      AppLogger.info('Error getting recommendations: $e');
       throw Exception('Failed to get recommendations: $e');
     }
   }
@@ -262,7 +262,7 @@ class RecommendationService extends GetxService {
         generatedAt: DateTime.now(),
       );
     } catch (e) {
-      print('Error getting collaborative recommendations: $e');
+      AppLogger.info('Error getting collaborative recommendations: $e');
       throw Exception('Failed to get collaborative recommendations: $e');
     }
   }
@@ -329,7 +329,7 @@ class RecommendationService extends GetxService {
         generatedAt: DateTime.now(),
       );
     } catch (e) {
-      print('Error getting content-based recommendations: $e');
+      AppLogger.info('Error getting content-based recommendations: $e');
       throw Exception('Failed to get content-based recommendations: $e');
     }
   }
@@ -388,7 +388,7 @@ class RecommendationService extends GetxService {
         generatedAt: DateTime.now(),
       );
     } catch (e) {
-      print('Error getting hybrid recommendations: $e');
+      AppLogger.info('Error getting hybrid recommendations: $e');
       throw Exception('Failed to get hybrid recommendations: $e');
     }
   }
@@ -432,7 +432,7 @@ class RecommendationService extends GetxService {
         generatedAt: DateTime.now(),
       );
     } catch (e) {
-      print('Error getting popularity recommendations: $e');
+      AppLogger.info('Error getting popularity recommendations: $e');
       throw Exception('Failed to get popularity recommendations: $e');
     }
   }
@@ -455,7 +455,7 @@ class RecommendationService extends GetxService {
       if (e.toString().contains('No rows found')) {
         return null;
       }
-      print('Error fetching AB test: $e');
+      AppLogger.info('Error fetching AB test: $e');
       throw Exception('Failed to fetch AB test: $e');
     }
   }
@@ -479,7 +479,7 @@ class RecommendationService extends GetxService {
       
       return variant;
     } catch (e) {
-      print('Error getting user variant: $e');
+      AppLogger.info('Error getting user variant: $e');
       return null;
     }
   }
@@ -504,7 +504,7 @@ class RecommendationService extends GetxService {
             'recorded_at': DateTime.now().toIso8601String(),
           });
     } catch (e) {
-      print('Error recording AB test metric: $e');
+      AppLogger.info('Error recording AB test metric: $e');
       // 不抛出异常，避免影响用户体验
     }
   }
@@ -590,7 +590,7 @@ class RecommendationService extends GetxService {
           .toList()
         ..sort((a, b) => (b['similarity'] as double).compareTo(a['similarity'] as double));
     } catch (e) {
-      print('Error finding similar users: $e');
+      AppLogger.info('Error finding similar users: $e');
       return [];
     }
   }

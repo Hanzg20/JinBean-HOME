@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:crypto/crypto.dart';
@@ -33,12 +33,12 @@ class AuthController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    print('AuthController initialized');
+    AppLogger.info('AuthController initialized');
   }
 
   @override
   void onClose() {
-    print('[AuthController] onClose called.');
+    AppLogger.info('[AuthController] onClose called.');
     emailController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
@@ -53,19 +53,19 @@ class AuthController extends GetxController {
   }
 
   Future<bool> login() async {
-    print('[AuthController] login called.');
+    AppLogger.info('[AuthController] login called.');
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
       errorMessage.value = 'Please enter email and password';
-      print('[AuthController] Login: Email or password empty.');
+      AppLogger.info('[AuthController] Login: Email or password empty.');
       return false;
     }
 
     isLoading.value = true;
     errorMessage.value = '';
-    print('[AuthController] Attempting login...');
+    AppLogger.info('[AuthController] Attempting login...');
     try {
       final AuthResponse response =
           await Supabase.instance.client.auth.signInWithPassword(
@@ -74,14 +74,14 @@ class AuthController extends GetxController {
       );
 
       if (response.user != null) {
-        print('[AuthController] Login successful for user: ${response.user!.id}');
+        AppLogger.info('[AuthController] Login successful for user: ${response.user!.id}');
         
         // 立即检查并打印 provider 角色状态
         try {
           final providerStatus = await ProviderIdentityService.getProviderStatus();
-          print('[AuthController] 登录后 provider 角色状态: $providerStatus');
+          AppLogger.info('[AuthController] 登录后 provider 角色状态: $providerStatus');
         } catch (e) {
-          print('[AuthController] 获取 provider 角色状态时出错: $e');
+          AppLogger.info('[AuthController] 获取 provider 角色状态时出错: $e');
         }
         
         // 拉取用户 profile
@@ -90,43 +90,43 @@ class AuthController extends GetxController {
             .select('role')
             .eq('id', response.user!.id)
             .maybeSingle();
-        print('[AuthController] User profile fetched: $profile');
+        AppLogger.info('[AuthController] User profile fetched: $profile');
         final String userProfileRoleFromDb = profile?['role'] ?? 'customer';
         userProfileRole.value = userProfileRoleFromDb;
-        print('[AuthController] User profile role set to: $userProfileRoleFromDb');
+        AppLogger.info('[AuthController] User profile role set to: $userProfileRoleFromDb');
         
         // 如果用户是customer+provider，不在这里设置finalRole，让login_page处理
         if (userProfileRoleFromDb == 'customer+provider') {
-          print('[AuthController] User is customer+provider, will be handled by login_page');
+          AppLogger.info('[AuthController] User is customer+provider, will be handled by login_page');
           // 不设置PluginManager的角色，让login_page处理角色选择
           return true;
         } else if (userProfileRoleFromDb == 'provider') {
-          print('[AuthController] User is provider, setting PluginManager role');
+          AppLogger.info('[AuthController] User is provider, setting PluginManager role');
           Get.find<PluginManager>().currentRole.value = 'provider';
           return true;
         } else {
           // 单一角色用户，直接设置角色
           String finalRole = userProfileRoleFromDb;
         Get.find<PluginManager>().currentRole.value = finalRole;
-          print('[AuthController] User is single role: $finalRole, setting PluginManager role');
+          AppLogger.info('[AuthController] User is single role: $finalRole, setting PluginManager role');
         return true;
         }
       } else {
         errorMessage.value = 'Login failed. Please check your credentials.';
-        print('[AuthController] Login failed: User is null.');
+        AppLogger.info('[AuthController] Login failed: User is null.');
         return false;
       }
     } on AuthException catch (e) {
       errorMessage.value = e.message;
-      print('[AuthController] Login AuthException: ${e.message}');
+      AppLogger.info('[AuthController] Login AuthException: ${e.message}');
       return false;
     } catch (e) {
       errorMessage.value = 'An unexpected error occurred. Please try again.';
-      print('[AuthController] Login unexpected error: $e');
+      AppLogger.info('[AuthController] Login unexpected error: $e');
       return false;
     } finally {
       isLoading.value = false;
-      print('[AuthController] Login process finished.');
+      AppLogger.info('[AuthController] Login process finished.');
     }
   }
 
@@ -199,7 +199,7 @@ class AuthController extends GetxController {
               .from('user_profiles')
               .insert(profileInsert);
           if (insertResp.error != null) {
-            print(
+            AppLogger.info(
                 'Supabase insert error: ${insertResp.error!.message}, details: ${insertResp.error!.details}');
             errorMessage.value =
                 'Profile creation failed: ${insertResp.error!.message}';
@@ -208,21 +208,21 @@ class AuthController extends GetxController {
                 snackPosition: SnackPosition.BOTTOM);
             return;
           }
-          print('User profile created successfully for ${user.id}');
+          AppLogger.info('User profile created successfully for ${user.id}');
           // 注册成功后直接跳转客户主页面
           Get.offAllNamed('/main_shell');
         } catch (profileError) {
-          print('Error creating user profile: $profileError');
+          AppLogger.info('Error creating user profile: $profileError');
           Get.snackbar('Profile Error',
               'Failed to create user profile. Please try again.',
               snackPosition: SnackPosition.BOTTOM);
         }
       } else {
-        print('Registration failed: user is null');
+        AppLogger.info('Registration failed: user is null');
         errorMessage.value = 'Registration failed: user is null';
       }
     } catch (e) {
-      print('Registration error: $e');
+      AppLogger.info('Registration error: $e');
       errorMessage.value = 'Registration error: $e';
     } finally {
       isLoading.value = false;
@@ -231,14 +231,14 @@ class AuthController extends GetxController {
 
   // Modified to accept a Supabase User object
   Future<void> _handleSuccessfulLogin(User user) async {
-    print('[AuthController] _handleSuccessfulLogin called for user: ${user.id}');
+    AppLogger.info('[AuthController] _handleSuccessfulLogin called for user: ${user.id}');
     try {
       // Store user ID for session persistence
       await _storage.write('userId', user.id);
-      print('[AuthController] userId stored: ${user.id}');
+      AppLogger.info('[AuthController] userId stored: ${user.id}');
 
       // Fetch user profile data
-      print('[AuthController] Fetching user profile...');
+      AppLogger.info('[AuthController] Fetching user profile...');
       final profileResponse = await Supabase.instance.client
           .from('user_profiles')
           .select()
@@ -246,22 +246,22 @@ class AuthController extends GetxController {
           .maybeSingle();
 
       if (profileResponse != null) {
-        print('[AuthController] User profile fetched: $profileResponse');
+        AppLogger.info('[AuthController] User profile fetched: $profileResponse');
         final Map<String, dynamic> cleanedProfile = Map.from(profileResponse);
         // Ensure the fetched role is respected if user has an existing role
         final String userProfileRoleFromDb = cleanedProfile['role'] ?? 'customer';
         userProfileRole.value = userProfileRoleFromDb; // Update the observable with fetched role
-        print('[AuthController] userProfileRoleFromDb: $userProfileRoleFromDb');
+        AppLogger.info('[AuthController] userProfileRoleFromDb: $userProfileRoleFromDb');
         
         // Use the explicitly selected role if available, otherwise use profile role
         // This logic allows the user to select 'customer' or 'provider' even if their DB role is 'customer+provider'
         // or to choose the specific role if they are 'customer+provider' and haven't selected yet.
         final String finalRole = selectedLoginRole.value;
-        print('[AuthController] selectedLoginRole: $selectedLoginRole, finalRole for PluginManager: $finalRole');
+        AppLogger.info('[AuthController] selectedLoginRole: $selectedLoginRole, finalRole for PluginManager: $finalRole');
 
         // Update PluginManager's current role
         Get.find<PluginManager>().currentRole.value = finalRole;
-        print('User ${user.id} logged in with final role: $finalRole');
+        AppLogger.info('User ${user.id} logged in with final role: $finalRole');
 
         // Ensure avatar_url is an empty string if it's null or an empty string from the database
         if (cleanedProfile.containsKey('avatar_url') &&
@@ -269,29 +269,29 @@ class AuthController extends GetxController {
                 cleanedProfile['avatar_url'] == '')) {
           cleanedProfile['avatar_url'] = ''; // Always store as empty string
         }
-        print(
+        AppLogger.info(
             '[AuthController] _handleSuccessfulLogin: Cleaned avatar_url before storing: ${cleanedProfile['avatar_url']}');
 
         // Store profile data in local storage for quick access
         await _storage.write('userProfile', cleanedProfile);
-        print('[AuthController] User profile stored locally.');
-        print('User profile loaded successfully');
+        AppLogger.info('[AuthController] User profile stored locally.');
+        AppLogger.info('User profile loaded successfully');
       } else {
-        print('[AuthController] No user profile found. Defaulting role to customer.');
+        AppLogger.info('[AuthController] No user profile found. Defaulting role to customer.');
       }
       final profileController = Get.find<ProfileController>();
       profileController.loadUserProfile();
       // 登录成功后直接根据 UI 选择的角色跳转主页面
       final String selectedRole = selectedLoginRole.value;
       Get.find<PluginManager>().currentRole.value = selectedRole;
-      print('[AuthController] 跳转主页面，selectedRole: $selectedRole');
+      AppLogger.info('[AuthController] 跳转主页面，selectedRole: $selectedRole');
       if (selectedRole == 'provider') {
         Get.offAllNamed('/provider_home');
       } else {
         Get.offAllNamed('/main_shell');
       }
     } catch (e) {
-      print('[AuthController] Error in _handleSuccessfulLogin: $e');
+      AppLogger.info('[AuthController] Error in _handleSuccessfulLogin: $e');
       errorMessage.value = 'Failed to process login: $e';
     }
   }
@@ -320,9 +320,9 @@ class AuthController extends GetxController {
           },
         },
       });
-      print('Default profile created for user ${user.id}');
+      AppLogger.info('Default profile created for user ${user.id}');
     } catch (e) {
-      print('Error creating default profile: $e');
+      AppLogger.info('Error creating default profile: $e');
     }
   }
 
@@ -332,7 +332,7 @@ class AuthController extends GetxController {
       // This ensures any active UI listeners bound to ProfileController see safe empty values
       if (Get.isRegistered<ProfileController>()) {
         final profileController = Get.find<ProfileController>();
-        print('[AuthController] logout: Resetting ProfileController states.');
+        AppLogger.info('[AuthController] logout: Resetting ProfileController states.');
         profileController.userName.value = '';
         profileController.memberSince.value = '';
         profileController.avatarUrl.value = '';
@@ -344,10 +344,10 @@ class AuthController extends GetxController {
         profileController.isPhoneVerified.value = false;
         profileController.isLoading.value =
             false; // Set to false, as we are not loading.
-        print(
+        AppLogger.info(
             '[AuthController] logout: ProfileController avatarUrl after reset: ${profileController.avatarUrl.value}');
       } else {
-        print('[AuthController] logout: ProfileController not registered.');
+        AppLogger.info('[AuthController] logout: ProfileController not registered.');
       }
 
       // Step 2: Dismiss any open dialogs or bottom sheets
@@ -358,32 +358,32 @@ class AuthController extends GetxController {
       // Step 3: Clear stored user ID and user profile from local storage
       await _storage.remove('userId');
       await _storage.remove('userProfile');
-      print('Local storage userId and userProfile cleared.');
+      AppLogger.info('Local storage userId and userProfile cleared.');
       
       // Step 4: Sign out from Supabase
       await Supabase.instance.client.auth.signOut();
-      print('User signed out successfully from Supabase.');
+      AppLogger.info('User signed out successfully from Supabase.');
 
       // Step 5: Give a small delay for UI repainting and then navigate
       await Future.delayed(const Duration(milliseconds: 500));
 
       Get.offAllNamed('/auth');
     } catch (e, s) { // Added StackTrace s
-      print('Logout error: $e\nStackTrace: $s'); // Print StackTrace
+      AppLogger.info('Logout error: $e\nStackTrace: $s'); // Print StackTrace
       Get.snackbar('Error', 'Failed to logout. Please try again.');
     }
   }
 
   // Social login methods remain as placeholders for now
   Future<void> signInWithGoogle() async {
-    print('Google Sign In button pressed (functionality disabled for now)');
+    AppLogger.info('Google Sign In button pressed (functionality disabled for now)');
     errorMessage.value = 'Google Sign-In is not yet implemented.';
     // await Supabase.instance.client.auth.signInWithOAuth(OAuthProvider.google);
     return;
   }
 
   Future<void> signInWithApple() async {
-    print('Apple Sign In button pressed (functionality disabled for now)');
+    AppLogger.info('Apple Sign In button pressed (functionality disabled for now)');
     errorMessage.value = 'Apple Sign-In is not yet implemented.';
     // await Supabase.instance.client.auth.signInWithOAuth(OAuthProvider.apple);
     return;
@@ -415,14 +415,14 @@ class AuthController extends GetxController {
             .eq('id', user.id);
         
         if (updateResp.error != null) {
-          print('[AuthController] Error updating user role: ${updateResp.error!.message}');
+          AppLogger.info('[AuthController] Error updating user role: ${updateResp.error!.message}');
         } else {
-          print('[AuthController] User role updated to customer+provider for ${user.id}');
+          AppLogger.info('[AuthController] User role updated to customer+provider for ${user.id}');
           userProfileRole.value = 'customer+provider';
         }
       }
     } catch (e) {
-      print('[AuthController] Error setting user as customer+provider: $e');
+      AppLogger.info('[AuthController] Error setting user as customer+provider: $e');
     }
   }
 }

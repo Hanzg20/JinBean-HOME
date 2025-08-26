@@ -125,7 +125,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
         'Success',
         'Profile updated successfully',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: JinBeanColors.success.withOpacity(0.1),
+        backgroundColor: JinBeanColors.success.withValues(alpha: 0.1),
         colorText: JinBeanColors.success,
       );
       
@@ -224,7 +224,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
             // 头像
             CircleAvatar(
               radius: 40,
-              backgroundColor: JinBeanColors.primary.withOpacity(0.1),
+              backgroundColor: JinBeanColors.primary.withValues(alpha: 0.1),
               child: Icon(
                 Icons.person,
                 size: 40,

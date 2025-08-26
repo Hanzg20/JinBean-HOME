@@ -1,35 +1,36 @@
 import 'package:flutter/material.dart';
 import '../provider_registration_controller.dart';
 import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
+import 'package:jinbeanpod_83904710/l10n/app_localizations_en.dart';
 
 class StepConfirm extends StatelessWidget {
   final ProviderRegistrationController controller;
-  final VoidCallback onSubmit;
-  const StepConfirm(
-      {super.key, required this.controller, required this.onSubmit});
+  const StepConfirm({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context) ?? AppLocalizationsEn();
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text((AppLocalizations.of(context) ?? AppLocalizationsEn()).confirmInformation, style: TextStyle(fontWeight: FontWeight.bold)),
-        // 展示所有已填写信息，实际可用更美观的方式
-        Text('${(AppLocalizations.of(context) ?? AppLocalizationsEn()).providerType}: ${controller.providerType}'),
-        Text('${(AppLocalizations.of(context) ?? AppLocalizationsEn()).name}: ${controller.displayName ?? ''}'),
-        Text('${(AppLocalizations.of(context) ?? AppLocalizationsEn()).phoneNumber}: ${controller.phone ?? ''}'),
-        Text('${(AppLocalizations.of(context) ?? AppLocalizationsEn()).email}: ${controller.email ?? ''}'),
-        Text('${(AppLocalizations.of(context) ?? AppLocalizationsEn()).address}: ${controller.addressInput ?? ''}'),
-        Text('${(AppLocalizations.of(context) ?? AppLocalizationsEn()).serviceCategories}: ${controller.serviceCategories.join(", ")}'),
-        Text('${(AppLocalizations.of(context) ?? AppLocalizationsEn()).serviceAreas}: ${controller.serviceAreas.join(", ")}'),
-        Text('${(AppLocalizations.of(context) ?? AppLocalizationsEn()).basePrice}: ${controller.basePrice ?? ''}'),
-        Text('${(AppLocalizations.of(context) ?? AppLocalizationsEn()).certificationFilesCount}: ${controller.certificationFiles.length}'),
-        Text(
-            '${(AppLocalizations.of(context) ?? AppLocalizationsEn()).complianceInfo}: GST/HST: ${controller.hasGstHst}, BN: ${controller.bnNumber ?? ''}'),
+        Text(localizations.confirmInformation, style: TextStyle(fontWeight: FontWeight.bold)),
+        Text('${localizations.providerType}: ${controller.providerType}'),
+        Text('${localizations.name}: ${controller.displayName ?? ''}'),
+        Text('${localizations.phoneNumber}: ${controller.phone ?? ''}'),
+        Text('${localizations.email}: ${controller.email ?? ''}'),
+        Text('${localizations.address}: ${controller.addressInput ?? ''}'),
+        Text('${localizations.serviceCategories}: ${controller.serviceCategories.join(", ")}'),
+        Text('${localizations.serviceAreas}: ${controller.serviceAreas.join(", ")}'),
+        Text('${localizations.basePrice}: ${controller.basePrice ?? ''}'),
+        Text('${localizations.certificationFilesCount}: ${controller.certificationFiles.length}'),
+        Text('${localizations.complianceInfo}: GST/HST: ${controller.hasGstHst}, BN: ${controller.bnNumber ?? ''}'),
         const SizedBox(height: 16),
         ElevatedButton(
-          onPressed: onSubmit,
-          child: Text((AppLocalizations.of(context) ?? AppLocalizationsEn()).submitRegistration),
+          onPressed: () {
+            // TODO: 提交注册
+          },
+          child: Text(localizations.submitRegistration),
         ),
       ],
     );

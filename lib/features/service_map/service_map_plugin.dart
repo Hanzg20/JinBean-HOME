@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/core/plugin_management/app_plugin.dart';
 import 'service_map_page.dart';
@@ -36,11 +36,11 @@ class ServiceMapPlugin implements AppPlugin {
 
   @override
   void init() {
-    print('ServiceMapPlugin initialized!');
+    AppLogger.info('ServiceMapPlugin initialized!');
   }
 
   @override
   void dispose() {
-    print('ServiceMapPlugin disposed!');
+    AppLogger.info('ServiceMapPlugin disposed!');
   }
 } 

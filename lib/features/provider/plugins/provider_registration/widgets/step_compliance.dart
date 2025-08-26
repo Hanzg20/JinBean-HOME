@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../provider_registration_controller.dart';
 import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
+import 'package:jinbeanpod_83904710/l10n/app_localizations_en.dart';
 
 class StepCompliance extends StatelessWidget {
   final ProviderRegistrationController controller;
@@ -8,38 +9,35 @@ class StepCompliance extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context) ?? AppLocalizationsEn();
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text((AppLocalizations.of(context) ?? AppLocalizationsEn()).complianceInformation, style: TextStyle(fontWeight: FontWeight.bold)),
-        SwitchListTile(
-          title: Text((AppLocalizations.of(context) ?? AppLocalizationsEn()).hasGstHst),
-          value: controller.hasGstHst ?? false,
-          onChanged: (v) => controller.hasGstHst = v,
+        Text(localizations.complianceInformation, style: TextStyle(fontWeight: FontWeight.bold)),
+        CheckboxListTile(
+          title: Text(localizations.hasGstHst),
+          value: controller.hasGstHst,
+          onChanged: (value) => controller.hasGstHst = value ?? false,
         ),
         TextField(
-          decoration: InputDecoration(labelText: (AppLocalizations.of(context) ?? AppLocalizationsEn()).bnNumber),
-          onChanged: (v) => controller.bnNumber = v,
+          decoration: InputDecoration(labelText: localizations.bnNumber),
+          onChanged: (value) => controller.bnNumber = value,
         ),
         TextField(
-          decoration: InputDecoration(labelText: (AppLocalizations.of(context) ?? AppLocalizationsEn()).annualIncomeEstimate),
+          decoration: InputDecoration(labelText: localizations.annualIncomeEstimate),
           keyboardType: TextInputType.number,
-          onChanged: (v) =>
-              controller.annualIncomeEstimate = double.tryParse(v),
+          onChanged: (value) => controller.annualIncomeEstimate = double.tryParse(value),
         ),
         TextField(
-          decoration: InputDecoration(labelText: (AppLocalizations.of(context) ?? AppLocalizationsEn()).licenseNumber),
-          onChanged: (v) => controller.licenseNumber = v,
+          decoration: InputDecoration(labelText: localizations.licenseNumber),
+          onChanged: (value) => controller.licenseNumber = value,
         ),
+        Text(localizations.taxComplianceNotice, style: TextStyle(fontSize: 12, color: Colors.grey)),
         CheckboxListTile(
-          title: Text((AppLocalizations.of(context) ?? AppLocalizationsEn()).taxComplianceNotice),
-          value: controller.taxStatusNoticeShown,
-          onChanged: (v) => controller.taxStatusNoticeShown = v ?? false,
-        ),
-        CheckboxListTile(
-          title: Text((AppLocalizations.of(context) ?? AppLocalizationsEn()).taxReportUploaded),
+          title: Text(localizations.taxReportUploaded),
           value: controller.taxReportAvailable,
-          onChanged: (v) => controller.taxReportAvailable = v ?? false,
+          onChanged: (value) => controller.taxReportAvailable = value ?? false,
         ),
       ],
     );

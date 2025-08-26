@@ -15,7 +15,7 @@ class AuthPage extends GetView<AuthController> {
             end: Alignment.bottomCenter,
             colors: [
               Theme.of(context).colorScheme.primary,
-              Theme.of(context).colorScheme.primary.withOpacity(0.8),
+              Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
               Colors.white,
             ],
             stops: const [0.0, 0.6, 1.0],
@@ -66,7 +66,7 @@ class AuthPage extends GetView<AuthController> {
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
@@ -98,7 +98,7 @@ class AuthPage extends GetView<AuthController> {
           'Your trusted platform for home services',
           style: TextStyle(
             fontSize: 16,
-            color: Colors.white.withOpacity(0.9),
+            color: Colors.white.withValues(alpha: 0.9),
           ),
           textAlign: TextAlign.center,
         ),

@@ -107,7 +107,7 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
       ];
     } catch (e) {
       AppLogger.error('Error loading recent orders: $e', tag: 'ProviderHomePage');
-      throw e;
+      rethrow;
     }
   }
   
@@ -133,7 +133,7 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
       ];
     } catch (e) {
       AppLogger.error('Error loading top services: $e', tag: 'ProviderHomePage');
-      throw e;
+      rethrow;
     }
   }
   
@@ -150,7 +150,7 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
       };
     } catch (e) {
       AppLogger.error('Error loading weekly stats: $e', tag: 'ProviderHomePage');
-      throw e;
+      rethrow;
     }
   }
 
@@ -218,7 +218,7 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: JinBeanColors.shadow.withOpacity(0.1),
+            color: JinBeanColors.shadow.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -313,7 +313,7 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: JinBeanColors.primary.withOpacity(0.1),
+            color: JinBeanColors.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(16),
           ),
           child: Row(
@@ -348,7 +348,7 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
         ),
         boxShadow: [
           BoxShadow(
-            color: JinBeanColors.shadow.withOpacity(0.2),
+            color: JinBeanColors.shadow.withValues(alpha: 0.2),
             offset: Offset(1.1, 1.1),
             blurRadius: 10.0,
           ),
@@ -432,7 +432,7 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
                     ],
                   ),
                 ),
-                Container(
+                SizedBox(
                   width: 80,
                   height: 80,
                   child: Stack(
@@ -440,7 +440,7 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
                       CircularProgressIndicator(
                         value: 0.7,
                         strokeWidth: 8,
-                        backgroundColor: JinBeanColors.primary.withOpacity(0.2),
+                        backgroundColor: JinBeanColors.primary.withValues(alpha: 0.2),
                         valueColor: AlwaysStoppedAnimation<Color>(JinBeanColors.primary),
                       ),
                       Center(
@@ -502,9 +502,9 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Column(
         children: [
@@ -512,7 +512,7 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.2),
+              color: color.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, color: color, size: 20),
@@ -547,7 +547,7 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, color: color, size: 20),
@@ -598,7 +598,7 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
           child: Container(
             height: 6,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.2),
+              color: color.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(3),
             ),
             child: FractionallySizedBox(
@@ -715,7 +715,7 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
         height: 180,
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [color, color.withOpacity(0.7)],
+            colors: [color, color.withValues(alpha: 0.7)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -727,7 +727,7 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
           ),
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.3),
+              color: color.withValues(alpha: 0.3),
               blurRadius: 15,
               offset: const Offset(0, 6),
             ),
@@ -742,7 +742,7 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
                 width: 32,
                 height: 32,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
@@ -764,7 +764,7 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
               Text(
                 description,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.8),
+                  color: Colors.white.withValues(alpha: 0.8),
                   fontSize: 12,
                 ),
                 maxLines: 2,
@@ -886,7 +886,7 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: _getStatusColor(status).withOpacity(0.1),
+              color: _getStatusColor(status).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
@@ -1043,7 +1043,7 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
           width: 20,
           height: 100,
           decoration: BoxDecoration(
-            color: JinBeanColors.primary.withOpacity(0.1),
+            color: JinBeanColors.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Column(
@@ -1062,7 +1062,7 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
         ),
         const SizedBox(height: 8),
         Text(
-          '\$${value}',
+          '\$$value',
           style: TextStyle(
             fontSize: 10,
             color: JinBeanColors.textSecondary,
@@ -1148,7 +1148,7 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: JinBeanColors.primary.withOpacity(0.1),
+              color: JinBeanColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
@@ -1180,7 +1180,7 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      '${rating.toStringAsFixed(1)} (${reviewCount})',
+                      '${rating.toStringAsFixed(1)} ($reviewCount)',
                       style: TextStyle(
                         fontSize: 14,
                         color: JinBeanColors.textSecondary,
@@ -1282,7 +1282,7 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, color: color, size: 20),
@@ -1397,7 +1397,7 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
       '功能待开发',
       '「$featureName」功能正在开发中，敬请期待！',
       snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: JinBeanColors.warning.withOpacity(0.8),
+      backgroundColor: JinBeanColors.warning.withValues(alpha: 0.8),
       colorText: Colors.white,
       borderRadius: 8,
       margin: const EdgeInsets.all(16),

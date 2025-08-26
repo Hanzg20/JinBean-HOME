@@ -3,7 +3,7 @@ import 'platform_core.dart';
 
 /// 平台组件测试页面
 class PlatformComponentsTestPage extends StatelessWidget {
-  const PlatformComponentsTestPage({Key? key}) : super(key: key);
+  const PlatformComponentsTestPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +76,7 @@ class PlatformComponentsTestPage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.blue.withOpacity(0.1),
+        color: Colors.blue.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: Colors.blue),
       ),

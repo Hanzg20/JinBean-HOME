@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:intl/intl.dart';
@@ -32,11 +32,11 @@ class CreateOrderController extends GetxController {
   void onInit() {
     super.onInit();
     
-    print('[CreateOrderController] Initializing CreateOrderController...');
+    AppLogger.info('[CreateOrderController] Initializing CreateOrderController...');
     
     // Get parameters passed from service detail page
     final arguments = Get.arguments as Map<String, dynamic>?;
-    print('[CreateOrderController] Received arguments: $arguments');
+    AppLogger.info('[CreateOrderController] Received arguments: $arguments');
     
     if (arguments != null) {
       serviceId.value = arguments['serviceId'] ?? '';
@@ -45,12 +45,12 @@ class CreateOrderController extends GetxController {
       price?.value = arguments['price']?.toDouble() ?? 0.0;
       pricingType.value = arguments['pricingType'] ?? '';
       
-      print('[CreateOrderController] Parameters set:');
-      print('[CreateOrderController] - serviceId: ${serviceId.value}');
-      print('[CreateOrderController] - serviceName: ${serviceName.value}');
-      print('[CreateOrderController] - providerId: ${providerId.value}');
-      print('[CreateOrderController] - price: ${price?.value}');
-      print('[CreateOrderController] - pricingType: ${pricingType.value}');
+      AppLogger.info('[CreateOrderController] Parameters set:');
+      AppLogger.info('[CreateOrderController] - serviceId: ${serviceId.value}');
+      AppLogger.info('[CreateOrderController] - serviceName: ${serviceName.value}');
+      AppLogger.info('[CreateOrderController] - providerId: ${providerId.value}');
+      AppLogger.info('[CreateOrderController] - price: ${price?.value}');
+      AppLogger.info('[CreateOrderController] - pricingType: ${pricingType.value}');
       
       // Load provider information
       loadProviderInfo();
@@ -58,7 +58,7 @@ class CreateOrderController extends GetxController {
       // Load service details
       loadServiceDetails();
     } else {
-      print('[CreateOrderController] WARNING: No arguments received');
+      AppLogger.info('[CreateOrderController] WARNING: No arguments received');
     }
 
     // Listen for form changes
@@ -68,14 +68,14 @@ class CreateOrderController extends GetxController {
     // Listen for address input
     addressController.addListener(_validateForm);
     
-    print('[CreateOrderController] Initialization completed');
+    AppLogger.info('[CreateOrderController] Initialization completed');
   }
 
   Future<void> loadProviderInfo() async {
     try {
-      print('[CreateOrderController] Loading provider info for providerId: ${providerId.value}');
+      AppLogger.info('[CreateOrderController] Loading provider info for providerId: ${providerId.value}');
       if (providerId.value.isEmpty) {
-        print('[CreateOrderController] ERROR: providerId is empty');
+        AppLogger.info('[CreateOrderController] ERROR: providerId is empty');
         return;
       }
 
@@ -85,27 +85,27 @@ class CreateOrderController extends GetxController {
           .eq('id', providerId.value)
           .single();
 
-      print('[CreateOrderController] Provider info loaded: $response');
+      AppLogger.info('[CreateOrderController] Provider info loaded: $response');
       providerName.value = response['company_name'] ?? 'Unknown Provider';
       providerPhone.value = response['contact_phone'] ?? '';
-      print('[CreateOrderController] Provider name set to: ${providerName.value}');
-      print('[CreateOrderController] Provider phone set to: ${providerPhone.value}');
+      AppLogger.info('[CreateOrderController] Provider name set to: ${providerName.value}');
+      AppLogger.info('[CreateOrderController] Provider phone set to: ${providerPhone.value}');
     } catch (e) {
-      print('[CreateOrderController] ERROR loading provider info: $e');
-      print('[CreateOrderController] Error type: ${e.runtimeType}');
+      AppLogger.info('[CreateOrderController] ERROR loading provider info: $e');
+      AppLogger.info('[CreateOrderController] Error type: ${e.runtimeType}');
       if (e is PostgrestException) {
-        print('[CreateOrderController] PostgrestException details: ${e.message}');
-        print('[CreateOrderController] PostgrestException details: ${e.details}');
-        print('[CreateOrderController] PostgrestException hint: ${e.hint}');
+        AppLogger.info('[CreateOrderController] PostgrestException details: ${e.message}');
+        AppLogger.info('[CreateOrderController] PostgrestException details: ${e.details}');
+        AppLogger.info('[CreateOrderController] PostgrestException hint: ${e.hint}');
       }
     }
   }
 
   Future<void> loadServiceDetails() async {
     try {
-      print('[CreateOrderController] Loading service details for serviceId: ${serviceId.value}');
+      AppLogger.info('[CreateOrderController] Loading service details for serviceId: ${serviceId.value}');
       if (serviceId.value.isEmpty) {
-        print('[CreateOrderController] ERROR: serviceId is empty');
+        AppLogger.info('[CreateOrderController] ERROR: serviceId is empty');
         return;
       }
 
@@ -115,26 +115,26 @@ class CreateOrderController extends GetxController {
           .eq('service_id', serviceId.value)
           .single();
 
-      print('[CreateOrderController] Service details loaded: $response');
+      AppLogger.info('[CreateOrderController] Service details loaded: $response');
       serviceDescription.value = response['service_details_json']?['description'] ?? '';
-      print('[CreateOrderController] Service description set to: ${serviceDescription.value}');
+      AppLogger.info('[CreateOrderController] Service description set to: ${serviceDescription.value}');
       
       // Calculate platform fee
       final servicePrice = response['price']?.toDouble() ?? 0.0;
       final feeRate = response['platform_service_fee_rate']?.toDouble() ?? 0.1; // Default 10%
       platformFee.value = servicePrice * feeRate;
       totalPrice.value = servicePrice + platformFee.value;
-      print('[CreateOrderController] Service price: $servicePrice');
-      print('[CreateOrderController] Platform fee rate: $feeRate');
-      print('[CreateOrderController] Platform fee: ${platformFee.value}');
-      print('[CreateOrderController] Total price: ${totalPrice.value}');
+      AppLogger.info('[CreateOrderController] Service price: $servicePrice');
+      AppLogger.info('[CreateOrderController] Platform fee rate: $feeRate');
+      AppLogger.info('[CreateOrderController] Platform fee: ${platformFee.value}');
+      AppLogger.info('[CreateOrderController] Total price: ${totalPrice.value}');
     } catch (e) {
-      print('[CreateOrderController] ERROR loading service details: $e');
-      print('[CreateOrderController] Error type: ${e.runtimeType}');
+      AppLogger.info('[CreateOrderController] ERROR loading service details: $e');
+      AppLogger.info('[CreateOrderController] Error type: ${e.runtimeType}');
       if (e is PostgrestException) {
-        print('[CreateOrderController] PostgrestException details: ${e.message}');
-        print('[CreateOrderController] PostgrestException details: ${e.details}');
-        print('[CreateOrderController] PostgrestException hint: ${e.hint}');
+        AppLogger.info('[CreateOrderController] PostgrestException details: ${e.message}');
+        AppLogger.info('[CreateOrderController] PostgrestException details: ${e.details}');
+        AppLogger.info('[CreateOrderController] PostgrestException hint: ${e.hint}');
       }
     }
   }
@@ -178,12 +178,12 @@ class CreateOrderController extends GetxController {
 
   Future<void> createOrder() async {
     try {
-      print('[CreateOrderController] Starting order creation process...');
+      AppLogger.info('[CreateOrderController] Starting order creation process...');
       isLoading.value = true;
 
       final user = Supabase.instance.client.auth.currentUser;
       if (user == null) {
-        print('[CreateOrderController] ERROR: User not authenticated');
+        AppLogger.info('[CreateOrderController] ERROR: User not authenticated');
         Get.snackbar(
           'Error',
           'Please login to create an order',
@@ -191,21 +191,21 @@ class CreateOrderController extends GetxController {
         );
         return;
       }
-      print('[CreateOrderController] User authenticated: ${user.id}');
+      AppLogger.info('[CreateOrderController] User authenticated: ${user.id}');
 
       // Validate required data
-      print('[CreateOrderController] Validating order data...');
-      print('[CreateOrderController] serviceId: ${serviceId.value}');
-      print('[CreateOrderController] providerId: ${providerId.value}');
-      print('[CreateOrderController] selectedDate: ${selectedDate?.value}');
-      print('[CreateOrderController] selectedTime: ${selectedTime?.value}');
-      print('[CreateOrderController] address: ${addressController.text.trim()}');
-      print('[CreateOrderController] totalPrice: ${totalPrice.value}');
+      AppLogger.info('[CreateOrderController] Validating order data...');
+      AppLogger.info('[CreateOrderController] serviceId: ${serviceId.value}');
+      AppLogger.info('[CreateOrderController] providerId: ${providerId.value}');
+      AppLogger.info('[CreateOrderController] selectedDate: ${selectedDate?.value}');
+      AppLogger.info('[CreateOrderController] selectedTime: ${selectedTime?.value}');
+      AppLogger.info('[CreateOrderController] address: ${addressController.text.trim()}');
+      AppLogger.info('[CreateOrderController] totalPrice: ${totalPrice.value}');
 
       if (serviceId.value.isEmpty || providerId.value.isEmpty || 
           selectedDate?.value.isEmpty == true || selectedTime?.value.isEmpty == true ||
           addressController.text.trim().isEmpty) {
-        print('[CreateOrderController] ERROR: Required fields missing');
+        AppLogger.info('[CreateOrderController] ERROR: Required fields missing');
         Get.snackbar(
           'Error',
           'Please fill in all required fields',
@@ -216,7 +216,7 @@ class CreateOrderController extends GetxController {
 
       // Generate order number
       final orderNumber = 'ORD-${DateFormat('yyyyMMdd-HHmmss').format(DateTime.now())}';
-      print('[CreateOrderController] Generated order number: $orderNumber');
+      AppLogger.info('[CreateOrderController] Generated order number: $orderNumber');
 
       // Create order data
       final orderData = {
@@ -236,16 +236,16 @@ class CreateOrderController extends GetxController {
           'address': addressController.text.trim(),
         },
       };
-      print('[CreateOrderController] Order data prepared: $orderData');
+      AppLogger.info('[CreateOrderController] Order data prepared: $orderData');
 
       // Create order in database
-      print('[CreateOrderController] Inserting order into database...');
+      AppLogger.info('[CreateOrderController] Inserting order into database...');
       final orderResponse = await Supabase.instance.client
           .from('orders')
           .insert(orderData)
           .select()
           .single();
-      print('[CreateOrderController] Order created successfully: ${orderResponse['id']}');
+      AppLogger.info('[CreateOrderController] Order created successfully: ${orderResponse['id']}');
 
       // Create order item data
       final orderItemData = {
@@ -258,16 +258,16 @@ class CreateOrderController extends GetxController {
         'service_description_snapshot': serviceDescription.value,
         'pricing_type_snapshot': pricingType.value,
       };
-      print('[CreateOrderController] Order item data prepared: $orderItemData');
+      AppLogger.info('[CreateOrderController] Order item data prepared: $orderItemData');
 
       // Create order item in database
-      print('[CreateOrderController] Inserting order item into database...');
+      AppLogger.info('[CreateOrderController] Inserting order item into database...');
       await Supabase.instance.client
           .from('order_items')
           .insert(orderItemData);
-      print('[CreateOrderController] Order item created successfully');
+      AppLogger.info('[CreateOrderController] Order item created successfully');
 
-      print('[CreateOrderController] Order creation completed successfully');
+      AppLogger.info('[CreateOrderController] Order creation completed successfully');
       Get.snackbar(
         'Success',
         'Order created successfully!',
@@ -275,15 +275,15 @@ class CreateOrderController extends GetxController {
       );
 
       // Navigate to orders page
-      print('[CreateOrderController] Navigating to orders page...');
+      AppLogger.info('[CreateOrderController] Navigating to orders page...');
       Get.offNamed('/orders');
     } catch (e) {
-      print('[CreateOrderController] ERROR creating order: $e');
-      print('[CreateOrderController] Error type: ${e.runtimeType}');
+      AppLogger.info('[CreateOrderController] ERROR creating order: $e');
+      AppLogger.info('[CreateOrderController] Error type: ${e.runtimeType}');
       if (e is PostgrestException) {
-        print('[CreateOrderController] PostgrestException details: ${e.message}');
-        print('[CreateOrderController] PostgrestException details: ${e.details}');
-        print('[CreateOrderController] PostgrestException hint: ${e.hint}');
+        AppLogger.info('[CreateOrderController] PostgrestException details: ${e.message}');
+        AppLogger.info('[CreateOrderController] PostgrestException details: ${e.details}');
+        AppLogger.info('[CreateOrderController] PostgrestException hint: ${e.hint}');
       }
       Get.snackbar(
         'Error',
@@ -292,7 +292,7 @@ class CreateOrderController extends GetxController {
       );
     } finally {
       isLoading.value = false;
-      print('[CreateOrderController] Order creation process finished');
+      AppLogger.info('[CreateOrderController] Order creation process finished');
     }
   }
 

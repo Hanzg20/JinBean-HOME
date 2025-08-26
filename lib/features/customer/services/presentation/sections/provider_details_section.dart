@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../domain/entities/provider_profile.dart';
 import '../service_detail_controller.dart';
 import '../utils/professional_remarks_templates.dart';
 
@@ -153,7 +152,7 @@ class ProviderDetailsSection extends StatelessWidget {
                       Expanded(
                         child: _buildStatItem(
                           '服务评分',
-                          '${provider.rating?.toStringAsFixed(1) ?? 'N/A'}',
+                          provider.rating?.toStringAsFixed(1) ?? 'N/A',
                           Icons.star_outline,
                           Colors.amber,
                         ),
@@ -466,7 +465,7 @@ class ProviderDetailsSection extends StatelessWidget {
                       Expanded(
                         child: _buildStatItem(
                           '服务评分',
-                          '${provider.rating?.toStringAsFixed(1) ?? 'N/A'}',
+                          provider.rating?.toStringAsFixed(1) ?? 'N/A',
                           Icons.star_outline,
                           Colors.amber,
                         ),

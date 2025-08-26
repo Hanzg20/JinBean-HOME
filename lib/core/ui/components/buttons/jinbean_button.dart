@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../design_system/colors.dart';
-import '../../design_system/spacing.dart';
 import '../../design_system/typography.dart';
 
 /// JinBean 按钮类型
@@ -141,7 +140,7 @@ class JinBeanButton extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: color != null 
             ? LinearGradient(
-                colors: [color!, color!.withOpacity(0.8)],
+                colors: [color!, color!.withValues(alpha: 0.8)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               )

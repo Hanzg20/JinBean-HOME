@@ -1,4 +1,4 @@
-// 图片上传组件
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';// 图片上传组件
 // 支持多图片选择、预览、删除等功能
 
 import 'package:flutter/material.dart';
@@ -103,7 +103,7 @@ class ImageUploadWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(borderRadius),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -143,7 +143,7 @@ class ImageUploadWidget extends StatelessWidget {
                 width: 20,
                 height: 20,
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.7),
+                  color: Colors.black.withValues(alpha: 0.7),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -162,7 +162,7 @@ class ImageUploadWidget extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.7),
+                color: Colors.black.withValues(alpha: 0.7),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
@@ -237,12 +237,12 @@ class ImageUploadWidget extends StatelessWidget {
   void _pickImageFromCamera() {
     // TODO: 实现相机拍照功能
     // 这里应该调用相机API，获取图片后调用onImageAdded
-    print('Camera functionality to be implemented');
+    AppLogger.info('Camera functionality to be implemented');
   }
 
   void _pickImageFromGallery() {
     // TODO: 实现相册选择功能
     // 这里应该调用相册API，获取图片后调用onImageAdded
-    print('Gallery functionality to be implemented');
+    AppLogger.info('Gallery functionality to be implemented');
   }
 } 

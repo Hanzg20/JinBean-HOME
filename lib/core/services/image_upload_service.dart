@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'dart:io';
 import 'dart:typed_data';
 import 'package:image_picker/image_picker.dart';
 import 'package:image/image.dart' as img;
@@ -52,7 +52,7 @@ class ImageUploadService {
 
       return uploadedUrls;
     } catch (e) {
-      print('[ImageUploadService] Error uploading images: $e');
+      AppLogger.info('[ImageUploadService] Error uploading images: $e');
       rethrow;
     }
   }
@@ -89,7 +89,7 @@ class ImageUploadService {
 
       return tempFile;
     } catch (e) {
-      print('[ImageUploadService] Error processing image: $e');
+      AppLogger.info('[ImageUploadService] Error processing image: $e');
       rethrow;
     }
   }
@@ -108,7 +108,7 @@ class ImageUploadService {
 
       return publicUrl;
     } catch (e) {
-      print('[ImageUploadService] Error uploading to storage: $e');
+      AppLogger.info('[ImageUploadService] Error uploading to storage: $e');
       rethrow;
     }
   }
@@ -126,7 +126,7 @@ class ImageUploadService {
         await client.storage.from('service-images').remove([filePath]);
       }
     } catch (e) {
-      print('[ImageUploadService] Error deleting images: $e');
+      AppLogger.info('[ImageUploadService] Error deleting images: $e');
       rethrow;
     }
   }

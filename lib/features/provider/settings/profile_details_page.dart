@@ -44,10 +44,10 @@ class ProfileDetailsPage extends StatelessWidget {
               child: Chip(
                 label: Text('认证状态：${controller.certificationStatus.value}'),
                 backgroundColor: controller.certificationStatus.value == 'approved'
-                    ? theme.primaryColor.withOpacity(0.15)
+                    ? theme.primaryColor.withValues(alpha: 0.15)
                     : controller.certificationStatus.value == 'pending'
-                        ? theme.colorScheme.secondary.withOpacity(0.15)
-                        : theme.colorScheme.error.withOpacity(0.15),
+                        ? theme.colorScheme.secondary.withValues(alpha: 0.15)
+                        : theme.colorScheme.error.withValues(alpha: 0.15),
                 labelStyle: TextStyle(color: theme.primaryColor),
               ),
             ),

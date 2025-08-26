@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/shared/widgets/smart_address_input.dart';
 import 'package:jinbeanpod_83904710/core/controllers/location_controller.dart';
@@ -110,9 +110,9 @@ class _AddressInputDemoPageState extends State<AddressInputDemoPage> {
                         );
                       },
                       onAddressParsed: (parsedData) {
-                        print('[AddressInputDemoPage] Address parsed: $parsedData');
+                        AppLogger.info('[AddressInputDemoPage] Address parsed: $parsedData');
                         if (parsedData['position'] != null) {
-                          print('[AddressInputDemoPage] Location: ${parsedData['position']}');
+                          AppLogger.info('[AddressInputDemoPage] Location: ${parsedData['position']}');
                         }
                       },
                       labelText: AppLocalizations.of(context)!.address,

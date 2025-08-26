@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../core/plugin_management/plugin_manager.dart';
 import 'package:jinbeanpod_83904710/app/shell_app_controller.dart';
@@ -12,25 +12,25 @@ class ShellApp extends GetView<ShellAppController> {
     final theme = Theme.of(context);
 
     return Obx(() {
-      print('[ShellApp] Obx build triggered.');
+      AppLogger.info('[ShellApp] Obx build triggered.');
       try {
         final role = pluginManager.currentRole.value;
-        print('[ShellApp] PluginManager hash: ${pluginManager.hashCode}');
+        AppLogger.info('[ShellApp] PluginManager hash: ${pluginManager.hashCode}');
         final enabledTabPluginsRx =
             pluginManager.enabledTabPluginsForCurrentRole;
         final enabledTabPlugins = enabledTabPluginsRx.toList(); // 强制触发响应式
         final rxHash = enabledTabPluginsRx.hashCode;
         final len = enabledTabPluginsRx.length;
-        print('[ShellApp] Obx build, enabledTabPluginsRx.hashCode: $rxHash, .length: $len, ids: ${enabledTabPlugins.map((e) => e.id).join(',')}');
-        print('[ShellApp] 当前role: $role');
-        print('[ShellApp] enabledTabPlugins.length: ${enabledTabPlugins.length}');
+        AppLogger.info('[ShellApp] Obx build, enabledTabPluginsRx.hashCode: $rxHash, .length: $len, ids: ${enabledTabPlugins.map((e) => e.id).join(',')}');
+        AppLogger.info('[ShellApp] 当前role: $role');
+        AppLogger.info('[ShellApp] enabledTabPlugins.length: ${enabledTabPlugins.length}');
         for (var meta in enabledTabPlugins) {
-          print('[ShellApp] enabledTabPlugin: id=${meta.id}, route=${meta.routeName ?? 'null'}, role=${meta.role ?? 'null'}');
+          AppLogger.info('[ShellApp] enabledTabPlugin: id=${meta.id}, route=${meta.routeName ?? 'null'}, role=${meta.role ?? 'null'}');
         }
 
         // 优化：只在数据准备好时渲染底部导航栏，否则显示 loading
         if (!pluginManager.isInitialized || enabledTabPlugins.isEmpty) {
-          print('[ShellApp] PluginManager not initialized or no enabledTabPlugins, showing loading.');
+          AppLogger.info('[ShellApp] PluginManager not initialized or no enabledTabPlugins, showing loading.');
           return const Scaffold(
             body: Center(
               child: CircularProgressIndicator(), // Display a loading indicator
@@ -52,7 +52,7 @@ class ShellApp extends GetView<ShellAppController> {
           return plugin.buildEntryWidget();
         }).toList();
 
-        print(
+        AppLogger.info(
             '[ShellApp] BottomNavigationBar build, items: ${bottomNavItems.map((e) => e.label).join(',')}');
         final colorScheme = theme.colorScheme;
         return Scaffold(
@@ -73,7 +73,7 @@ class ShellApp extends GetView<ShellAppController> {
               bottomNavigationBarTheme: BottomNavigationBarThemeData(
                 type: BottomNavigationBarType.fixed,
                 selectedItemColor: Colors.white,
-                unselectedItemColor: Colors.white.withOpacity(0.7),
+                unselectedItemColor: Colors.white.withValues(alpha: 0.7),
                 backgroundColor: colorScheme.primary,
                 elevation: 8,
                 selectedLabelStyle: const TextStyle(
@@ -92,7 +92,7 @@ class ShellApp extends GetView<ShellAppController> {
               items: bottomNavItems,
               type: BottomNavigationBarType.fixed,
               selectedItemColor: Colors.white,
-              unselectedItemColor: Colors.white.withOpacity(0.7),
+              unselectedItemColor: Colors.white.withValues(alpha: 0.7),
               backgroundColor: colorScheme.primary,
               elevation: 8,
               selectedLabelStyle: const TextStyle(
@@ -108,8 +108,8 @@ class ShellApp extends GetView<ShellAppController> {
           ),
         );
       } catch (e, stackTrace) {
-        print('[ShellApp] Error in build: $e');
-        print('[ShellApp] Stack trace: $stackTrace');
+        AppLogger.info('[ShellApp] Error in build: $e');
+        AppLogger.info('[ShellApp] Stack trace: $stackTrace');
         return const Scaffold(
           body: Center(
             child: Text('Error loading app'),

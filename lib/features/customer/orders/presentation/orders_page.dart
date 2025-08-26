@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/features/customer/orders/presentation/orders_controller.dart';
 import 'package:jinbeanpod_83904710/core/ui/components/customer_theme_components.dart';
-import 'package:jinbeanpod_83904710/core/ui/themes/customer_theme_utils.dart';
 // Import platform components
 import 'package:jinbeanpod_83904710/core/components/platform_core.dart';
 import 'package:jinbeanpod_83904710/features/customer/services/presentation/widgets/service_detail_loading.dart';
@@ -102,7 +101,7 @@ class _OrdersPageState extends State<OrdersPage> {
             color: colorScheme.surface,
             boxShadow: [
               BoxShadow(
-                color: colorScheme.shadow.withOpacity(0.05),
+                color: colorScheme.shadow.withValues(alpha: 0.05),
                 blurRadius: 4,
                 offset: const Offset(0, 2),
               ),
@@ -129,11 +128,11 @@ class _OrdersPageState extends State<OrdersPage> {
                   onSelected: (selected) {
                     controller.filterByStatus(filter);
                   },
-                  backgroundColor: colorScheme.surfaceVariant,
+                  backgroundColor: colorScheme.surfaceContainerHighest,
                   selectedColor: colorScheme.primary,
                   checkmarkColor: colorScheme.onPrimary,
                   side: BorderSide(
-                    color: isSelected ? colorScheme.primary : colorScheme.outline.withOpacity(0.3),
+                    color: isSelected ? colorScheme.primary : colorScheme.outline.withValues(alpha: 0.3),
                     width: 1,
                   ),
                   shape: RoundedRectangleBorder(
@@ -305,7 +304,7 @@ class _OrdersPageState extends State<OrdersPage> {
         textColor = Colors.white;
         break;
       default:
-        badgeColor = colorScheme.surfaceVariant;
+        badgeColor = colorScheme.surfaceContainerHighest;
         textColor = colorScheme.onSurfaceVariant;
     }
     
@@ -368,7 +367,7 @@ class _OrdersPageState extends State<OrdersPage> {
       decoration: BoxDecoration(
         color: chipColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: textColor.withOpacity(0.3)),
+        border: Border.all(color: textColor.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

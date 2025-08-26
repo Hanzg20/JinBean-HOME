@@ -3,7 +3,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../../core/models/review_models.dart';
 import 'reviews_controller.dart';
 import 'widgets/rating_selector.dart';
 import 'widgets/tag_selector.dart';

@@ -1,12 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/features/customer/profile/presentation/profile_controller.dart';
-import 'package:jinbeanpod_83904710/core/plugin_management/plugin_manager.dart';
 import 'package:jinbeanpod_83904710/features/provider/plugins/provider_identity/provider_identity_service.dart';
 import 'package:jinbeanpod_83904710/features/customer/auth/presentation/auth_controller.dart';
 import 'package:jinbeanpod_83904710/core/ui/components/customer_theme_components.dart';
-import 'package:jinbeanpod_83904710/core/ui/themes/customer_theme_utils.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 // Import platform components
 import 'package:jinbeanpod_83904710/core/components/platform_core.dart';
 import 'package:jinbeanpod_83904710/features/customer/services/presentation/widgets/service_detail_loading.dart';
@@ -58,7 +55,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     
-    print('[ProfilePage] build method called.'); // Added log
+    AppLogger.info('[ProfilePage] build method called.'); // Added log
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -95,7 +92,7 @@ class _ProfilePageState extends State<ProfilePage> {
           end: Alignment.bottomCenter,
           colors: [
             colorScheme.primary,
-            colorScheme.primary.withOpacity(0.8),
+            colorScheme.primary.withValues(alpha: 0.8),
           ],
         ),
       ),
@@ -119,7 +116,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         border: Border.all(color: colorScheme.onPrimary, width: 3),
                         boxShadow: [
                           BoxShadow(
-                            color: colorScheme.shadow.withOpacity(0.2),
+                            color: colorScheme.shadow.withValues(alpha: 0.2),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -127,7 +124,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       child: CircleAvatar(
                         radius: 37,
-                        backgroundColor: colorScheme.surfaceVariant,
+                        backgroundColor: colorScheme.surfaceContainerHighest,
                         backgroundImage: controller.avatarUrl.value.isNotEmpty
                             ? NetworkImage(controller.avatarUrl.value)
                             : null,
@@ -141,7 +138,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   // 用户信息
                   Expanded(
                     child: Obx(() {
-                      print('[ProfilePage] Obx 1 (header) rebuild.'); // Added log
+                      AppLogger.info('[ProfilePage] Obx 1 (header) rebuild.'); // Added log
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -161,7 +158,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ? controller.userBio.value
                                 : 'No bio yet',
                             style: theme.textTheme.bodyMedium?.copyWith(
-                              color: colorScheme.onPrimary.withOpacity(0.8),
+                              color: colorScheme.onPrimary.withValues(alpha: 0.8),
                             ),
                           ),
                         ],
@@ -237,7 +234,7 @@ class _ProfilePageState extends State<ProfilePage> {
             Text(
               label,
               style: theme.textTheme.bodySmall?.copyWith(
-                color: colorScheme.onPrimary.withOpacity(0.8),
+                color: colorScheme.onPrimary.withValues(alpha: 0.8),
               ),
             ),
           ],
@@ -574,7 +571,7 @@ class _ProfilePageState extends State<ProfilePage> {
             width: 36, // 减小图标容器大小
             height: 36,
             decoration: BoxDecoration(
-              color: colorScheme.surfaceVariant,
+              color: colorScheme.surfaceContainerHighest,
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(6),
                 topRight: Radius.circular(24), // 右上角半径是其他角的4倍
@@ -614,7 +611,7 @@ class _ProfilePageState extends State<ProfilePage> {
           height: 1,
           indent: 72,
           endIndent: 16,
-          color: colorScheme.outline.withOpacity(0.2),
+          color: colorScheme.outline.withValues(alpha: 0.2),
         );
       },
     );

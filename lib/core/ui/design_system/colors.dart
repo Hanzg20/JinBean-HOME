@@ -70,7 +70,7 @@ class JinBeanColors {
   // 中性色彩 - My Diary 风格的现代化中性色
   static const Color background = Color(0xFFF8F9FA);
   static const Color surface = Color(0xFFFFFFFF);
-  static const Color surfaceVariant = Color(0xFFF5F5F5);
+  static const Color surfaceContainerHighest = Color(0xFFF5F5F5);
   
   // 新增：My Diary 风格的背景渐变
   static const LinearGradient backgroundGradient = LinearGradient(
@@ -175,8 +175,6 @@ class JinBeanColors {
     onSecondary: Colors.white,
     error: error,
     onError: Colors.white,
-    background: background,
-    onBackground: textPrimary,
     surface: surface,
     onSurface: textPrimary,
   );
@@ -189,8 +187,6 @@ class JinBeanColors {
     onSecondary: Colors.black,
     error: errorLight,
     onError: Colors.black,
-    background: Color(0xFF121212),
-    onBackground: Colors.white,
     surface: Color(0xFF1E1E1E),
     onSurface: Colors.white,
   );

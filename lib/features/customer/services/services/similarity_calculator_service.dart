@@ -2,7 +2,6 @@ import 'dart:math';
 import 'package:jinbeanpod_83904710/features/customer/domain/entities/service.dart';
 import 'package:jinbeanpod_83904710/features/customer/domain/entities/service_detail.dart';
 import 'package:jinbeanpod_83904710/features/customer/domain/entities/similar_service.dart';
-import 'package:jinbeanpod_83904710/features/customer/services/presentation/service_detail_controller.dart';
 
 class SimilarityCalculatorService {
   /// 计算两个服务之间的相似度

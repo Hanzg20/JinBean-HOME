@@ -9,7 +9,6 @@ import 'widgets/review_card.dart';
 import 'widgets/review_filter_panel.dart';
 import 'widgets/rating_stats_card.dart';
 import 'package:jinbeanpod_83904710/core/ui/components/customer_theme_components.dart';
-import 'package:jinbeanpod_83904710/core/ui/themes/customer_theme_utils.dart';
 
 class ReviewsListPage extends StatelessWidget {
   final String serviceId;
@@ -162,8 +161,8 @@ class ReviewsListPage extends StatelessWidget {
                 padding: const EdgeInsets.only(right: 8),
                 child: Chip(
                   label: Text(tag),
-                  backgroundColor: colorScheme.primary.withOpacity(0.1),
-                  side: BorderSide(color: colorScheme.primary.withOpacity(0.3)),
+                  backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
+                  side: BorderSide(color: colorScheme.primary.withValues(alpha: 0.3)),
                   labelStyle: TextStyle(color: colorScheme.primary),
                   onDeleted: () {
                     final newTags = List<String>.from(selectedTags)..remove(tag);

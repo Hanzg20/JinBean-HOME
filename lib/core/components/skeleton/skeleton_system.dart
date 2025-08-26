@@ -65,12 +65,12 @@ class ShimmerSkeleton extends StatefulWidget {
   final Duration duration;
 
   const ShimmerSkeleton({
-    Key? key,
+    super.key,
     required this.child,
     this.baseColor,
     this.highlightColor,
     this.duration = const Duration(milliseconds: 1000),
-  }) : super(key: key);
+  });
 
   @override
   State<ShimmerSkeleton> createState() => _ShimmerSkeletonState();
@@ -100,7 +100,7 @@ class _ShimmerSkeletonState extends State<ShimmerSkeleton>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final baseColor = widget.baseColor ?? theme.colorScheme.surfaceVariant;
+    final baseColor = widget.baseColor ?? theme.colorScheme.surfaceContainerHighest;
     final highlightColor = widget.highlightColor ?? theme.colorScheme.surface;
 
     return AnimatedBuilder(
@@ -131,9 +131,9 @@ class SkeletonListWidget extends StatefulWidget {
   final SkeletonConfig config;
   
   const SkeletonListWidget({
-    Key? key,
+    super.key,
     required this.config,
-  }) : super(key: key);
+  });
 
   @override
   State<SkeletonListWidget> createState() => _SkeletonListWidgetState();
@@ -223,9 +223,9 @@ class SkeletonCardWidget extends StatelessWidget {
   final SkeletonConfig config;
   
   const SkeletonCardWidget({
-    Key? key,
+    super.key,
     required this.config,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -282,9 +282,9 @@ class SkeletonDetailWidget extends StatelessWidget {
   final SkeletonConfig config;
   
   const SkeletonDetailWidget({
-    Key? key,
+    super.key,
     required this.config,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -342,7 +342,7 @@ class SkeletonDetailWidget extends StatelessWidget {
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.transparent,
-                    Colors.black.withOpacity(0.7),
+                    Colors.black.withValues(alpha: 0.7),
                   ],
                 ),
                 borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
@@ -485,10 +485,10 @@ class SkeletonCustomWidget extends StatelessWidget {
   final Map<String, dynamic>? customData;
   
   const SkeletonCustomWidget({
-    Key? key,
+    super.key,
     required this.config,
     this.customData,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/controllers/location_controller.dart';
 import '../../features/provider/plugins/provider_registration/address_service.dart';
@@ -148,7 +148,7 @@ class _SmartAddressInputState extends State<SmartAddressInput> {
         _updateAddressFromLocation(currentLocation);
       }
     } catch (e) {
-      print('[SmartAddressInput] Location error: $e');
+      AppLogger.info('[SmartAddressInput] Location error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('获取位置失败: ${_locationController.errorMessage.value}'),
@@ -649,7 +649,7 @@ class _SmartAddressInputState extends State<SmartAddressInput> {
               borderRadius: BorderRadius.circular(8),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),

@@ -9,9 +9,9 @@ class ServiceMapSection extends StatefulWidget {
   final ServiceDetailController controller;
 
   const ServiceMapSection({
-    Key? key,
+    super.key,
     required this.controller,
-  }) : super(key: key);
+  });
 
   @override
   State<ServiceMapSection> createState() => _ServiceMapSectionState();
@@ -316,11 +316,11 @@ class _ServiceMapSectionState extends State<ServiceMapSection> {
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                         borderRadius: BorderRadius.circular(8),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: Colors.black.withValues(alpha: 0.1),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -397,7 +397,7 @@ class _ServiceMapSectionState extends State<ServiceMapSection> {
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -421,7 +421,7 @@ class _ServiceMapSectionState extends State<ServiceMapSection> {
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -754,7 +754,7 @@ class _ServiceMapSectionState extends State<ServiceMapSection> {
       isPanModeEnabled ? '地图拖动已启用' : '地图拖动已禁用',
       snackPosition: SnackPosition.BOTTOM,
       duration: const Duration(seconds: 2),
-      backgroundColor: isPanModeEnabled ? Colors.green.withOpacity(0.8) : Colors.orange.withOpacity(0.8),
+      backgroundColor: isPanModeEnabled ? Colors.green.withValues(alpha: 0.8) : Colors.orange.withValues(alpha: 0.8),
       colorText: Colors.white,
     );
   }

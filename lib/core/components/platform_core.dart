@@ -1,9 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:flutter/material.dart';
 import 'skeleton/skeleton_system.dart';
 import 'progressive_loading/progressive_loading_system.dart';
 import 'offline_support/offline_support_system.dart';
 import 'error_recovery/error_recovery_system.dart';
-import 'loading_state_manager.dart';
 
 /// 平台组件导出
 export 'skeleton/skeleton_system.dart';
@@ -35,25 +34,25 @@ class PlatformCore {
   /// 初始化骨架屏系统
   Future<void> _initializeSkeletonSystem(SkeletonConfig? config) async {
     // 骨架屏系统初始化逻辑
-    print('骨架屏系统初始化完成');
+    AppLogger.info('骨架屏系统初始化完成');
   }
 
   /// 初始化渐进式加载系统
   Future<void> _initializeProgressiveLoading(ProgressiveConfig? config) async {
     // 渐进式加载系统初始化逻辑
-    print('渐进式加载系统初始化完成');
+    AppLogger.info('渐进式加载系统初始化完成');
   }
 
   /// 初始化离线支持系统
   Future<void> _initializeOfflineSupport(OfflineConfig? config) async {
     // 离线支持系统初始化逻辑
-    print('离线支持系统初始化完成');
+    AppLogger.info('离线支持系统初始化完成');
   }
 
   /// 初始化错误恢复系统
   Future<void> _initializeErrorRecovery(ErrorRecoveryConfig? config) async {
     // 错误恢复系统初始化逻辑
-    print('错误恢复系统初始化完成');
+    AppLogger.info('错误恢复系统初始化完成');
   }
 
   /// 获取骨架屏系统（静态方法）

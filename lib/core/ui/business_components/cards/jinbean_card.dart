@@ -182,8 +182,8 @@ class JinBeanStatCard extends StatelessWidget {
     
     return JinBeanCard(
       onTap: onTap,
-      backgroundColor: cardColor.withOpacity(0.1),
-      border: Border.all(color: cardColor.withOpacity(0.3)),
+      backgroundColor: cardColor.withValues(alpha: 0.1),
+      border: Border.all(color: cardColor.withValues(alpha: 0.3)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

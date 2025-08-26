@@ -49,7 +49,7 @@ class ServiceReviewsSection extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${service?.rating?.toStringAsFixed(1) ?? 'N/A'}',
+                        service?.rating?.toStringAsFixed(1) ?? 'N/A',
                         style: const TextStyle(
                           fontSize: 32,
                           fontWeight: FontWeight.bold,

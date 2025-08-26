@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/features/provider/income/income_controller.dart';
 import 'package:jinbeanpod_83904710/core/ui/components/provider_theme_components.dart';
-import 'package:jinbeanpod_83904710/core/ui/themes/provider_theme_utils.dart';
 
 class IncomePage extends GetView<IncomeController> {
   const IncomePage({super.key});
@@ -68,7 +67,7 @@ class IncomePage extends GetView<IncomeController> {
           decoration: BoxDecoration(
             color: colorScheme.surface,
             border: Border(
-              bottom: BorderSide(color: colorScheme.outline.withOpacity(0.1), width: 1),
+              bottom: BorderSide(color: colorScheme.outline.withValues(alpha: 0.1), width: 1),
             ),
           ),
           child: Column(
@@ -96,8 +95,8 @@ class IncomePage extends GetView<IncomeController> {
                             controller.changePeriod(period);
                           }
                         },
-                        backgroundColor: colorScheme.surfaceVariant,
-                        selectedColor: colorScheme.primary.withOpacity(0.1),
+                        backgroundColor: colorScheme.surfaceContainerHighest,
+                        selectedColor: colorScheme.primary.withValues(alpha: 0.1),
                         checkmarkColor: colorScheme.primary,
                         labelStyle: TextStyle(
                           color: controller.selectedPeriod.value == period

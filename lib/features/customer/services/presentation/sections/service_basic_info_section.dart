@@ -8,9 +8,9 @@ class ServiceBasicInfoSection extends StatelessWidget {
   final ServiceDetailController controller;
 
   const ServiceBasicInfoSection({
-    Key? key,
+    super.key,
     required this.controller,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -37,8 +37,7 @@ class ServiceBasicInfoSection extends StatelessWidget {
             const SizedBox(height: 16),
             _buildInfoRow('Category', _getCategoryName(service.categoryId)),
             _buildInfoRow('Status', service.isActive == true ? 'Active' : 'Inactive'),
-            if (service.description != null)
-              _buildInfoRow('Description', service.description),
+            _buildInfoRow('Description', service.description),
             _buildInfoRow('Rating', ServiceDetailFormatters.formatRating(service.rating)),
             _buildInfoRow('Reviews', '${service.reviewCount} reviews'),
           ],

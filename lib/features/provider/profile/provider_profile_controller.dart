@@ -1,8 +1,6 @@
-import 'package:get/get.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:jinbeanpod_83904710/features/customer/auth/presentation/auth_controller.dart';
-import 'package:jinbeanpod_83904710/core/plugin_management/plugin_manager.dart';
-import 'package:jinbeanpod_83904710/app/theme/app_theme_service.dart';
 import 'package:get_storage/get_storage.dart';
 
 class ProviderProfileController extends GetxController {
@@ -51,21 +49,21 @@ class ProviderProfileController extends GetxController {
         serviceCategories.value = (profile['service_categories'] as List?)?.map((e) => e.toString()).toList() ?? [];
         certificationStatus.value = profile['certification_status'] ?? '';
       } else {
-        print('[ProviderProfileController] No provider profile found for user ${user.id}');
+        AppLogger.info('[ProviderProfileController] No provider profile found for user ${user.id}');
         // Optionally set default empty values if no profile is found
       }
     } on PostgrestException catch (e) {
-      print('[ProviderProfileController] PostgrestException loading profile: ${e.message}, details: ${e.details}');
+      AppLogger.info('[ProviderProfileController] PostgrestException loading profile: ${e.message}, details: ${e.details}');
       // Handle specific Postgrest errors, e.g., show a user-friendly message
     } catch (e, stack) {
-      print('[ProviderProfileController] Unexpected error loading profile: $e\n$stack');
+      AppLogger.info('[ProviderProfileController] Unexpected error loading profile: $e\n$stack');
     } finally {
       isLoading.value = false;
     }
   }
 
   Future<void> logout() async {
-    print('[ProviderProfileController] Provider logout started.');
+    AppLogger.info('[ProviderProfileController] Provider logout started.');
     
     // 像Customer端一样，直接调用AuthController的logout方法
     // AuthController会处理所有的清理和导航逻辑

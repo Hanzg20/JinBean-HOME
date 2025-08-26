@@ -1,4 +1,4 @@
-import 'package:get/get.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'service_marker_model.dart';
 import '../../core/controllers/location_controller.dart';
@@ -69,11 +69,11 @@ class ServiceMapController extends GetxController {
   }
 
   Future<void> _loadCustomMarker() async {
-    customMarkerIcon.value = await BitmapDescriptor.fromAssetImage(
+    customMarkerIcon.value = await BitmapDescriptor.asset(
       const ImageConfiguration(size: Size(48, 48)),
       'assets/images/jinbean_marker-0.png',
     );
-    print('[ServiceMapController] 金豆marker图标已加载');
+    AppLogger.info('[ServiceMapController] 金豆marker图标已加载');
   }
 
   // 新增：地图类型切换
@@ -120,7 +120,7 @@ class ServiceMapController extends GetxController {
       
     } catch (e) {
       mapError.value = 'Failed to load service area info: $e';
-      print('[ServiceMapController] Error loading service area info: $e');
+      AppLogger.info('[ServiceMapController] Error loading service area info: $e');
     } finally {
       isLoadingMapData.value = false;
     }
@@ -133,12 +133,7 @@ class ServiceMapController extends GetxController {
     String? routeId,
     bool useCache = true,
   }) async {
-    if (start == null || end == null) {
-      routeError.value = 'Start or end location not available';
-      return;
-    }
-
-    print('[ServiceMapController] Calculating route from ${start.latitude},${start.longitude} to ${end.latitude},${end.longitude}');
+    AppLogger.info('[ServiceMapController] Calculating route from ${start.latitude},${start.longitude} to ${end.latitude},${end.longitude}');
 
     // 检查缓存
     if (useCache) {
@@ -146,7 +141,7 @@ class ServiceMapController extends GetxController {
       if (cachedRoute != null) {
         currentRoute.value = cachedRoute;
         _updateRoutePolyline(routeId);
-        print('[ServiceMapController] Using cached route');
+        AppLogger.info('[ServiceMapController] Using cached route');
         return;
       }
     }
@@ -160,7 +155,7 @@ class ServiceMapController extends GetxController {
 
       // 计算直线距离
       final directDistance = _calculateDistance(start, end);
-      print('[ServiceMapController] Direct distance: ${directDistance.toStringAsFixed(2)} km');
+      AppLogger.info('[ServiceMapController] Direct distance: ${directDistance.toStringAsFixed(2)} km');
 
       // 生成不同交通方式的路线
       final routes = [
@@ -207,12 +202,12 @@ class ServiceMapController extends GetxController {
       ];
 
       availableRoutes.value = routes;
-      print('[ServiceMapController] Generated ${routes.length} routes');
+      AppLogger.info('[ServiceMapController] Generated ${routes.length} routes');
 
       // 设置默认路线
       currentRoute.value = availableRoutes.first;
       _updateRoutePolyline(routeId);
-      print('[ServiceMapController] Set current route: ${currentRoute.value?['mode']}');
+      AppLogger.info('[ServiceMapController] Set current route: ${currentRoute.value?['mode']}');
 
       // 缓存所有路线
       for (final route in routes) {
@@ -222,7 +217,7 @@ class ServiceMapController extends GetxController {
 
     } catch (e) {
       routeError.value = 'Failed to calculate route: $e';
-      print('[ServiceMapController] Error calculating route: $e');
+      AppLogger.info('[ServiceMapController] Error calculating route: $e');
     } finally {
       isLoadingRoute.value = false;
     }
@@ -325,7 +320,7 @@ class ServiceMapController extends GetxController {
       final color = currentRoute.value!['color'] as Color;
       final polylineId = routeId ?? 'route_${DateTime.now().millisecondsSinceEpoch}';
       
-      print('[ServiceMapController] Updating route polyline with ${points.length} points');
+      AppLogger.info('[ServiceMapController] Updating route polyline with ${points.length} points');
       
       routePolylines.add(Polyline(
         polylineId: PolylineId(polylineId),
@@ -335,9 +330,9 @@ class ServiceMapController extends GetxController {
         geodesic: true,
       ));
       
-      print('[ServiceMapController] Route polyline updated successfully');
+      AppLogger.info('[ServiceMapController] Route polyline updated successfully');
     } else {
-      print('[ServiceMapController] No route data available for polyline update');
+      AppLogger.info('[ServiceMapController] No route data available for polyline update');
     }
   }
 
@@ -378,8 +373,8 @@ class ServiceMapController extends GetxController {
       center: center,
       radius: radiusKm * 1000, // 转换为米
       strokeWidth: 2,
-      strokeColor: Colors.blue.withOpacity(0.5),
-      fillColor: Colors.blue.withOpacity(0.1),
+      strokeColor: Colors.blue.withValues(alpha: 0.5),
+      fillColor: Colors.blue.withValues(alpha: 0.1),
     ));
   }
 
@@ -453,7 +448,7 @@ class ServiceMapController extends GetxController {
           .select(
               'id, title, description, latitude, longitude, category_level1_id, average_rating, review_count, images_url')
           .eq('status', 'active');
-      print(
+      AppLogger.info(
           '[ServiceMapController] 当前定位点: lat=${userLocation.latitude}, lng=${userLocation.longitude}');
       if (latMin != null &&
           latMax != null &&
@@ -469,10 +464,10 @@ class ServiceMapController extends GetxController {
         query = query.eq('category_level1_id', category);
       }
       final data = await query;
-      print('[ServiceMapController] 查询结果:');
-      print(data);
+      AppLogger.info('[ServiceMapController] 查询结果:');
+      AppLogger.info(data.toString());
       if ((data.isEmpty)) {
-        print('[ServiceMapController] 查询结果为空，无服务点可显示');
+        AppLogger.info('[ServiceMapController] 查询结果为空，无服务点可显示');
       }
       List<ServiceMarkerModel> allMarkers = (data as List).map((e) {
         final lat = (e['latitude'] as num?)?.toDouble() ?? 0.0;
@@ -484,7 +479,7 @@ class ServiceMapController extends GetxController {
         final descMap = (e['description'] is Map)
             ? Map<String, dynamic>.from(e['description'])
             : null;
-        print(
+        AppLogger.info(
             '[ServiceMapController] 服务点: id=${e['id']} lat=$lat lng=$lng 距离=${distance.toStringAsFixed(2) ?? '未知'}km');
         return ServiceMarkerModel(
           id: e['id'],
@@ -501,16 +496,16 @@ class ServiceMapController extends GetxController {
           distanceInKm: distance,
         );
       }).toList();
-      print('[ServiceMapController] 原始 marker 数量: ${allMarkers.length}');
+      AppLogger.info('[ServiceMapController] 原始 marker 数量: ${allMarkers.length}');
       final filteredMarkers = allMarkers
           .where((m) =>
               m.distanceInKm == null ||
               m.distanceInKm! <= serviceRadiusKm.value)
           .toList();
-      print(
+      AppLogger.info(
           '[ServiceMapController] 距离筛选后 marker 数量: ${filteredMarkers.length} (半径: ${serviceRadiusKm.value}km)');
       if (filteredMarkers.isEmpty) {
-        print('[ServiceMapController] ⚠️ 当前范围内无服务点，显示所有服务点');
+        AppLogger.info('[ServiceMapController] ⚠️ 当前范围内无服务点，显示所有服务点');
         // 如果没有服务点，显示所有服务点
         markers.value = allMarkers;
       } else {
@@ -530,7 +525,7 @@ class ServiceMapController extends GetxController {
       }
       final List<ServiceMarkerModel> clusteredMarkers = [];
       gridMap.forEach((key, list) {
-        print(
+        AppLogger.info(
             '[ServiceMapController] 分组 $key 数量: ${list.length}，包含id: ${list.map((m) => m.id).join(',')}');
         if (list.length == 1) {
           clusteredMarkers.add(list.first);
@@ -555,15 +550,15 @@ class ServiceMapController extends GetxController {
       });
       markers.value = clusteredMarkers;
       // ===== end 聚合分组 =====
-      print(
+      AppLogger.info(
           '[ServiceMapController] 聚合前 marker 数量: ${gridMap.values.fold<int>(0, (p, e) => p + e.length)}');
-      print('[ServiceMapController] 聚合后 marker 数量: ${clusteredMarkers.length}');
-      print('[ServiceMapController] 聚合分组数: ${gridMap.length}');
+      AppLogger.info('[ServiceMapController] 聚合后 marker 数量: ${clusteredMarkers.length}');
+      AppLogger.info('[ServiceMapController] 聚合分组数: ${gridMap.length}');
 
-      print('[ServiceMapController] 最终 marker 数量: ${markers.value.length}');
+      AppLogger.info('[ServiceMapController] 最终 marker 数量: ${markers.value.length}');
     } catch (e, stack) {
-      print('[ServiceMapController] 加载服务点异常: $e');
-      print(stack);
+      AppLogger.info('[ServiceMapController] 加载服务点异常: $e');
+      AppLogger.info(stack.toString());
     } finally {
       isLoading.value = false;
     }
@@ -582,7 +577,7 @@ class ServiceMapController extends GetxController {
       
       isMapInitialized.value = true;
     } catch (e) {
-      print('[ServiceMapController] Error initializing map: $e');
+      AppLogger.info('[ServiceMapController] Error initializing map: $e');
     }
   }
 
@@ -696,8 +691,9 @@ class ServiceMapController extends GetxController {
     final maxDiff = max(latDiff, lngDiff);
     
     double zoomLevel = 15.0;
-    if (maxDiff > 10) zoomLevel = 8.0;
-    else if (maxDiff > 5) zoomLevel = 10.0;
+    if (maxDiff > 10) {
+      zoomLevel = 8.0;
+    } else if (maxDiff > 5) zoomLevel = 10.0;
     else if (maxDiff > 1) zoomLevel = 12.0;
     else if (maxDiff > 0.1) zoomLevel = 14.0;
     
@@ -721,7 +717,7 @@ class ServiceMapController extends GetxController {
       // 重新获取markers
       await fetchMarkers();
     } catch (e) {
-      print('[ServiceMapController] Error centering on user location: $e');
+      AppLogger.info('[ServiceMapController] Error centering on user location: $e');
     }
   }
 
@@ -746,7 +742,7 @@ class ServiceMapController extends GetxController {
       // 自动调整地图视图
       autoFitMapToMarkers();
     } catch (e) {
-      print('[ServiceMapController] Error searching nearby services: $e');
+      AppLogger.info('[ServiceMapController] Error searching nearby services: $e');
     }
   }
 }

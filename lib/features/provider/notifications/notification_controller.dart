@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/features/provider/services/notification_service.dart';
 import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';

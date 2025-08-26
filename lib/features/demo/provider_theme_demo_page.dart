@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:jinbeanpod_83904710/core/ui/themes/provider_theme.dart';
-import 'package:jinbeanpod_83904710/core/ui/themes/customer_theme.dart';
-import 'package:jinbeanpod_83904710/core/ui/themes/jinbean_theme.dart';
 
 class ProviderThemeDemoPage extends StatefulWidget {
   const ProviderThemeDemoPage({super.key});
@@ -172,12 +170,12 @@ class _ProviderThemeDemoPageState extends State<ProviderThemeDemoPage> {
               const SizedBox(height: 12),
               LinearProgressIndicator(
                 value: 0.7,
-                backgroundColor: _currentTheme.colorScheme.surfaceVariant,
+                backgroundColor: _currentTheme.colorScheme.surfaceContainerHighest,
               ),
               const SizedBox(height: 16),
               CircularProgressIndicator(
                 value: 0.7,
-                backgroundColor: _currentTheme.colorScheme.surfaceVariant,
+                backgroundColor: _currentTheme.colorScheme.surfaceContainerHighest,
               ),
               
               const SizedBox(height: 24),

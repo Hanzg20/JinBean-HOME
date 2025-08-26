@@ -1,16 +1,12 @@
-import 'package:flutter/material.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'home_controller.dart';
 // Import AppColors
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
-import 'package:jinbeanpod_83904710/l10n/app_localizations_en.dart';
 import 'package:jinbeanpod_83904710/core/controllers/location_controller.dart';
 import 'package:jinbeanpod_83904710/app/shell_app_controller.dart';
 import 'package:jinbeanpod_83904710/core/plugin_management/plugin_manager.dart';
 import 'package:jinbeanpod_83904710/features/service_booking/presentation/service_booking_controller.dart';
 import 'package:jinbeanpod_83904710/core/ui/components/customer_theme_components.dart';
-import 'package:jinbeanpod_83904710/core/ui/themes/customer_theme_utils.dart';
 
 class HomePage extends GetView<HomeController> {
   const HomePage({super.key});
@@ -96,8 +92,8 @@ class HomePage extends GetView<HomeController> {
           end: Alignment.bottomRight,
           colors: [
             colorScheme.primary,
-            colorScheme.primary.withOpacity(0.7),
-            colorScheme.primary.withOpacity(0.5),
+            colorScheme.primary.withValues(alpha: 0.7),
+            colorScheme.primary.withValues(alpha: 0.5),
           ],
           stops: const [0.0, 0.6, 1.0],
         ),
@@ -116,7 +112,7 @@ class HomePage extends GetView<HomeController> {
               width: 120,
               height: 120,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.15),
+                color: Colors.white.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(60),
               ),
             ),
@@ -128,7 +124,7 @@ class HomePage extends GetView<HomeController> {
               width: 60,
               height: 60,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.white.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(30),
               ),
             ),
@@ -140,7 +136,7 @@ class HomePage extends GetView<HomeController> {
               width: 140,
               height: 140,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.08),
+                color: Colors.white.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(70),
               ),
             ),
@@ -155,10 +151,10 @@ class HomePage extends GetView<HomeController> {
                   width: 45,
                   height: 45,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(22.5),
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.3),
+                      color: Colors.white.withValues(alpha: 0.3),
                       width: 2,
                     ),
                   ),
@@ -192,7 +188,7 @@ class HomePage extends GetView<HomeController> {
                       Text(
                         '为您提供优质便捷的生活服务',
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          color: Colors.white.withOpacity(0.95),
+                          color: Colors.white.withValues(alpha: 0.95),
                           fontSize: 13,
                           shadows: [
                             Shadow(
@@ -231,10 +227,10 @@ class HomePage extends GetView<HomeController> {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: Colors.white.withOpacity(0.3),
+                color: Colors.white.withValues(alpha: 0.3),
                 width: 1,
               ),
             ),
@@ -274,9 +270,9 @@ class HomePage extends GetView<HomeController> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.white.withOpacity(0.3)),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -303,7 +299,7 @@ class HomePage extends GetView<HomeController> {
                   Icon(
                     Icons.keyboard_arrow_down,
                     size: 14,
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withValues(alpha: 0.8),
                   ),
                 ],
               ),
@@ -322,9 +318,9 @@ class HomePage extends GetView<HomeController> {
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.white.withOpacity(0.3)),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
               ),
               child: Stack(
                 children: [
@@ -390,9 +386,9 @@ class HomePage extends GetView<HomeController> {
             Obx(() => Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: colorScheme.primary.withOpacity(0.1),
+                color: colorScheme.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: colorScheme.primary.withOpacity(0.2)),
+                border: Border.all(color: colorScheme.primary.withValues(alpha: 0.2)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -510,9 +506,9 @@ class HomePage extends GetView<HomeController> {
             action: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: colorScheme.primary.withOpacity(0.1),
+                color: colorScheme.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: colorScheme.primary.withOpacity(0.2)),
+                border: Border.all(color: colorScheme.primary.withValues(alpha: 0.2)),
               ),
               child: TextButton(
                 onPressed: () {},
@@ -549,7 +545,7 @@ class HomePage extends GetView<HomeController> {
                         borderRadius: BorderRadius.circular(25),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.15),
+                            color: Colors.black.withValues(alpha: 0.15),
                             blurRadius: 15,
                             offset: const Offset(0, 6),
                             spreadRadius: 2,
@@ -571,7 +567,7 @@ class HomePage extends GetView<HomeController> {
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
                                       colors: [
-                                        colorScheme.primary.withOpacity(0.3),
+                                        colorScheme.primary.withValues(alpha: 0.3),
                                         colorScheme.primary,
                                       ],
                                     ),
@@ -591,7 +587,7 @@ class HomePage extends GetView<HomeController> {
                                   end: Alignment.bottomCenter,
                                   colors: [
                                     Colors.transparent,
-                                    Colors.black.withOpacity(0.8),
+                                    Colors.black.withValues(alpha: 0.8),
                                   ],
                                 ),
                               ),
@@ -622,7 +618,7 @@ class HomePage extends GetView<HomeController> {
                                   Text(
                                     item.description,
                                     style: theme.textTheme.bodyMedium?.copyWith(
-                                      color: Colors.white.withOpacity(0.9),
+                                      color: Colors.white.withValues(alpha: 0.9),
                                       fontSize: 14,
                                       shadows: [
                                         Shadow(
@@ -727,9 +723,12 @@ class HomePage extends GetView<HomeController> {
             Future.delayed(const Duration(milliseconds: 300), () {
               try {
                 final serviceBookingController = Get.find<ServiceBookingController>();
+                // 使用新的分类体系
                 serviceBookingController.selectLevel1Category(service.id);
+                // 标记使用新结构
+                serviceBookingController.updateNewStructureFlag(true, service.id);
               } catch (e) {
-                print('Error selecting category: $e');
+                AppLogger.info('Error selecting category: $e');
               }
             });
           }
@@ -740,16 +739,16 @@ class HomePage extends GetView<HomeController> {
             case '服务地图':
               try {
                 final route = controller.getServiceMapRoute();
-                print('Navigating to service map route: $route');
+                AppLogger.info('Navigating to service map route: $route');
                 Get.toNamed(route);
               } catch (e) {
-                print('Error navigating to service map: $e');
+                AppLogger.info('Error navigating to service map: $e');
                 // 备用方案：显示提示信息
                 Get.snackbar(
                   '功能开发中',
                   '服务地图功能正在开发中，敬请期待！',
                   snackPosition: SnackPosition.BOTTOM,
-                  backgroundColor: Colors.blue.withOpacity(0.1),
+                  backgroundColor: Colors.blue.withValues(alpha: 0.1),
                   colorText: Colors.blue,
                   duration: const Duration(seconds: 2),
                 );
@@ -773,9 +772,9 @@ class HomePage extends GetView<HomeController> {
           action: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: colorScheme.primary.withOpacity(0.1),
+              color: colorScheme.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: colorScheme.primary.withOpacity(0.2)),
+              border: Border.all(color: colorScheme.primary.withValues(alpha: 0.2)),
             ),
             child: TextButton(
               onPressed: () {
@@ -828,17 +827,17 @@ class HomePage extends GetView<HomeController> {
                   isPopular: recommendation.isPopular,
                   isNearby: recommendation.isNearby,
                   onTap: () {
-                    print('DEBUG: Navigating to service detail with serviceId: ${recommendation.id}');
-                    print('DEBUG: recommendation object: $recommendation');
-                    print('DEBUG: recommendation.id type: ${recommendation.id.runtimeType}');
-                    print('DEBUG: recommendation.id length: ${recommendation.id.length}');
-                    print('DEBUG: recommendation.id isEmpty: ${recommendation.id.isEmpty}');
-                    print('DEBUG: recommendation.id == "": ${recommendation.id == ""}');
-                    print('DEBUG: recommendation.id == null: ${recommendation.id == null}');
+                    AppLogger.info('DEBUG: Navigating to service detail with serviceId: ${recommendation.id}');
+                    AppLogger.info('DEBUG: recommendation object: $recommendation');
+                    AppLogger.info('DEBUG: recommendation.id type: ${recommendation.id.runtimeType}');
+                    AppLogger.info('DEBUG: recommendation.id length: ${recommendation.id.length}');
+                    AppLogger.info('DEBUG: recommendation.id isEmpty: ${recommendation.id.isEmpty}');
+                    AppLogger.info('DEBUG: recommendation.id == "": ${recommendation.id == ""}');
+                    AppLogger.info('DEBUG: recommendation.id == null: ${recommendation.id == null}');
                     
                     // 使用Get.toNamed的正确方式传递参数
                     final parameters = {'serviceId': recommendation.id};
-                    print('DEBUG: Navigation parameters: $parameters');
+                    AppLogger.info('DEBUG: Navigation parameters: $parameters');
                     
                     Get.toNamed('/service_detail', parameters: parameters);
                   },
@@ -866,9 +865,9 @@ class HomePage extends GetView<HomeController> {
                 action: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
-                    color: colorScheme.primary.withOpacity(0.1),
+                    color: colorScheme.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: colorScheme.primary.withOpacity(0.2)),
+                    border: Border.all(color: colorScheme.primary.withValues(alpha: 0.2)),
                   ),
                   child: TextButton(
                     onPressed: () {},

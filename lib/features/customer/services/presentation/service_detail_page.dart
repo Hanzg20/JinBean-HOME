@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
-import '../../../../core/utils/app_logger.dart';
+
+import '../../../../core/services/services.dart' as core_services;
 import '../../domain/entities/service.dart';
-import 'service_detail_controller.dart';
-import 'widgets/service_detail_error.dart';
 import 'widgets/service_detail_card.dart';
+import 'widgets/service_detail_error.dart';
+import 'widgets/provider_info_card.dart';
+import 'widgets/review_list_card.dart';
+import 'widgets/dynamic_tab_builder.dart';
+import 'service_detail_controller.dart';
 import 'utils/professional_remarks_templates.dart';
-import 'sections/service_basic_info_section.dart';
-import 'sections/service_actions_section.dart';
-import 'sections/service_map_section.dart';
-import 'sections/similar_services_section.dart';
-import 'sections/service_reviews_section.dart';
-import 'sections/provider_details_section.dart';
 
 class ServiceDetailPageNew extends StatefulWidget {
   final String serviceId;
@@ -30,33 +28,131 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late ServiceDetailController controller;
+  
+  // 新服务架构集成
+  late core_services.ServiceManager _serviceManager;
+  late core_services.DynamicTabConfigService _dynamicTabService;
+  List<core_services.ServiceDetail> _serviceDetails = [];
+  bool _isNewServiceInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    
-    String finalServiceId = Get.parameters['serviceId'] ?? widget.serviceId;
-    controller = Get.put(ServiceDetailController());
+    // 初始化TabController，使用固定的5个Tab页长度
     _tabController = TabController(length: 5, vsync: this);
     
-    if (finalServiceId.isNotEmpty) {
-      _loadServiceDetail(finalServiceId);
-    }
-  }
-
-  Future<void> _loadServiceDetail(String serviceId) async {
-    try {
-      await controller.loadServiceDetail(serviceId);
-      AppLogger.info('Service detail loaded successfully');
-    } catch (e) {
-      AppLogger.error('Failed to load service detail: $e');
-    }
+    // 安全初始化controller
+    controller = Get.put(ServiceDetailController());
+    
+    // 初始化新服务架构
+    _initializeNewServices();
+    
+    // 延迟加载数据，避免初始化冲突
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final serviceId = Get.parameters['serviceId'] ?? widget.serviceId;
+      if (serviceId.isNotEmpty) {
+        _loadServiceDetail(serviceId);
+      }
+    });
   }
 
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  Future<void> _initializeNewServices() async {
+    try {
+      _serviceManager = core_services.ServiceManager.instance;
+      _dynamicTabService = core_services.DynamicTabConfigService();
+      
+      // 初始化服务管理器
+      if (!_serviceManager.isInitialized) {
+        await _serviceManager.initializeServices();
+      }
+      
+      _isNewServiceInitialized = true;
+      debugPrint('New services initialized successfully');
+    } catch (e) {
+      debugPrint('Error initializing new services: $e');
+    }
+  }
+
+  Future<void> _loadServiceDetail(String serviceId) async {
+    try {
+      await controller.loadServiceDetail(serviceId);
+      
+      // 如果新服务已初始化，加载服务详情
+      if (_isNewServiceInitialized) {
+        await _loadServiceDetails(serviceId);
+      }
+    } catch (e) {
+      debugPrint('Error loading service detail: $e');
+    }
+  }
+
+  Future<void> _loadServiceDetails(String serviceId) async {
+    try {
+      if (_serviceManager.serviceDetailService != null) {
+        _serviceDetails = await _serviceManager.serviceDetailService!.getServiceDetails(serviceId);
+        debugPrint('Loaded ${_serviceDetails.length} service details');
+        
+        // 更新TabController长度以匹配动态Tab数量
+        _updateTabControllerLength();
+      }
+    } catch (e) {
+      debugPrint('Error loading service details: $e');
+    }
+  }
+
+  void _updateTabControllerLength() {
+    if (_isNewServiceInitialized && _serviceDetails.isNotEmpty) {
+      final service = controller.service.value;
+      if (service != null) {
+        // 转换Service到core_services.Service
+        final coreService = _convertToCoreService(service);
+        final tabConfig = _dynamicTabService.getTabConfig(coreService, _serviceDetails);
+        
+        if (tabConfig.length != _tabController.length) {
+          setState(() {
+            _tabController = TabController(
+              length: tabConfig.length,
+              vsync: this,
+            );
+          });
+        }
+      }
+    }
+  }
+
+  core_services.Service _convertToCoreService(Service service) {
+    return core_services.Service(
+      id: service.id,
+      title: {'en': service.title, 'zh': service.title},
+      description: {'en': service.description, 'zh': service.description},
+      price: service.price ?? 0.0,
+      currency: service.currency ?? 'USD',
+      pricingType: service.pricingType ?? 'fixed',
+      categoryId: service.categoryLevel1Id ?? '',
+      categoryLevel1Id: service.categoryLevel1Id ?? '',
+      categoryLevel2Id: service.categoryLevel2Id ?? '',
+      providerId: service.providerId ?? '',
+      serviceDeliveryMethod: service.serviceDeliveryMethod ?? 'on_site',
+      status: service.status ?? 'active',
+      createdAt: service.createdAt ?? DateTime.now(),
+      updatedAt: service.updatedAt ?? DateTime.now(),
+      images: service.images ?? [],
+      imagesUrl: service.images_url ?? [],
+      rating: service.rating ?? 0.0,
+      reviewCount: service.reviewCount ?? 0,
+      isActive: service.isActive ?? true,
+      serviceDetailsJson: service.serviceDetailsJson ?? {},
+      latitude: service.latitude,
+      longitude: service.longitude,
+      serviceAreaCodes: service.serviceAreaCodes ?? [],
+      tags: service.tags ?? [],
+    );
   }
 
   @override
@@ -72,77 +168,176 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
         ),
       ),
       body: Obx(() {
-        // 统一状态检查，避免多重嵌套Obx
-        final isLoading = controller.isLoading.value;
-        final hasError = controller.hasError.value;
-        final service = controller.service.value;
+        if (controller.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
         
-        if (hasError) {
+        if (controller.hasError.value) {
           return ServiceDetailError(
             message: controller.errorMessage.value,
             onRetry: () => _loadServiceDetail(widget.serviceId),
           );
         }
-
-        if (isLoading || service == null) {
-          return const Center(child: CircularProgressIndicator());
+        
+        final service = controller.service.value;
+        if (service == null) {
+          return const Center(child: Text('Service not found'));
         }
-
-        return _buildPageContent();
+        
+        return _buildPageContent(service, l10n);
       }),
     );
   }
 
-  Widget _buildPageContent() {
-    return DefaultTabController(
-      length: 5,
-      child: Column(
-        children: [
-          // 简化的图片展示区域
-          _buildSimpleImageHeader(),
-          // 简化的TabBar
-          _buildSimpleTabBar(),
-          // TabBarView内容
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              physics: const NeverScrollableScrollPhysics(),
-              children: [
-                _buildOverviewTab(),
-                _buildDetailsTab(),
-                _buildProviderTab(),
-                _buildReviewsTab(),
-                _buildPersonalizedTab(),
-              ],
-            ),
-          ),
-        ],
-      ),
+  Widget _buildPageContent(Service service, AppLocalizations? l10n) {
+    return Column(
+      children: [
+        // 简化的图片头部
+        _buildSimpleImageHeader(service),
+        
+        // 使用新的动态Tab系统
+        Expanded(
+          child: _buildNewDynamicTabSystem(service),
+        ),
+      ],
     );
   }
 
-  Widget _buildSimpleImageHeader() {
-    final service = controller.service.value;
+  Widget _buildNewDynamicTabSystem(Service service) {
+    if (!_isNewServiceInitialized || _serviceDetails.isEmpty) {
+      // 回退到旧的Tab系统
+      return DynamicTabBuilder(
+        service: service,
+        tabController: _tabController,
+      );
+    }
+
+    // 使用新的动态Tab配置服务
+    final coreService = _convertToCoreService(service);
+    final tabConfig = _dynamicTabService.getTabConfig(coreService, _serviceDetails);
     
+    return Column(
+      children: [
+        // 动态Tab栏
+        Container(
+          color: Theme.of(context).colorScheme.surface,
+          child: TabBar(
+            controller: _tabController,
+            isScrollable: true,
+            labelColor: Theme.of(context).colorScheme.primary,
+            unselectedLabelColor: Colors.grey,
+            indicatorColor: Theme.of(context).colorScheme.primary,
+            indicatorWeight: 2,
+            tabAlignment: TabAlignment.start,
+            tabs: tabConfig.map((tab) {
+              return Tab(
+                icon: Icon(tab['icon'] as IconData, size: 20),
+                text: tab['title'] as String,
+              );
+            }).toList(),
+          ),
+        ),
+        
+        // 动态Tab内容
+        Expanded(
+          child: TabBarView(
+            controller: _tabController,
+            children: tabConfig.asMap().entries.map((entry) {
+              final index = entry.key;
+              final tab = entry.value;
+              
+              // 使用DynamicTabConfigService的内容构建器
+              final contentBuilder = _dynamicTabService.getTabContentBuilder(coreService, _serviceDetails);
+              return contentBuilder(context, index);
+            }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSimpleImageHeader(Service service) {
     return Container(
       height: 200,
       width: double.infinity,
-      child: _buildServiceImages(service),
+      color: Colors.grey[300],
+      child: service.images?.isNotEmpty == true
+          ? _buildServiceImages(service)
+          : const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.image, size: 80, color: Colors.grey),
+                  SizedBox(height: 8),
+                  Text('Service Image', style: TextStyle(color: Colors.grey)),
+                ],
+              ),
+            ),
     );
   }
 
-  Widget _buildSimpleTabBar() {
-    final l10n = AppLocalizations.of(context);
-    
+  Widget _buildServiceImages(Service service) {
+    if (service.images == null || service.images!.isEmpty) {
+      return const Center(
+        child: Icon(Icons.image, size: 80, color: Colors.grey),
+      );
+    }
+
+    return PageView.builder(
+      itemCount: service.images!.length,
+      itemBuilder: (context, index) {
+        final imageUrl = service.images![index];
+        
+        // 检查并处理问题URL
+        if (imageUrl.isEmpty || 
+            imageUrl.contains('via.placeholder.com') ||
+            imageUrl.contains('example.com')) {
+          return Container(
+            color: Colors.grey[300],
+            child: const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.image, size: 80, color: Colors.grey),
+                  SizedBox(height: 8),
+                  Text('Image not available', style: TextStyle(color: Colors.grey)),
+                ],
+              ),
+            ),
+          );
+        }
+        
+        return Image.network(
+          imageUrl,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              color: Colors.grey[300],
+              child: const Center(
+                child: Icon(Icons.broken_image, size: 80, color: Colors.grey),
+              ),
+            );
+          },
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return const Center(child: CircularProgressIndicator());
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildSimpleTabBar(AppLocalizations? l10n) {
     return Container(
       color: Theme.of(context).colorScheme.surface,
       child: TabBar(
         controller: _tabController,
-        isScrollable: false,
+        isScrollable: true,
         labelColor: Colors.blue,
         unselectedLabelColor: Colors.grey,
         indicatorColor: Colors.blue,
         indicatorWeight: 2,
+        tabAlignment: TabAlignment.start,
         tabs: [
           Tab(text: l10n?.overview ?? 'Overview'),
           Tab(text: l10n?.details ?? 'Details'),
@@ -154,369 +349,288 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
     );
   }
 
-  Widget _buildServiceImages(Service? service) {
-    if (service == null || service.images == null || service.images!.isEmpty) {
-      return Container(
-        color: Colors.grey[300],
-        child: const Icon(Icons.image, size: 100, color: Colors.grey),
-      );
-    }
-    
-    return PageView.builder(
-      itemCount: service.images!.length,
-      itemBuilder: (context, index) {
-        final imageUrl = service.images![index];
-        
-        // 如果是placeholder图片或网络不可达，显示默认图片
-        if (imageUrl.contains('via.placeholder.com') || imageUrl.isEmpty) {
-          return Container(
-            color: Colors.grey[300],
-            child: const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.image, size: 80, color: Colors.grey),
-                  SizedBox(height: 8),
-                  Text('Service Image', style: TextStyle(color: Colors.grey)),
-                ],
-              ),
-            ),
-          );
-        }
-        
-        return Image.network(
-          imageUrl,
-          fit: BoxFit.cover,
-          loadingBuilder: (context, child, loadingProgress) {
-            if (loadingProgress == null) return child;
-            return Container(
-              color: Colors.grey[300],
-              child: const Center(child: CircularProgressIndicator()),
-            );
-          },
-          errorBuilder: (context, error, stackTrace) {
-            // 记录错误但不让应用崩溃
-            AppLogger.warning('Image loading failed: $imageUrl - $error');
-            return Container(
-              color: Colors.grey[300],
-              child: const Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.image_not_supported, size: 80, color: Colors.grey),
-                    SizedBox(height: 8),
-                    Text('Image not available', style: TextStyle(color: Colors.grey)),
-                  ],
+  Widget _buildOverviewTab(Service service) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 基本信息
+          ServiceDetailCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  service.title ?? 'Untitled Service',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Widget _buildOverviewTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          ServiceBasicInfoSection(controller: controller),
-          const SizedBox(height: 16),
-          ServiceActionsSection(controller: controller),
-          const SizedBox(height: 16),
-          _buildServiceFeaturesSection(),
-          const SizedBox(height: 16),
-          _buildQualityAssuranceSection(),
-          const SizedBox(height: 16),
-          ServiceMapSection(controller: controller),
-          const SizedBox(height: 16),
-          SimilarServicesSection(controller: controller),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDetailsTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          _buildServiceDetailsSection(),
-          const SizedBox(height: 16),
-          _buildProfessionalQualificationSection(),
-          const SizedBox(height: 16),
-          _buildServiceExperienceSection(),
-          const SizedBox(height: 16),
-          _buildServiceTermsSection(),
-          const SizedBox(height: 16),
-          _buildServiceProcessSection(),
-        ],
-      ),
-    );
-  }
-
-  // 服务特色说明 (专业模板系统)  
-  Widget _buildServiceFeaturesSection() {
-    // 提前获取值，避免嵌套Obx
-    final serviceType = _getServiceType();
-    final providerData = _getProviderData();
-    final features = ProfessionalRemarksTemplates.getServiceFeatures(serviceType, providerData);
-    
-    return ServiceDetailSection(
-      title: 'Service Features',
-      icon: Icons.star,
-      iconColor: Colors.orange[600],
-      content: Column(
-        children: features.map((feature) => Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(
-                feature.icon,
-                color: feature.color,
-                size: 20,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                const SizedBox(height: 8),
+                if (service.description.isNotEmpty == true)
+                  Text(
+                    service.description,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                const SizedBox(height: 16),
+                
+                // 价格信息
+                Row(
                   children: [
+                    const Icon(Icons.attach_money, color: Colors.green),
+                    const SizedBox(width: 8),
                     Text(
-                      feature.title,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
+                      '\$${service.price?.toStringAsFixed(2) ?? '0.00'}',
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        color: Colors.green,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(width: 8),
                     Text(
-                      feature.description,
+                      service.pricingType ?? 'fixed',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Colors.grey[600],
                       ),
                     ),
                   ],
                 ),
-              ),
-            ],
+                
+                const SizedBox(height: 16),
+                
+                // 评分信息
+                if (service.rating != null)
+                  Row(
+                    children: [
+                      const Icon(Icons.star, color: Colors.orange),
+                      const SizedBox(width: 8),
+                      Text(
+                        service.rating!.toStringAsFixed(1),
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '(${service.reviewCount ?? 0} reviews)',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
           ),
-        )).toList(),
+          
+          const SizedBox(height: 16),
+          _buildServiceFeaturesSection(service),
+        ],
       ),
     );
   }
 
-  // 质量保证说明 (专业模板系统)
-  Widget _buildQualityAssuranceSection() {
-    // 提前获取值，避免嵌套Obx
-    final serviceType = _getServiceType();
-    final providerData = _getProviderData();
-    final qualityAssurance = ProfessionalRemarksTemplates.getQualityAssurance(serviceType, providerData);
-    
-    return ServiceDetailSection(
-      title: 'Quality Assurance',
-      icon: Icons.verified_user,
-      iconColor: Colors.green[600],
-      content: Text(
-        qualityAssurance,
-        style: Theme.of(context).textTheme.bodyMedium,
+  Widget _buildServiceFeaturesSection(Service service) {
+    try {
+      final serviceType = _getServiceType(service);
+      final providerData = _getProviderData();
+      final features = ProfessionalRemarksTemplates.getServiceFeatures(serviceType, providerData);
+
+      return ServiceDetailSection(
+        title: 'Service Features',
+        icon: Icons.star,
+        iconColor: Colors.orange[600],
+        content: Column(
+          children: features.map((feature) => Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  feature.icon,
+                  color: feature.color,
+                  size: 20,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        feature.title,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        feature.description,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          )).toList(),
+        ),
+      );
+    } catch (e) {
+      debugPrint('Error building service features: $e');
+      return const SizedBox.shrink();
+    }
+  }
+
+  Widget _buildDetailsTab(Service service) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildServiceDetailsSection(service),
+        ],
       ),
     );
   }
 
-  // 服务详细信息
-  Widget _buildServiceDetailsSection() {
-    // 提前获取数据，避免在复杂组件中嵌套Obx
-    final service = controller.service.value;
-    final serviceDetail = controller.serviceDetail.value;
-    
+  Widget _buildServiceDetailsSection(Service service) {
     return ServiceDetailSection(
       title: 'Service Details',
       icon: Icons.info_outline,
-      content: _buildServiceDetailsContent(service, serviceDetail),
-    );
-  }
-
-  Widget _buildServiceDetailsContent(Service? service, serviceDetail) {
-    if (service == null) {
-      return const Text('Loading service details...');
-    }
-    
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ServiceDetailRow(
-          label: 'Category',
-          value: _getCategoryName(service.categoryId?.toString() ?? '0'),
-          icon: Icons.category,
-        ),
-        if (service.description?.isNotEmpty == true)
-          ServiceDetailRow(
-            label: 'Description',
-            value: service.description!,
-            icon: Icons.description,
-          ),
-        ServiceDetailRow(
-          label: 'Delivery Method',
-          value: _getDeliveryMethodName(service.serviceDeliveryMethod ?? 'unknown'),
-          icon: Icons.local_shipping,
-        ),
-        if (service.rating != null)
-          ServiceDetailRow(
-            label: 'Rating',
-            value: '${service.rating!.toStringAsFixed(1)} ⭐',
-            icon: Icons.star,
-          ),
-        if (service.reviewCount != null && service.reviewCount! > 0)
-          ServiceDetailRow(
-            label: 'Reviews',
-            value: '${service.reviewCount} reviews',
-            icon: Icons.reviews,
-          ),
-        if (service.price != null)
-          ServiceDetailRow(
-            label: 'Price',
-            value: '\$${service.price!.toStringAsFixed(2)}',
-            icon: Icons.attach_money,
-          ),
-        if (serviceDetail?.currency != null)
-          ServiceDetailRow(
-            label: 'Currency',
-            value: serviceDetail?.currency ?? 'CAD',
-            icon: Icons.monetization_on,
-          ),
-      ],
-    );
-  }
-
-  // 专业资质说明 (专业模板系统)
-  Widget _buildProfessionalQualificationSection() {
-    // 提前获取值，避免嵌套Obx
-    final serviceType = _getServiceType();
-    final providerData = _getProviderData();
-    final qualification = ProfessionalRemarksTemplates.getProfessionalQualification(serviceType, providerData);
-    
-    return ServiceDetailSection(
-      title: 'Professional Qualifications',
-      icon: Icons.workspace_premium,
-      iconColor: Colors.amber[700],
-      content: Text(
-        qualification,
-        style: Theme.of(context).textTheme.bodyMedium,
-      ),
-    );
-  }
-
-  // 服务经验说明 (专业模板系统)
-  Widget _buildServiceExperienceSection() {
-    // 提前获取值，避免嵌套Obx
-    final serviceType = _getServiceType();
-    final providerData = _getProviderData();
-    final experience = ProfessionalRemarksTemplates.getServiceExperience(serviceType, providerData);
-    
-    return ServiceDetailSection(
-      title: 'Service Experience',
-      icon: Icons.history,
       iconColor: Colors.blue[600],
-      content: Text(
-        experience,
-        style: Theme.of(context).textTheme.bodyMedium,
-      ),
-    );
-  }
-
-  // 服务条款
-  Widget _buildServiceTermsSection() {
-    return ServiceDetailSection(
-      title: 'Service Terms',
-      icon: Icons.policy,
       content: Column(
         children: [
           ServiceDetailRow(
-            label: 'Cancellation Policy',
-            value: 'Standard 24-hour cancellation policy',
-            icon: Icons.cancel,
+            label: 'Category',
+            value: _getCategoryName(service.categoryId ?? '0'),
+            icon: Icons.category,
           ),
+          if (service.description.isNotEmpty == true)
+            ServiceDetailRow(
+              label: 'Description',
+              value: service.description,
+              icon: Icons.description,
+            ),
           ServiceDetailRow(
-            label: 'Refund Policy',
-            value: 'Full refund within 48 hours if not satisfied',
-            icon: Icons.money,
+            label: 'Delivery Method',
+            value: _getDeliveryMethodName(service.serviceDeliveryMethod ?? 'unknown'),
+            icon: Icons.local_shipping,
           ),
-          ServiceDetailRow(
-            label: 'Insurance Coverage',
-            value: 'Fully insured and bonded',
-            icon: Icons.security,
-          ),
-          ServiceDetailRow(
-            label: 'Quality Guarantee',
-            value: '100% satisfaction guarantee',
-            icon: Icons.verified,
-          ),
+          if (service.rating != null)
+            ServiceDetailRow(
+              label: 'Rating',
+              value: '${service.rating!.toStringAsFixed(1)} stars',
+              icon: Icons.star,
+            ),
         ],
       ),
     );
   }
 
-  // 服务流程
-  Widget _buildServiceProcessSection() {
-    return ServiceDetailSection(
-      title: 'Service Process',
-      icon: Icons.route,
-      content: Column(
-        children: [
-          _buildProcessStep(1, 'Book Service', 'Choose your preferred time and date'),
-          _buildProcessStep(2, 'Confirmation', 'Receive booking confirmation and provider details'),
-          _buildProcessStep(3, 'Service Delivery', 'Professional service at your location'),
-          _buildProcessStep(4, 'Payment', 'Secure payment after service completion'),
-          _buildProcessStep(5, 'Review', 'Rate and review your experience'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProcessStep(int step, String title, String description) {
-    final theme = Theme.of(context);
-    
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 24,
-            height: 24,
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primary,
-              shape: BoxShape.circle,
-            ),
-            child: Center(
-              child: Text(
-                '$step',
-                style: TextStyle(
-                  color: theme.colorScheme.onPrimary,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
+  Widget _buildProviderTab() {
+    return Obx(() {
+      if (controller.isLoadingProvider.value) {
+        return const Center(child: CircularProgressIndicator());
+      }
+      
+      final provider = controller.providerProfile.value;
+      if (provider == null) {
+        return const SingleChildScrollView(
+          padding: EdgeInsets.all(16),
+          child: ServiceDetailCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
+                  'Provider Information',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 16),
                 Text(
-                  description,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
+                  'Provider information not available.',
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+      
+      return SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: ProviderInfoCard(
+          provider: provider,
+          onContact: () {
+            // TODO: 实现联系提供商功能
+            Get.snackbar(
+              'Contact',
+              'Contacting provider...',
+              snackPosition: SnackPosition.BOTTOM,
+            );
+          },
+          onViewProfile: () {
+            // TODO: 实现查看提供商资料功能
+            Get.snackbar(
+              'View Profile',
+              'Opening provider profile...',
+              snackPosition: SnackPosition.BOTTOM,
+            );
+          },
+        ),
+      );
+    });
+  }
+
+  Widget _buildReviewsTab() {
+    return Obx(() {
+      return SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: ReviewListCard(
+          reviews: controller.reviews,
+          currentSort: controller.currentReviewSort.value,
+          filters: controller.reviewFilters,
+          onSortChanged: controller.updateReviewSort,
+          onFilterChanged: controller.updateReviewFilter,
+          onWriteReview: () {
+            // TODO: 实现写评价功能
+            Get.snackbar(
+              'Write Review',
+              'Opening review form...',
+              snackPosition: SnackPosition.BOTTOM,
+            );
+          },
+          isLoading: controller.isLoadingReviews.value,
+        ),
+      );
+    });
+  }
+
+  Widget _buildPersonalizedTab() {
+    return const SingleChildScrollView(
+      padding: EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ServiceDetailCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Personalized Recommendations',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
+                ),
+                SizedBox(height: 16),
+                Text(
+                  'Personalized content will be displayed here.',
+                  style: TextStyle(color: Colors.grey),
                 ),
               ],
             ),
@@ -526,102 +640,65 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
     );
   }
 
-  // Helper methods for professional remarks templates
-  String _getServiceType() {
-    final service = controller.service.value;
-    if (service?.categoryId != null) {
-      final categoryId = service!.categoryId!;
-      switch (categoryId) {
-        case '1010000': return ProfessionalRemarksTemplates.FOOD_SERVICE;
-        case '1020000': return ProfessionalRemarksTemplates.CLEANING_SERVICE;
-        case '1030000': return ProfessionalRemarksTemplates.TRANSPORTATION_SERVICE;
-        case '1040000': return ProfessionalRemarksTemplates.TECHNOLOGY_SERVICE;
-        case '1050000': return ProfessionalRemarksTemplates.EDUCATION_SERVICE;
-        case '1060000': return ProfessionalRemarksTemplates.HEALTH_SERVICE;
-        default: return ProfessionalRemarksTemplates.GENERAL_SERVICE;
-      }
+  // 辅助方法
+  String _getServiceType(Service service) {
+    final categoryId = service.categoryId ?? '0';
+    switch (categoryId) {
+      case '1020000':
+        return 'cleaning';
+      case '1010000':
+        return 'food';
+      case '1030000':
+        return 'transportation';
+      case '1040000':
+        return 'general';
+      case '1050000':
+        return 'education';
+      case '1060000':
+        return 'technology';
+      default:
+        return 'general';
     }
-    return ProfessionalRemarksTemplates.GENERAL_SERVICE;
   }
 
   Map<String, dynamic>? _getProviderData() {
-    final provider = controller.providerProfile.value;
-    if (provider == null) return null;
-    
-    return {
-      'completedOrders': provider.completedOrders,
-      'rating': provider.rating,
-      'reviewCount': provider.reviewCount,
-      'isVerified': provider.isVerified,
-      'businessLicense': provider.businessLicense,
-    };
+    try {
+      return controller.providerProfile.value?.toJson();
+    } catch (e) {
+      debugPrint('Error getting provider data: $e');
+      return null;
+    }
   }
 
   String _getCategoryName(String categoryId) {
     switch (categoryId) {
-      case '1010000': return 'Food Court';
-      case '1020000': return 'Home Services';
-      case '1030000': return 'Transportation';
-      case '1040000': return 'Shared Services';
-      case '1050000': return 'Education';
-      case '1060000': return 'Life Assistance';
-      default: return 'General Service';
+      case '1020000':
+        return 'Home Services';
+      case '1010000':
+        return 'Food Services';
+      case '1030000':
+        return 'Transportation';
+      case '1040000':
+        return 'General Services';
+      case '1050000':
+        return 'Education';
+      case '1060000':
+        return 'Technology';
+      default:
+        return 'Unknown Category';
     }
   }
 
   String _getDeliveryMethodName(String method) {
-    switch (method) {
-      case 'on_site': return 'On-site Service';
-      case 'online': return 'Online Service';
-      case 'remote': return 'Remote Service';
-      default: return 'Standard Delivery';
+    switch (method.toLowerCase()) {
+      case 'on_site':
+        return 'On-site Service';
+      case 'online':
+        return 'Online Service';
+      case 'remote':
+        return 'Remote Service';
+      default:
+        return 'Standard Delivery';
     }
-  }
-
-  String _formatDuration(int minutes) {
-    if (minutes < 60) {
-      return '$minutes minutes';
-    } else {
-      final hours = minutes ~/ 60;
-      final remainingMinutes = minutes % 60;
-      if (remainingMinutes == 0) {
-        return '$hours hour${hours > 1 ? 's' : ''}';
-      } else {
-        return '$hours hour${hours > 1 ? 's' : ''} $remainingMinutes minutes';
-      }
-    }
-  }
-
-  Widget _buildProviderTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          ProviderDetailsSection(controller: controller),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildReviewsTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          ServiceReviewsSection(controller: controller),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPersonalizedTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          SimilarServicesSection(controller: controller),
-        ],
-      ),
-    );
   }
 }

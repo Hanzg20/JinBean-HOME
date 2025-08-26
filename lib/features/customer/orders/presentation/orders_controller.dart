@@ -1,4 +1,4 @@
-import 'package:get/get.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Order {
@@ -124,9 +124,9 @@ class OrdersController extends GetxController {
       }
 
       orders.value = orderList;
-      print('Loaded ${orderList.length} orders');
+      AppLogger.info('Loaded ${orderList.length} orders');
         } catch (e) {
-      print('Error loading orders: $e');
+      AppLogger.info('Error loading orders: $e');
       errorMessage.value = 'Failed to load orders: $e';
     } finally {
       isLoading.value = false;
@@ -213,7 +213,7 @@ class OrdersController extends GetxController {
       // Reload orders
       loadOrders();
     } catch (e) {
-      print('Error cancelling order: $e');
+      AppLogger.info('Error cancelling order: $e');
       Get.snackbar(
         'Error',
         'Failed to cancel order',

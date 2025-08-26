@@ -1,13 +1,13 @@
-import 'package:flutter/material.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'splash_controller.dart';
+import '../../features/customer/splash/presentation/splash_controller.dart';
 
 class SplashPage extends StatelessWidget {
   const SplashPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    print('SplashPage: build method called');
+    AppLogger.info('SplashPage: build method called');
     // Explicitly find the controller here
     final SplashController controller = Get.find<SplashController>();
 
@@ -15,7 +15,7 @@ class SplashPage extends StatelessWidget {
       if (controller.isReadyToNavigate.value) {
         // Schedule navigation after the current frame is built
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          controller.navigateToNextScreen();
+          controller.navigateToLogin();
         });
         return const SizedBox.shrink(); // Hide splash page immediately after navigation
       }

@@ -43,7 +43,7 @@ class CustomerBadge extends StatelessWidget {
         textColor = colorScheme.onPrimary;
         break;
       case CustomerBadgeType.secondary:
-        backgroundColor = colorScheme.surfaceVariant;
+        backgroundColor = colorScheme.surfaceContainerHighest;
         textColor = colorScheme.onSurfaceVariant;
         break;
       case CustomerBadgeType.success:
@@ -176,17 +176,17 @@ class CustomerStatCard extends StatelessWidget {
                 end: Alignment.bottomRight,
                 colors: [
                   colorScheme.surface,
-                  colorScheme.primary.withOpacity(0.05),
+                  colorScheme.primary.withValues(alpha: 0.05),
                 ],
               ),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: colorScheme.outline.withOpacity(0.1),
+                color: colorScheme.outline.withValues(alpha: 0.1),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: colorScheme.shadow.withOpacity(0.1),
+                  color: colorScheme.shadow.withValues(alpha: 0.1),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -196,7 +196,7 @@ class CustomerStatCard extends StatelessWidget {
               color: colorScheme.surface,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: colorScheme.outline.withOpacity(0.1),
+                color: colorScheme.outline.withValues(alpha: 0.1),
                 width: 1,
               ),
             ),
@@ -278,7 +278,7 @@ class CustomerCard extends StatelessWidget {
                 end: Alignment.bottomRight,
                 colors: [
                   colorScheme.surface,
-                  colorScheme.surfaceVariant.withOpacity(0.3),
+                  colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                 ],
               ),
               borderRadius: const BorderRadius.only(
@@ -288,12 +288,12 @@ class CustomerCard extends StatelessWidget {
                 bottomRight: Radius.circular(16),
               ),
               border: Border.all(
-                color: colorScheme.outline.withOpacity(0.1),
+                color: colorScheme.outline.withValues(alpha: 0.1),
                 width: 1,
               ),
               boxShadow: showShadow ? [
                 BoxShadow(
-                  color: colorScheme.shadow.withOpacity(0.1),
+                  color: colorScheme.shadow.withValues(alpha: 0.1),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -351,7 +351,7 @@ class CustomerIconContainer extends StatelessWidget {
       decoration: useGradient
           ? CustomerThemeUtils.getIconContainerDecoration(context)
           : BoxDecoration(
-              color: backgroundColor ?? colorScheme.primary.withOpacity(0.1),
+              color: backgroundColor ?? colorScheme.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(size / 2),
             ),
       child: Icon(
@@ -421,7 +421,7 @@ class CustomerButton extends StatelessWidget {
                   backgroundColor: colorScheme.primary,
                   foregroundColor: colorScheme.onPrimary,
                   elevation: 3,
-                  shadowColor: colorScheme.shadow.withOpacity(0.2),
+                  shadowColor: colorScheme.shadow.withValues(alpha: 0.2),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -633,12 +633,12 @@ class CustomerServiceCard extends StatelessWidget {
           bottomRight: Radius.circular(8),
         ),
         border: Border.all(
-          color: colorScheme.outline.withOpacity(0.1),
+          color: colorScheme.outline.withValues(alpha: 0.1),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: colorScheme.shadow.withOpacity(0.05),
+            color: colorScheme.shadow.withValues(alpha: 0.05),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -667,7 +667,7 @@ class CustomerServiceCard extends StatelessWidget {
                       width: 36,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: colorScheme.primary.withOpacity(0.1),
+                        color: colorScheme.primary.withValues(alpha: 0.1),
                         borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(6),
                           topRight: Radius.circular(24), // 右上角半径是其他角的4倍
@@ -830,7 +830,7 @@ class CustomerRecommendationCard extends StatelessWidget {
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) {
                                 return Container(
-                                  color: colorScheme.surfaceVariant,
+                                  color: colorScheme.surfaceContainerHighest,
                                   child: Icon(
                                     Icons.image,
                                     size: 40,
@@ -840,7 +840,7 @@ class CustomerRecommendationCard extends StatelessWidget {
                               },
                             )
                           : Container(
-                              color: colorScheme.surfaceVariant,
+                              color: colorScheme.surfaceContainerHighest,
                               child: Icon(
                                 Icons.image,
                                 size: 40,

@@ -110,8 +110,8 @@ class _JinBeanBottomNavigationExampleState extends State<JinBeanBottomNavigation
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            color.withOpacity(0.1),
-            color.withOpacity(0.05),
+            color.withValues(alpha: 0.1),
+            color.withValues(alpha: 0.05),
           ],
         ),
       ),
@@ -123,10 +123,10 @@ class _JinBeanBottomNavigationExampleState extends State<JinBeanBottomNavigation
               width: 120,
               height: 120,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(60),
                 border: Border.all(
-                  color: color.withOpacity(0.3),
+                  color: color.withValues(alpha: 0.3),
                   width: 2,
                 ),
               ),
@@ -150,17 +150,17 @@ class _JinBeanBottomNavigationExampleState extends State<JinBeanBottomNavigation
               '这是 $title 页面',
               style: TextStyle(
                 fontSize: 16,
-                color: color.withOpacity(0.7),
+                color: color.withValues(alpha: 0.7),
               ),
             ),
             const SizedBox(height: 32),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: color.withOpacity(0.3),
+                  color: color.withValues(alpha: 0.3),
                 ),
               ),
               child: Text(

@@ -1,4 +1,4 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// 用户行为类型
 enum UserBehaviorType {
@@ -33,7 +33,7 @@ class PersonalizationService {
             'created_at': DateTime.now().toIso8601String(),
           });
     } catch (e) {
-      print('Error logging user behavior: $e');
+      AppLogger.info('Error logging user behavior: $e');
     }
   }
 
@@ -78,7 +78,7 @@ class PersonalizationService {
         'reviewed_services': behaviors.where((b) => b['behavior_type'] == 'review').length,
       };
     } catch (e) {
-      print('Error getting user preferences: $e');
+      AppLogger.info('Error getting user preferences: $e');
       return {};
     }
   }
@@ -154,7 +154,7 @@ class PersonalizationService {
 
       return scoredRecommendations;
     } catch (e) {
-      print('Error getting history-based recommendations: $e');
+      AppLogger.info('Error getting history-based recommendations: $e');
       return [];
     }
   }
@@ -219,7 +219,7 @@ class PersonalizationService {
 
       return recommendations.take(5).toList();
     } catch (e) {
-      print('Error getting similar user recommendations: $e');
+      AppLogger.info('Error getting similar user recommendations: $e');
       return [];
     }
   }
@@ -270,7 +270,7 @@ class PersonalizationService {
 
       return offers;
     } catch (e) {
-      print('Error getting personalized offers: $e');
+      AppLogger.info('Error getting personalized offers: $e');
       return [];
     }
   }
@@ -401,7 +401,7 @@ class PersonalizationService {
 
       return similarUsers.map((u) => u['user_id'] as String).toList();
     } catch (e) {
-      print('Error finding similar users: $e');
+      AppLogger.info('Error finding similar users: $e');
       return [];
     }
   }

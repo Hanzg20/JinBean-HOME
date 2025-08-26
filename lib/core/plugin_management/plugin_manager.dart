@@ -1,4 +1,4 @@
-import 'dart:async';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'dart:async';
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/core/plugin_management/app_plugin.dart';
 import 'package:jinbeanpod_83904710/features/customer/auth/auth_plugin.dart';
@@ -38,7 +38,7 @@ class PluginManager extends GetxController {
           .toList();
 
   PluginManager() {
-    print('[PluginManager] Constructor called. hash:  [32m [1m [4m [7m$hashCode [0m');
+    AppLogger.info('[PluginManager] Constructor called. hash:  [32m [1m [4m [7m$hashCode [0m');
     ever<List<PluginMetadata>>(_enabledPluginsMetadata,
         (_) => _updateEnabledTabPluginsForCurrentRole());
     ever<String>(currentRole, (_) => _updateEnabledTabPluginsForCurrentRole());
@@ -47,12 +47,12 @@ class PluginManager extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    print('[PluginManager] onInit called. hash:  [32m [1m [4m [7m$hashCode [0m');
+    AppLogger.info('[PluginManager] onInit called. hash:  [32m [1m [4m [7m$hashCode [0m');
     _fetchPluginsConfiguration();
   }
 
   void _registerStaticPlugins() {
-    print('[PluginManager] _registerStaticPlugins called.');
+    AppLogger.info('[PluginManager] _registerStaticPlugins called.');
     _registeredPlugins.assignAll([
       AuthPlugin(), // 注册认证插件
       HomePlugin(), // 注册 Home 插件
@@ -66,40 +66,40 @@ class PluginManager extends GetxController {
       ServiceManagePlugin(), // 注册服务管理插件
       RobOrderHallPlugin(), // 注册抢单大厅插件
     ]);
-    print('[PluginManager] Static plugins registered: '
+    AppLogger.info('[PluginManager] Static plugins registered: '
       '${_registeredPlugins.map((p) => p.metadata.id).join(', ')}');
   }
 
   void _updateEnabledTabPluginsForCurrentRole() {
-    print('[PluginManager] _updateEnabledTabPluginsForCurrentRole called. currentRole: '
+    AppLogger.info('[PluginManager] _updateEnabledTabPluginsForCurrentRole called. currentRole: '
       '\x1b[33m${currentRole.value}\x1b[0m');
     if (_enabledPluginsMetadata.isEmpty) {
-      print('[PluginManager] _enabledPluginsMetadata is empty, skipping update.');
+      AppLogger.info('[PluginManager] _enabledPluginsMetadata is empty, skipping update.');
       return;
     }
-    print('[PluginManager] _enabledPluginsMetadata.length: ${_enabledPluginsMetadata.length}');
+    AppLogger.info('[PluginManager] _enabledPluginsMetadata.length: ${_enabledPluginsMetadata.length}');
     final filtered = _enabledPluginsMetadata
         .where((meta) =>
             meta.role == currentRole.value && meta.type == PluginType.bottomTab)
         .toList();
-    print('[PluginManager] enabledTabPluginsForCurrentRole.assignAll: '
+    AppLogger.info('[PluginManager] enabledTabPluginsForCurrentRole.assignAll: '
       '${filtered.map((e) => e.id).join(',')}');
     enabledTabPluginsForCurrentRole.assignAll(filtered);
-    print('[PluginManager] enabledTabPluginsForCurrentRole.length: '
+    AppLogger.info('[PluginManager] enabledTabPluginsForCurrentRole.length: '
       '${enabledTabPluginsForCurrentRole.length}');
     // 自动修正ShellAppController的tab index，防止越界
     try {
       final shellController = Get.find<ShellAppController>();
       shellController.setTabSafe(shellController.currentIndex, enabledTabPluginsForCurrentRole.length);
     } catch (e) {
-      print('[PluginManager] ShellAppController not found or error in setTabSafe: $e');
+      AppLogger.info('[PluginManager] ShellAppController not found or error in setTabSafe: $e');
     }
   }
 
   Future<void> _fetchPluginsConfiguration() async {
-    print('[PluginManager] _fetchPluginsConfiguration called.');
+    AppLogger.info('[PluginManager] _fetchPluginsConfiguration called.');
     try {
-      print('[PluginManager] _fetchPluginsConfiguration start');
+      AppLogger.info('[PluginManager] _fetchPluginsConfiguration start');
       // 实际应用中，这里会调用Supabase或其他后端API
       // 获取一个Map<String, dynamic>的列表，然后转换为List<PluginMetadata>
       await Future.delayed(const Duration(seconds: 1)); // 模拟网络请求
@@ -210,7 +210,7 @@ class PluginManager extends GetxController {
             .toList()
           ..sort((a, b) => a.order.compareTo(b.order)), // 按顺序排序
       );
-      print(
+      AppLogger.info(
           '[PluginManager] _enabledPluginsMetadata after assignAll: ${_enabledPluginsMetadata.map((e) => e.id).join(',')}');
       _updateEnabledTabPluginsForCurrentRole();
 
@@ -219,10 +219,10 @@ class PluginManager extends GetxController {
         final plugin = _registeredPlugins
             .firstWhereOrNull((p) => p.metadata.id == meta.id);
         if (plugin != null) {
-          print('PluginManager: Initializing plugin: ${plugin.metadata.id}');
+          AppLogger.info('PluginManager: Initializing plugin: ${plugin.metadata.id}');
           plugin.init();
           plugin.bindings?.dependencies(); // 确保绑定被执行
-          print(
+          AppLogger.info(
               'PluginManager: Binding dependencies called for ${plugin.metadata.id}');
         }
       }
@@ -239,26 +239,26 @@ class PluginManager extends GetxController {
       }
       Get.addPages(appRoutes); // 将插件路由添加到GetX
 
-      print('PluginManager: About to set _isInitialized to true');
+      AppLogger.info('PluginManager: About to set _isInitialized to true');
       _isInitialized.value = true;
       if (!_initCompleter.isCompleted) {
         _initCompleter.complete();
       }
-      print('PluginManager: _isInitialized set to true');
-      print('PluginManager: 当前role: ${currentRole.value}');
-      print(
+      AppLogger.info('PluginManager: _isInitialized set to true');
+      AppLogger.info('PluginManager: 当前role: ${currentRole.value}');
+      AppLogger.info(
           'PluginManager: enabledPluginsMetadataForCurrentRole: ${enabledPluginsMetadataForCurrentRole.map((e) => e.id).join(',')}');
       for (var meta in enabledPluginsMetadataForCurrentRole) {
-        print(
+        AppLogger.info(
             'PluginManager: id=${meta.id}, type=${meta.type}, type.runtimeType=${meta.type.runtimeType}');
       }
     } catch (e) {
-      print('PluginManager: Error during _fetchPluginsConfiguration: $e');
+      AppLogger.info('PluginManager: Error during _fetchPluginsConfiguration: $e');
       if (!_initCompleter.isCompleted) {
         _initCompleter.completeError(e);
       }
     }
-    print('[PluginManager] _fetchPluginsConfiguration finished.');
+    AppLogger.info('[PluginManager] _fetchPluginsConfiguration finished.');
   }
 
   // 获取所有已注册插件的路由
@@ -284,21 +284,21 @@ class PluginManager extends GetxController {
     // 不要在这里 assignAll 空列表，等数据加载完再 assignAll
     await _fetchPluginsConfiguration();
     // _updateEnabledTabPluginsForCurrentRole(); // 由 _fetchPluginsConfiguration 结尾统一调用
-    print('PluginManager: reloadPlugins后，当前role: ${currentRole.value}');
-    print(
+    AppLogger.info('PluginManager: reloadPlugins后，当前role: ${currentRole.value}');
+    AppLogger.info(
         'PluginManager: enabledPluginsMetadataForCurrentRole: ${enabledPluginsMetadataForCurrentRole.map((e) => e.id).join(',')}');
     // _isInitialized.value = true; // 只在 _fetchPluginsConfiguration 结尾赋值
   }
 
   void setRole(String role) {
     if (currentRole.value != role) {
-      print('[PluginManager] setRole called, switching to $role');
+      AppLogger.info('[PluginManager] setRole called, switching to $role');
       currentRole.value = role;
       // 切换角色时重置 tab index，防止 IndexedStack 越界
       try {
         Get.find<ShellAppController>().changeTab(0);
       } catch (e) {
-        print('PluginManager: ShellAppController not found or error: $e');
+        AppLogger.info('PluginManager: ShellAppController not found or error: $e');
       }
       reloadPlugins();
       _updateEnabledTabPluginsForCurrentRole();

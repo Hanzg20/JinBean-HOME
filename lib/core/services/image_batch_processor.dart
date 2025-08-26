@@ -1,4 +1,4 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:supabase_flutter/supabase_flutter.dart';
 import 'service_image_manager.dart';
 
 class ImageBatchProcessor {
@@ -11,7 +11,7 @@ class ImageBatchProcessor {
   /// Quick fix: Update all services with placeholder images
   Future<void> quickFixAllServiceImages() async {
     try {
-      print('[ImageBatchProcessor] Starting quick fix for all service images...');
+      AppLogger.info('[ImageBatchProcessor] Starting quick fix for all service images...');
       
       // Get all services that need images
       final services = await Supabase.instance.client
@@ -37,7 +37,7 @@ class ImageBatchProcessor {
           if (existingDetails != null && 
               existingDetails['images_url'] != null && 
               (existingDetails['images_url'] as List).isNotEmpty) {
-            print('[ImageBatchProcessor] Service $serviceId already has images, skipping...');
+            AppLogger.info('[ImageBatchProcessor] Service $serviceId already has images, skipping...');
             continue;
           }
           
@@ -55,20 +55,20 @@ class ImageBatchProcessor {
           await _updateServiceDetails(serviceId, images);
           
           processedCount++;
-          print('[ImageBatchProcessor] Processed service: $serviceName (ID: $serviceId)');
+          AppLogger.info('[ImageBatchProcessor] Processed service: $serviceName (ID: $serviceId)');
           
         } catch (e) {
           errorCount++;
-          print('[ImageBatchProcessor] Error processing service ${service['id']}: $e');
+          AppLogger.info('[ImageBatchProcessor] Error processing service ${service['id']}: $e');
         }
       }
       
-      print('[ImageBatchProcessor] Quick fix completed!');
-      print('[ImageBatchProcessor] Successfully processed: $processedCount services');
-      print('[ImageBatchProcessor] Errors: $errorCount services');
+      AppLogger.info('[ImageBatchProcessor] Quick fix completed!');
+      AppLogger.info('[ImageBatchProcessor] Successfully processed: $processedCount services');
+      AppLogger.info('[ImageBatchProcessor] Errors: $errorCount services');
       
     } catch (e) {
-      print('[ImageBatchProcessor] Error in quick fix: $e');
+      AppLogger.info('[ImageBatchProcessor] Error in quick fix: $e');
       rethrow;
     }
   }
@@ -88,9 +88,9 @@ class ImageBatchProcessor {
       
       await _updateServiceDetails(serviceId, images);
       
-      print('[ImageBatchProcessor] Updated service $serviceId with ${images.length} images');
+      AppLogger.info('[ImageBatchProcessor] Updated service $serviceId with ${images.length} images');
     } catch (e) {
-      print('[ImageBatchProcessor] Error updating service $serviceId: $e');
+      AppLogger.info('[ImageBatchProcessor] Error updating service $serviceId: $e');
       rethrow;
     }
   }
@@ -106,7 +106,7 @@ class ImageBatchProcessor {
       
       return response?['code'] ?? 'LIFESTYLE';
     } catch (e) {
-      print('[ImageBatchProcessor] Error getting category code: $e');
+      AppLogger.info('[ImageBatchProcessor] Error getting category code: $e');
       return 'LIFESTYLE';
     }
   }
@@ -148,7 +148,7 @@ class ImageBatchProcessor {
             });
       }
     } catch (e) {
-      print('[ImageBatchProcessor] Error updating service details: $e');
+      AppLogger.info('[ImageBatchProcessor] Error updating service details: $e');
       rethrow;
     }
   }
@@ -156,7 +156,7 @@ class ImageBatchProcessor {
   /// Generate sample images for testing
   Future<void> generateSampleImagesForTesting() async {
     try {
-      print('[ImageBatchProcessor] Generating sample images for testing...');
+      AppLogger.info('[ImageBatchProcessor] Generating sample images for testing...');
       
       // Sample services with different categories
       final List<Map<String, dynamic>> sampleServices = [
@@ -175,15 +175,15 @@ class ImageBatchProcessor {
           count: 3,
         );
         
-        print('[ImageBatchProcessor] Generated ${images.length} images for ${service['name']}:');
+        AppLogger.info('[ImageBatchProcessor] Generated ${images.length} images for ${service['name']}:');
         for (int i = 0; i < images.length; i++) {
-          print('  Image ${i + 1}: ${images[i]}');
+          AppLogger.info('  Image ${i + 1}: ${images[i]}');
         }
-        print('');
+        AppLogger.info('');
       }
       
     } catch (e) {
-      print('[ImageBatchProcessor] Error generating sample images: $e');
+      AppLogger.info('[ImageBatchProcessor] Error generating sample images: $e');
       rethrow;
     }
   }
@@ -191,7 +191,7 @@ class ImageBatchProcessor {
   /// Validate all service images
   Future<Map<String, dynamic>> validateAllServiceImages() async {
     try {
-      print('[ImageBatchProcessor] Validating all service images...');
+      AppLogger.info('[ImageBatchProcessor] Validating all service images...');
       
       final services = await Supabase.instance.client
           .from('service_details')
@@ -228,15 +228,15 @@ class ImageBatchProcessor {
         'servicesWithIssues': servicesWithIssues,
       };
       
-      print('[ImageBatchProcessor] Validation completed:');
-      print('  Total services: $totalServices');
-      print('  Valid images: $validImages');
-      print('  Invalid images: $invalidImages');
-      print('  Services with issues: ${servicesWithIssues.length}');
+      AppLogger.info('[ImageBatchProcessor] Validation completed:');
+      AppLogger.info('  Total services: $totalServices');
+      AppLogger.info('  Valid images: $validImages');
+      AppLogger.info('  Invalid images: $invalidImages');
+      AppLogger.info('  Services with issues: ${servicesWithIssues.length}');
       
       return result;
     } catch (e) {
-      print('[ImageBatchProcessor] Error validating images: $e');
+      AppLogger.info('[ImageBatchProcessor] Error validating images: $e');
       rethrow;
     }
   }

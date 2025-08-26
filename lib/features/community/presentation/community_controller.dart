@@ -1,4 +1,4 @@
-import 'package:get/get.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:get/get.dart';
 
 enum CommunityPostType {
   event,
@@ -61,12 +61,12 @@ class CommunityController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    print('CommunityController initialized');
+    AppLogger.info('CommunityController initialized');
   }
 
   @override
   void onClose() {
-    print('CommunityController disposed');
+    AppLogger.info('CommunityController disposed');
     super.onClose();
   }
 } 

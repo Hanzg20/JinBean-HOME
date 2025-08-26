@@ -1,4 +1,4 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:supabase_flutter/supabase_flutter.dart';
 
 class QuickImageFix {
   static final QuickImageFix _instance = QuickImageFix._internal();
@@ -8,7 +8,7 @@ class QuickImageFix {
   /// Quick fix: Update all services with working image URLs
   Future<void> fixAllServiceImages() async {
     try {
-      print('[QuickImageFix] Starting quick fix for all service images...');
+      AppLogger.info('[QuickImageFix] Starting quick fix for all service images...');
       
       // Get all services
       final services = await Supabase.instance.client
@@ -24,7 +24,7 @@ class QuickImageFix {
           final Map<String, dynamic> title = service['title'] ?? {};
           final String serviceName = title['zh'] ?? title['en'] ?? 'Unknown Service';
           
-          print('[QuickImageFix] Processing service: $serviceName (ID: $serviceId)');
+          AppLogger.info('[QuickImageFix] Processing service: $serviceName (ID: $serviceId)');
           
           // Generate working image URLs based on service ID
           final List<String> images = _generateWorkingImages(serviceId, 3);
@@ -33,22 +33,22 @@ class QuickImageFix {
           await _updateServiceDetails(serviceId, images);
           
           processedCount++;
-          print('[QuickImageFix] ✓ Updated service: $serviceName with ${images.length} images');
+          AppLogger.info('[QuickImageFix] ✓ Updated service: $serviceName with ${images.length} images');
           
         } catch (e) {
           errorCount++;
-          print('[QuickImageFix] ✗ Error processing service ${service['id']}: $e');
+          AppLogger.info('[QuickImageFix] ✗ Error processing service ${service['id']}: $e');
         }
       }
       
-      print('[QuickImageFix] ==========================================');
-      print('[QuickImageFix] Quick fix completed!');
-      print('[QuickImageFix] Successfully processed: $processedCount services');
-      print('[QuickImageFix] Errors: $errorCount services');
-      print('[QuickImageFix] ==========================================');
+      AppLogger.info('[QuickImageFix] ==========================================');
+      AppLogger.info('[QuickImageFix] Quick fix completed!');
+      AppLogger.info('[QuickImageFix] Successfully processed: $processedCount services');
+      AppLogger.info('[QuickImageFix] Errors: $errorCount services');
+      AppLogger.info('[QuickImageFix] ==========================================');
       
     } catch (e) {
-      print('[QuickImageFix] Error in quick fix: $e');
+      AppLogger.info('[QuickImageFix] Error in quick fix: $e');
       rethrow;
     }
   }
@@ -109,7 +109,7 @@ class QuickImageFix {
             });
       }
     } catch (e) {
-      print('[QuickImageFix] Error updating service details: $e');
+      AppLogger.info('[QuickImageFix] Error updating service details: $e');
       rethrow;
     }
   }
@@ -117,7 +117,7 @@ class QuickImageFix {
   /// Validate current image status
   Future<Map<String, dynamic>> validateImageStatus() async {
     try {
-      print('[QuickImageFix] Validating current image status...');
+      AppLogger.info('[QuickImageFix] Validating current image status...');
       
       final services = await Supabase.instance.client
           .from('service_details')
@@ -154,15 +154,15 @@ class QuickImageFix {
         'servicesWithIssues': servicesWithIssues,
       };
       
-      print('[QuickImageFix] Validation completed:');
-      print('  Total services: $totalServices');
-      print('  Valid images: $validImages');
-      print('  Invalid images: $invalidImages');
-      print('  Services with issues: ${servicesWithIssues.length}');
+      AppLogger.info('[QuickImageFix] Validation completed:');
+      AppLogger.info('  Total services: $totalServices');
+      AppLogger.info('  Valid images: $validImages');
+      AppLogger.info('  Invalid images: $invalidImages');
+      AppLogger.info('  Services with issues: ${servicesWithIssues.length}');
       
       return result;
     } catch (e) {
-      print('[QuickImageFix] Error validating images: $e');
+      AppLogger.info('[QuickImageFix] Error validating images: $e');
       rethrow;
     }
   }
@@ -182,18 +182,18 @@ class QuickImageFix {
   /// Test the fix on a single service
   Future<void> testFixOnSingleService(String serviceId) async {
     try {
-      print('[QuickImageFix] Testing fix on service: $serviceId');
+      AppLogger.info('[QuickImageFix] Testing fix on service: $serviceId');
       
       final List<String> images = _generateWorkingImages(serviceId, 2);
       await _updateServiceDetails(serviceId, images);
       
-      print('[QuickImageFix] Test completed for service: $serviceId');
-      print('[QuickImageFix] Generated images:');
+      AppLogger.info('[QuickImageFix] Test completed for service: $serviceId');
+      AppLogger.info('[QuickImageFix] Generated images:');
       for (int i = 0; i < images.length; i++) {
-        print('  Image ${i + 1}: ${images[i]}');
+        AppLogger.info('  Image ${i + 1}: ${images[i]}');
       }
     } catch (e) {
-      print('[QuickImageFix] Error testing fix: $e');
+      AppLogger.info('[QuickImageFix] Error testing fix: $e');
       rethrow;
     }
   }

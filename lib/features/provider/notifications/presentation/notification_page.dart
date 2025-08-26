@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/features/provider/notifications/notification_controller.dart';
 import 'package:jinbeanpod_83904710/core/ui/components/provider_theme_components.dart';
-import 'package:jinbeanpod_83904710/core/ui/themes/provider_theme_utils.dart';
 
 class NotificationPage extends GetView<NotificationController> {
   const NotificationPage({super.key});

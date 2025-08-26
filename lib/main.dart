@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:flutter/material.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -40,39 +40,39 @@ import 'package:jinbeanpod_83904710/features/customer/services/presentation/serv
 import 'package:jinbeanpod_83904710/features/customer/services/presentation/service_detail_binding.dart';
 import 'package:jinbeanpod_83904710/app/provider_shell_app.dart';
 void main() async {
-  print('[main] App starting...');
+  AppLogger.info('[main] App starting...');
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
-  print('[main] GetStorage initialized.');
+  AppLogger.info('[main] GetStorage initialized.');
   await Supabase.initialize(
     url: AppConfig.supabaseUrl,
     anonKey: AppConfig.supabaseAnonKey,
   );
-  print('[main] Supabase initialized.');
+  AppLogger.info('[main] Supabase initialized.');
 
   // 注入 AppThemeService，确保全局主题可用
   Get.put(AppThemeService());
   // 注入 AuthController，确保 LoginPage 可用
   Get.put(AuthController());
-  print('[main] AuthController put.');
+  AppLogger.info('[main] AuthController put.');
   // 注入 PluginManager，确保 ShellApp 可用
   Get.put(PluginManager());
-  print('[main] PluginManager put.');
+  AppLogger.info('[main] PluginManager put.');
   // 全局注入 ShellAppController，确保 ShellApp 不报错
   Get.put(ShellAppController(), permanent: true);
-  print('[main] ShellAppController put.');
+  AppLogger.info('[main] ShellAppController put.');
   // 注入 LocationController，确保地址功能可用
   Get.put(LocationController());
-  print('[main] LocationController put.');
+  AppLogger.info('[main] LocationController put.');
   // 注入 SplashController，确保 SplashPage 可用
   Get.put(SplashController());
-  print('[main] SplashController put.');
+  AppLogger.info('[main] SplashController put.');
 
   final box = GetStorage();
   final user = Supabase.instance.client.auth.currentUser;
   String? role;
   if (user != null) {
-    print('[main] User found, fetching profile...');
+    AppLogger.info('[main] User found, fetching profile...');
     final profile = await Supabase.instance.client
         .from('user_profiles')
         .select('role')
@@ -82,26 +82,26 @@ void main() async {
     // Set the PluginManager's current role based on the fetched user profile role
     if (role != null) {
       Get.find<PluginManager>().currentRole.value = role;
-      print('[main] PluginManager current role set to: $role');
+      AppLogger.info('[main] PluginManager current role set to: $role');
     } else {
-      print('[main] User profile role not found, defaulting to customer.');
+      AppLogger.info('[main] User profile role not found, defaulting to customer.');
       Get.find<PluginManager>().currentRole.value = 'customer';
     }
   } else {
-    print('[main] No user logged in.');
+    AppLogger.info('[main] No user logged in.');
   }
 
   final lastRole = box.read('lastRole');
-  print('[main] Last role from GetStorage: $lastRole');
+  AppLogger.info('[main] Last role from GetStorage: $lastRole');
 
   String? preferredLocaleCode = box.read('preferredLocale');
   Locale? initialLocale;
   if (preferredLocaleCode != null) {
     initialLocale = Locale(preferredLocaleCode);
-    print('[main] Preferred locale from storage: \\$preferredLocaleCode');
+    AppLogger.info('[main] Preferred locale from storage: \\$preferredLocaleCode');
   } else {
     initialLocale = null;
-    print('[main] No preferred locale found, will use system default.');
+    AppLogger.info('[main] No preferred locale found, will use system default.');
   }
 
   // Simplified: Always start at SplashPage, which handles routing based on login and role.
@@ -125,7 +125,7 @@ void main() async {
       child: Obx(() {
         final role = Get.find<PluginManager>().currentRole.value;
         final themeService = AppThemeService();
-        print('Current Role: $role');
+        AppLogger.info('Current Role: $role');
         
         // 根据角色选择主题
         ThemeData theme;
@@ -133,18 +133,18 @@ void main() async {
           if (role == 'provider') {
             // Provider角色使用ProviderTheme
             theme = JinBeanProviderTheme.lightTheme;
-            print('Applying Provider Theme');
+            AppLogger.info('Applying Provider Theme');
           } else if (role == 'customer') {
             // Customer角色使用CustomerTheme
             theme = JinBeanCustomerTheme.lightTheme;
-            print('Applying Customer Theme');
+            AppLogger.info('Applying Customer Theme');
           } else {
             // 默认使用Customer主题
             theme = JinBeanCustomerTheme.lightTheme;
-            print('Applying Default Customer Theme');
+            AppLogger.info('Applying Default Customer Theme');
           }
         } catch (e) {
-          print('Error applying theme: $e');
+          AppLogger.info('Error applying theme: $e');
           // 如果主题应用失败，使用默认主题
           theme = ThemeData.light();
         }

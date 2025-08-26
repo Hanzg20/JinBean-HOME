@@ -124,7 +124,7 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
                       checkmarkColor: JinBeanColors.primary,
                     )),
                   );
-                }).toList(),
+                }),
               ],
             ),
           ),
@@ -162,9 +162,9 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Column(
         children: [
@@ -279,9 +279,9 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: statusColor.withOpacity(0.1),
+                    color: statusColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: statusColor.withOpacity(0.3)),
+                    border: Border.all(color: statusColor.withValues(alpha: 0.3)),
                   ),
                   child: Text(
                     controller.getStatusDisplayText(service.status),
@@ -339,7 +339,7 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
                   Icon(Icons.star, size: 16, color: Colors.amber),
                   const SizedBox(width: 4),
                   Text(
-                    '${service.averageRating.toStringAsFixed(1)}',
+                    service.averageRating.toStringAsFixed(1),
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[600],
@@ -618,7 +618,7 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
               _buildDetailRow('价格', '\$${service.price.toStringAsFixed(2)}'),
               _buildDetailRow('状态', controller.getStatusDisplayText(service.status)),
               _buildDetailRow('评论数', '${service.reviewCount}'),
-              _buildDetailRow('平均评分', '${service.averageRating.toStringAsFixed(1)}'),
+              _buildDetailRow('平均评分', service.averageRating.toStringAsFixed(1)),
               _buildDetailRow('创建时间', _formatDateTime(service.createdAt.toIso8601String())),
             ],
           ),

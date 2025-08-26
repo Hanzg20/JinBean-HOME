@@ -122,20 +122,25 @@ class ServiceDetailRow extends StatelessWidget {
             ),
             const SizedBox(width: 8),
           ],
-          SizedBox(
-            width: 120,
+          Flexible(
+            flex: 2,
             child: Text(
               '$label:',
               style: theme.textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.w500,
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
               ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-          Expanded(
+          const SizedBox(width: 8),
+          Flexible(
+            flex: 3,
             child: Text(
               value,
               style: theme.textTheme.bodyMedium,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
             ),
           ),
         ],

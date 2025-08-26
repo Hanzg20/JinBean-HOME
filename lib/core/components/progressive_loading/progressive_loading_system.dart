@@ -74,14 +74,14 @@ class ProgressiveLoadingWidget extends StatefulWidget {
   final Widget? errorWidget;
 
   const ProgressiveLoadingWidget({
-    Key? key,
+    super.key,
     required this.type,
     required this.config,
     required this.loadFunction,
     required this.contentBuilder,
     this.loadingWidget,
     this.errorWidget,
-  }) : super(key: key);
+  });
 
   @override
   State<ProgressiveLoadingWidget> createState() => _ProgressiveLoadingWidgetState();

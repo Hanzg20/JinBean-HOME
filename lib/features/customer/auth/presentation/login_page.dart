@@ -1,9 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/features/customer/auth/presentation/auth_controller.dart';
 import 'package:jinbeanpod_83904710/app/theme/app_colors.dart';
 import 'package:jinbeanpod_83904710/core/plugin_management/plugin_manager.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 
 class LoginPage extends StatefulWidget {
@@ -21,7 +20,7 @@ class _LoginPageState extends State<LoginPage> {
     super.initState();
     // 初始化时判断是否显示角色选择项
     _showRoleSwitch = Get.arguments?['showRoleSwitch'] == true;
-    print('[LoginPage] initState: _showRoleSwitch = $_showRoleSwitch');
+    AppLogger.info('[LoginPage] initState: _showRoleSwitch = $_showRoleSwitch');
   }
 
   @override
@@ -132,14 +131,14 @@ class _LoginPageState extends State<LoginPage> {
                             indicatorBorderRadius: const BorderRadius.all(Radius.circular(30)),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.05),
+                                color: Colors.black.withValues(alpha: 0.05),
                                 blurRadius: 4,
                                 offset: Offset(0, 2),
                               ),
                             ],
                           ),
                           onChanged: (val) {
-                            print('[LoginPage] Role changed to: $val');
+                            AppLogger.info('[LoginPage] Role changed to: $val');
                             controller.selectedLoginRole.value = val;
                           },
                           iconBuilder: (role) => role == 'provider'
@@ -168,18 +167,18 @@ class _LoginPageState extends State<LoginPage> {
                       
                       // 登录成功后，重新判断是否显示角色选择项
                       final userRole = controller.userProfileRole.value;
-                      print('[LoginPage] Login successful, user role: $userRole');
+                      AppLogger.info('[LoginPage] Login successful, user role: $userRole');
                       
                       if (userRole == 'customer+provider') {
                         // 多角色用户，显示角色选择项
-                        print('[LoginPage] User is customer+provider, showing role switch');
+                        AppLogger.info('[LoginPage] User is customer+provider, showing role switch');
                         setState(() {
                           _showRoleSwitch = true;
                         });
                         return; // 不跳转，让用户选择角色
                       } else {
                         // 单一角色用户，直接跳转
-                        print('[LoginPage] User is single role: $userRole, navigating directly');
+                        AppLogger.info('[LoginPage] User is single role: $userRole, navigating directly');
                         Get.find<PluginManager>().currentRole.value = userRole;
                         if (userRole == 'provider') {
                           Get.offAllNamed('/provider_shell');
@@ -190,18 +189,18 @@ class _LoginPageState extends State<LoginPage> {
                     } else {
                       // 已显示角色选择项，直接使用选择的角色进行跳转
                       final selectedRole = controller.selectedLoginRole.value;
-                      print('[LoginPage] User selected role: $selectedRole');
+                      AppLogger.info('[LoginPage] User selected role: $selectedRole');
                       
                       // 确保selectedRole不为空
                       if (selectedRole.isEmpty) {
                         controller.selectedLoginRole.value = 'customer';
-                        print('[LoginPage] Selected role was empty, defaulting to customer');
+                        AppLogger.info('[LoginPage] Selected role was empty, defaulting to customer');
                       }
                       
                       // 使用选择的角色进行跳转
                       final finalRole = controller.selectedLoginRole.value;
                       Get.find<PluginManager>().currentRole.value = finalRole;
-                      print('[LoginPage] Navigating with final role: $finalRole');
+                      AppLogger.info('[LoginPage] Navigating with final role: $finalRole');
                       
                       if (finalRole == 'provider') {
                         Get.offAllNamed('/provider_shell');

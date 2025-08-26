@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/core/plugin_management/app_plugin.dart';
@@ -39,11 +39,11 @@ class ProviderHomePlugin extends AppPlugin {
 
   @override
   void init() {
-    print('ProviderHomePlugin initialized');
+    AppLogger.info('ProviderHomePlugin initialized');
   }
 
   @override
   void dispose() {
-    print('ProviderHomePlugin disposed');
+    AppLogger.info('ProviderHomePlugin disposed');
   }
 } 

@@ -18,7 +18,7 @@ class JinBeanCustomerTheme {
         // 客户端更偏向温暖色调
         tertiary: const Color(0xFFFF6B35), // 橙色，增加温暖感
         surface: const Color(0xFFFAFBFC), // 更浅的背景色
-        surfaceVariant: const Color(0xFFF8F9FA), // 更浅的变体背景
+        surfaceContainerHighest: const Color(0xFFF8F9FA), // 更浅的变体背景
       ),
       
       // AppBar 主题 - 客户端更注重品牌展示
@@ -147,14 +147,14 @@ class JinBeanCustomerTheme {
       
       // 开关主题 - 客户端更注重友好性
       switchTheme: SwitchThemeData(
-        thumbColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return JinBeanColors.primary;
           }
           return JinBeanColors.textTertiary;
         }),
-        trackColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        trackColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return JinBeanColors.primary.withValues(alpha: 0.3); // 更淡的选中色
           }
           return const Color(0xFFF0F0F0);
@@ -163,13 +163,13 @@ class JinBeanCustomerTheme {
       
       // 复选框主题 - 客户端更注重可见性
       checkboxTheme: CheckboxThemeData(
-        fillColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        fillColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return JinBeanColors.primary;
           }
           return Colors.transparent;
         }),
-        checkColor: MaterialStateProperty.all(Colors.white),
+        checkColor: WidgetStateProperty.all(Colors.white),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(6), // 稍大的圆角
         ),
@@ -177,8 +177,8 @@ class JinBeanCustomerTheme {
       
       // 单选按钮主题 - 客户端更注重可见性
       radioTheme: RadioThemeData(
-        fillColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        fillColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return JinBeanColors.primary;
           }
           return JinBeanColors.textTertiary;
@@ -211,7 +211,7 @@ class JinBeanCustomerTheme {
         secondary: JinBeanColors.secondaryLight,
         tertiary: const Color(0xFFFF8A65), // 深色模式下的橙色
         surface: const Color(0xFF1A1A1A), // 稍亮的深色背景
-        surfaceVariant: const Color(0xFF2A2A2A), // 稍亮的变体背景
+        surfaceContainerHighest: const Color(0xFF2A2A2A), // 稍亮的变体背景
       ),
       
       // AppBar 主题
@@ -338,14 +338,14 @@ class JinBeanCustomerTheme {
       
       // 开关主题
       switchTheme: SwitchThemeData(
-        thumbColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return JinBeanColors.primaryLight;
           }
           return Colors.grey[500];
         }),
-        trackColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        trackColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return JinBeanColors.primaryLight.withValues(alpha: 0.3);
           }
           return const Color(0xFF2A2A2A);
@@ -354,13 +354,13 @@ class JinBeanCustomerTheme {
       
       // 复选框主题
       checkboxTheme: CheckboxThemeData(
-        fillColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        fillColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return JinBeanColors.primaryLight;
           }
           return Colors.transparent;
         }),
-        checkColor: MaterialStateProperty.all(Colors.black),
+        checkColor: WidgetStateProperty.all(Colors.black),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(6),
         ),
@@ -368,8 +368,8 @@ class JinBeanCustomerTheme {
       
       // 单选按钮主题
       radioTheme: RadioThemeData(
-        fillColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        fillColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return JinBeanColors.primaryLight;
           }
           return Colors.grey[500];

@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jinbeanpod_83904710/core/ui/design_system/colors.dart';
 import 'package:jinbeanpod_83904710/features/provider/clients/presentation/client_controller.dart';
-import 'package:jinbeanpod_83904710/core/ui/components/provider_theme_components.dart';
-import 'package:jinbeanpod_83904710/core/ui/themes/provider_theme_utils.dart';
 // Import platform components
 import 'package:jinbeanpod_83904710/core/components/platform_core.dart';
 import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';

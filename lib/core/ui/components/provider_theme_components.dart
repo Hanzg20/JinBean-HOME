@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../themes/provider_theme_utils.dart';
 
 /// Provider主题化的通用组件库
 /// 提供基于Provider_theme的常用UI组件，提高复用率
@@ -32,12 +31,12 @@ class ProviderCard extends StatelessWidget {
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: colorScheme.outline.withOpacity(0.1),
+          color: colorScheme.outline.withValues(alpha: 0.1),
           width: 1,
         ),
         boxShadow: showShadow ? [
           BoxShadow(
-            color: colorScheme.shadow.withOpacity(0.08),
+            color: colorScheme.shadow.withValues(alpha: 0.08),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -85,7 +84,7 @@ class ProviderIconContainer extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: backgroundColor ?? colorScheme.primary.withOpacity(0.1),
+        color: backgroundColor ?? colorScheme.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(size / 2),
       ),
       child: Icon(
@@ -130,7 +129,7 @@ class ProviderButton extends StatelessWidget {
           backgroundColor: colorScheme.primary,
           foregroundColor: colorScheme.onPrimary,
           elevation: 4,
-          shadowColor: colorScheme.shadow.withOpacity(0.2),
+          shadowColor: colorScheme.shadow.withValues(alpha: 0.2),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -154,7 +153,7 @@ class ProviderButton extends StatelessWidget {
           backgroundColor: colorScheme.error,
           foregroundColor: colorScheme.onError,
           elevation: 4,
-          shadowColor: colorScheme.shadow.withOpacity(0.2),
+          shadowColor: colorScheme.shadow.withValues(alpha: 0.2),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -280,7 +279,7 @@ class ProviderListTile extends StatelessWidget {
         if (showDivider)
           Divider(
             height: 1,
-            color: colorScheme.outline.withOpacity(0.1),
+            color: colorScheme.outline.withValues(alpha: 0.1),
             indent: 16,
             endIndent: 16,
           ),

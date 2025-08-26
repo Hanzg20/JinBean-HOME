@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/core/plugin_management/app_plugin.dart';
 import 'package:jinbeanpod_83904710/features/customer/profile/presentation/profile_binding.dart';
@@ -38,11 +38,11 @@ class ProfilePlugin extends AppPlugin {
 
   @override
   void init() {
-    print('ProfilePlugin initialized');
+    AppLogger.info('ProfilePlugin initialized');
   }
 
   @override
   void dispose() {
-    print('ProfilePlugin disposed');
+    AppLogger.info('ProfilePlugin disposed');
   }
 } 

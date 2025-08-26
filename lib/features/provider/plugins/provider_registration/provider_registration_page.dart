@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:flutter/material.dart';
 import 'provider_registration_controller.dart';
 import 'provider_registration_service.dart';
 import 'address_service.dart';
@@ -197,9 +197,9 @@ class _ProviderRegistrationPageState extends State<ProviderRegistrationPage> {
               setState(() => controller.addressInput = address),
           onAddressParsed: (parsedData) {
             // 可以在这里处理解析后的地址数据
-            print('[ProviderRegistrationPage] Address parsed: $parsedData');
+            AppLogger.info('[ProviderRegistrationPage] Address parsed: $parsedData');
             if (parsedData['position'] != null) {
-              print(
+              AppLogger.info(
                   '[ProviderRegistrationPage] Location: ${parsedData['position']}');
             }
           },

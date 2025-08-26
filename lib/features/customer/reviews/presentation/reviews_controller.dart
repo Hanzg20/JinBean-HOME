@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../core/models/review_models.dart';
 import '../../../../core/services/review_service.dart';
+import '../../../../core/utils/app_logger.dart';
 
 class ReviewsController extends GetxController {
   final ReviewService _reviewService = Get.find<ReviewService>();
@@ -60,6 +61,9 @@ class ReviewsController extends GetxController {
   // 图片列表
   final RxList<String> reviewImages = <String>[].obs;
 
+  // 可评价订单列表
+  final RxList<Map<String, dynamic>> reviewableOrders = <Map<String, dynamic>>[].obs;
+
   // ========================================
   // 初始化
   // ========================================
@@ -67,7 +71,7 @@ class ReviewsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    print('=== ReviewsController onInit ===');
+    AppLogger.info('=== ReviewsController onInit ===');
   }
 
   @override
@@ -88,6 +92,7 @@ class ReviewsController extends GetxController {
       loadReviews(serviceId, refresh: true),
       loadRatingStats(serviceId),
       loadTags(),
+      loadReviewableOrders(serviceId),
     ]);
   }
 
@@ -120,7 +125,7 @@ class ReviewsController extends GetxController {
       currentPage.value++;
       totalReviews.value = reviews.length;
     } catch (e) {
-      print('Error loading reviews: $e');
+      AppLogger.info('Error loading reviews: $e');
       Get.snackbar(
         'Error',
         'Failed to load reviews. Please try again.',
@@ -140,22 +145,51 @@ class ReviewsController extends GetxController {
       final stats = await _reviewService.getServiceRatingStats(serviceId);
       ratingStats.value = stats;
     } catch (e) {
-      print('Error loading rating stats: $e');
+      AppLogger.info('Error loading rating stats: $e');
     } finally {
       isLoadingStats.value = false;
     }
   }
 
-  /// 加载点评标签
+  /// 加载标签
   Future<void> loadTags() async {
+    if (isLoadingTags.value) return;
+    
     isLoadingTags.value = true;
     try {
-      final tagList = await _reviewService.getReviewTags();
-      tags.assignAll(tagList);
-    } catch (e) {
-      print('Error loading tags: $e');
+      final tags = await _reviewService.getReviewTags();
+      this.tags.value = tags;
+      AppLogger.info('ReviewsController: Tags loaded successfully', tag: 'ReviewsController');
+    } catch (e, stack) {
+      AppLogger.error('ReviewsController: Failed to load tags', error: e, stackTrace: stack, tag: 'ReviewsController');
     } finally {
       isLoadingTags.value = false;
+    }
+  }
+
+  /// 加载可评价订单
+  Future<void> loadReviewableOrders(String serviceId) async {
+    try {
+      // TODO: Implement actual API call to fetch reviewable orders
+      // For now, using mock data
+      await Future.delayed(const Duration(milliseconds: 500));
+      reviewableOrders.value = [
+        {
+          'id': 'order_001_$serviceId',
+          'serviceName': 'Service for $serviceId',
+          'orderDate': DateTime.now().subtract(const Duration(days: 7)),
+          'status': 'completed',
+        },
+        {
+          'id': 'order_002_$serviceId',
+          'serviceName': 'Another Service for $serviceId',
+          'orderDate': DateTime.now().subtract(const Duration(days: 14)),
+          'status': 'completed',
+        },
+      ];
+      AppLogger.info('ReviewsController: Reviewable orders loaded successfully', tag: 'ReviewsController');
+    } catch (e, stack) {
+      AppLogger.error('ReviewsController: Failed to load reviewable orders', error: e, stackTrace: stack, tag: 'ReviewsController');
     }
   }
 
@@ -166,7 +200,7 @@ class ReviewsController extends GetxController {
       final replyList = await _reviewService.getReviewReplies(reviewId);
       replies.assignAll(replyList);
     } catch (e) {
-      print('Error loading replies: $e');
+      AppLogger.info('Error loading replies: $e');
     } finally {
       isLoadingReplies.value = false;
     }
@@ -218,7 +252,7 @@ class ReviewsController extends GetxController {
       
       return true;
     } catch (e) {
-      print('Error submitting review: $e');
+      AppLogger.info('Error submitting review: $e');
       Get.snackbar(
         'Error',
         'Failed to submit review. Please try again.',
@@ -273,7 +307,7 @@ class ReviewsController extends GetxController {
       
       return true;
     } catch (e) {
-      print('Error submitting reply: $e');
+      AppLogger.info('Error submitting reply: $e');
       Get.snackbar(
         'Error',
         'Failed to submit reply. Please try again.',
@@ -313,7 +347,7 @@ class ReviewsController extends GetxController {
         );
       }
     } catch (e) {
-      print('Error voting review: $e');
+      AppLogger.info('Error voting review: $e');
       Get.snackbar(
         'Error',
         'Failed to vote. Please try again.',
@@ -341,7 +375,7 @@ class ReviewsController extends GetxController {
         colorText: Colors.green[800],
       );
     } catch (e) {
-      print('Error reporting review: $e');
+      AppLogger.info('Error reporting review: $e');
       Get.snackbar(
         'Error',
         'Failed to report review. Please try again.',
@@ -532,7 +566,7 @@ class ReviewsController extends GetxController {
     try {
       return !(await _reviewService.hasUserReviewedService(serviceId));
     } catch (e) {
-      print('Error checking if user can review: $e');
+      AppLogger.info('Error checking if user can review: $e');
       return false;
     }
   }
@@ -542,7 +576,7 @@ class ReviewsController extends GetxController {
     try {
       return await _reviewService.getUserReviewableOrders();
     } catch (e) {
-      print('Error getting reviewable orders: $e');
+      AppLogger.info('Error getting reviewable orders: $e');
       return [];
     }
   }

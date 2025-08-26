@@ -1,7 +1,9 @@
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:jinbeanpod_83904710/core/services/services.dart' as core_services;
 
 // New model for Level 1 Service Categories
 class ServiceCategoryLevel1 {
@@ -49,6 +51,18 @@ class ServiceItem {
   final int reviews;
   final double? latitude;
   final double? longitude;
+  
+  // 新增：service_details 相关字段
+  final String? subCategory;
+  final bool isAvailable;
+  final Map<String, dynamic>? attributes;
+  final Map<String, dynamic>? businessRules;
+  final int? currentStock;
+  final int? maxStock;
+  final String? pricingType;
+  final String? currency;
+  final int? duration;
+  final String? unit;
 
   ServiceItem({
     required this.id,
@@ -61,9 +75,20 @@ class ServiceItem {
     required this.reviews,
     this.latitude,
     this.longitude,
+    // 新增字段
+    this.subCategory,
+    this.isAvailable = true,
+    this.attributes,
+    this.businessRules,
+    this.currentStock,
+    this.maxStock,
+    this.pricingType,
+    this.currency,
+    this.duration,
+    this.unit,
   }) : imageUrl = imageUrl?.isNotEmpty == true && Uri.tryParse(imageUrl!)?.hasScheme == true
           ? imageUrl
-          : 'https://picsum.photos/80/80?random=${DateTime.now().millisecondsSinceEpoch}';
+          : 'https://picsum.photos/seed/booking$id/80/80';
 }
 
 // Updated model for Recommended Services
@@ -78,6 +103,18 @@ class RecommendedService {
   final String recommendationReason;
   final double? latitude;
   final double? longitude;
+  
+  // 新增：service_details 相关字段
+  final String? subCategory;
+  final bool isAvailable;
+  final Map<String, dynamic>? attributes;
+  final Map<String, dynamic>? businessRules;
+  final int? currentStock;
+  final int? maxStock;
+  final String? pricingType;
+  final String? currency;
+  final int? duration;
+  final String? unit;
 
   RecommendedService({
     required this.id,
@@ -90,6 +127,17 @@ class RecommendedService {
     required this.recommendationReason,
     this.latitude,
     this.longitude,
+    // 新增字段
+    this.subCategory,
+    this.isAvailable = true,
+    this.attributes,
+    this.businessRules,
+    this.currentStock,
+    this.maxStock,
+    this.pricingType,
+    this.currency,
+    this.duration,
+    this.unit,
   }) : imageUrl = imageUrl?.isNotEmpty == true && Uri.tryParse(imageUrl!)?.hasScheme == true
           ? imageUrl
           : 'https://picsum.photos/80/80?random=${DateTime.now().millisecondsSinceEpoch}';
@@ -105,6 +153,10 @@ class ServiceBookingController extends GetxController {
   
   // 添加GetStorage实例
   final _storage = GetStorage();
+  
+  // 新增：集成新的服务查询服务
+  core_services.IServiceQueryService? _serviceQueryService;
+  core_services.IServiceDetailService? _serviceDetailService;
 
   // New states for service categorization
   final RxList<ServiceCategoryLevel1> level1Categories = <ServiceCategoryLevel1>[].obs;
@@ -143,7 +195,10 @@ class ServiceBookingController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    print('=== ServiceBookingController onInit ===');
+    AppLogger.info('=== ServiceBookingController onInit ===');
+    
+    // 初始化新的服务查询服务
+    _initializeNewServices();
     
     // 加载搜索历史
     _loadSearchHistory();
@@ -156,7 +211,7 @@ class ServiceBookingController extends GetxController {
         final categoryId = arguments['level1CategoryId'] as int?;
         if (categoryId != null) {
           selectedLevel1CategoryId.value = categoryId;
-          print('=== Auto-selecting Level 1 Category: $categoryId ===');
+          AppLogger.info('=== Auto-selecting Level 1 Category: $categoryId ===');
         }
       }
       
@@ -166,7 +221,7 @@ class ServiceBookingController extends GetxController {
         if (query != null && query.isNotEmpty) {
           searchController.text = query;
           searchQuery.value = query;
-          print('=== Auto-filling search query: $query ===');
+          AppLogger.info('=== Auto-filling search query: $query ===');
           // 自动执行搜索
           Future.delayed(Duration(milliseconds: 500), () {
             performSearch(query);
@@ -179,15 +234,58 @@ class ServiceBookingController extends GetxController {
     // 同时获取推荐服务
     fetchRecommendedServices();
   }
+  
+  // 新增：初始化新的服务查询服务
+  Future<void> _initializeNewServices() async {
+    try {
+      final serviceManager = core_services.ServiceManager.instance;
+      if (!serviceManager.isInitialized) {
+        await serviceManager.initializeServices();
+      }
+      
+      _serviceQueryService = serviceManager.serviceQueryService;
+      _serviceDetailService = serviceManager.serviceDetailService;
+      
+      AppLogger.info('新服务查询服务初始化成功');
+    } catch (e) {
+      AppLogger.info('新服务查询服务初始化失败: $e');
+    }
+  }
+  
+  // 新增：更新新结构标志
+  void updateNewStructureFlag(bool useNewStructure, int categoryId) {
+    // 这里可以添加新结构的处理逻辑
+    AppLogger.info('更新新结构标志: useNewStructure=$useNewStructure, categoryId=$categoryId');
+  }
+  
+  // 新增：清除所有筛选条件
+  void clearFilters() {
+    AppLogger.info('清除所有筛选条件');
+    selectedLevel1CategoryId.value = null;
+    selectedLevel2CategoryId.value = null;
+    level2Categories.clear();
+    services.clear();
+    // 重新获取推荐服务
+    fetchRecommendedServices();
+  }
+  
+  // 新增：显示所有推荐服务
+  void showAllRecommendedServices() {
+    AppLogger.info('显示所有推荐服务');
+    // 清除当前筛选，显示所有推荐服务
+    clearFilters();
+    // 可以在这里添加导航到推荐服务列表页面的逻辑
+    // Get.toNamed('/recommended_services');
+  }
 
   @override
   void onReady() {
     super.onReady();
-    print('=== ServiceBookingController onReady ===');
+    AppLogger.info('=== ServiceBookingController onReady ===');
   }
 
   Future<void> fetchLevel1Categories() async {
-    print('=== Fetching Level 1 Categories ===');
+    AppLogger.info('=== Fetching Level 1 Categories ===');
     isLoadingLevel1.value = true;
     try {
       final data = await Supabase.instance.client
@@ -203,7 +301,7 @@ class ServiceBookingController extends GetxController {
         name: Map<String, dynamic>.from(e['name']),
         extraData: Map<String, dynamic>.from(e['extra_data'] ?? {}),
       )).toList();
-      print('Processed categories: ${level1Categories.length} items');
+      AppLogger.info('Processed categories: ${level1Categories.length} items');
 
       // After categories are loaded, determine which one to select.
       if (level1Categories.isNotEmpty) {
@@ -215,22 +313,22 @@ class ServiceBookingController extends GetxController {
           // Ensure the passed ID is valid and exists in our list
           if (level1Categories.any((c) => c.id == initialId)) {
             categoryIdToSelect = initialId;
-            print('Found valid initial category ID from arguments: $initialId');
+            AppLogger.info('Found valid initial category ID from arguments: $initialId');
           } else {
-            print('Warning: Invalid category ID passed from arguments: $initialId');
+            AppLogger.info('Warning: Invalid category ID passed from arguments: $initialId');
           }
         }
 
         // If no valid ID was passed, select the first category by default.
         if (categoryIdToSelect == null) {
           categoryIdToSelect = level1Categories.first.id;
-          print('Auto-selecting first category: $categoryIdToSelect');
+          AppLogger.info('Auto-selecting first category: $categoryIdToSelect');
         }
         
         selectLevel1Category(categoryIdToSelect);
       }
     } catch (e) {
-      print('Error fetching level 1 categories: $e');
+      AppLogger.info('Error fetching level 1 categories: $e');
       Get.snackbar(
         '加载失败',
         '未能加载服务分类，请稍后再试。',
@@ -264,7 +362,7 @@ class ServiceBookingController extends GetxController {
         services.clear();
       }
     } catch (e) {
-      print('Error fetching level 2 categories: $e');
+      AppLogger.info('Error fetching level 2 categories: $e');
       Get.snackbar(
         '加载失败',
         '未能加载子分类，请稍后再试。',
@@ -293,7 +391,7 @@ class ServiceBookingController extends GetxController {
   Future<void> fetchServices(int level2Id) async {
     isLoadingServices.value = true;
     try {
-      print('=== Fetching services for level2Id: $level2Id ===');
+      AppLogger.info('=== Fetching services for level2Id: $level2Id ===');
       
       final data = await Supabase.instance.client
           .from('services')
@@ -301,12 +399,12 @@ class ServiceBookingController extends GetxController {
           .eq('category_level2_id', level2Id)
           .eq('status', 'active');
       
-      print('=== Raw services data: $data ===');
-      print('=== Services count: ${(data as List).length} ===');
+      AppLogger.info('=== Raw services data: $data ===');
+      AppLogger.info('=== Services count: ${(data as List).length} ===');
       
       // 如果没有数据，添加一些模拟数据用于测试
       if ((data as List).isEmpty) {
-        print('=== No services found, adding mock data ===');
+        AppLogger.info('=== No services found, adding mock data ===');
         services.value = [
           ServiceItem(
             id: 'mock_1',
@@ -346,7 +444,7 @@ class ServiceBookingController extends GetxController {
       }
       
       final ids = (data as List).map((e) => e['id'] as String).toList();
-      print('=== Service IDs: $ids ===');
+      AppLogger.info('=== Service IDs: $ids ===');
       
       // 批量查详情
       final details = ids.isEmpty ? [] : await Supabase.instance.client
@@ -354,7 +452,7 @@ class ServiceBookingController extends GetxController {
           .select('service_id, price, currency, images_url')
           .inFilter('service_id', ids);
       
-      print('=== Service details: $details ===');
+      AppLogger.info('=== Service details: $details ===');
       
       final detailsMap = {for (var d in details) d['service_id']: d};
       services.value = (data as List).map((e) {
@@ -378,9 +476,9 @@ class ServiceBookingController extends GetxController {
         );
       }).toList();
       
-      print('=== Processed services count: ${services.length} ===');
+      AppLogger.info('=== Processed services count: ${services.length} ===');
     } catch (e) {
-      print('Error fetching services: $e');
+      AppLogger.info('Error fetching services: $e');
       // 添加模拟数据作为错误时的备用
       services.value = [
         ServiceItem(
@@ -407,7 +505,7 @@ class ServiceBookingController extends GetxController {
 
   Future<void> fetchRecommendedServices() async {
     try {
-      print('=== Fetching recommended services ===');
+      AppLogger.info('=== Fetching recommended services ===');
       
       final data = await Supabase.instance.client
           .from('services')
@@ -416,11 +514,11 @@ class ServiceBookingController extends GetxController {
           .order('created_at', ascending: false)
           .limit(5);
       
-      print('=== Raw recommended services data: $data ===');
+      AppLogger.info('=== Raw recommended services data: $data ===');
       
       // 如果没有数据，添加模拟数据
       if ((data as List).isEmpty) {
-        print('=== No recommended services found, adding mock data ===');
+        AppLogger.info('=== No recommended services found, adding mock data ===');
         recommendedServices.value = [
           RecommendedService(
             id: 'rec_1',
@@ -486,9 +584,9 @@ class ServiceBookingController extends GetxController {
         );
       }).toList();
       
-      print('=== Processed recommended services count: ${recommendedServices.length} ===');
+      AppLogger.info('=== Processed recommended services count: ${recommendedServices.length} ===');
     } catch (e) {
-      print('Error fetching recommended services: $e');
+      AppLogger.info('Error fetching recommended services: $e');
       // 添加模拟数据作为错误时的备用
       recommendedServices.value = [
         RecommendedService(
@@ -507,17 +605,17 @@ class ServiceBookingController extends GetxController {
   }
 
   void selectLevel1Category(int categoryId) {
-    print('=== Category Selection Debug ===');
-    print('Selecting category ID: $categoryId');
-    print('Previous selected ID: ${selectedLevel1CategoryId.value}');
+    AppLogger.info('=== Category Selection Debug ===');
+    AppLogger.info('Selecting category ID: $categoryId');
+    AppLogger.info('Previous selected ID: ${selectedLevel1CategoryId.value}');
     
     if (selectedLevel1CategoryId.value == categoryId) {
-      print('Category already selected, skipping');
+      AppLogger.info('Category already selected, skipping');
       return;
     }
     
     selectedLevel1CategoryId.value = categoryId;
-    print('New selected ID: ${selectedLevel1CategoryId.value}');
+    AppLogger.info('New selected ID: ${selectedLevel1CategoryId.value}');
     
     // 先清空二级分类和服务，避免UI残留
     level2Categories.clear();
@@ -558,9 +656,9 @@ class ServiceBookingController extends GetxController {
     try {
       final history = _storage.read<List<String>>('search_history') ?? [];
       searchHistory.assignAll(history);
-      print('=== Loaded search history: ${searchHistory.length} items ===');
+      AppLogger.info('=== Loaded search history: ${searchHistory.length} items ===');
     } catch (e) {
-      print('=== Error loading search history: $e ===');
+      AppLogger.info('=== Error loading search history: $e ===');
     }
   }
 
@@ -568,9 +666,9 @@ class ServiceBookingController extends GetxController {
   void _saveSearchHistory() {
     try {
       _storage.write('search_history', searchHistory.toList());
-      print('=== Saved search history: ${searchHistory.length} items ===');
+      AppLogger.info('=== Saved search history: ${searchHistory.length} items ===');
     } catch (e) {
-      print('=== Error saving search history: $e ===');
+      AppLogger.info('=== Error saving search history: $e ===');
     }
   }
 
@@ -609,7 +707,7 @@ class ServiceBookingController extends GetxController {
   Future<void> performSearch(String query) async {
     if (query.trim().isEmpty) return;
     
-    print('=== Performing search for: $query ===');
+    AppLogger.info('=== Performing search for: $query ===');
     isLoadingSearch.value = true;
     
     try {
@@ -625,7 +723,7 @@ class ServiceBookingController extends GetxController {
           .eq('status', 'ACTIVE')
           .limit(20);
 
-      print('Search results: ${searchResults.length} services found');
+      AppLogger.info('Search results: ${searchResults.length} services found');
 
       // 转换为ServiceItem对象
       final searchServiceItems = searchResults.map((data) {
@@ -637,7 +735,7 @@ class ServiceBookingController extends GetxController {
           price: data['price_range']?['min']?.toString() ?? '0',
           imageUrl: (data['images'] as List?)?.isNotEmpty == true 
               ? data['images'][0] 
-              : 'https://via.placeholder.com/80x80?text=Service',
+              : 'https://picsum.photos/seed/booking${data['id']}/80/80',
           rating: 4.5, // TODO: 从reviews表获取真实评分
           reviews: 0,  // TODO: 从reviews表获取真实评论数
         );
@@ -653,7 +751,7 @@ class ServiceBookingController extends GetxController {
       );
       
     } catch (e) {
-      print('Search error: $e');
+      AppLogger.info('Search error: $e');
       Get.snackbar(
         'Search Error',
         'Failed to search services. Please try again.',

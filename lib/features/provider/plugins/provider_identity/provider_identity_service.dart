@@ -1,11 +1,11 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:supabase_flutter/supabase_flutter.dart';
 
 enum ProviderStatus { notProvider, pending, approved }
 
 class ProviderIdentityService {
   static Future<ProviderStatus> getProviderStatus() async {
     final user = Supabase.instance.client.auth.currentUser;
-    print('[ProviderIdentityService] 当前用户ID: ${user?.id}');
+    AppLogger.info('[ProviderIdentityService] 当前用户ID: ${user?.id}');
     if (user == null) return ProviderStatus.notProvider;
     
     try {
@@ -16,11 +16,11 @@ class ProviderIdentityService {
           .eq('id', user.id)
           .maybeSingle();
       
-      print('[ProviderIdentityService] user_profiles 查询结果: ${profile?.toString()}');
+      AppLogger.info('[ProviderIdentityService] user_profiles 查询结果: ${profile?.toString()}');
       if (profile == null) return ProviderStatus.notProvider;
       
       final role = profile['role'] as String?;
-      print('[ProviderIdentityService] user_profiles.role: $role');
+      AppLogger.info('[ProviderIdentityService] user_profiles.role: $role');
       
       // 根据 role 判断 provider 状态
       if (role == 'provider') {
@@ -31,7 +31,7 @@ class ProviderIdentityService {
         return ProviderStatus.notProvider; // customer 或其他
       }
     } catch (e) {
-      print('[ProviderIdentityService] 查询 user_profiles 时出错: $e');
+      AppLogger.info('[ProviderIdentityService] 查询 user_profiles 时出错: $e');
       return ProviderStatus.notProvider;
     }
   }

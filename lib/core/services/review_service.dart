@@ -1,4 +1,4 @@
-// 点评系统服务层
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';// 点评系统服务层
 // 处理所有点评相关的API调用和业务逻辑
 
 import 'package:get/get.dart';
@@ -23,7 +23,7 @@ class ReviewService extends GetxService {
 
       return Review.fromJson(response);
     } catch (e) {
-      print('Error creating review: $e');
+      AppLogger.info('Error creating review: $e');
       throw Exception('Failed to create review: $e');
     }
   }
@@ -86,7 +86,7 @@ class ReviewService extends GetxService {
 
       return (response as List).map((json) => Review.fromJson(json)).toList();
     } catch (e) {
-      print('Error fetching service reviews: $e');
+      AppLogger.info('Error fetching service reviews: $e');
       throw Exception('Failed to fetch service reviews: $e');
     }
   }
@@ -104,7 +104,7 @@ class ReviewService extends GetxService {
 
       return (response as List).map((json) => Review.fromJson(json)).toList();
     } catch (e) {
-      print('Error fetching user reviews: $e');
+      AppLogger.info('Error fetching user reviews: $e');
       throw Exception('Failed to fetch user reviews: $e');
     }
   }
@@ -121,7 +121,7 @@ class ReviewService extends GetxService {
 
       return Review.fromJson(response);
     } catch (e) {
-      print('Error fetching review: $e');
+      AppLogger.info('Error fetching review: $e');
       throw Exception('Failed to fetch review: $e');
     }
   }
@@ -138,7 +138,7 @@ class ReviewService extends GetxService {
 
       return Review.fromJson(response);
     } catch (e) {
-      print('Error updating review: $e');
+      AppLogger.info('Error updating review: $e');
       throw Exception('Failed to update review: $e');
     }
   }
@@ -151,7 +151,7 @@ class ReviewService extends GetxService {
           .update({'status': 'deleted'})
           .eq('id', reviewId);
     } catch (e) {
-      print('Error deleting review: $e');
+      AppLogger.info('Error deleting review: $e');
       throw Exception('Failed to delete review: $e');
     }
   }
@@ -171,7 +171,7 @@ class ReviewService extends GetxService {
 
       return ReviewReply.fromJson(response);
     } catch (e) {
-      print('Error creating review reply: $e');
+      AppLogger.info('Error creating review reply: $e');
       throw Exception('Failed to create review reply: $e');
     }
   }
@@ -188,7 +188,7 @@ class ReviewService extends GetxService {
 
       return (response as List).map((json) => ReviewReply.fromJson(json)).toList();
     } catch (e) {
-      print('Error fetching review replies: $e');
+      AppLogger.info('Error fetching review replies: $e');
       throw Exception('Failed to fetch review replies: $e');
     }
   }
@@ -223,7 +223,7 @@ class ReviewService extends GetxService {
             .insert(request.toJson());
       }
     } catch (e) {
-      print('Error voting review: $e');
+      AppLogger.info('Error voting review: $e');
       throw Exception('Failed to vote review: $e');
     }
   }
@@ -240,7 +240,7 @@ class ReviewService extends GetxService {
 
       return response?['is_helpful'] as bool?;
     } catch (e) {
-      print('Error fetching user vote status: $e');
+      AppLogger.info('Error fetching user vote status: $e');
       return null;
     }
   }
@@ -256,7 +256,7 @@ class ReviewService extends GetxService {
           .from('review_reports')
           .insert(request.toJson());
     } catch (e) {
-      print('Error reporting review: $e');
+      AppLogger.info('Error reporting review: $e');
       throw Exception('Failed to report review: $e');
     }
   }
@@ -276,7 +276,7 @@ class ReviewService extends GetxService {
 
       return (response as List).map((json) => ReviewTag.fromJson(json)).toList();
     } catch (e) {
-      print('Error fetching review tags: $e');
+      AppLogger.info('Error fetching review tags: $e');
       throw Exception('Failed to fetch review tags: $e');
     }
   }
@@ -293,7 +293,7 @@ class ReviewService extends GetxService {
 
       return (response as List).map((json) => ReviewTag.fromJson(json)).toList();
     } catch (e) {
-      print('Error fetching review tags by category: $e');
+      AppLogger.info('Error fetching review tags by category: $e');
       throw Exception('Failed to fetch review tags by category: $e');
     }
   }
@@ -316,7 +316,7 @@ class ReviewService extends GetxService {
       }
       return null;
     } catch (e) {
-      print('Error fetching service rating stats: $e');
+      AppLogger.info('Error fetching service rating stats: $e');
       return null;
     }
   }
@@ -338,7 +338,7 @@ class ReviewService extends GetxService {
 
       return response != null;
     } catch (e) {
-      print('Error checking if user has reviewed service: $e');
+      AppLogger.info('Error checking if user has reviewed service: $e');
       return false;
     }
   }
@@ -371,7 +371,7 @@ class ReviewService extends GetxService {
         };
       }).toList();
     } catch (e) {
-      print('Error fetching user reviewable orders: $e');
+      AppLogger.info('Error fetching user reviewable orders: $e');
       return [];
     }
   }

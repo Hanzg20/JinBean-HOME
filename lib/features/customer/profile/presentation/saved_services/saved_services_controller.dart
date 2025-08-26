@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
 import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
-import 'package:jinbeanpod_83904710/l10n/app_localizations_en.dart';
 
 class SavedService {
   final String id;
@@ -60,11 +59,33 @@ class SavedServicesController extends GetxController {
   void removeService(String id) {
     savedServices.removeWhere((service) => service.id == id);
     // TODO: Implement API call to remove service from backend
-    Get.snackbar(
-      (AppLocalizations.of(Get.context() ?? navigatorKey.currentContext) ?? AppLocalizationsEn()).removed,
-      (AppLocalizations.of(Get.context() ?? navigatorKey.currentContext) ?? AppLocalizationsEn()).serviceRemovedFromSavedList,
-      snackPosition: SnackPosition.BOTTOM,
-    );
+    
+    // 使用空值安全的方式获取context
+    final context = Get.context;
+    if (context != null) {
+      final localizations = AppLocalizations.of(context);
+      if (localizations != null) {
+        Get.snackbar(
+          localizations.removed,
+          localizations.serviceRemovedFromSavedList,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      } else {
+        // Fallback to English
+        Get.snackbar(
+          'Removed',
+          'Service removed from saved list',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+    } else {
+      // Fallback when context is null
+      Get.snackbar(
+        'Removed',
+        'Service removed from saved list',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
   }
 
   Future<void> refreshSavedServices() async {

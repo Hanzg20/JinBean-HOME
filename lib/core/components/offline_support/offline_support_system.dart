@@ -62,13 +62,13 @@ class OfflineSupportWidget extends StatefulWidget {
   final Widget? syncIndicator;
 
   const OfflineSupportWidget({
-    Key? key,
+    super.key,
     required this.type,
     required this.config,
     required this.onlineBuilder,
     required this.offlineBuilder,
     this.syncIndicator,
-  }) : super(key: key);
+  });
 
   @override
   State<OfflineSupportWidget> createState() => _OfflineSupportWidgetState();

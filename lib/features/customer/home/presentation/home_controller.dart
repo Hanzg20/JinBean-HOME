@@ -1,9 +1,11 @@
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart'; // Import Supabase
 import 'package:jinbeanpod_83904710/core/plugin_management/plugin_manager.dart'; // Import PluginManager
 import 'package:jinbeanpod_83904710/features/provider/plugins/provider_identity/provider_identity_service.dart';
+import 'package:jinbeanpod_83904710/core/services/services.dart' as core_services;
 // import 'package:jinbeanpod_83904710/features/auth/presentation/auth_controller.dart'; // No longer needed if logout is removed
 
 // New model for Carousel items (Ads/Hot Events)
@@ -45,7 +47,7 @@ class ServiceRecommendation {
   final String serviceIcon;
   final String recommendationReason;
   
-  // 添加缺失的属性
+  // 基础属性
   final dynamic name;
   final String imageUrl;
   final String providerName;
@@ -54,6 +56,16 @@ class ServiceRecommendation {
   final double? distance;
   final bool isPopular;
   final bool isNearby;
+  
+  // 新增：service_details 相关字段
+  final String? subCategory;
+  final bool isAvailable;
+  final Map<String, dynamic>? attributes;
+  final Map<String, dynamic>? businessRules;
+  final int? currentStock;
+  final int? maxStock;
+  final String? pricingType;
+  final String? currency;
 
   ServiceRecommendation({
     required this.id,
@@ -61,7 +73,7 @@ class ServiceRecommendation {
     required this.serviceDescription,
     required this.serviceIcon,
     required this.recommendationReason,
-    // 新增属性的初始化
+    // 基础属性初始化
     dynamic name,
     String? imageUrl,
     String? providerName,
@@ -70,10 +82,19 @@ class ServiceRecommendation {
     this.distance,
     bool? isPopular,
     bool? isNearby,
+    // 新增属性初始化
+    this.subCategory,
+    this.isAvailable = true,
+    this.attributes,
+    this.businessRules,
+    this.currentStock,
+    this.maxStock,
+    this.pricingType,
+    this.currency,
   }) : name = name ?? serviceName,
        imageUrl = imageUrl?.isNotEmpty == true && Uri.tryParse(imageUrl!)?.hasScheme == true
           ? imageUrl
-          : 'https://via.placeholder.com/200x120?text=Service',
+          : 'https://picsum.photos/seed/service$id/200/120',
        providerName = providerName ?? 'Service Provider',
        rating = rating ?? 4.5,
        price = price ?? '50',
@@ -97,6 +118,10 @@ class HomeController extends GetxController {
   // 添加搜索控制器
   final TextEditingController searchController = TextEditingController();
   final RxString searchQuery = ''.obs;
+  
+  // 新增：集成新的服务查询服务
+  core_services.IServiceQueryService? _serviceQueryService;
+  core_services.IServiceDetailService? _serviceDetailService;
 
   // New states for Carousel
   late PageController pageController;
@@ -141,31 +166,52 @@ class HomeController extends GetxController {
   void onInit() {
     super.onInit();
     _pluginManager = Get.find<PluginManager>(); // Initialize PluginManager
-    print('=== HomeController onInit ===');
+    AppLogger.info('=== HomeController onInit ===');
     pageController = PageController();
+    
+    // 初始化新的服务查询服务
+    _initializeNewServices();
+    
     fetchHomeServices();
     _fetchRecommendedServices();
     
     // 立即检查并打印 provider 角色状态
     ProviderIdentityService.getProviderStatus().then((status) {
-      print('[HomeController] 进入首页 provider 角色状态: $status');
+      AppLogger.info('[HomeController] 进入首页 provider 角色状态: $status');
     }).catchError((e) {
-      print('[HomeController] 获取 provider 角色状态时出错: $e');
+      AppLogger.info('[HomeController] 获取 provider 角色状态时出错: $e');
     });
+  }
+  
+  // 新增：初始化新的服务查询服务
+  Future<void> _initializeNewServices() async {
+    try {
+      final serviceManager = core_services.ServiceManager.instance;
+      if (!serviceManager.isInitialized) {
+        await serviceManager.initializeServices();
+      }
+      
+      _serviceQueryService = serviceManager.serviceQueryService;
+      _serviceDetailService = serviceManager.serviceDetailService;
+      
+      AppLogger.info('新服务查询服务初始化成功');
+    } catch (e) {
+      AppLogger.info('新服务查询服务初始化失败: $e');
+    }
   }
 
   Future<void> fetchHomeServices() async {
-    print('=== Fetching Home Services ===');
+    AppLogger.info('=== Fetching Home Services ===');
     isLoadingServices.value = true;
     try {
-      print('开始查询ref_codes表...');
+      AppLogger.info('开始查询ref_codes表...');
       
       // 首先测试数据库连接
       final testQuery = await Supabase.instance.client
           .from('ref_codes')
           .select('count')
           .limit(1);
-      print('数据库连接测试成功，返回数据: $testQuery');
+      AppLogger.info('数据库连接测试成功，返回数据: $testQuery');
       
       // 查询一级服务分类
       final data = await Supabase.instance.client
@@ -176,21 +222,21 @@ class HomeController extends GetxController {
           .eq('status', 1)
           .order('sort_order', ascending: true);
 
-      print('查询完成，原始数据: $data');
-      print('数据长度: ${data.length}');
+      AppLogger.info('查询完成，原始数据: $data');
+      AppLogger.info('数据长度: ${data.length}');
       
       final List<HomeServiceItem> fetchedServices = [];
       
       for (var item in data as List) {
-        print('处理项目: $item');
+        AppLogger.info('处理项目: $item');
         final nameData = Map<String, dynamic>.from(item['name']);
         final extraData = Map<String, dynamic>.from(item['extra_data'] ?? {});
         final id = item['id'] as int;
         
-        print('处理服务: ID=$id, name=$nameData, extraData=$extraData');
+        AppLogger.info('处理服务: ID=$id, name=$nameData, extraData=$extraData');
         
         final serviceName = nameData[Get.locale?.languageCode ?? 'zh'] ?? nameData['zh'] ?? nameData['en'] ?? '';
-        print('解析后的服务名称: $serviceName');
+        AppLogger.info('解析后的服务名称: $serviceName');
         
         fetchedServices.add(HomeServiceItem(
           id: id,
@@ -206,11 +252,11 @@ class HomeController extends GetxController {
         HomeServiceItem(id: -2, typeCode: 'FUNCTION', name: '服务地图', icon: Icons.location_on),
       ]);
 
-      print('最终服务列表: ${fetchedServices.map((s) => '${s.id}: ${s.name}').join(', ')}');
+      AppLogger.info('最终服务列表: ${fetchedServices.map((s) => '${s.id}: ${s.name}').join(', ')}');
       services.assignAll(fetchedServices);
     } catch (e) {
-      print('Error fetching home services: $e');
-      print('错误详情: ${e.toString()}');
+      AppLogger.info('Error fetching home services: $e');
+      AppLogger.info('错误详情: ${e.toString()}');
       Get.snackbar(
         '加载失败',
         '未能加载服务分类，请稍后再试。错误: ${e.toString()}',
@@ -218,7 +264,7 @@ class HomeController extends GetxController {
       );
     } finally {
       isLoadingServices.value = false;
-      print('Home services fetch finished. isLoadingServices: ${isLoadingServices.value}'); // Added print
+      AppLogger.info('Home services fetch finished. isLoadingServices: ${isLoadingServices.value}'); // Added print
     }
   }
 
@@ -230,7 +276,7 @@ class HomeController extends GetxController {
   }
 
   IconData _getIconData(String iconName) {
-    print('Getting icon for: $iconName');
+    AppLogger.info('Getting icon for: $iconName');
     switch (iconName) {
       case 'restaurant': return Icons.restaurant;
       case 'home': return Icons.home;
@@ -248,7 +294,7 @@ class HomeController extends GetxController {
       case 'newspaper': return Icons.newspaper;
       case 'card_giftcard': return Icons.card_giftcard;
       default: 
-        print('Using default icon for: $iconName');
+        AppLogger.info('Using default icon for: $iconName');
         return Icons.category;
     }
   }
@@ -317,38 +363,78 @@ class HomeController extends GetxController {
 
   // New method to fetch recommended services
   Future<void> _fetchRecommendedServices() async {
-    print('=== Fetching Recommended Services ===');
+    AppLogger.info('=== Fetching Recommended Services ===');
     isLoadingRecommendations.value = true;
+    
     try {
-      print('开始查询services表...');
+      // 优先使用新的服务查询服务
+      if (_serviceQueryService != null) {
+        AppLogger.info('使用新的服务查询服务获取推荐服务');
+        final result = await _serviceQueryService!.getRecommendedServices(limit: 8);
+        
+        final List<ServiceRecommendation> processedServices = [];
+        for (var service in result) {
+          processedServices.add(ServiceRecommendation(
+            id: service.id,
+            serviceName: service.title,
+            serviceDescription: service.description,
+            serviceIcon: 'category', // 默认图标
+            recommendationReason: '为您推荐',
+            // 新增字段
+            name: service.title,
+            imageUrl: service.mainImage,
+            providerName: 'Service Provider', // 需要从provider_profiles获取
+            rating: service.rating ?? 4.5,
+            price: service.priceDisplay,
+            distance: null, // 需要计算
+            isPopular: service.reviewCount != null && service.reviewCount! > 10,
+            isNearby: false, // 需要根据位置计算
+            subCategory: null, // 需要从service_details获取
+            isAvailable: service.isActive ?? true,
+            attributes: null, // 需要从service_details获取
+            businessRules: null, // 需要从service_details获取
+            currentStock: null, // 需要从service_details获取
+            maxStock: null, // 需要从service_details获取
+            pricingType: service.pricingType,
+            currency: service.currency,
+          ));
+        }
+        
+        recommendations.assignAll(processedServices);
+        AppLogger.info('使用新服务获取推荐服务成功，数量: ${processedServices.length}');
+        return;
+      }
+      
+      // 回退到旧的查询方式
+      AppLogger.info('回退到旧的查询方式');
       final data = await Supabase.instance.client
           .from('services')
-          .select('*, ref_codes!services_category_level1_id_fkey(extra_data)') // Changed to specify the foreign key
+          .select('*, ref_codes!services_category_level1_id_fkey(extra_data)')
           .limit(8);
 
-      print('services数据: $data');
+      AppLogger.info('services数据: $data');
 
       final List<ServiceRecommendation> processedServices = [];
       final Set<int> categoryIdsToFetch = {};
       for (var service in data as List) {
         categoryIdsToFetch.add(service['category_level1_id'] as int);
       }
-      print('需要查询的分类ID: $categoryIdsToFetch');
+      AppLogger.info('需要查询的分类ID: $categoryIdsToFetch');
 
       final refCodesData = await Supabase.instance.client
           .from('ref_codes')
           .select('id, extra_data')
-          .filter('id', 'in', categoryIdsToFetch.toList()); // Changed from .in_ to .filter
+          .filter('id', 'in', categoryIdsToFetch.toList());
 
-      print('ref_codes查询完成，数据: $refCodesData');
+      AppLogger.info('ref_codes查询完成，数据: $refCodesData');
       final Map<int, Map<String, dynamic>> refCodesMap = {};
       for (var refCode in refCodesData as List) {
         refCodesMap[refCode['id']] = refCode['extra_data'];
       }
-      print('ref_codes映射: $refCodesMap');
+      AppLogger.info('ref_codes映射: $refCodesMap');
 
       for (var service in data) {
-        print('处理服务: $service');
+        AppLogger.info('处理服务: $service');
         final serviceTitle = service['title'];
         final safeServiceTitle = serviceTitle is Map<String, dynamic> ? serviceTitle : {'zh': serviceTitle ?? ''};
         final serviceDescription = service['description'];
@@ -356,26 +442,26 @@ class HomeController extends GetxController {
         final categoryLevel1Id = service['category_level1_id'] as int;
         final iconData = refCodesMap[categoryLevel1Id]?['icon'] ?? 'category';
 
-        print('服务标题: $serviceTitle');
-        print('服务描述: $serviceDescription');
-        print('分类ID: $categoryLevel1Id');
-        print('图标名称: $iconData');
-        print('DEBUG: service id: ${service['id']}, type: ${service['id'].runtimeType}');
+        AppLogger.info('服务标题: $serviceTitle');
+        AppLogger.info('服务描述: $serviceDescription');
+        AppLogger.info('分类ID: $categoryLevel1Id');
+        AppLogger.info('图标名称: $iconData');
+        AppLogger.info('DEBUG: service id: ${service['id']}, type: ${service['id'].runtimeType}');
 
         processedServices.add(ServiceRecommendation(
-          id: service['id'].toString(), // 确保转换为字符串
+          id: service['id'].toString(),
           serviceName: safeServiceTitle,
           serviceDescription: safeServiceDescription,
           serviceIcon: iconData,
-          recommendationReason: '为您推荐', // Placeholder for now
+          recommendationReason: '为您推荐',
         ));
-        print('添加推荐服务成功');
+        AppLogger.info('添加推荐服务成功');
       }
-      print('最终推荐服务数量: ${processedServices.length}');
+      AppLogger.info('最终推荐服务数量: ${processedServices.length}');
       recommendations.assignAll(processedServices);
-      print('Recommendations assigned to RxList.'); // Added print
+      AppLogger.info('Recommendations assigned to RxList.');
     } catch (e) {
-      print('Error fetching recommended services: $e');
+      AppLogger.info('Error fetching recommended services: $e');
       Get.snackbar(
         '加载失败',
         '未能加载推荐服务，请稍后再试。错误: ${e.toString()}',
@@ -383,7 +469,7 @@ class HomeController extends GetxController {
       );
     } finally {
       isLoadingRecommendations.value = false;
-      print('Recommended services fetch finished. isLoadingRecommendations: ${isLoadingRecommendations.value}'); // Added print
+      AppLogger.info('Recommended services fetch finished. isLoadingRecommendations: ${isLoadingRecommendations.value}');
     }
   }
 

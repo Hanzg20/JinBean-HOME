@@ -1,13 +1,11 @@
-import 'package:flutter/material.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/features/service_booking/presentation/service_booking_controller.dart';
-import 'package:jinbeanpod_83904710/l10n/generated/app_localizations.dart'; // 导入国际化类
-import 'package:jinbeanpod_83904710/app/theme/app_colors.dart'; // Import AppColors
+// 导入国际化类
+// Import AppColors
 import 'package:jinbeanpod_83904710/core/controllers/location_controller.dart'; // 导入LocationController
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:jinbeanpod_83904710/core/ui/components/customer_theme_components.dart';
-import 'package:jinbeanpod_83904710/core/ui/themes/customer_theme_utils.dart';
 
 class ServiceBookingPage extends GetView<ServiceBookingController> {
   const ServiceBookingPage({super.key});
@@ -185,7 +183,7 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
             
             // 强制刷新UI
             final selectedId = controller.selectedLevel1CategoryId.value;
-            print('=== Obx Rebuild === Selected ID: $selectedId');
+            AppLogger.info('=== Obx Rebuild === Selected ID: $selectedId');
             
             return ListView.builder(
               scrollDirection: Axis.horizontal,
@@ -196,10 +194,10 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
                 final isSelected = selectedId == category.id;
                 
                 // 添加调试信息
-                print('=== UI Debug ===');
-                print('Category: ${category.displayName()}, ID: ${category.id}');
-                print('Selected ID: $selectedId');
-                print('Is Selected: $isSelected');
+                AppLogger.info('=== UI Debug ===');
+                AppLogger.info('Category: ${category.displayName()}, ID: ${category.id}');
+                AppLogger.info('Selected ID: $selectedId');
+                AppLogger.info('Is Selected: $isSelected');
                 
                 return Container(
                   margin: const EdgeInsets.only(right: 8), // 减少间距
@@ -209,7 +207,7 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
                       onTap: () {
                         // 添加触觉反馈
                         HapticFeedback.lightImpact();
-                        print('=== Tapping Category: ${category.displayName()} (ID: ${category.id}) ===');
+                        AppLogger.info('=== Tapping Category: ${category.displayName()} (ID: ${category.id}) ===');
                         controller.selectLevel1Category(category.id);
                       },
                       borderRadius: BorderRadius.circular(20), // 减少圆角
@@ -218,7 +216,7 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
                         curve: Curves.easeInOut,
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 减少内边距
                         decoration: BoxDecoration(
-                          color: isSelected ? colorScheme.primary : colorScheme.surfaceVariant,
+                          color: isSelected ? colorScheme.primary : colorScheme.surfaceContainerHighest,
                           borderRadius: BorderRadius.circular(20),
                           border: isSelected 
                             ? Border.all(color: colorScheme.primary, width: 1)
@@ -295,7 +293,7 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
               decoration: BoxDecoration(
                 color: colorScheme.surface,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: colorScheme.outline.withOpacity(0.2)),
+                border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
               ),
               child: Column(
                 children: [
@@ -321,24 +319,27 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 简化的header
+              // 更紧凑的header
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4), // 减少垂直间距
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2), // 进一步减少垂直间距
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       '${controller.level2Categories.length} Services',
                       style: theme.textTheme.titleMedium?.copyWith(
-                        fontSize: 16,
+                        fontSize: 15, // 稍微减小字体
                         fontWeight: FontWeight.w600,
                         color: colorScheme.onSurface,
                       ),
                     ),
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        // 显示所有服务，清除筛选
+                        controller.clearFilters();
+                      },
                       style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), // 减少内边距
                         minimumSize: Size.zero,
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
@@ -347,31 +348,31 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
                         style: TextStyle(
                           color: colorScheme.primary,
                           fontWeight: FontWeight.w500,
-                          fontSize: 14,
+                          fontSize: 13, // 稍微减小字体
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
-              // 紧凑的网格布局
-              GridView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3, // 改为3列，参考Yelp
-                  crossAxisSpacing: 8, // 减少间距
-                  mainAxisSpacing: 8, // 减少间距
-                  childAspectRatio: 0.8, // 调整比例
+              // 水平滑动列表布局 - 优化空间利用
+              SizedBox(
+                height: 90, // 进一步减少高度
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: controller.level2Categories.length,
+                  itemBuilder: (context, index) {
+                    final category = controller.level2Categories[index];
+                    return Container(
+                      width: 75, // 减少宽度，更紧凑
+                      margin: const EdgeInsets.only(right: 10),
+                      child: _buildCompactCategoryCard(category, colorScheme),
+                    );
+                  },
                 ),
-                itemCount: controller.level2Categories.length,
-                itemBuilder: (context, index) {
-                  final category = controller.level2Categories[index];
-                  return _buildLevel2CategoryCard(category, colorScheme);
-                },
               ),
-              const SizedBox(height: 12), // 减少底部间距
+              const SizedBox(height: 8), // 进一步减少底部间距
             ],
           );
         });
@@ -379,58 +380,64 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
     );
   }
 
-  Widget _buildLevel2CategoryCard(dynamic category, ColorScheme colorScheme) {
-    return Card(
-      elevation: 0, // 移除阴影
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      color: colorScheme.surface,
-      child: InkWell(
-        onTap: () {
-          // TODO: Navigate to service detail page
-          Get.snackbar('Service', 'Opening service details...', snackPosition: SnackPosition.BOTTOM);
-        },
-        borderRadius: BorderRadius.circular(8),
-        child: Container(
-          padding: const EdgeInsets.all(8), // 减少内边距
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // 简化的图标容器
-              Container(
-                width: 32, // 减小图标容器
-                height: 32,
-                decoration: BoxDecoration(
-                  color: colorScheme.primary.withOpacity(0.1), // 简化背景
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Icon(
-                  Icons.category,
-                  color: colorScheme.primary,
-                  size: 18, // 减小图标
-                ),
-              ),
-              const SizedBox(height: 6), // 减少间距
-              // 简化的文本
-              Flexible(
-                child: Text(
-                  category.displayName(),
-                  style: TextStyle(
-                    fontSize: 11, // 减小字体
-                    fontWeight: FontWeight.w500,
-                    color: colorScheme.onSurface,
-                    height: 1.1,
-                  ),
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
+
+  
+  // 紧凑分类卡片 - 优化水平滑动
+  Widget _buildCompactCategoryCard(dynamic category, ColorScheme colorScheme) {
+    return InkWell(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        AppLogger.info('选择二级分类: ${category.displayName()} (ID: ${category.id})');
+        controller.selectLevel2Category(category.id);
+      },
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        decoration: BoxDecoration(
+          color: colorScheme.surface,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: colorScheme.outline.withValues(alpha: 0.08),
+            width: 0.5,
           ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // 图标容器 - 更小更精致
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: colorScheme.primary.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Icon(
+                ServiceBookingController.iconFromString(category.extraData['icon']),
+                color: colorScheme.primary,
+                size: 16,
+              ),
+            ),
+            const SizedBox(height: 4),
+            // 分类名称 - 更紧凑
+            Text(
+              category.displayName(),
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w500,
+                color: colorScheme.onSurface,
+                height: 1.0,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
         ),
       ),
     );
   }
+  
+
 
   Widget _buildRecommendedServices() {
     return Builder(
@@ -444,7 +451,10 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
             CustomerSectionHeader(
               title: 'Recommended Services',
               action: TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  // 显示所有推荐服务
+                  controller.showAllRecommendedServices();
+                },
                 child: Text(
                   'View All',
                   style: TextStyle(
@@ -454,37 +464,39 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
                 ),
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8), // 减少间距，平衡布局
             Obx(() {
               if (controller.isLoadingSearch.value) {
                 return const CustomerLoadingState(message: 'Loading services...');
               }
               
               if (controller.services.isNotEmpty) {
-                return SizedBox(
-                  height: 280,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: controller.services.length,
-                    itemBuilder: (context, index) {
-                      final service = controller.services[index];
-                      return _buildEnhancedServiceCard(service, colorScheme);
-                    },
-                  ),
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: controller.services.length,
+                  itemBuilder: (context, index) {
+                    final service = controller.services[index];
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      child: _buildVerticalServiceCard(service, colorScheme),
+                    );
+                  },
                 );
               } else if (controller.recommendedServices.isNotEmpty) {
-                return SizedBox(
-                  height: 280,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: controller.recommendedServices.length,
-                    itemBuilder: (context, index) {
-                      final service = controller.recommendedServices[index];
-                      return _buildEnhancedRecommendedServiceCard(service, colorScheme);
-                    },
-                  ),
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: controller.recommendedServices.length,
+                  itemBuilder: (context, index) {
+                    final service = controller.recommendedServices[index];
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      child: _buildVerticalRecommendedServiceCard(service, colorScheme),
+                    );
+                  },
                 );
               } else {
                 return const CustomerEmptyState(
@@ -784,6 +796,305 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
             child: const Text('Confirm'),
           ),
         ],
+      ),
+    );
+  }
+  
+  // 新增：垂直服务卡片组件 - 现代化设计
+  Widget _buildVerticalServiceCard(ServiceItem service, ColorScheme colorScheme) {
+    return Card(
+      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: InkWell(
+        onTap: () {
+          // 添加触觉反馈
+          HapticFeedback.lightImpact();
+          Get.toNamed('/service_detail', parameters: {'serviceId': service.id});
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              // 服务图片 - 更大更醒目
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: SizedBox(
+                  width: 90,
+                  height: 90,
+                  child: Image.network(
+                    service.imageUrl,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: Colors.grey[100],
+                        child: Icon(
+                          Icons.home_repair_service,
+                          size: 48,
+                          color: Colors.grey[400],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              // 服务信息
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 服务名称
+                    Text(
+                      controller.getSafeLocalizedText(service.name),
+                      style: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                        height: 1.2,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 6),
+                    // 服务描述
+                    Text(
+                      controller.getSafeLocalizedText(service.description),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                        height: 1.3,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 12),
+                    // 价格和评分
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: colorScheme.primary.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            '\$${service.price}',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: colorScheme.primary,
+                            ),
+                          ),
+                        ),
+                        const Spacer(),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.amber.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.star,
+                                size: 16,
+                                color: Colors.amber[700],
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                '${service.rating}',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.amber[700],
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                '(${service.reviews})',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+  
+  // 新增：垂直推荐服务卡片组件 - 现代化设计
+  Widget _buildVerticalRecommendedServiceCard(RecommendedService service, ColorScheme colorScheme) {
+    return Card(
+      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: InkWell(
+        onTap: () {
+          // 添加触觉反馈
+          HapticFeedback.lightImpact();
+          Get.toNamed('/service_detail', parameters: {'serviceId': service.id});
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              // 服务图片
+              Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: SizedBox(
+                      width: 90,
+                      height: 90,
+                      child: Image.network(
+                        service.imageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            color: Colors.grey[100],
+                            child: Icon(
+                              Icons.home_repair_service,
+                              size: 48,
+                              color: Colors.grey[400],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  // 推荐标签 - 更醒目的设计
+                  Positioned(
+                    top: 6,
+                    right: 6,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Colors.orange[400]!, Colors.orange[600]!],
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.orange.withValues(alpha: 0.3),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: const Text(
+                        '推荐',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(width: 16),
+              // 服务信息
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 服务名称
+                    Text(
+                      controller.getSafeLocalizedText(service.name),
+                      style: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                        height: 1.2,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 6),
+                    // 服务描述
+                    Text(
+                      controller.getSafeLocalizedText(service.description),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                        height: 1.3,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 12),
+                    // 价格和评分
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: colorScheme.primary.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            '\$${service.price}',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: colorScheme.primary,
+                            ),
+                          ),
+                        ),
+                        const Spacer(),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.amber.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.star,
+                                size: 16,
+                                color: Colors.amber[700],
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                '${service.rating}',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.amber[700],
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                '(${service.reviews})',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

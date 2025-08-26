@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:flutter/material.dart';
 import 'package:jinbeanpod_83904710/features/provider/provider_home_page.dart';
 import 'package:jinbeanpod_83904710/features/provider/orders/presentation/orders_shell_page.dart';
 import 'package:jinbeanpod_83904710/features/provider/clients/presentation/client_page.dart';
@@ -26,20 +25,20 @@ class _ProviderShellAppState extends State<ProviderShellApp> {
   @override
   void initState() {
     super.initState();
-    print('[ProviderShellApp] initState called');
+    AppLogger.info('[ProviderShellApp] initState called');
     _pages = [
       ProviderHomePage(onNavigateToTab: _onNavigateToTab), // Dashboard
       OrdersShellPage(), // Orders (包含了订单管理和抢单大厅)
       ClientPage(), // Clients
       SettingsPage(), // Settings/My - Updated to use the new SettingsPage
     ];
-    print('[ProviderShellApp] _pages initialized: '
+    AppLogger.info('[ProviderShellApp] _pages initialized: '
       '${_pages.map((w) => w.runtimeType).join(', ')}');
   }
 
   @override
   Widget build(BuildContext context) {
-    print('[ProviderShellApp] build called, _currentIndex: $_currentIndex');
+    AppLogger.info('[ProviderShellApp] build called, _currentIndex: $_currentIndex');
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,

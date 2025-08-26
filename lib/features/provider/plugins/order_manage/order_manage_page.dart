@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/core/ui/design_system/colors.dart';
 import 'package:jinbeanpod_83904710/features/provider/plugins/order_manage/order_manage_controller.dart';
-import 'package:jinbeanpod_83904710/features/provider/plugins/order_manage/order_manage_binding.dart';
-import 'package:jinbeanpod_83904710/core/components/platform_core.dart';
 
 class OrderManagePage extends GetView<OrderManageController> {
   const OrderManagePage({super.key});
@@ -151,9 +149,9 @@ class OrderManagePage extends GetView<OrderManageController> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Column(
         children: [
@@ -312,9 +310,9 @@ class OrderManagePage extends GetView<OrderManageController> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: statusColor.withOpacity(0.1),
+                    color: statusColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: statusColor.withOpacity(0.3)),
+                    border: Border.all(color: statusColor.withValues(alpha: 0.3)),
                   ),
                   child: Text(
                     controller.getStatusDisplayText(status),

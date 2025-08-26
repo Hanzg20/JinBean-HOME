@@ -136,7 +136,7 @@ class SavedServicesPage extends GetView<SavedServicesController> {
               child: ClipRRect(
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                 child: Image.network(
-                  service.imageUrl ?? 'https://via.placeholder.com/300x160',
+                  service.imageUrl ?? 'https://picsum.photos/seed/saved${service.id}/300/160',
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     return Container(

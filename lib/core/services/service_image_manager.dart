@@ -1,4 +1,4 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ServiceImageManager {
   static final ServiceImageManager _instance = ServiceImageManager._internal();
@@ -81,9 +81,9 @@ class ServiceImageManager {
         'updated_at': DateTime.now().toIso8601String(),
       }).eq('service_id', serviceId);
 
-      print('[ServiceImageManager] Updated images for service $serviceId');
+      AppLogger.info('[ServiceImageManager] Updated images for service $serviceId');
     } catch (e) {
-      print('[ServiceImageManager] Error updating service images: $e');
+      AppLogger.info('[ServiceImageManager] Error updating service images: $e');
       rethrow;
     }
   }
@@ -91,7 +91,7 @@ class ServiceImageManager {
   /// Batch update all services with test images
   Future<void> batchUpdateAllServicesWithTestImages() async {
     try {
-      print('[ServiceImageManager] Starting batch update of service images...');
+      AppLogger.info('[ServiceImageManager] Starting batch update of service images...');
 
       // Get all services
       final services = await Supabase.instance.client
@@ -128,14 +128,14 @@ class ServiceImageManager {
         );
 
         updatedCount++;
-        print(
+        AppLogger.info(
             '[ServiceImageManager] Updated service $serviceId with ${testImages.length} images');
       }
 
-      print(
+      AppLogger.info(
           '[ServiceImageManager] Batch update completed. Updated $updatedCount services.');
     } catch (e) {
-      print('[ServiceImageManager] Error in batch update: $e');
+      AppLogger.info('[ServiceImageManager] Error in batch update: $e');
       rethrow;
     }
   }

@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:jinbeanpod_83904710/core/plugin_management/plugin_manager.dart';
-import 'package:jinbeanpod_83904710/core/ui/components/provider_theme_components.dart';
-import 'package:jinbeanpod_83904710/core/ui/themes/provider_theme_utils.dart';
 import 'package:jinbeanpod_83904710/core/ui/design_system/colors.dart';
 import '../profile/provider_profile_controller.dart';
 // Import platform components

@@ -18,12 +18,12 @@ class CustomerThemeUtils {
         bottomRight: Radius.circular(16),
       ),
       border: Border.all(
-        color: colorScheme.outline.withOpacity(0.1),
+        color: colorScheme.outline.withValues(alpha: 0.1),
         width: 1,
       ),
       boxShadow: [
         BoxShadow(
-          color: colorScheme.shadow.withOpacity(0.1), // 稍微增强阴影
+          color: colorScheme.shadow.withValues(alpha: 0.1), // 稍微增强阴影
           blurRadius: 12,
           offset: const Offset(0, 4),
         ),
@@ -42,7 +42,7 @@ class CustomerThemeUtils {
         end: Alignment.bottomRight,
         colors: [
           colorScheme.primary,
-          colorScheme.primary.withOpacity(0.8),
+          colorScheme.primary.withValues(alpha: 0.8),
         ],
       ),
       borderRadius: const BorderRadius.only(
@@ -53,7 +53,7 @@ class CustomerThemeUtils {
       ),
       boxShadow: [
         BoxShadow(
-          color: colorScheme.primary.withOpacity(0.3),
+          color: colorScheme.primary.withValues(alpha: 0.3),
           blurRadius: 8,
           offset: const Offset(0, 2),
         ),
@@ -70,7 +70,7 @@ class CustomerThemeUtils {
       backgroundColor: colorScheme.primary,
       foregroundColor: colorScheme.onPrimary,
       elevation: 3, // Customer端使用适中的阴影
-      shadowColor: colorScheme.shadow.withOpacity(0.2),
+      shadowColor: colorScheme.shadow.withValues(alpha: 0.2),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(12),
@@ -128,15 +128,15 @@ class CustomerThemeUtils {
       prefixIcon: prefixIcon,
       suffixIcon: suffixIcon,
       filled: true,
-      fillColor: colorScheme.surfaceVariant.withOpacity(0.3),
+      fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16), // Customer端使用更大的圆角
-        borderSide: BorderSide(color: colorScheme.outline.withOpacity(0.2)),
+        borderSide: BorderSide(color: colorScheme.outline.withValues(alpha: 0.2)),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
         borderSide: BorderSide(
-          color: colorScheme.outline.withOpacity(0.2),
+          color: colorScheme.outline.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -153,7 +153,7 @@ class CustomerThemeUtils {
         fontSize: 15, // Customer端使用稍大的字体
       ),
       hintStyle: theme.textTheme.bodyMedium?.copyWith(
-        color: colorScheme.onSurfaceVariant.withOpacity(0.7),
+        color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
         fontSize: 15,
       ),
     );
@@ -165,7 +165,7 @@ class CustomerThemeUtils {
     final colorScheme = theme.colorScheme;
     
     return Divider(
-      color: colorScheme.outline.withOpacity(0.2),
+      color: colorScheme.outline.withValues(alpha: 0.2),
       height: 1,
       thickness: 1,
     );
@@ -210,8 +210,8 @@ class CustomerThemeUtils {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    colorScheme.primary.withOpacity(0.1),
-                    colorScheme.primary.withOpacity(0.05),
+                    colorScheme.primary.withValues(alpha: 0.1),
+                    colorScheme.primary.withValues(alpha: 0.05),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(40),
@@ -274,7 +274,7 @@ class CustomerThemeUtils {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: colorScheme.error.withOpacity(0.1),
+                color: colorScheme.error.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(40),
               ),
               child: Icon(
@@ -424,7 +424,7 @@ class CustomerThemeUtils {
     return InputDecoration(
       hintText: hintText ?? '搜索服务...',
       hintStyle: theme.textTheme.bodyMedium?.copyWith(
-        color: colorScheme.onSurfaceVariant.withOpacity(0.7),
+        color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
         fontSize: 16,
       ),
       prefixIcon: Icon(
@@ -443,7 +443,7 @@ class CustomerThemeUtils {
             )
           : Icon(
               Icons.mic,
-              color: colorScheme.onSurfaceVariant.withOpacity(0.5),
+              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
               size: 20,
             ),
       filled: true,
@@ -476,12 +476,12 @@ class CustomerThemeUtils {
       color: colorScheme.surface,
       borderRadius: BorderRadius.circular(16),
       border: Border.all(
-        color: colorScheme.outline.withOpacity(0.1),
+        color: colorScheme.outline.withValues(alpha: 0.1),
         width: 1,
       ),
       boxShadow: [
         BoxShadow(
-          color: colorScheme.shadow.withOpacity(0.08),
+          color: colorScheme.shadow.withValues(alpha: 0.08),
           blurRadius: 8,
           offset: const Offset(0, 2),
         ),
@@ -498,12 +498,12 @@ class CustomerThemeUtils {
       color: colorScheme.surface,
       borderRadius: BorderRadius.circular(12),
       border: Border.all(
-        color: colorScheme.outline.withOpacity(0.05),
+        color: colorScheme.outline.withValues(alpha: 0.05),
         width: 1,
       ),
       boxShadow: [
         BoxShadow(
-          color: colorScheme.shadow.withOpacity(0.06),
+          color: colorScheme.shadow.withValues(alpha: 0.06),
           blurRadius: 6,
           offset: const Offset(0, 2),
         ),

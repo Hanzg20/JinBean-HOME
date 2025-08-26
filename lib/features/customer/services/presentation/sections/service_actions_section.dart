@@ -9,11 +9,11 @@ class ServiceActionsSection extends StatelessWidget {
   final VoidCallback? onSchedule;
 
   const ServiceActionsSection({
-    Key? key,
+    super.key,
     required this.controller,
     this.onGetQuote,
     this.onSchedule,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

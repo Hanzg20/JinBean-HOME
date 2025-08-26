@@ -1,4 +1,4 @@
-import 'dart:async';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'dart:async';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'provider_registration_controller.dart';
 import 'address_service.dart';
@@ -11,7 +11,7 @@ class ProviderRegistrationService {
     try {
       final user = Supabase.instance.client.auth.currentUser;
       if (user == null) {
-        print('[ProviderRegistrationService] No user logged in');
+        AppLogger.info('[ProviderRegistrationService] No user logged in');
         return false;
       }
 
@@ -20,7 +20,7 @@ class ProviderRegistrationService {
       if (controller.addressInput != null && controller.addressInput!.isNotEmpty) {
         addressId = await _addressService.getOrCreateAddress(controller.addressInput!);
         if (addressId == null) {
-          print('[ProviderRegistrationService] Failed to process address');
+          AppLogger.info('[ProviderRegistrationService] Failed to process address');
           return false;
         }
       }
@@ -47,7 +47,7 @@ class ProviderRegistrationService {
         'certification_status': 'pending',
         'status': 'pending', // 匹配 schema 中的 status
       };
-      print('[ProviderRegistrationService] Submitting data: $data');
+      AppLogger.info('[ProviderRegistrationService] Submitting data: $data');
       final res = await Supabase.instance.client
           .from('provider_profiles')
           .insert(data);
@@ -60,15 +60,15 @@ class ProviderRegistrationService {
             .eq('id', user.id);
 
         if (updateResp.error != null) {
-          print('[ProviderRegistrationService] Error updating user role: ${updateResp.error!.message}');
+          AppLogger.info('[ProviderRegistrationService] Error updating user role: ${updateResp.error!.message}');
         } else {
-          print('[ProviderRegistrationService] User role updated to customer+provider for ${user.id}');
+          AppLogger.info('[ProviderRegistrationService] User role updated to customer+provider for ${user.id}');
         }
       }
-      print('[ProviderRegistrationService] Supabase insert result: $res');
+      AppLogger.info('[ProviderRegistrationService] Supabase insert result: $res');
       return res.error == null;
     } catch (e, stack) {
-      print('[ProviderRegistrationService] Exception: $e\n$stack');
+      AppLogger.info('[ProviderRegistrationService] Exception: $e\n$stack');
       rethrow;
     }
   }

@@ -1,5 +1,4 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:jinbeanpod_83904710/features/customer/domain/entities/similar_service.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:jinbeanpod_83904710/features/customer/domain/entities/similar_service.dart';
 
 class SimilarServicesApiService {
   /// 获取指定服务的相似服务列表
@@ -213,10 +212,10 @@ class SimilarServicesApiService {
       await Future.delayed(Duration(milliseconds: 500));
       
       // 模拟成功
-      print('Logged similar service interaction: $currentServiceId -> $similarServiceId, type: $interactionType');
+      AppLogger.info('Logged similar service interaction: $currentServiceId -> $similarServiceId, type: $interactionType');
     } catch (e) {
       // 静默处理错误，不影响用户体验
-      print('Failed to log similar service interaction: $e');
+      AppLogger.info('Failed to log similar service interaction: $e');
     }
   }
 } 

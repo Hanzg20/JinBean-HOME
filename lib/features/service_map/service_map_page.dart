@@ -175,7 +175,7 @@ class _ServiceMapPageState extends State<ServiceMapPage> {
       child: Card(
         elevation: 12,
         color: theme.cardColor,
-        shadowColor: theme.shadowColor.withOpacity(0.2),
+        shadowColor: theme.shadowColor.withValues(alpha: 0.2),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Padding(
           padding: const EdgeInsets.all(18.0),

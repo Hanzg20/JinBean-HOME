@@ -1,4 +1,3 @@
-import 'package:jinbeanpod_83904710/features/customer/services/presentation/service_detail_controller.dart';
 
 /// 聊天服务接口
 abstract class ChatService {

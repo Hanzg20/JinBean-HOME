@@ -81,9 +81,9 @@ class JinBeanOrderCard extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-            color: _getStatusColor().withOpacity(0.1),
+            color: _getStatusColor().withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: _getStatusColor().withOpacity(0.3)),
+            border: Border.all(color: _getStatusColor().withValues(alpha: 0.3)),
           ),
           child: Text(
             _getStatusText(),
@@ -138,7 +138,7 @@ class JinBeanOrderCard extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 16,
-          backgroundColor: JinBeanColors.surfaceVariant,
+          backgroundColor: JinBeanColors.surfaceContainerHighest,
           backgroundImage: customerAvatar != null 
               ? NetworkImage(customerAvatar!) 
               : null,
@@ -320,7 +320,7 @@ class JinBeanOrderListItem extends StatelessWidget {
         width: 48,
         height: 48,
         decoration: BoxDecoration(
-          color: _getStatusColor().withOpacity(0.1),
+          color: _getStatusColor().withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Icon(
@@ -374,7 +374,7 @@ class JinBeanOrderListItem extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
-              color: _getStatusColor().withOpacity(0.1),
+              color: _getStatusColor().withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(4),
             ),
             child: Text(

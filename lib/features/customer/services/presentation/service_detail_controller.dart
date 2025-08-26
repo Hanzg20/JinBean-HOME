@@ -6,6 +6,7 @@ import '../../domain/entities/service_detail.dart';
 import '../../domain/entities/review.dart';
 import '../../domain/entities/similar_service.dart';
 import '../../domain/entities/provider_profile.dart';
+import '../services/service_detail_api_service.dart' as api;
 
 class ServiceDetailController extends GetxController {
   // 服务数据
@@ -16,6 +17,7 @@ class ServiceDetailController extends GetxController {
   final RxBool isLoading = false.obs;
   final RxBool isLoadingReviews = false.obs;
   final RxBool isLoadingProvider = false.obs;
+  final RxBool isLoadingSimilar = false.obs;
   
   // 错误状态
   final RxString errorMessage = ''.obs;
@@ -58,16 +60,23 @@ class ServiceDetailController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    AppLogger.info('ServiceDetailController initialized', tag: 'ServiceDetailController');
+    
     // 获取serviceId参数
     final serviceId = Get.parameters['serviceId'] ?? '';
-    // 加载服务详情
-    loadServiceDetail(serviceId);
-    
-    // 加载相似服务推荐
-    loadSimilarServices();
-    
-    // 加载提供商信息
-    loadProviderProfile();
+    if (serviceId.isNotEmpty) {
+      // 加载服务详情
+      loadServiceDetail(serviceId);
+      
+      // 加载相似服务推荐
+      loadSimilarServices(serviceId);
+      
+      // 加载提供商信息
+      loadProviderProfile(serviceId);
+      
+      // 加载评价
+      loadReviews(serviceId);
+    }
   }
 
   /// 加载服务详情
@@ -83,7 +92,7 @@ class ServiceDetailController extends GetxController {
       // TODO: 调用真实API
       // final response = await ServiceApiService.getServiceDetail(serviceId);
       
-      // 模拟数据 - 使用更可靠的图片URL
+      // 模拟数据 - 使用可靠的本地资源和picsum.photos
       final mockService = Service(
         id: serviceId,
         title: '专业清洁服务',
@@ -97,9 +106,9 @@ class ServiceDetailController extends GetxController {
         serviceDeliveryMethod: 'on_site',
         createdAt: DateTime.now().subtract(const Duration(days: 30)),
         images: [
-          'https://picsum.photos/seed/cleaning1/400/300',
-          'https://picsum.photos/seed/cleaning2/400/300',
-          'https://picsum.photos/seed/cleaning3/400/300',
+          'https://picsum.photos/seed/service1/400/300',
+          'https://picsum.photos/seed/service2/400/300',
+          'https://picsum.photos/seed/service3/400/300',
         ],
         rating: 4.8,
         reviewCount: 156,
@@ -135,9 +144,9 @@ class ServiceDetailController extends GetxController {
       
       // 加载相关数据
       await Future.wait([
-        loadReviews(),
-        loadSimilarServices(),
-        loadProviderProfile(),
+        loadReviews(serviceId),
+        loadSimilarServices(serviceId),
+        loadProviderProfile(service.value?.providerId ?? ''),
       ]);
       
     } catch (e) {
@@ -148,80 +157,80 @@ class ServiceDetailController extends GetxController {
     }
   }
 
-  /// 加载相似服务推荐
-  Future<void> loadSimilarServices() async {
+  /// 加载评价列表
+  Future<void> loadReviews(String serviceId, {bool refresh = false}) async {
+    if (serviceId.isEmpty) return;
+
+    if (refresh) {
+      reviews.clear();
+    }
+    
+    isLoadingReviews.value = true;
+    
     try {
-      final mockSimilarServices = [
-        SimilarService(
-          id: 'similar_1',
-          title: '专业家居清洁',
-          description: '深度清洁服务，包括厨房、浴室、客厅等',
-          price: 45.0,
-          currency: 'USD',
-          categoryId: 'cleaning',
-          providerId: 'provider_789',
-          images: ['https://picsum.photos/seed/similar1/300/200'],
-          rating: 4.8,
-          reviewCount: 156,
-          similarityScore: 0.92,
-        ),
-        SimilarService(
-          id: 'similar_2',
-          title: '办公室清洁服务',
-          description: '专业办公室清洁，保持工作环境整洁',
-          price: 60.0,
-          currency: 'USD',
-          categoryId: 'cleaning',
-          providerId: 'provider_456',
-          images: ['https://picsum.photos/seed/similar2/300/200'],
-          rating: 4.6,
-          reviewCount: 89,
-          similarityScore: 0.85,
-        ),
-        SimilarService(
-          id: 'similar_3',
-          title: '深度清洁套餐',
-          description: '全屋深度清洁，包括地毯、窗帘等',
-          price: 120.0,
-          currency: 'USD',
-          categoryId: 'cleaning',
-          providerId: 'provider_123',
-          images: ['https://picsum.photos/seed/similar3/300/200'],
-          rating: 4.9,
-          reviewCount: 234,
-          similarityScore: 0.78,
-        ),
-      ];
+      AppLogger.info('Loading reviews for service ID: $serviceId', tag: 'ServiceDetailController');
       
-      similarServices.value = mockSimilarServices;
-    } catch (e) {
-      AppLogger.error('Error loading similar services: $e', tag: 'ServiceDetailController');
-      similarServices.clear();
+      // 调用真实API服务
+      final reviewsData = await api.ServiceDetailApiService.getServiceReviews(serviceId);
+      
+      if (refresh) {
+        reviews.value = reviewsData.cast<Review>();
+      } else {
+        reviews.addAll(reviewsData.cast<Review>());
+      }
+      
+      AppLogger.info('Reviews loaded successfully: ${reviewsData.length}', tag: 'ServiceDetailController');
+    } catch (e, stack) {
+      AppLogger.error('Failed to load reviews', error: e, stackTrace: stack, tag: 'ServiceDetailController');
+      // 不设置错误状态，因为评价不是必需的
+    } finally {
+      isLoadingReviews.value = false;
+    }
+  }
+
+  /// 加载相似服务推荐
+  Future<void> loadSimilarServices(String serviceId) async {
+    if (serviceId.isEmpty) return;
+
+    isLoadingSimilar.value = true;
+    
+    try {
+      AppLogger.info('Loading similar services for ID: $serviceId', tag: 'ServiceDetailController');
+      
+      // 调用真实API服务
+      final similarData = await api.ServiceDetailApiService.getSimilarServices(serviceId);
+      // TODO: 将API返回的数据转换为SimilarService对象
+      // similarServices.value = similarData.map((data) => SimilarService.fromJson(data)).toList();
+      similarServices.value = []; // 暂时使用空列表，等待数据转换实现
+      
+      AppLogger.info('Similar services loaded successfully: ${similarData.length}', tag: 'ServiceDetailController');
+    } catch (e, stack) {
+      AppLogger.error('Failed to load similar services', error: e, stackTrace: stack, tag: 'ServiceDetailController');
+      // 不设置错误状态，因为相似服务不是必需的
+    } finally {
+      isLoadingSimilar.value = false;
     }
   }
 
   /// 加载服务提供商信息
-  Future<void> loadProviderProfile() async {
+  Future<void> loadProviderProfile(String providerId) async {
+    if (providerId.isEmpty) return;
+
+    isLoadingProvider.value = true;
+    
     try {
-      final mockProvider = ProviderProfile(
-        id: 'provider_123',
-        name: '专业清洁服务公司',
-        description: '提供专业的家居清洁服务，拥有多年经验和专业团队',
-        avatar: 'https://picsum.photos/200/200?random=10',
-        phone: '+1 (555) 123-4567',
-        email: 'contact@cleaningpro.com',
-        address: '123 Main Street, San Francisco, CA 94102',
-        rating: 4.8,
-        reviewCount: 156,
-        completedOrders: 342,
-        isVerified: true,
-        businessLicense: 'CA123456789',
-      );
+      AppLogger.info('Loading provider profile for ID: $providerId', tag: 'ServiceDetailController');
       
-      providerProfile.value = mockProvider;
-    } catch (e) {
-      AppLogger.error('Error loading provider profile: $e', tag: 'ServiceDetailController');
-      providerProfile.value = null;
+      // 调用真实API服务
+      final providerData = await api.ServiceDetailApiService.getProviderProfile(providerId);
+      providerProfile.value = providerData;
+      
+      AppLogger.info('Provider profile loaded successfully', tag: 'ServiceDetailController');
+    } catch (e, stack) {
+      AppLogger.error('Failed to load provider profile', error: e, stackTrace: stack, tag: 'ServiceDetailController');
+      // 不设置错误状态，因为提供商信息不是必需的
+    } finally {
+      isLoadingProvider.value = false;
     }
   }
 
@@ -239,7 +248,7 @@ class ServiceDetailController extends GetxController {
 
   /// 提交报价请求
   Future<void> submitQuoteRequest() async {
-    if (service?.value?.id == null) return;
+    if (service.value?.id == null) return;
     
     isLoadingQuote.value = true;
     quoteError.value = '';
@@ -253,8 +262,8 @@ class ServiceDetailController extends GetxController {
 
       // 构建报价请求数据
       final quoteRequest = {
-        'serviceId': service!.value!.id,
-        'providerId': service!.value!.providerId,
+        'serviceId': service.value!.id,
+        'providerId': service.value!.providerId,
         'customerId': 'user_123', // TODO: 从用户认证获取
         'requirements': quoteDetails['requirements'],
         'serviceDate': quoteDetails['serviceDate'],
@@ -291,7 +300,7 @@ class ServiceDetailController extends GetxController {
 
   /// 获取报价详情
   Future<void> getQuoteDetails() async {
-    if (service?.value?.id == null) return;
+    if (service.value?.id == null) return;
     
     try {
       // TODO: 调用API获取报价详情
@@ -300,8 +309,8 @@ class ServiceDetailController extends GetxController {
       // 模拟数据
       receivedQuote.value = {
         'id': 'quote_123',
-        'serviceId': service!.value!.id,
-        'providerId': service!.value!.providerId,
+        'serviceId': service.value!.id,
+        'providerId': service.value!.providerId,
         'amount': 150.0,
         'currency': 'USD',
         'description': 'Detailed service description based on your requirements',
@@ -384,58 +393,27 @@ class ServiceDetailController extends GetxController {
     // TODO: 调用API更新收藏状态
   }
 
-  /// 加载评价
-  Future<void> loadReviews() async {
-    try {
-      isLoadingReviews.value = true;
-      
-      // 模拟加载评价数据
-      
-      final mockReviews = [
-        Review(
-          id: 'review_1',
-          serviceId: service?.value?.id ?? '',
-          userId: 'user_1',
-          userName: '张先生',
-          userAvatar: 'https://picsum.photos/50/50?random=1',
-          rating: 5,
-          comment: '服务非常好，清洁得很彻底，价格也很合理。',
-          images: ['https://picsum.photos/200/200?random=10'],
-          createdAt: DateTime.now().subtract(const Duration(days: 2)),
-          isVerified: true,
-        ),
-        Review(
-          id: 'review_2',
-          serviceId: service?.value?.id ?? '',
-          userId: 'user_2',
-          userName: '李女士',
-          userAvatar: 'https://picsum.photos/50/50?random=2',
-          rating: 4,
-          comment: '整体满意，工作人员很专业，只是时间稍微晚了一点。',
-          images: [],
-          createdAt: DateTime.now().subtract(const Duration(days: 5)),
-          isVerified: true,
-        ),
-        Review(
-          id: 'review_3',
-          serviceId: service?.value?.id ?? '',
-          userId: 'user_3',
-          userName: '王先生',
-          userAvatar: 'https://picsum.photos/50/50?random=3',
-          rating: 5,
-          comment: '第二次使用这个服务了，一如既往的好。推荐！',
-          images: ['https://picsum.photos/200/200?random=11', 'https://picsum.photos/200/200?random=12'],
-          createdAt: DateTime.now().subtract(const Duration(days: 10)),
-          isVerified: false,
-        ),
-      ];
-      
-      reviews.value = mockReviews;
-    } catch (e) {
-      AppLogger.error('Error loading reviews: $e', tag: 'ServiceDetailController');
-      reviews.clear();
-    } finally {
-      isLoadingReviews.value = false;
+
+
+  /// 更新评价排序
+  void updateReviewSort(String sortType) {
+    currentReviewSort.value = sortType;
+    AppLogger.info('Review sort updated to: $sortType', tag: 'ServiceDetailController');
+    
+    // 重新加载评价
+    if (service.value != null) {
+      loadReviews(service.value!.id, refresh: true);
+    }
+  }
+
+  /// 更新评价筛选
+  void updateReviewFilter(String filterKey, bool value) {
+    reviewFilters[filterKey] = value;
+    AppLogger.info('Review filter updated: $filterKey = $value', tag: 'ServiceDetailController');
+    
+    // 重新加载评价
+    if (service.value != null) {
+      loadReviews(service.value!.id, refresh: true);
     }
   }
 

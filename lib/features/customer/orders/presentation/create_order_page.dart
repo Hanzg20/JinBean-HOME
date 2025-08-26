@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'create_order_controller.dart';
-import '../../../../shared/widgets/smart_address_input.dart';
 import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
 
 class CreateOrderPage extends GetView<CreateOrderController> {

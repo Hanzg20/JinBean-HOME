@@ -1,4 +1,4 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AddressService {
   // 检查地址是否已存在，返回 address_id
@@ -10,7 +10,7 @@ class AddressService {
       final streetName = _extractStreetName(addressInput);
       
       if (postalCode.isEmpty || streetName.isEmpty) {
-        print('[AddressService] Invalid address format: $addressInput');
+        AppLogger.info('[AddressService] Invalid address format: $addressInput');
         return null;
       }
       
@@ -23,7 +23,7 @@ class AddressService {
           .maybeSingle();
       
       if (existingAddress != null) {
-        print('[AddressService] Found existing address: ${existingAddress['id']}');
+        AppLogger.info('[AddressService] Found existing address: ${existingAddress['id']}');
         return existingAddress['id'];
       }
       
@@ -36,11 +36,11 @@ class AddressService {
           .single();
       
       final newAddressId = addressRes['id'];
-      print('[AddressService] Created new address: $newAddressId');
+      AppLogger.info('[AddressService] Created new address: $newAddressId');
       return newAddressId;
       
     } catch (e, stack) {
-      print('[AddressService] Error processing address: $e\n$stack');
+      AppLogger.info('[AddressService] Error processing address: $e\n$stack');
       return null;
     }
   }

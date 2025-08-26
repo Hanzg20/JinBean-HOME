@@ -186,7 +186,7 @@ class _JinBeanBottomNavigationState extends State<JinBeanBottomNavigation>
                           shape: BoxShape.circle,
                           boxShadow: <BoxShadow>[
                             BoxShadow(
-                              color: JinBeanColors.primary.withOpacity(0.4),
+                              color: JinBeanColors.primary.withValues(alpha: 0.4),
                               offset: const Offset(8.0, 16.0),
                               blurRadius: 16.0,
                             ),
@@ -195,7 +195,7 @@ class _JinBeanBottomNavigationState extends State<JinBeanBottomNavigation>
                         child: Material(
                           color: Colors.transparent,
                           child: InkWell(
-                            splashColor: Colors.white.withOpacity(0.1),
+                            splashColor: Colors.white.withValues(alpha: 0.1),
                             highlightColor: Colors.transparent,
                             focusColor: Colors.transparent,
                             onTap: widget.onCenterButtonTap,

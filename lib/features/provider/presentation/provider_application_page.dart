@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:jinbeanpod_83904710/core/ui/themes/provider_theme.dart';
 import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
 
 class ProviderApplicationPage extends StatefulWidget {
@@ -141,7 +140,7 @@ class _ProviderApplicationPageState extends State<ProviderApplicationPage> {
                           Text(
                             'Fill out the form below to start offering your services',
                             style: theme.textTheme.bodyMedium?.copyWith(
-                              color: colorScheme.onPrimaryContainer.withOpacity(0.8),
+                              color: colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
                             ),
                             textAlign: TextAlign.center,
                           ),

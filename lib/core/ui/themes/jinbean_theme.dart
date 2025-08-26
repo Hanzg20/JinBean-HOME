@@ -78,7 +78,7 @@ class JinBeanTheme {
       // 输入框主题
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: JinBeanColors.surfaceVariant,
+        fillColor: JinBeanColors.surfaceContainerHighest,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: JinBeanColors.border),
@@ -160,35 +160,35 @@ class JinBeanTheme {
       // 进度指示器主题
       progressIndicatorTheme: const ProgressIndicatorThemeData(
         color: JinBeanColors.primary,
-        linearTrackColor: JinBeanColors.surfaceVariant,
-        circularTrackColor: JinBeanColors.surfaceVariant,
+        linearTrackColor: JinBeanColors.surfaceContainerHighest,
+        circularTrackColor: JinBeanColors.surfaceContainerHighest,
       ),
       
       // 开关主题
       switchTheme: SwitchThemeData(
-        thumbColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return JinBeanColors.primary;
           }
           return JinBeanColors.textTertiary;
         }),
-        trackColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
-            return JinBeanColors.primary.withOpacity(0.5);
+        trackColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return JinBeanColors.primary.withValues(alpha: 0.5);
           }
-          return JinBeanColors.surfaceVariant;
+          return JinBeanColors.surfaceContainerHighest;
         }),
       ),
       
       // 复选框主题
       checkboxTheme: CheckboxThemeData(
-        fillColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        fillColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return JinBeanColors.primary;
           }
           return Colors.transparent;
         }),
-        checkColor: MaterialStateProperty.all(Colors.white),
+        checkColor: WidgetStateProperty.all(Colors.white),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(4),
         ),
@@ -196,8 +196,8 @@ class JinBeanTheme {
       
       // 单选按钮主题
       radioTheme: RadioThemeData(
-        fillColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        fillColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return JinBeanColors.primary;
           }
           return JinBeanColors.textTertiary;
@@ -207,9 +207,9 @@ class JinBeanTheme {
       // 滑块主题
       sliderTheme: SliderThemeData(
         activeTrackColor: JinBeanColors.primary,
-        inactiveTrackColor: JinBeanColors.surfaceVariant,
+        inactiveTrackColor: JinBeanColors.surfaceContainerHighest,
         thumbColor: JinBeanColors.primary,
-        overlayColor: JinBeanColors.primary.withOpacity(0.2),
+        overlayColor: JinBeanColors.primary.withValues(alpha: 0.2),
         valueIndicatorColor: JinBeanColors.primary,
         valueIndicatorTextStyle: JinBeanTypography.labelMedium.copyWith(
           color: Colors.white,
@@ -244,7 +244,7 @@ class JinBeanTheme {
       cardTheme: CardThemeData(
         color: const Color(0xFF1E1E1E),
         elevation: 2,
-        shadowColor: Colors.black.withOpacity(0.3),
+        shadowColor: Colors.black.withValues(alpha: 0.3),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
@@ -257,7 +257,7 @@ class JinBeanTheme {
           backgroundColor: JinBeanColors.primaryLight,
           foregroundColor: Colors.black,
           elevation: 2,
-          shadowColor: Colors.black.withOpacity(0.3),
+          shadowColor: Colors.black.withValues(alpha: 0.3),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -380,15 +380,15 @@ class JinBeanTheme {
       
       // 开关主题
       switchTheme: SwitchThemeData(
-        thumbColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return JinBeanColors.primaryLight;
           }
           return Colors.grey[500];
         }),
-        trackColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
-            return JinBeanColors.primaryLight.withOpacity(0.5);
+        trackColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return JinBeanColors.primaryLight.withValues(alpha: 0.5);
           }
           return const Color(0xFF2A2A2A);
         }),
@@ -396,13 +396,13 @@ class JinBeanTheme {
       
       // 复选框主题
       checkboxTheme: CheckboxThemeData(
-        fillColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        fillColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return JinBeanColors.primaryLight;
           }
           return Colors.transparent;
         }),
-        checkColor: MaterialStateProperty.all(Colors.black),
+        checkColor: WidgetStateProperty.all(Colors.black),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(4),
         ),
@@ -410,8 +410,8 @@ class JinBeanTheme {
       
       // 单选按钮主题
       radioTheme: RadioThemeData(
-        fillColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        fillColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return JinBeanColors.primaryLight;
           }
           return Colors.grey[500];
@@ -423,7 +423,7 @@ class JinBeanTheme {
         activeTrackColor: JinBeanColors.primaryLight,
         inactiveTrackColor: const Color(0xFF2A2A2A),
         thumbColor: JinBeanColors.primaryLight,
-        overlayColor: JinBeanColors.primaryLight.withOpacity(0.2),
+        overlayColor: JinBeanColors.primaryLight.withValues(alpha: 0.2),
         valueIndicatorColor: JinBeanColors.primaryLight,
         valueIndicatorTextStyle: JinBeanTypography.labelMedium.copyWith(
           color: Colors.black,

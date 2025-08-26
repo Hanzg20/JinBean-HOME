@@ -76,14 +76,14 @@ class ErrorRecoveryWidget extends StatefulWidget {
   final Widget? recoveryWidget;
 
   const ErrorRecoveryWidget({
-    Key? key,
+    super.key,
     required this.type,
     required this.config,
     required this.contentBuilder,
     required this.recoveryFunction,
     this.errorWidget,
     this.recoveryWidget,
-  }) : super(key: key);
+  });
 
   @override
   State<ErrorRecoveryWidget> createState() => _ErrorRecoveryWidgetState();

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import '../address_service.dart';
@@ -149,7 +149,7 @@ class _SmartAddressInputState extends State<SmartAddressInput> {
       // 根据坐标获取地址
       await _getAddressFromCoordinates(position.latitude, position.longitude);
     } catch (e) {
-      print('[SmartAddressInput] Location error: $e');
+      AppLogger.info('[SmartAddressInput] Location error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('获取位置失败: $e'),
@@ -223,7 +223,7 @@ class _SmartAddressInputState extends State<SmartAddressInput> {
         );
       }
     } catch (e) {
-      print('[SmartAddressInput] Geocoding error: $e');
+      AppLogger.info('[SmartAddressInput] Geocoding error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('地址解析失败: $e'),
@@ -575,7 +575,7 @@ class _SmartAddressInputState extends State<SmartAddressInput> {
               borderRadius: BorderRadius.circular(8),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),

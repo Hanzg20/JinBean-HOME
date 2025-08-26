@@ -1,8 +1,9 @@
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:jinbeanpod_83904710/features/customer/services/presentation/service_detail_controller.dart';
 import 'package:jinbeanpod_83904710/features/customer/domain/entities/service.dart';
 import 'package:jinbeanpod_83904710/features/customer/domain/entities/service_detail.dart';
 import 'package:jinbeanpod_83904710/features/customer/domain/entities/provider_profile.dart';
+import 'package:jinbeanpod_83904710/features/customer/domain/entities/review.dart';
 
 class ServiceDetailApiService {
   static final SupabaseClient _supabase = Supabase.instance.client;
@@ -23,7 +24,7 @@ class ServiceDetailApiService {
 
       return Service.fromJson(response);
     } catch (e) {
-      print('Error fetching service: $e');
+      AppLogger.info('Error fetching service: $e');
       // 返回Mock数据
       return Service(
         id: serviceId,
@@ -52,11 +53,13 @@ class ServiceDetailApiService {
 
       return ServiceDetail.fromJson(response);
     } catch (e) {
-      print('Error fetching service detail: $e');
+      AppLogger.info('Error fetching service detail: $e');
       // 返回Mock数据
       return ServiceDetail(
         id: 'detail_$serviceId',
         serviceId: serviceId,
+        name: {'en': 'Professional Cleaning Service', 'zh': '专业清洁服务'},
+        category: 'main',
         pricingType: 'hourly',
         price: 45.0,
         currency: 'USD',
@@ -93,7 +96,7 @@ class ServiceDetailApiService {
 
       return ProviderProfile.fromJson(response);
     } catch (e) {
-      print('Error fetching provider profile: $e');
+      AppLogger.info('Error fetching provider profile: $e');
       // 返回Mock数据
       return ProviderProfile(
         id: providerId,
@@ -133,7 +136,7 @@ class ServiceDetailApiService {
 
       return response.map((json) => Review.fromJson(json)).toList();
     } catch (e) {
-      print('Error fetching service reviews: $e');
+      AppLogger.info('Error fetching service reviews: $e');
       // 返回Mock评价数据
       return [
         Review(
@@ -143,7 +146,7 @@ class ServiceDetailApiService {
           userName: 'John D.',
           userAvatar: 'https://picsum.photos/50/50?random=5',
           rating: 5,
-          content: 'Excellent service! The team was professional and thorough.',
+          comment: 'Excellent service! The team was professional and thorough.',
           createdAt: DateTime.now().subtract(Duration(days: 2)),
           images: [],
           metadata: {},
@@ -155,7 +158,7 @@ class ServiceDetailApiService {
           userName: 'Sarah M.',
           userAvatar: 'https://picsum.photos/50/50?random=6',
           rating: 4,
-          content: 'Very satisfied with the cleaning quality. Will book again!',
+          comment: 'Very satisfied with the cleaning quality. Will book again!',
           createdAt: DateTime.now().subtract(Duration(days: 5)),
           images: [],
           metadata: {},
@@ -175,7 +178,7 @@ class ServiceDetailApiService {
 
       return response;
     } catch (e) {
-      print('Error fetching service availability: $e');
+      AppLogger.info('Error fetching service availability: $e');
       return {
         'available_24_7': true,
         'response_time_hours': 2,
@@ -201,7 +204,7 @@ class ServiceDetailApiService {
         'service_radius_km': 10.0,
       };
     } catch (e) {
-      print('Error fetching service location: $e');
+      AppLogger.info('Error fetching service location: $e');
       return {
         'latitude': 40.7128,
         'longitude': -74.0060,
@@ -228,7 +231,7 @@ class ServiceDetailApiService {
         'background_checked': true,
       };
     } catch (e) {
-      print('Error fetching trust and security info: $e');
+      AppLogger.info('Error fetching trust and security info: $e');
       return {
         'verified': true,
         'licensed': true,
@@ -254,7 +257,7 @@ class ServiceDetailApiService {
         'images_url': service['images_url'] ?? [],
       }).toList();
     } catch (e) {
-      print('Error fetching provider portfolio: $e');
+      AppLogger.info('Error fetching provider portfolio: $e');
       return [
         {
           'id': 'portfolio_1',
@@ -286,7 +289,7 @@ class ServiceDetailApiService {
             'viewed_at': DateTime.now().toIso8601String(),
           });
     } catch (e) {
-      print('Error logging service view: $e');
+      AppLogger.info('Error logging service view: $e');
     }
   }
 
@@ -309,7 +312,7 @@ class ServiceDetailApiService {
             .eq('service_id', serviceId);
       }
     } catch (e) {
-      print('Error toggling favorite: $e');
+      AppLogger.info('Error toggling favorite: $e');
     }
   }
 
@@ -325,56 +328,45 @@ class ServiceDetailApiService {
 
       return response != null;
     } catch (e) {
-      print('Error checking favorite status: $e');
+      AppLogger.info('Error checking favorite status: $e');
       return false;
+    }
+  }
+
+  /// 获取相似服务
+  static Future<List<dynamic>> getSimilarServices(String serviceId, {int limit = 5}) async {
+    try {
+      // 获取当前服务的类别信息
+      final serviceResponse = await _supabase
+          .from('services')
+          .select('category_level1_id, category_level2_id, provider_id')
+          .eq('id', serviceId)
+          .single();
+
+      final categoryLevel1Id = serviceResponse['category_level1_id'];
+      final categoryLevel2Id = serviceResponse['category_level2_id'];
+      final providerId = serviceResponse['provider_id'];
+
+      // 查询相似服务（同类别、同提供商或高评分）
+      final response = await _supabase
+          .from('services')
+          .select('''
+            *,
+            service_details(*),
+            provider_profiles!services_provider_id_fkey(*)
+          ''')
+          .neq('id', serviceId)
+          .or('category_level1_id.eq.$categoryLevel1Id,category_level2_id.eq.$categoryLevel2Id,provider_id.eq.$providerId')
+          .order('average_rating', ascending: false)
+          .limit(limit);
+
+      return response;
+    } catch (e) {
+      AppLogger.info('Error fetching similar services: $e');
+      // 返回空列表
+      return [];
     }
   }
 }
 
-/// 评价模型
-class Review {
-  final String id;
-  final String serviceId;
-  final String userId;
-  final String userName;
-  final String? userAvatar;
-  final double rating;
-  final String content;
-  final DateTime createdAt;
-  final List<String>? images;
-  final Map<String, dynamic>? metadata;
-  final bool isVerified;
-  final int helpfulCount;
-
-  Review({
-    required this.id,
-    required this.serviceId,
-    required this.userId,
-    required this.userName,
-    this.userAvatar,
-    required this.rating,
-    required this.content,
-    required this.createdAt,
-    this.images,
-    this.metadata,
-    this.isVerified = false,
-    this.helpfulCount = 0,
-  });
-
-  factory Review.fromJson(Map<String, dynamic> json) {
-    return Review(
-      id: json['id'],
-      serviceId: json['service_id'],
-      userId: json['user_id'],
-      userName: json['user_profiles']?['display_name'] ?? 'Anonymous',
-      userAvatar: json['user_profiles']?['avatar_url'],
-      rating: (json['rating'] ?? 0).toDouble(),
-      content: json['content'] ?? '',
-      createdAt: DateTime.parse(json['created_at']),
-      images: json['images'] != null ? List<String>.from(json['images']) : null,
-      metadata: json['metadata'],
-      isVerified: json['is_verified'] ?? false,
-      helpfulCount: json['helpful_count'] ?? 0,
-    );
-  }
-} 
+ 

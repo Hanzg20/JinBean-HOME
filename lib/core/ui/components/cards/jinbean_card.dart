@@ -41,13 +41,13 @@ class JinBeanCard extends StatelessWidget {
   }) {
     return JinBeanCard(
       key: key,
-      child: child,
       padding: padding ?? const EdgeInsets.all(20),
       margin: margin ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       borderRadius: BorderRadius.circular(20),
       enableGradient: true,
       enableShadow: true,
       onTap: onTap,
+      child: child,
     );
   }
 
@@ -61,13 +61,13 @@ class JinBeanCard extends StatelessWidget {
   }) {
     return JinBeanCard(
       key: key,
-      child: child,
       padding: padding ?? const EdgeInsets.all(16),
       margin: margin ?? const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       borderRadius: BorderRadius.circular(16),
       gradient: JinBeanColors.cardGradient,
       enableShadow: true,
       onTap: onTap,
+      child: child,
     );
   }
 
@@ -81,13 +81,13 @@ class JinBeanCard extends StatelessWidget {
   }) {
     return JinBeanCard(
       key: key,
-      child: child,
       padding: padding ?? const EdgeInsets.all(16),
       margin: margin ?? const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       borderRadius: BorderRadius.circular(16),
       backgroundColor: Colors.white,
       enableShadow: true,
       onTap: onTap,
+      child: child,
     );
   }
 
@@ -168,13 +168,13 @@ class JinBeanGradientCard extends StatelessWidget {
   }) {
     return JinBeanGradientCard(
       key: key,
-      child: child,
       padding: padding ?? const EdgeInsets.all(20),
       margin: margin ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       borderRadius: BorderRadius.circular(20),
       gradient: JinBeanColors.primaryGradient,
       boxShadow: JinBeanColors.buttonShadow,
       onTap: onTap,
+      child: child,
     );
   }
 
@@ -188,13 +188,13 @@ class JinBeanGradientCard extends StatelessWidget {
   }) {
     return JinBeanGradientCard(
       key: key,
-      child: child,
       padding: padding ?? const EdgeInsets.all(20),
       margin: margin ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       borderRadius: BorderRadius.circular(20),
       gradient: JinBeanColors.successGradient,
       boxShadow: JinBeanColors.cardShadow,
       onTap: onTap,
+      child: child,
     );
   }
 
@@ -208,13 +208,13 @@ class JinBeanGradientCard extends StatelessWidget {
   }) {
     return JinBeanGradientCard(
       key: key,
-      child: child,
       padding: padding ?? const EdgeInsets.all(20),
       margin: margin ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       borderRadius: BorderRadius.circular(20),
       gradient: JinBeanColors.warningGradient,
       boxShadow: JinBeanColors.cardShadow,
       onTap: onTap,
+      child: child,
     );
   }
 
@@ -282,7 +282,7 @@ class JinBeanStatCard extends StatelessWidget {
     return JinBeanCard(
       padding: const EdgeInsets.all(16),
       margin: const EdgeInsets.all(8),
-      backgroundColor: cardColor.withOpacity(0.1),
+      backgroundColor: cardColor.withValues(alpha: 0.1),
       onTap: onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

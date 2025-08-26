@@ -84,7 +84,7 @@ class ProfileController extends GetxController {
     super.onInit();
     AppLogger.info('ProfileController initialized', tag: 'ProfileController');
     _authController = Get.find<AuthController>();
-    print('ProfileController initialized');
+    AppLogger.info('ProfileController initialized');
 
     // Initialize settings menu items
     settingsMenuItems.addAll([
@@ -161,11 +161,11 @@ class ProfileController extends GetxController {
     final user = Supabase.instance.client.auth.currentUser;
     if (user == null) {
       // Added user.id == null check for robustness
-      print('[ProfileController] No authenticated user or user ID found. Returning. user: \\$user');
+      AppLogger.info('[ProfileController] No authenticated user or user ID found. Returning. user: \\$user');
       isLoading.value = false;
       return;
     }
-    print('[ProfileController] Loading profile for user ID: \\${user.id}');
+    AppLogger.info('[ProfileController] Loading profile for user ID: \\${user.id}');
 
     try {
       // Load user profile from Supabase
@@ -176,19 +176,19 @@ class ProfileController extends GetxController {
           .maybeSingle();
 
       if (profileResponse != null) {
-        print('[ProfileController] Profile found for user ${user.id}');
+        AppLogger.info('[ProfileController] Profile found for user ${user.id}');
         // Update UI with real user data
         userName.value = profileResponse['display_name'] ?? 'User';
         userBio.value = profileResponse['bio'] ?? '';
 
         final originalAvatarUrl = profileResponse['avatar_url'];
-        print(
+        AppLogger.info(
             '[ProfileController] Original avatar_url from DB: $originalAvatarUrl');
         avatarUrl.value = (originalAvatarUrl != null &&
                 originalAvatarUrl.toString().isNotEmpty)
             ? originalAvatarUrl
             : ''; // Set to empty string if empty or null
-        print(
+        AppLogger.info(
             '[ProfileController] Final avatarUrl.value after processing: ${avatarUrl.value}');
 
         // Set member since date
@@ -229,9 +229,9 @@ class ProfileController extends GetxController {
         // Update order badge count
         await _updateOrderBadgeCount();
 
-        print('User profile loaded successfully');
+        AppLogger.info('User profile loaded successfully');
       } else {
-        print('No profile found for user ${user.id}');
+        AppLogger.info('No profile found for user ${user.id}');
         // Set default values
         userName.value = user.email?.split('@')[0] ?? 'User';
         memberSince.value = 'Member since ${DateTime.now().year}';
@@ -278,7 +278,7 @@ class ProfileController extends GetxController {
         accountMenuItems[index] = updatedMenuItem;
       }
     } catch (e) {
-      print('Error updating order badge count: $e');
+      AppLogger.info('Error updating order badge count: $e');
     }
   }
 
@@ -312,7 +312,7 @@ class ProfileController extends GetxController {
         snackPosition: SnackPosition.BOTTOM,
       );
     } catch (e) {
-      print('Error updating user profile: $e');
+      AppLogger.info('Error updating user profile: $e');
       Get.snackbar(
         'Error',
         'Failed to update profile',
@@ -333,7 +333,7 @@ class ProfileController extends GetxController {
   @override
   void onClose() {
     AppLogger.info('ProfileController disposed', tag: 'ProfileController');
-    print('[ProfileController] onClose called.');
+    AppLogger.info('[ProfileController] onClose called.');
     userName.close();
     memberSince.close();
     avatarUrl.close();

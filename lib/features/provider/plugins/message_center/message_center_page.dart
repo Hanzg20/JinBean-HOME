@@ -153,7 +153,7 @@ class _MessageCenterPageState extends State<MessageCenterPage> {
               onTap: () => _showNotificationDetail(notification),
               child: ListTile(
                 leading: CircleAvatar(
-                  backgroundColor: colorScheme.primary.withOpacity(0.1),
+                  backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
                   child: Icon(
                     _getNotificationIcon(notification['notification_type']),
                     color: colorScheme.primary,

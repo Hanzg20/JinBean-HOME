@@ -73,9 +73,9 @@ class SplashPage extends StatelessWidget {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
-                          Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
-                          Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+                          Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+                          Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+                          Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
                         ],
                       ),
                     ),
@@ -107,7 +107,7 @@ class SplashPage extends StatelessWidget {
                           controller.getSafeLocalizedText(page.description),
                           style: TextStyle(
                             fontSize: descriptionFontSize,
-                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.9),
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.9),
                             shadows: [
                               Shadow(
                                 offset: const Offset(1, 1),
@@ -150,7 +150,7 @@ class SplashPage extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: controller.currentPageIndex.value == index
                             ? Theme.of(context).colorScheme.onSurface
-                            : Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                            : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(5),
                       ),
                     );

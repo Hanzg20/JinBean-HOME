@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 /// 全局日志管理组件，所有日志写入和打印都应调用此类
 class AppLogger {
   static bool debugEnabled = true;
@@ -6,15 +8,24 @@ class AppLogger {
   static bool errorEnabled = true;
 
   static void debug(String msg, {String? tag}) {
-    if (debugEnabled) print(_format('DEBUG', msg, tag));
+    if (debugEnabled) {
+      final formatted = _format('DEBUG', msg, tag);
+      if (kDebugMode) print(formatted);
+    }
   }
 
   static void info(String msg, {String? tag}) {
-    if (infoEnabled) print(_format('INFO', msg, tag));
+    if (infoEnabled) {
+      final formatted = _format('INFO', msg, tag);
+      if (kDebugMode) print(formatted);
+    }
   }
 
   static void warning(String msg, {String? tag}) {
-    if (warningEnabled) print(_format('WARNING', msg, tag));
+    if (warningEnabled) {
+      final formatted = _format('WARNING', msg, tag);
+      if (kDebugMode) print(formatted);
+    }
   }
 
   static void error(String msg, {String? tag, dynamic error, StackTrace? stackTrace}) {
@@ -22,7 +33,7 @@ class AppLogger {
       var out = _format('ERROR', msg, tag);
       if (error != null) out += '\nError: $error';
       if (stackTrace != null) out += '\nStack: $stackTrace';
-      print(out);
+      if (kDebugMode) print(out);
     }
   }
 

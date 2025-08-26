@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'dart:async';
-import '../utils/app_logger.dart';
 
 /// 加载状态枚举
 enum LoadingStateType {

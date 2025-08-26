@@ -12,12 +12,12 @@ class ProviderThemeUtils {
       color: colorScheme.surface,
       borderRadius: BorderRadius.circular(16),
       border: Border.all(
-        color: colorScheme.outline.withOpacity(0.1),
+        color: colorScheme.outline.withValues(alpha: 0.1),
         width: 1,
       ),
       boxShadow: [
         BoxShadow(
-          color: colorScheme.shadow.withOpacity(0.08),
+          color: colorScheme.shadow.withValues(alpha: 0.08),
           blurRadius: 8,
           offset: const Offset(0, 2),
         ),
@@ -31,7 +31,7 @@ class ProviderThemeUtils {
     final colorScheme = theme.colorScheme;
     
     return BoxDecoration(
-      color: colorScheme.primary.withOpacity(0.1),
+      color: colorScheme.primary.withValues(alpha: 0.1),
       borderRadius: BorderRadius.circular(12),
     );
   }
@@ -45,7 +45,7 @@ class ProviderThemeUtils {
       backgroundColor: colorScheme.primary,
       foregroundColor: colorScheme.onPrimary,
       elevation: 4,
-      shadowColor: colorScheme.shadow.withOpacity(0.2),
+      shadowColor: colorScheme.shadow.withValues(alpha: 0.2),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
@@ -93,7 +93,7 @@ class ProviderThemeUtils {
       prefixIcon: prefixIcon,
       suffixIcon: suffixIcon,
       filled: true,
-      fillColor: colorScheme.surfaceVariant.withOpacity(0.3),
+      fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide.none,
@@ -101,7 +101,7 @@ class ProviderThemeUtils {
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide(
-          color: colorScheme.outline.withOpacity(0.2),
+          color: colorScheme.outline.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -117,7 +117,7 @@ class ProviderThemeUtils {
         color: colorScheme.onSurfaceVariant,
       ),
       hintStyle: theme.textTheme.bodyMedium?.copyWith(
-        color: colorScheme.onSurfaceVariant.withOpacity(0.7),
+        color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
       ),
     );
   }
@@ -128,7 +128,7 @@ class ProviderThemeUtils {
     final colorScheme = theme.colorScheme;
     
     return Divider(
-      color: colorScheme.outline.withOpacity(0.2),
+      color: colorScheme.outline.withValues(alpha: 0.2),
       height: 1,
       thickness: 1,
     );
@@ -169,7 +169,7 @@ class ProviderThemeUtils {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: colorScheme.primary.withOpacity(0.1),
+                color: colorScheme.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(40),
               ),
               child: Icon(

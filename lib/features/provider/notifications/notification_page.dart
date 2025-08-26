@@ -118,10 +118,10 @@ class NotificationPage extends GetView<NotificationController> {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: isRead ? JinBeanColors.surface : JinBeanColors.primary.withOpacity(0.05),
+        color: isRead ? JinBeanColors.surface : JinBeanColors.primary.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isRead ? JinBeanColors.border : JinBeanColors.primary.withOpacity(0.2),
+          color: isRead ? JinBeanColors.border : JinBeanColors.primary.withValues(alpha: 0.2),
         ),
       ),
       child: ListTile(
@@ -130,7 +130,7 @@ class NotificationPage extends GetView<NotificationController> {
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            color: Color(controller.getNotificationTypeColor(type)).withOpacity(0.1),
+            color: Color(controller.getNotificationTypeColor(type)).withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
@@ -164,7 +164,7 @@ class NotificationPage extends GetView<NotificationController> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Color(controller.getNotificationTypeColor(type)).withOpacity(0.1),
+                    color: Color(controller.getNotificationTypeColor(type)).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
