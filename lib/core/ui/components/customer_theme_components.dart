@@ -7,11 +7,11 @@ import '../themes/customer_theme_utils.dart';
 
 /// Customer徽章类型枚举
 enum CustomerBadgeType {
-  primary,    // 主要徽章 (橙色)
-  secondary,  // 次要徽章 (灰色)
-  success,    // 成功徽章 (绿色)
-  warning,    // 警告徽章 (黄色)
-  error,      // 错误徽章 (红色)
+  primary, // 主要徽章 (橙色)
+  secondary, // 次要徽章 (灰色)
+  success, // 成功徽章 (绿色)
+  warning, // 警告徽章 (黄色)
+  error, // 错误徽章 (红色)
 }
 
 /// 主题化徽章组件 - Customer端特有
@@ -33,10 +33,10 @@ class CustomerBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     Color backgroundColor;
     Color textColor;
-    
+
     switch (type) {
       case CustomerBadgeType.primary:
         backgroundColor = colorScheme.primary;
@@ -59,9 +59,10 @@ class CustomerBadge extends StatelessWidget {
         textColor = Colors.white;
         break;
     }
-    
+
     return Container(
-      padding: padding ?? const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding:
+          padding ?? const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: const BorderRadius.only(
@@ -102,7 +103,7 @@ class CustomerSectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -166,7 +167,7 @@ class CustomerStatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     Widget cardContent = Container(
       padding: const EdgeInsets.all(16),
       decoration: useGradient
@@ -268,7 +269,7 @@ class CustomerCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     Widget cardContent = Container(
       padding: padding ?? const EdgeInsets.all(16),
       decoration: useGradient
@@ -291,13 +292,15 @@ class CustomerCard extends StatelessWidget {
                 color: colorScheme.outline.withValues(alpha: 0.1),
                 width: 1,
               ),
-              boxShadow: showShadow ? [
-                BoxShadow(
-                  color: colorScheme.shadow.withValues(alpha: 0.1),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ] : null,
+              boxShadow: showShadow
+                  ? [
+                      BoxShadow(
+                        color: colorScheme.shadow.withValues(alpha: 0.1),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ]
+                  : null,
             )
           : CustomerThemeUtils.getCardDecoration(context),
       child: child,
@@ -344,14 +347,15 @@ class CustomerIconContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Container(
       width: size,
       height: size,
       decoration: useGradient
           ? CustomerThemeUtils.getIconContainerDecoration(context)
           : BoxDecoration(
-              color: backgroundColor ?? colorScheme.primary.withValues(alpha: 0.1),
+              color:
+                  backgroundColor ?? colorScheme.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(size / 2),
             ),
       child: Icon(
@@ -388,7 +392,7 @@ class CustomerButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     Widget buttonChild = isLoading
         ? SizedBox(
             width: 20,
@@ -425,7 +429,8 @@ class CustomerButton extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                   textStyle: theme.textTheme.labelLarge?.copyWith(
                     fontWeight: FontWeight.w600,
                     fontSize: 16,
@@ -556,11 +561,12 @@ class CustomerListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Column(
       children: [
         ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           leading: leadingIcon != null
               ? CustomerIconContainer(
                   icon: leadingIcon!,
@@ -622,7 +628,7 @@ class CustomerServiceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Container(
       decoration: BoxDecoration(
         color: colorScheme.surface,
@@ -684,7 +690,8 @@ class CustomerServiceCard extends StatelessWidget {
                     const Spacer(),
                     if (isPopular)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
                           color: Colors.red,
                           borderRadius: const BorderRadius.only(
@@ -705,7 +712,8 @@ class CustomerServiceCard extends StatelessWidget {
                       ),
                     if (isNearby)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
                           color: Colors.green,
                           borderRadius: const BorderRadius.only(
@@ -788,7 +796,7 @@ class CustomerRecommendationCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Container(
       width: 200,
       margin: const EdgeInsets.only(right: 12),
@@ -913,7 +921,9 @@ class CustomerRecommendationCard extends StatelessWidget {
                             if (distance != null)
                               Row(
                                 children: [
-                                  Icon(Icons.location_on, color: colorScheme.onSurfaceVariant, size: 12),
+                                  Icon(Icons.location_on,
+                                      color: colorScheme.onSurfaceVariant,
+                                      size: 12),
                                   const SizedBox(width: 2),
                                   Text(
                                     '${distance!.toStringAsFixed(1)}km',
@@ -978,8 +988,8 @@ class CustomerLoadingState extends StatelessWidget {
             Text(
               message!,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
             ),
           ],
         ],
@@ -1037,4 +1047,4 @@ class CustomerErrorState extends StatelessWidget {
       onRetry: onRetry,
     );
   }
-} 
+}

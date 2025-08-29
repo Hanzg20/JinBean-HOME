@@ -3,11 +3,11 @@ import 'dart:async';
 
 /// 加载状态枚举
 enum LoadingStateType {
-  initial,   // 初始状态
-  loading,   // 加载中
-  success,   // 成功
-  error,     // 错误
-  offline,   // 离线
+  initial, // 初始状态
+  loading, // 加载中
+  success, // 成功
+  error, // 错误
+  offline, // 离线
 }
 
 /// 加载状态管理器 - 简化版本
@@ -82,7 +82,7 @@ class LoadingStateManager extends ChangeNotifier {
       setSuccess();
     } catch (e) {
       setError(e.toString());
-      
+
       // 自动重试
       if (_retryCount < _maxRetries) {
         _retryTimer?.cancel();
@@ -99,4 +99,4 @@ class LoadingStateManager extends ChangeNotifier {
     _retryTimer?.cancel();
     super.dispose();
   }
-} 
+}

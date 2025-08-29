@@ -6,4 +6,4 @@ class ProviderRegistrationPlugin {
   static const String pluginName = 'provider_registration';
 
   Widget get entryPage => const ProviderRegistrationPage();
-} 
+}

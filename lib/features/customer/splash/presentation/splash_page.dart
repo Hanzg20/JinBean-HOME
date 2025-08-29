@@ -12,7 +12,7 @@ class SplashPage extends StatelessWidget {
     final size = MediaQuery.of(context).size;
     final titleFontSize = size.width * 0.08; // 8% of screen width
     final descriptionFontSize = size.width * 0.045; // 4.5% of screen width
-    
+
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       body: Stack(
@@ -73,9 +73,18 @@ class SplashPage extends StatelessWidget {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
-                          Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
-                          Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+                          Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withValues(alpha: 0.3),
+                          Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withValues(alpha: 0.1),
+                          Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withValues(alpha: 0.3),
                         ],
                       ),
                     ),
@@ -102,12 +111,16 @@ class SplashPage extends StatelessWidget {
                             ],
                           ),
                         ),
-                        SizedBox(height: size.height * 0.02), // 2% of screen height
+                        SizedBox(
+                            height: size.height * 0.02), // 2% of screen height
                         Text(
                           controller.getSafeLocalizedText(page.description),
                           style: TextStyle(
                             fontSize: descriptionFontSize,
-                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.9),
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withValues(alpha: 0.9),
                             shadows: [
                               Shadow(
                                 offset: const Offset(1, 1),
@@ -129,54 +142,62 @@ class SplashPage extends StatelessWidget {
             left: size.width * 0.06, // 6% of screen width
             right: size.width * 0.06, // 6% of screen width
             child: Obx(() => Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(
-                  onPressed: () => controller.navigateToLogin(),
-                  icon: Icon(
-                    Icons.arrow_back_ios,
-                    color: Theme.of(context).colorScheme.onSurface,
-                    size: size.width * 0.06, // 6% of screen width
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(controller.onboardingPages.length, (index) {
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      margin: const EdgeInsets.symmetric(horizontal: 4.0),
-                      height: 8.0,
-                      width: controller.currentPageIndex.value == index ? 24.0 : 8.0,
-                      decoration: BoxDecoration(
-                        color: controller.currentPageIndex.value == index
-                            ? Theme.of(context).colorScheme.onSurface
-                            : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
-                        borderRadius: BorderRadius.circular(5),
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      onPressed: () => controller.navigateToLogin(),
+                      icon: Icon(
+                        Icons.arrow_back_ios,
+                        color: Theme.of(context).colorScheme.onSurface,
+                        size: size.width * 0.06, // 6% of screen width
                       ),
-                    );
-                  }),
-                ),
-                IconButton(
-                  onPressed: () {
-                    if (controller.currentPageIndex.value == controller.onboardingPages.length - 1) {
-                      controller.navigateToLogin();
-                    } else {
-                      controller.goToNextPage();
-                    }
-                  },
-                  icon: Icon(
-                    controller.currentPageIndex.value == controller.onboardingPages.length - 1
-                        ? Icons.check_circle
-                        : Icons.arrow_forward_ios,
-                    color: Theme.of(context).colorScheme.onSurface,
-                    size: size.width * 0.06, // 6% of screen width
-                  ),
-                ),
-              ],
-            )),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(controller.onboardingPages.length,
+                          (index) {
+                        return AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                          height: 8.0,
+                          width: controller.currentPageIndex.value == index
+                              ? 24.0
+                              : 8.0,
+                          decoration: BoxDecoration(
+                            color: controller.currentPageIndex.value == index
+                                ? Theme.of(context).colorScheme.onSurface
+                                : Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withValues(alpha: 0.5),
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                        );
+                      }),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        if (controller.currentPageIndex.value ==
+                            controller.onboardingPages.length - 1) {
+                          controller.navigateToLogin();
+                        } else {
+                          controller.goToNextPage();
+                        }
+                      },
+                      icon: Icon(
+                        controller.currentPageIndex.value ==
+                                controller.onboardingPages.length - 1
+                            ? Icons.check_circle
+                            : Icons.arrow_forward_ios,
+                        color: Theme.of(context).colorScheme.onSurface,
+                        size: size.width * 0.06, // 6% of screen width
+                      ),
+                    ),
+                  ],
+                )),
           ),
         ],
       ),
     );
   }
-} 
+}

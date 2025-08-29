@@ -1,4 +1,5 @@
-import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:flutter/material.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'home_controller.dart';
 // Import AppColors
@@ -17,22 +18,38 @@ class HomePage extends GetView<HomeController> {
       return Icons.category;
     }
     switch (iconName) {
-      case 'restaurant': return Icons.restaurant;
-      case 'home': return Icons.home;
-      case 'directions_car': return Icons.directions_car;
-      case 'share': return Icons.share;
-      case 'school': return Icons.school;
-      case 'work': return Icons.work;
-      case 'help_outline': return Icons.help_outline;
-      case 'location_on': return Icons.location_on;
-      case 'apps': return Icons.apps;
-      case 'cleaning_services': return Icons.cleaning_services;
-      case 'grass': return Icons.grass;
-      case 'ramen_dining': return Icons.ramen_dining;
-      case 'miscellaneous_services': return Icons.miscellaneous_services;
-      case 'newspaper': return Icons.newspaper;
-      case 'card_giftcard': return Icons.card_giftcard;
-      default: return Icons.category; // Default icon
+      case 'restaurant':
+        return Icons.restaurant;
+      case 'home':
+        return Icons.home;
+      case 'directions_car':
+        return Icons.directions_car;
+      case 'share':
+        return Icons.share;
+      case 'school':
+        return Icons.school;
+      case 'work':
+        return Icons.work;
+      case 'help_outline':
+        return Icons.help_outline;
+      case 'location_on':
+        return Icons.location_on;
+      case 'apps':
+        return Icons.apps;
+      case 'cleaning_services':
+        return Icons.cleaning_services;
+      case 'grass':
+        return Icons.grass;
+      case 'ramen_dining':
+        return Icons.ramen_dining;
+      case 'miscellaneous_services':
+        return Icons.miscellaneous_services;
+      case 'newspaper':
+        return Icons.newspaper;
+      case 'card_giftcard':
+        return Icons.card_giftcard;
+      default:
+        return Icons.category; // Default icon
     }
   }
 
@@ -40,7 +57,7 @@ class HomePage extends GetView<HomeController> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: _buildAppBar(context),
@@ -55,22 +72,22 @@ class HomePage extends GetView<HomeController> {
             children: [
               // 圆角装饰头部
               _buildRoundedHeader(context),
-              
+
               // 搜索栏
               _buildSearchBar(context),
-              
+
               // 轮播图
               _buildCarouselSection(context),
-              
+
               // 服务分类网格
               _buildServicesGrid(context),
-              
+
               // 推荐服务
               _buildRecommendationsSection(context),
-              
+
               // 社区热点
               _buildCommunitySection(context),
-              
+
               // 底部安全区域
               SizedBox(height: MediaQuery.of(context).padding.bottom + 100),
             ],
@@ -83,7 +100,7 @@ class HomePage extends GetView<HomeController> {
   Widget _buildRoundedHeader(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Container(
       height: 110,
       decoration: BoxDecoration(
@@ -145,6 +162,7 @@ class HomePage extends GetView<HomeController> {
           Positioned(
             bottom: 20,
             left: 20,
+            right: 20, // 添加right约束防止Row无限宽度
             child: Row(
               children: [
                 Container(
@@ -214,7 +232,7 @@ class HomePage extends GetView<HomeController> {
     final locationController = Get.find<LocationController>();
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return AppBar(
       automaticallyImplyLeading: false,
       elevation: 0,
@@ -285,7 +303,9 @@ class HomePage extends GetView<HomeController> {
                   const SizedBox(width: 4),
                   Flexible(
                     child: Text(
-                      locationController.effectiveLocation.address.split(',').first,
+                      locationController.effectiveLocation.address
+                          .split(',')
+                          .first,
                       style: theme.textTheme.bodySmall?.copyWith(
                         fontSize: 11,
                         color: Colors.white,
@@ -351,10 +371,11 @@ class HomePage extends GetView<HomeController> {
     );
   }
 
-  void _showLocationOptions(BuildContext context, LocationController locationController) {
+  void _showLocationOptions(
+      BuildContext context, LocationController locationController) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -381,67 +402,68 @@ class HomePage extends GetView<HomeController> {
               ],
             ),
             const SizedBox(height: 20),
-            
+
             // Current Location
             Obx(() => Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: colorScheme.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: colorScheme.primary.withValues(alpha: 0.2)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Current Location',
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      fontSize: 14,
-                      color: colorScheme.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: colorScheme.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                        color: colorScheme.primary.withValues(alpha: 0.2)),
                   ),
-                  const SizedBox(height: 8),
-                  Row(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Text(
-                          locationController.effectiveLocation.address,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: colorScheme.onSurface,
-                          ),
+                      Text(
+                        'Current Location',
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontSize: 14,
+                          color: colorScheme.primary,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                      if (locationController.isLoading.value)
-                        SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: colorScheme.primary,
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              locationController.effectiveLocation.address,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: colorScheme.onSurface,
+                              ),
+                            ),
                           ),
-                        ),
+                          if (locationController.isLoading.value)
+                            SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: colorScheme.primary,
+                              ),
+                            ),
+                        ],
+                      ),
                     ],
                   ),
-                ],
-              ),
-            )),
-            
+                )),
+
             const SizedBox(height: 20),
-            
+
             // Action Buttons
             Row(
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: locationController.isLoading.value 
-                      ? null 
-                      : () {
-                          locationController.getCurrentLocation();
-                          Navigator.pop(context);
-                        },
+                    onPressed: locationController.isLoading.value
+                        ? null
+                        : () {
+                            locationController.getCurrentLocation();
+                            Navigator.pop(context);
+                          },
                     icon: const Icon(Icons.my_location),
                     label: const Text('Use Current Location'),
                     style: OutlinedButton.styleFrom(
@@ -468,7 +490,7 @@ class HomePage extends GetView<HomeController> {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 20),
           ],
         ),
@@ -479,7 +501,7 @@ class HomePage extends GetView<HomeController> {
   Widget _buildSearchBar(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 20, 16, 16),
       child: CustomerSearchField(
@@ -495,7 +517,7 @@ class HomePage extends GetView<HomeController> {
   Widget _buildCarouselSection(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -508,7 +530,8 @@ class HomePage extends GetView<HomeController> {
               decoration: BoxDecoration(
                 color: colorScheme.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: colorScheme.primary.withValues(alpha: 0.2)),
+                border: Border.all(
+                    color: colorScheme.primary.withValues(alpha: 0.2)),
               ),
               child: TextButton(
                 onPressed: () {},
@@ -531,115 +554,120 @@ class HomePage extends GetView<HomeController> {
           SizedBox(
             height: 200,
             child: Obx(() => PageView.builder(
-              controller: controller.pageController,
-              itemCount: controller.carouselItems.length,
-              onPageChanged: controller.onCarouselPageChanged,
-              itemBuilder: (context, index) {
-                final item = controller.carouselItems[index];
-                return Container(
-                  margin: const EdgeInsets.only(right: 12),
-                  child: GestureDetector(
-                    onTap: () => controller.onBannerTap(index),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(25),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.15),
-                            blurRadius: 15,
-                            offset: const Offset(0, 6),
-                            spreadRadius: 2,
+                  controller: controller.pageController,
+                  itemCount: controller.carouselItems.length,
+                  onPageChanged: controller.onCarouselPageChanged,
+                  itemBuilder: (context, index) {
+                    final item = controller.carouselItems[index];
+                    return Container(
+                      margin: const EdgeInsets.only(right: 12),
+                      child: GestureDetector(
+                        onTap: () => controller.onBannerTap(index),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(25),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.15),
+                                blurRadius: 15,
+                                offset: const Offset(0, 6),
+                                spreadRadius: 2,
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(25),
-                        child: Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            Image.network(
-                              item.imageUrl,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(25),
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                Image.network(
+                                  item.imageUrl,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                          colors: [
+                                            colorScheme.primary
+                                                .withValues(alpha: 0.3),
+                                            colorScheme.primary,
+                                          ],
+                                        ),
+                                      ),
+                                      child: Icon(
+                                        Icons.image,
+                                        size: 60,
+                                        color: Colors.white,
+                                      ),
+                                    );
+                                  },
+                                ),
+                                Container(
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
                                       colors: [
-                                        colorScheme.primary.withValues(alpha: 0.3),
-                                        colorScheme.primary,
+                                        Colors.transparent,
+                                        Colors.black.withValues(alpha: 0.8),
                                       ],
                                     ),
                                   ),
-                                  child: Icon(
-                                    Icons.image,
-                                    size: 60,
-                                    color: Colors.white,
-                                  ),
-                                );
-                              },
-                            ),
-                            Container(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: [
-                                    Colors.transparent,
-                                    Colors.black.withValues(alpha: 0.8),
-                                  ],
                                 ),
-                              ),
-                            ),
-                            Positioned(
-                              bottom: 20,
-                              left: 20,
-                              right: 20,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    item.title,
-                                    style: theme.textTheme.titleLarge?.copyWith(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 20,
-                                      shadows: [
-                                        Shadow(
-                                          offset: const Offset(0, 1),
-                                          blurRadius: 3,
-                                          color: Colors.black54,
+                                Positioned(
+                                  bottom: 20,
+                                  left: 20,
+                                  right: 20,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        item.title,
+                                        style: theme.textTheme.titleLarge
+                                            ?.copyWith(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 20,
+                                          shadows: [
+                                            Shadow(
+                                              offset: const Offset(0, 1),
+                                              blurRadius: 3,
+                                              color: Colors.black54,
+                                            ),
+                                          ],
                                         ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    item.description,
-                                    style: theme.textTheme.bodyMedium?.copyWith(
-                                      color: Colors.white.withValues(alpha: 0.9),
-                                      fontSize: 14,
-                                      shadows: [
-                                        Shadow(
-                                          offset: const Offset(0, 1),
-                                          blurRadius: 2,
-                                          color: Colors.black54,
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        item.description,
+                                        style: theme.textTheme.bodyMedium
+                                            ?.copyWith(
+                                          color: Colors.white
+                                              .withValues(alpha: 0.9),
+                                          fontSize: 14,
+                                          shadows: [
+                                            Shadow(
+                                              offset: const Offset(0, 1),
+                                              blurRadius: 2,
+                                              color: Colors.black54,
+                                            ),
+                                          ],
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                );
-              },
-            )),
+                    );
+                  },
+                )),
           ),
         ],
       ),
@@ -649,7 +677,7 @@ class HomePage extends GetView<HomeController> {
   Widget _buildServicesGrid(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -680,21 +708,21 @@ class HomePage extends GetView<HomeController> {
             ),
           ),
           Obx(() => GridView.builder(
-            padding: EdgeInsets.zero,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 1.1, // 调整为更合适的宽高比
-            ),
-            itemCount: controller.services.length,
-            itemBuilder: (context, index) {
-              final service = controller.services[index];
-              return _buildServiceCategoryCard(context, service);
-            },
-          )),
+                padding: EdgeInsets.zero,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 1.1, // 调整为更合适的宽高比
+                ),
+                itemCount: controller.services.length,
+                itemBuilder: (context, index) {
+                  final service = controller.services[index];
+                  return _buildServiceCategoryCard(context, service);
+                },
+              )),
           const SizedBox(height: 32),
         ],
       ),
@@ -710,23 +738,26 @@ class HomePage extends GetView<HomeController> {
           // 切换到service_booking标签页并传递参数
           final shellController = Get.find<ShellAppController>();
           final pluginManager = Get.find<PluginManager>();
-          
+
           // 找到service_booking标签页的索引
-          final serviceBookingIndex = pluginManager.enabledTabPluginsForCurrentRole
+          final serviceBookingIndex = pluginManager
+              .enabledTabPluginsForCurrentRole
               .indexWhere((plugin) => plugin.id == 'service_booking');
-          
+
           if (serviceBookingIndex != -1) {
             // 切换到service_booking标签页
             shellController.changeTab(serviceBookingIndex);
-            
+
             // 延迟传递参数，确保页面已经加载
             Future.delayed(const Duration(milliseconds: 300), () {
               try {
-                final serviceBookingController = Get.find<ServiceBookingController>();
+                final serviceBookingController =
+                    Get.find<ServiceBookingController>();
                 // 使用新的分类体系
                 serviceBookingController.selectLevel1Category(service.id);
                 // 标记使用新结构
-                serviceBookingController.updateNewStructureFlag(true, service.id);
+                serviceBookingController.updateNewStructureFlag(
+                    true, service.id);
               } catch (e) {
                 AppLogger.info('Error selecting category: $e');
               }
@@ -763,7 +794,7 @@ class HomePage extends GetView<HomeController> {
   Widget _buildRecommendationsSection(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -774,7 +805,8 @@ class HomePage extends GetView<HomeController> {
             decoration: BoxDecoration(
               color: colorScheme.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: colorScheme.primary.withValues(alpha: 0.2)),
+              border:
+                  Border.all(color: colorScheme.primary.withValues(alpha: 0.2)),
             ),
             child: TextButton(
               onPressed: () {
@@ -798,9 +830,10 @@ class HomePage extends GetView<HomeController> {
         ),
         Obx(() {
           if (controller.isLoadingRecommendations.value) {
-            return const CustomerLoadingState(message: 'Loading recommendations...');
+            return const CustomerLoadingState(
+                message: 'Loading recommendations...');
           }
-          
+
           if (controller.recommendations.isEmpty) {
             return const CustomerEmptyState(
               icon: Icons.recommend,
@@ -808,7 +841,7 @@ class HomePage extends GetView<HomeController> {
               subtitle: '完成更多订单后将为您推荐个性化服务',
             );
           }
-          
+
           return SizedBox(
             height: 260,
             child: ListView.builder(
@@ -822,23 +855,30 @@ class HomePage extends GetView<HomeController> {
                   subtitle: recommendation.providerName,
                   imageUrl: recommendation.imageUrl,
                   rating: recommendation.rating,
-                  price: double.tryParse(recommendation.price) ?? 0.0,
-                  distance: recommendation.distance,
-                  isPopular: recommendation.isPopular,
-                  isNearby: recommendation.isNearby,
+                  price: double.tryParse(recommendation.price ?? '0') ?? 0.0,
+                  distance: double.tryParse(recommendation.distance ?? '0'),
+                  isPopular: recommendation.isPopular ?? false,
+                  isNearby: recommendation.isNearby ?? false,
                   onTap: () {
-                    AppLogger.info('DEBUG: Navigating to service detail with serviceId: ${recommendation.id}');
-                    AppLogger.info('DEBUG: recommendation object: $recommendation');
-                    AppLogger.info('DEBUG: recommendation.id type: ${recommendation.id.runtimeType}');
-                    AppLogger.info('DEBUG: recommendation.id length: ${recommendation.id.length}');
-                    AppLogger.info('DEBUG: recommendation.id isEmpty: ${recommendation.id.isEmpty}');
-                    AppLogger.info('DEBUG: recommendation.id == "": ${recommendation.id == ""}');
-                    AppLogger.info('DEBUG: recommendation.id == null: ${recommendation.id == null}');
-                    
+                    AppLogger.info(
+                        'DEBUG: Navigating to service detail with serviceId: ${recommendation.id}');
+                    AppLogger.info(
+                        'DEBUG: recommendation object: $recommendation');
+                    AppLogger.info(
+                        'DEBUG: recommendation.id type: ${recommendation.id.runtimeType}');
+                    AppLogger.info(
+                        'DEBUG: recommendation.id length: ${recommendation.id.length}');
+                    AppLogger.info(
+                        'DEBUG: recommendation.id isEmpty: ${recommendation.id.isEmpty}');
+                    AppLogger.info(
+                        'DEBUG: recommendation.id == "": ${recommendation.id == ""}');
+                    AppLogger.info(
+                        'DEBUG: recommendation.id == null: ${recommendation.id == null}');
+
                     // 使用Get.toNamed的正确方式传递参数
                     final parameters = {'serviceId': recommendation.id};
                     AppLogger.info('DEBUG: Navigation parameters: $parameters');
-                    
+
                     Get.toNamed('/service_detail', parameters: parameters);
                   },
                 );
@@ -854,7 +894,7 @@ class HomePage extends GetView<HomeController> {
   Widget _buildCommunitySection(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Obx(() => controller.hotspots.isEmpty
         ? const SizedBox.shrink()
         : Column(
@@ -863,11 +903,13 @@ class HomePage extends GetView<HomeController> {
               CustomerSectionHeader(
                 title: 'Community Updates',
                 action: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
                     color: colorScheme.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: colorScheme.primary.withValues(alpha: 0.2)),
+                    border: Border.all(
+                        color: colorScheme.primary.withValues(alpha: 0.2)),
                   ),
                   child: TextButton(
                     onPressed: () {},
@@ -987,4 +1029,4 @@ class HomePage extends GetView<HomeController> {
         return 'Other';
     }
   }
-} 
+}

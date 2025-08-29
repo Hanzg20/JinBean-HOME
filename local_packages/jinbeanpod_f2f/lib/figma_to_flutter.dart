@@ -1,7 +1,6 @@
 //@JS()
 library genf;
 
-
 //import 'stub.dart' if (dart.library.js) 'package:js/js.dart';
 //import 'package:js/js.dart';
 import 'package:flutter/material.dart';
@@ -21,8 +20,8 @@ class Elem {
   String type = "";
   String componentName;
   dynamic painter;
-  String pageName="";
-  Elem({this.name="", this.id="", this.widget, this.componentName=""});
+  String pageName = "";
+  Elem({this.name = "", this.id = "", this.widget, this.componentName = ""});
 }
 
 class Event {
@@ -38,40 +37,39 @@ class Event {
 }
 
 class GradientReshape extends GradientTransform {
-    final double radians;
-    final double scaleX;
-    final double scaleY;
-    const GradientReshape(this.radians, this.scaleX, this.scaleY);
-    @override
-    Matrix4 transform(Rect bounds, {TextDirection? textDirection}) {
+  final double radians;
+  final double scaleX;
+  final double scaleY;
+  const GradientReshape(this.radians, this.scaleX, this.scaleY);
+  @override
+  Matrix4 transform(Rect bounds, {TextDirection? textDirection}) {
+    final double rads = radians - math.pi / 2;
+    final double sinRadians = math.sin(rads);
+    final double oneMinusCosRadians = 1 - math.cos(rads);
+    Offset center = bounds.center;
 
-        final double rads = radians - math.pi/2;
-        final double sinRadians = math.sin(rads);
-        final double oneMinusCosRadians = 1 - math.cos(rads);
-        Offset center = bounds.center;
+    final double dx = center.dx * (1 - scaleX);
+    final double dy = center.dy * (1 - scaleY);
+    final double originX =
+        (sinRadians * center.dy + oneMinusCosRadians * center.dx);
+    final double originY =
+        -sinRadians * center.dx + oneMinusCosRadians * center.dy;
 
-        final double dx = center.dx * (1 - scaleX);
-        final double dy = center.dy * (1 - scaleY);
-        final double originX = (sinRadians * center.dy + oneMinusCosRadians * center.dx);
-        final double originY = -sinRadians * center.dx + oneMinusCosRadians * center.dy;
-
-        return Matrix4.identity()
-            ..translate(originX, originY)
-            ..rotateZ(rads)
-            ..translate(dx, dy)
-            ..scale(scaleX, scaleY)
-            ; 
-    }
+    return Matrix4.identity()
+      ..translate(originX, originY)
+      ..rotateZ(rads)
+      ..translate(dx, dy)
+      ..scale(scaleX, scaleY);
+  }
 }
 
-
 class GradientTransformMatrix extends GradientTransform {
-    final Matrix4 matrix;
-    const GradientTransformMatrix(this.matrix);
-    @override
-    Matrix4 transform(Rect bounds, {TextDirection? textDirection}) {
-        return matrix; 
-    }
+  final Matrix4 matrix;
+  const GradientTransformMatrix(this.matrix);
+  @override
+  Matrix4 transform(Rect bounds, {TextDirection? textDirection}) {
+    return matrix;
+  }
 }
 
 Map<String, List<Event>> simpleEvents = {};
@@ -84,12 +82,12 @@ String currentScreenName = '';
 
 bool isInitialized = false;
 
-App getApp({withInit=Function}){
-  if(!isInitialized){
+App getApp({withInit = Function}) {
+  if (!isInitialized) {
     //if(isWeb) jsInteropInit();
     isInitialized = true;
   }
-  withInit ??= (){};
+  withInit ??= () {};
   return App(withInit);
 }
 
@@ -139,7 +137,7 @@ void setComponentImageUrl(String name, String url, [int index = 0]) {
   var elems = getElementsByName(name, index + 1);
   if (index < elems.length) {
     elems[index].widget?.setState(() {
-        elems[index].widget?.image = Image.network(url);
+      elems[index].widget?.image = Image.network(url);
     });
   }
 }
@@ -148,11 +146,11 @@ void setComponentText(String name, String text, [int index = 0]) {
   var elems = getElementsByName(name, index + 1);
   if (index < elems.length) {
     var type = elems[index].widget?.widget?.componentType;
-    if(type == 'TextInput' || type == 'MultiTextInput'){
+    if (type == 'TextInput' || type == 'MultiTextInput') {
       elems[index].widget?.setState(() {
         elems[index].widget?.controller?.text = text;
       });
-    }else{
+    } else {
       elems[index].widget?.setState(() {
         elems[index].widget?.characters = text;
       });
@@ -164,27 +162,27 @@ String getComponentText(String name, [int index = 0]) {
   var elems = getElementsByName(name, index + 1);
   if (index < elems.length) {
     var type = elems[index].widget?.widget?.componentType;
-    if(type == 'TextInput' || type == 'MultiTextInput'){
+    if (type == 'TextInput' || type == 'MultiTextInput') {
       return elems[index].widget?.controller?.text;
-    }else{
+    } else {
       return elems[index].widget?.characters;
     }
   }
   return "";
 }
 
-List<Map<String, dynamic>> parseItems(dynamic itemsString){
+List<Map<String, dynamic>> parseItems(dynamic itemsString) {
   List<Map<String, dynamic>> items = [];
-  if(itemsString is String){
+  if (itemsString is String) {
     List<dynamic> rawItems = jsonDecode(itemsString);
     for (var i = 0; i < rawItems.length; i++) {
       items.add(rawItems[i] as Map<String, dynamic>);
     }
-  }else if(itemsString is List<dynamic>){
+  } else if (itemsString is List<dynamic>) {
     for (var i = 0; i < itemsString.length; i++) {
       items.add(itemsString[i] as Map<String, dynamic>);
     }
-  }else if(itemsString is List<Map<String, dynamic>>){
+  } else if (itemsString is List<Map<String, dynamic>>) {
     for (var i = 0; i < itemsString.length; i++) {
       items.add(itemsString[i]);
     }
@@ -192,12 +190,12 @@ List<Map<String, dynamic>> parseItems(dynamic itemsString){
   return items;
 }
 
-Map<String, dynamic> parseItem(dynamic item){
+Map<String, dynamic> parseItem(dynamic item) {
   Map<String, dynamic> res = {};
-  if(item is String){
+  if (item is String) {
     dynamic rawItem = jsonDecode(item);
     return rawItem as Map<String, dynamic>;
-  }else if(item is Map<String, dynamic>){
+  } else if (item is Map<String, dynamic>) {
     return item;
   }
   return res;
@@ -205,7 +203,7 @@ Map<String, dynamic> parseItem(dynamic item){
 
 void setComponentItems(String name, dynamic itemsString, [int index = 0]) {
   List<Map<String, dynamic>> items = parseItems(itemsString);
-  
+
   var elems = getElementsByName(name, index + 1);
   if (index < elems.length) {
     elems[index].widget?.setState(() {
@@ -230,8 +228,6 @@ void replaceComponentItems(String name, dynamic itemsString,
     });
   }
 }
-
-
 
 void addComponentItems(String name, dynamic itemsString, [int index = 0]) {
   List<Map<String, dynamic>> items = parseItems(itemsString);
@@ -260,34 +256,33 @@ void openAppPage(String name) {
   if (screenClasses.containsKey(name)) {
     //navigatorKey.currentState.push(MaterialPageRoute(builder: (context) => screenClasses[name].widget));
     //navigatorKey.currentState.pushReplacement(MaterialPageRoute(builder: (context) => screenClasses[name].widget));
-    
+
     String componentType = screenClasses[name]?.type ?? '';
-    if(componentType == 'popups'){
+    if (componentType == 'popups') {
       //final GlobalKey<NavigatorState> navigatorKey = new GlobalKey<NavigatorState>();
       showGeneralDialog(
-                    context: navigatorKey.currentState?.context,
-                    useRootNavigator:false,
-                    barrierLabel:'Discard',
-                    barrierDismissible:true,
-                    barrierColor: const Color(0x00000000),
-                    transitionDuration: const Duration(milliseconds: 500),
-                    pageBuilder: (BuildContext buildContext, Animation animation, Animation secondaryAnimation) {
-                        return screenClasses[name]?.widget;
-                    }
-                );
-    }else{
+          context: navigatorKey.currentState?.context,
+          useRootNavigator: false,
+          barrierLabel: 'Discard',
+          barrierDismissible: true,
+          barrierColor: const Color(0x00000000),
+          transitionDuration: const Duration(milliseconds: 500),
+          pageBuilder: (BuildContext buildContext, Animation animation,
+              Animation secondaryAnimation) {
+            return screenClasses[name]?.widget;
+          });
+    } else {
       // if(navigatorKey.currentState?.canPop() ?? false){
       //   navigatorKey.currentState?.pop();
       // }
       navigatorKey.currentState?.pushReplacement(
         PageRouteBuilder(
-            pageBuilder: (context, animation1, animation2) => screenClasses[name]?.widget,
-            transitionDuration: const Duration(seconds: 0),
+          pageBuilder: (context, animation1, animation2) =>
+              screenClasses[name]?.widget,
+          transitionDuration: const Duration(seconds: 0),
         ),
       );
     }
-
-
   }
 }
 
@@ -314,12 +309,13 @@ void setDropdownValues(String name, List<dynamic> values, [int index = 0]) {
   }
 }
 
-void triggerComponentEvent(String eventName, int hashCode, String componentName, [dynamic payload = '']) {
-
+void triggerComponentEvent(String eventName, int hashCode, String componentName,
+    [dynamic payload = '']) {
   bool? hasSubs = eventSubscriptions.containsKey(eventName);
-  if(hasSubs) hasSubs = eventSubscriptions[eventName]?.containsKey(componentName);
+  if (hasSubs)
+    hasSubs = eventSubscriptions[eventName]?.containsKey(componentName);
   hasSubs ??= false;
-  if(hasSubs) hasSubs = elementInstances.containsKey(hashCode);
+  if (hasSubs) hasSubs = elementInstances.containsKey(hashCode);
 
   if (hasSubs) {
     var el = elementInstances[hashCode];
@@ -332,7 +328,7 @@ void triggerComponentEvent(String eventName, int hashCode, String componentName,
         evt.target = el as Elem;
         if (payload is String) {
           evt.payload = payload;
-        }else if(payload is Map<String, dynamic>){
+        } else if (payload is Map<String, dynamic>) {
           evt.data = payload;
         }
         evt.callback(evt);
@@ -353,7 +349,6 @@ void triggerComponentEvent(String eventName, int hashCode, String componentName,
       }
     }
     */
-
   }
   // if (kIsWeb) {
   //   triggerComponentEventJS(eventName, hashCode, componentName, payload);
@@ -362,7 +357,7 @@ void triggerComponentEvent(String eventName, int hashCode, String componentName,
 
 int subscribeToEvent(String eventName, Function(Event) callback) {
   var event = Event(eventName, callback, '', 0);
-  if(!simpleEvents.containsKey(eventName)){
+  if (!simpleEvents.containsKey(eventName)) {
     simpleEvents[eventName] = List<Event>.empty(growable: true);
   }
   simpleEvents[eventName] ??= List<Event>.empty(growable: true);
@@ -371,23 +366,26 @@ int subscribeToEvent(String eventName, Function(Event) callback) {
   length ??= 0;
   return length - 1;
 }
+
 int subscribeToEventOnce(String eventName, Function(Event) callback) {
   int evtId = 0;
-  evtId = subscribeToEvent(eventName, (Event evt){
-    if((simpleEvents[eventName]?.length ?? 0) > evtId) simpleEvents[eventName]?.removeAt(evtId);
+  evtId = subscribeToEvent(eventName, (Event evt) {
+    if ((simpleEvents[eventName]?.length ?? 0) > evtId)
+      simpleEvents[eventName]?.removeAt(evtId);
     callback(evt);
   });
   return evtId;
 }
 
-void triggerEvent(String eventName, [String payload = '', Map<String, dynamic> data = const {}]) {
+void triggerEvent(String eventName,
+    [String payload = '', Map<String, dynamic> data = const {}]) {
   //if(eventName == 'pageLoaded'){ removeAllComponentEvents(); } // remove all component events from previous page
   if (simpleEvents.containsKey(eventName)) {
     int? length = simpleEvents[eventName]?.length;
     length ??= 0;
-    for(int i=0 ;i<length; i++){
+    for (int i = 0; i < length; i++) {
       Event evt = simpleEvents[eventName]![i];
-      if(data.containsKey('target')) evt.target = data['target'];
+      if (data.containsKey('target')) evt.target = data['target'];
       evt.payload = payload;
       evt.callback(evt);
     }
@@ -407,16 +405,21 @@ Event subscribeToComponentEvent(
     String eventName, String componentName, Function(Event) callback,
     [int index = 0]) {
   var evt = Event(eventName, callback, componentName, index);
-  if (!eventSubscriptions.containsKey(eventName)) eventSubscriptions[eventName] = <String, Map<int, List<Event>>>{};
+  if (!eventSubscriptions.containsKey(eventName))
+    eventSubscriptions[eventName] = <String, Map<int, List<Event>>>{};
 
-
-  bool? hasComponent = eventSubscriptions[eventName]?.containsKey(componentName);
+  bool? hasComponent =
+      eventSubscriptions[eventName]?.containsKey(componentName);
   hasComponent ??= false;
-  if (!hasComponent) eventSubscriptions[eventName]?[componentName] = <int, List<Event>>{};
+  if (!hasComponent)
+    eventSubscriptions[eventName]?[componentName] = <int, List<Event>>{};
 
-  bool? hasEvent = eventSubscriptions[eventName]?[componentName]?.containsKey(index);
+  bool? hasEvent =
+      eventSubscriptions[eventName]?[componentName]?.containsKey(index);
   hasEvent ??= false;
-  if (!hasEvent) eventSubscriptions[eventName]?[componentName]?[index] = List<Event>.empty(growable: true);
+  if (!hasEvent)
+    eventSubscriptions[eventName]?[componentName]?[index] =
+        List<Event>.empty(growable: true);
 
   eventSubscriptions[eventName]?[componentName]?[index]?.add(evt);
 
@@ -434,15 +437,22 @@ Event subscribeToComponentEvent(
 */
 void removeComponentEvent(Event evt) {
   bool? hasEvent = eventSubscriptions.containsKey(evt.eventName);
-  if(hasEvent) hasEvent = eventSubscriptions[evt.eventName]?.containsKey(evt.componentName);
+  if (hasEvent)
+    hasEvent =
+        eventSubscriptions[evt.eventName]?.containsKey(evt.componentName);
   hasEvent ??= false;
-  if(hasEvent) hasEvent = eventSubscriptions[evt.eventName]?[evt.componentName]?.containsKey(evt.componentIndex);
+  if (hasEvent)
+    hasEvent = eventSubscriptions[evt.eventName]?[evt.componentName]
+        ?.containsKey(evt.componentIndex);
   hasEvent ??= false;
   if (hasEvent) {
-    int? length = eventSubscriptions[evt.eventName]?[evt.componentName]?[evt.componentIndex]?.length;
+    int? length = eventSubscriptions[evt.eventName]?[evt.componentName]
+            ?[evt.componentIndex]
+        ?.length;
     length ??= 0;
     if (length < evt.id) {
-      eventSubscriptions[evt.eventName]?[evt.componentName]?[evt.componentIndex]?.removeAt(evt.id);
+      eventSubscriptions[evt.eventName]?[evt.componentName]?[evt.componentIndex]
+          ?.removeAt(evt.id);
     }
   }
 }
@@ -455,12 +465,13 @@ void removeAllComponentEvents() {
   }
 }
 
-String getLocationSearch(){
+String getLocationSearch() {
   var uri = Uri.base;
   return uri.query;
 }
 
-dynamic getWidgetInstanceByName(String name, {Map<String, dynamic> properties = const {}}) {
+dynamic getWidgetInstanceByName(String name,
+    {Map<String, dynamic> properties = const {}}) {
   var elem = getFirstElementByName(name);
   return elem.widget.widget.createInstance(properties);
 }

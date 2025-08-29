@@ -35,7 +35,8 @@ class EditProfilePage extends GetView<ProfileController> {
               padding: const EdgeInsets.all(12),
               child: Card(
                 elevation: 2,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -49,11 +50,13 @@ class EditProfilePage extends GetView<ProfileController> {
                             children: [
                               CircleAvatar(
                                 radius: 36,
-                                backgroundImage: controller.avatarUrl.value.isNotEmpty
+                                backgroundImage: controller
+                                        .avatarUrl.value.isNotEmpty
                                     ? NetworkImage(controller.avatarUrl.value)
                                     : null,
                                 child: controller.avatarUrl.value.isEmpty
-                                    ? const Icon(Icons.person, size: 36, color: Colors.grey)
+                                    ? const Icon(Icons.person,
+                                        size: 36, color: Colors.grey)
                                     : null,
                               ),
                               Positioned(
@@ -86,9 +89,13 @@ class EditProfilePage extends GetView<ProfileController> {
                                   children: [
                                     Expanded(
                                       child: TextField(
-                                        controller: TextEditingController(text: controller.userName.value),
-                                        onChanged: (v) => controller.userName.value = v,
-                                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                        controller: TextEditingController(
+                                            text: controller.userName.value),
+                                        onChanged: (v) =>
+                                            controller.userName.value = v,
+                                        style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold),
                                         decoration: const InputDecoration(
                                           labelText: 'Display Name',
                                           isDense: true,
@@ -98,14 +105,17 @@ class EditProfilePage extends GetView<ProfileController> {
                                     ),
                                     const SizedBox(width: 8),
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 2),
                                       decoration: BoxDecoration(
                                         color: Colors.amber.shade100,
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Text(
                                         controller.userLevel.value,
-                                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                                        style: const TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600),
                                       ),
                                     ),
                                   ],
@@ -113,13 +123,17 @@ class EditProfilePage extends GetView<ProfileController> {
                                 const SizedBox(height: 2),
                                 Row(
                                   children: [
-                                    Icon(Icons.card_giftcard, size: 16, color: Colors.grey.shade600),
+                                    Icon(Icons.card_giftcard,
+                                        size: 16, color: Colors.grey.shade600),
                                     const SizedBox(width: 4),
-                                    Text('${controller.userPoints.value}', style: const TextStyle(fontSize: 13)),
+                                    Text('${controller.userPoints.value}',
+                                        style: const TextStyle(fontSize: 13)),
                                     const SizedBox(width: 12),
-                                    Icon(Icons.calendar_today, size: 16, color: Colors.grey.shade600),
+                                    Icon(Icons.calendar_today,
+                                        size: 16, color: Colors.grey.shade600),
                                     const SizedBox(width: 4),
-                                    Text(controller.memberSince.value, style: const TextStyle(fontSize: 13)),
+                                    Text(controller.memberSince.value,
+                                        style: const TextStyle(fontSize: 13)),
                                   ],
                                 ),
                               ],
@@ -170,7 +184,8 @@ class EditProfilePage extends GetView<ProfileController> {
     int maxLines = 1,
   }) {
     return Row(
-      crossAxisAlignment: maxLines > 1 ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+      crossAxisAlignment:
+          maxLines > 1 ? CrossAxisAlignment.start : CrossAxisAlignment.center,
       children: [
         Icon(icon, color: Colors.grey.shade600, size: 18),
         const SizedBox(width: 8),
@@ -216,4 +231,4 @@ class EditProfilePage extends GetView<ProfileController> {
       );
     }
   }
-} 
+}

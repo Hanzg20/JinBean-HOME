@@ -51,7 +51,8 @@ class JinBeanBottomNavigation extends StatefulWidget {
   });
 
   @override
-  State<JinBeanBottomNavigation> createState() => _JinBeanBottomNavigationState();
+  State<JinBeanBottomNavigation> createState() =>
+      _JinBeanBottomNavigationState();
 }
 
 class _JinBeanBottomNavigationState extends State<JinBeanBottomNavigation>
@@ -100,7 +101,8 @@ class _JinBeanBottomNavigationState extends State<JinBeanBottomNavigation>
                     SizedBox(
                       height: 62,
                       child: Padding(
-                        padding: const EdgeInsets.only(left: 8, right: 8, top: 4),
+                        padding:
+                            const EdgeInsets.only(left: 8, right: 8, top: 4),
                         child: Row(
                           children: <Widget>[
                             Expanded(
@@ -155,7 +157,8 @@ class _JinBeanBottomNavigationState extends State<JinBeanBottomNavigation>
         // 中央浮动按钮
         if (widget.centerButton != null) ...[
           Padding(
-            padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+            padding:
+                EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
             child: SizedBox(
               width: 38 * 2.0,
               height: 38 + 62.0,
@@ -186,7 +189,8 @@ class _JinBeanBottomNavigationState extends State<JinBeanBottomNavigation>
                           shape: BoxShape.circle,
                           boxShadow: <BoxShadow>[
                             BoxShadow(
-                              color: JinBeanColors.primary.withValues(alpha: 0.4),
+                              color:
+                                  JinBeanColors.primary.withValues(alpha: 0.4),
                               offset: const Offset(8.0, 16.0),
                               blurRadius: 16.0,
                             ),
@@ -239,12 +243,14 @@ class _JinBeanBottomNavigationState extends State<JinBeanBottomNavigation>
                   scale: Tween<double>(begin: 0.88, end: 1.0).animate(
                       CurvedAnimation(
                           parent: animationController!,
-                          curve: Interval(0.1, 1.0, curve: Curves.fastOutSlowIn))),
+                          curve:
+                              Interval(0.1, 1.0, curve: Curves.fastOutSlowIn))),
                   child: Icon(
                     isSelected ? (item.selectedIcon ?? item.icon) : item.icon,
-                    color: isSelected 
+                    color: isSelected
                         ? (widget.selectedItemColor ?? JinBeanColors.primary)
-                        : (widget.unselectedItemColor ?? JinBeanColors.textSecondary),
+                        : (widget.unselectedItemColor ??
+                            JinBeanColors.textSecondary),
                     size: 24,
                   ),
                 ),
@@ -258,7 +264,8 @@ class _JinBeanBottomNavigationState extends State<JinBeanBottomNavigation>
                       scale: Tween<double>(begin: 0.0, end: 1.0).animate(
                           CurvedAnimation(
                               parent: animationController!,
-                              curve: Interval(0.2, 1.0, curve: Curves.fastOutSlowIn))),
+                              curve: Interval(0.2, 1.0,
+                                  curve: Curves.fastOutSlowIn))),
                       child: Container(
                         width: 8,
                         height: 8,
@@ -278,7 +285,8 @@ class _JinBeanBottomNavigationState extends State<JinBeanBottomNavigation>
                       scale: Tween<double>(begin: 0.0, end: 1.0).animate(
                           CurvedAnimation(
                               parent: animationController!,
-                              curve: Interval(0.5, 0.8, curve: Curves.fastOutSlowIn))),
+                              curve: Interval(0.5, 0.8,
+                                  curve: Curves.fastOutSlowIn))),
                       child: Container(
                         width: 4,
                         height: 4,
@@ -298,7 +306,8 @@ class _JinBeanBottomNavigationState extends State<JinBeanBottomNavigation>
                       scale: Tween<double>(begin: 0.0, end: 1.0).animate(
                           CurvedAnimation(
                               parent: animationController!,
-                              curve: Interval(0.5, 0.6, curve: Curves.fastOutSlowIn))),
+                              curve: Interval(0.5, 0.6,
+                                  curve: Curves.fastOutSlowIn))),
                       child: Container(
                         width: 6,
                         height: 6,
@@ -315,7 +324,8 @@ class _JinBeanBottomNavigationState extends State<JinBeanBottomNavigation>
                     right: 8,
                     top: 4,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 4, vertical: 2),
                       decoration: BoxDecoration(
                         color: JinBeanColors.error,
                         borderRadius: BorderRadius.circular(8),
@@ -445,12 +455,12 @@ class JinBeanFloatingBottomNavigation extends StatelessWidget {
                   final index = entry.key;
                   final item = entry.value;
                   final isSelected = index == currentIndex;
-                  
+
                   // 为中央浮动按钮留出空间
                   if (index == items.length ~/ 2) {
                     return const SizedBox(width: 60);
                   }
-                  
+
                   return _buildNavItem(
                     item: item,
                     index: index,
@@ -458,7 +468,7 @@ class JinBeanFloatingBottomNavigation extends StatelessWidget {
                   );
                 }).toList(),
               ),
-              
+
               // 中央浮动按钮
               if (floatingActionButton != null) ...[
                 Positioned(
@@ -500,10 +510,10 @@ class JinBeanFloatingBottomNavigation extends StatelessWidget {
     required int index,
     required bool isSelected,
   }) {
-    final color = isSelected 
+    final color = isSelected
         ? (selectedItemColor ?? Colors.white)
         : (unselectedItemColor ?? Colors.white.withValues(alpha: 0.7));
-    
+
     return GestureDetector(
       onTap: () {
         item.onTap?.call();
@@ -514,7 +524,7 @@ class JinBeanFloatingBottomNavigation extends StatelessWidget {
         curve: Curves.easeInOut,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected 
+          color: isSelected
               ? Colors.white.withValues(alpha: 0.2)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(16),
@@ -541,7 +551,8 @@ class JinBeanFloatingBottomNavigation extends StatelessWidget {
                     right: -4,
                     top: -4,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 4, vertical: 2),
                       decoration: BoxDecoration(
                         color: JinBeanColors.error,
                         borderRadius: BorderRadius.circular(8),
@@ -570,8 +581,8 @@ class JinBeanFloatingBottomNavigation extends StatelessWidget {
               item.label,
               style: JinBeanTypography.labelSmall.copyWith(
                 color: color,
-                fontWeight: isSelected 
-                    ? JinBeanTypography.semiBold 
+                fontWeight: isSelected
+                    ? JinBeanTypography.semiBold
                     : JinBeanTypography.medium,
               ),
             ),
@@ -644,4 +655,4 @@ class JinBeanBottomNavigationWrapper extends StatelessWidget {
             ),
     );
   }
-} 
+}

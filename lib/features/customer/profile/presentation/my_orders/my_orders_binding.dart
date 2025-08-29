@@ -8,4 +8,4 @@ class MyOrdersBinding extends Bindings {
       () => MyOrdersController(),
     );
   }
-} 
+}

@@ -44,40 +44,44 @@ class ServiceDetailQueryParams {
 abstract class IServiceDetailService {
   /// 初始化服务
   Future<void> initialize();
-  
+
   /// 获取服务的所有详情
   Future<List<ServiceDetail>> getServiceDetails(String serviceId);
-  
+
   /// 根据分类获取服务详情
-  Future<List<ServiceDetail>> getServiceDetailsByCategory(String serviceId, String category);
-  
+  Future<List<ServiceDetail>> getServiceDetailsByCategory(
+      String serviceId, String category);
+
   /// 获取分组后的服务详情
-  Future<Map<String, List<ServiceDetail>>> getServiceDetailsGrouped(String serviceId);
-  
+  Future<Map<String, List<ServiceDetail>>> getServiceDetailsGrouped(
+      String serviceId);
+
   /// 根据ID获取服务详情
   Future<ServiceDetail?> getServiceDetailById(String detailId);
-  
+
   /// 根据查询参数获取服务详情
-  Future<List<ServiceDetail>> getServiceDetailsByParams(String serviceId, ServiceDetailQueryParams params);
-  
+  Future<List<ServiceDetail>> getServiceDetailsByParams(
+      String serviceId, ServiceDetailQueryParams params);
+
   /// 获取服务详情统计信息
   Future<Map<String, dynamic>> getServiceDetailStatistics(String serviceId);
-  
+
   /// 检查服务详情可用性
   Future<bool> checkServiceDetailAvailability(String detailId);
-  
+
   /// 更新服务详情库存
   Future<bool> updateServiceDetailStock(String detailId, int newStock);
-  
+
   /// 获取服务详情业务规则
   Future<Map<String, dynamic>> getServiceDetailBusinessRules(String detailId);
-  
+
   /// 验证服务详情属性
-  Future<bool> validateServiceDetailAttributes(String detailId, Map<String, dynamic> attributes);
-  
+  Future<bool> validateServiceDetailAttributes(
+      String detailId, Map<String, dynamic> attributes);
+
   /// 刷新服务详情缓存
   Future<void> refreshCache(String serviceId);
-  
+
   /// 清除服务详情缓存
   Future<void> clearCache(String serviceId);
 }

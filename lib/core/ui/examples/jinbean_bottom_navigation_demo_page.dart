@@ -7,10 +7,12 @@ class JinBeanBottomNavigationDemoPage extends StatefulWidget {
   const JinBeanBottomNavigationDemoPage({super.key});
 
   @override
-  State<JinBeanBottomNavigationDemoPage> createState() => _JinBeanBottomNavigationDemoPageState();
+  State<JinBeanBottomNavigationDemoPage> createState() =>
+      _JinBeanBottomNavigationDemoPageState();
 }
 
-class _JinBeanBottomNavigationDemoPageState extends State<JinBeanBottomNavigationDemoPage> {
+class _JinBeanBottomNavigationDemoPageState
+    extends State<JinBeanBottomNavigationDemoPage> {
   int _currentIndex = 0;
 
   final List<JinBeanBottomNavItem> _navItems = [
@@ -245,4 +247,4 @@ class _JinBeanBottomNavigationDemoPageState extends State<JinBeanBottomNavigatio
       ),
     );
   }
-} 
+}

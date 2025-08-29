@@ -1,13 +1,14 @@
-import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// 用户行为类型
 enum UserBehaviorType {
-  view,      // 查看服务
-  favorite,  // 收藏服务
-  book,      // 预订服务
-  review,    // 评价服务
-  search,    // 搜索服务
-  share,     // 分享服务
+  view, // 查看服务
+  favorite, // 收藏服务
+  book, // 预订服务
+  review, // 评价服务
+  search, // 搜索服务
+  share, // 分享服务
   quoteRequest, // 请求报价
 }
 
@@ -23,15 +24,13 @@ class PersonalizationService {
     Map<String, dynamic>? metadata,
   }) async {
     try {
-      await _supabase
-          .from('user_behaviors')
-          .insert({
-            'user_id': userId,
-            'service_id': serviceId,
-            'behavior_type': behaviorType.name,
-            'metadata': metadata,
-            'created_at': DateTime.now().toIso8601String(),
-          });
+      await _supabase.from('user_behaviors').insert({
+        'user_id': userId,
+        'service_id': serviceId,
+        'behavior_type': behaviorType.name,
+        'metadata': metadata,
+        'created_at': DateTime.now().toIso8601String(),
+      });
     } catch (e) {
       AppLogger.info('Error logging user behavior: $e');
     }
@@ -58,13 +57,13 @@ class PersonalizationService {
 
       // 分析服务类型偏好
       final categoryPreferences = _analyzeCategoryPreferences(behaviors);
-      
+
       // 分析价格偏好
       final pricePreferences = _analyzePricePreferences(behaviors);
-      
+
       // 分析评分偏好
       final ratingPreferences = _analyzeRatingPreferences(behaviors);
-      
+
       // 分析时间偏好
       final timePreferences = _analyzeTimePreferences(behaviors);
 
@@ -73,9 +72,12 @@ class PersonalizationService {
         'price_preferences': pricePreferences,
         'rating_preferences': ratingPreferences,
         'time_preferences': timePreferences,
-        'total_bookings': behaviors.where((b) => b['behavior_type'] == 'book').length,
-        'favorite_services': behaviors.where((b) => b['behavior_type'] == 'favorite').length,
-        'reviewed_services': behaviors.where((b) => b['behavior_type'] == 'review').length,
+        'total_bookings':
+            behaviors.where((b) => b['behavior_type'] == 'book').length,
+        'favorite_services':
+            behaviors.where((b) => b['behavior_type'] == 'favorite').length,
+        'reviewed_services':
+            behaviors.where((b) => b['behavior_type'] == 'review').length,
       };
     } catch (e) {
       AppLogger.info('Error getting user preferences: $e');
@@ -85,7 +87,7 @@ class PersonalizationService {
 
   /// 获取基于用户历史的推荐
   static Future<List<Map<String, dynamic>>> getHistoryBasedRecommendations(
-    String userId, 
+    String userId,
     String currentServiceId,
   ) async {
     try {
@@ -97,9 +99,7 @@ class PersonalizationService {
           .single();
 
       // 基于用户偏好推荐相似服务
-      final recommendations = await _supabase
-          .from('services')
-          .select('''
+      final recommendations = await _supabase.from('services').select('''
             *,
             service_details(*),
             provider_profiles!services_provider_id_fkey(
@@ -107,37 +107,39 @@ class PersonalizationService {
               ratings_avg,
               review_count
             )
-          ''')
-          .eq('status', 'active')
-          .neq('id', currentServiceId)
-          .limit(5);
+          ''').eq('status', 'active').neq('id', currentServiceId).limit(5);
 
       // 计算推荐分数
       final scoredRecommendations = recommendations.map((service) {
         double score = 0.0;
-        
+
         // 分类匹配分数
-        if (service['category_level1_id'] == currentService['category_level1_id']) {
+        if (service['category_level1_id'] ==
+            currentService['category_level1_id']) {
           score += 0.4;
         }
-        
+
         // 价格偏好匹配
-        final priceRange = userPreferences['price_preferences']?['preferred_range'];
+        final priceRange =
+            userPreferences['price_preferences']?['preferred_range'];
         if (priceRange != null) {
           final servicePrice = service['service_details']?[0]?['price'] ?? 0;
-          if (servicePrice >= priceRange['min'] && servicePrice <= priceRange['max']) {
+          if (servicePrice >= priceRange['min'] &&
+              servicePrice <= priceRange['max']) {
             score += 0.3;
           }
         }
-        
+
         // 评分偏好匹配
-        final ratingPreference = userPreferences['rating_preferences']?['min_rating'] ?? 0;
+        final ratingPreference =
+            userPreferences['rating_preferences']?['min_rating'] ?? 0;
         if (service['average_rating'] >= ratingPreference) {
           score += 0.2;
         }
-        
+
         // 提供商评分
-        final providerRating = service['provider_profiles']?['ratings_avg'] ?? 0;
+        final providerRating =
+            service['provider_profiles']?['ratings_avg'] ?? 0;
         if (providerRating >= 4.0) {
           score += 0.1;
         }
@@ -149,8 +151,8 @@ class PersonalizationService {
       }).toList();
 
       // 按推荐分数排序
-      scoredRecommendations.sort((a, b) => 
-          (b['recommendation_score'] as double).compareTo(a['recommendation_score'] as double));
+      scoredRecommendations.sort((a, b) => (b['recommendation_score'] as double)
+          .compareTo(a['recommendation_score'] as double));
 
       return scoredRecommendations;
     } catch (e) {
@@ -161,13 +163,13 @@ class PersonalizationService {
 
   /// 获取基于相似用户的推荐
   static Future<List<Map<String, dynamic>>> getSimilarUserRecommendations(
-    String userId, 
+    String userId,
     String currentServiceId,
   ) async {
     try {
       // 找到相似用户（基于行为模式）
       final similarUsers = await _findSimilarUsers(userId);
-      
+
       if (similarUsers.isEmpty) {
         return [];
       }
@@ -196,7 +198,7 @@ class PersonalizationService {
       // 统计服务受欢迎程度
       final serviceCounts = <String, int>{};
       final serviceDetails = <String, Map<String, dynamic>>{};
-      
+
       for (final behavior in similarUserBehaviors) {
         final serviceId = behavior['service_id'];
         serviceCounts[serviceId] = (serviceCounts[serviceId] ?? 0) + 1;
@@ -209,13 +211,14 @@ class PersonalizationService {
         return {
           ...service,
           'similar_user_count': entry.value,
-          'popularity_percentage': (entry.value / similarUsers.length * 100).round(),
+          'popularity_percentage':
+              (entry.value / similarUsers.length * 100).round(),
         };
       }).toList();
 
       // 按受欢迎程度排序
-      recommendations.sort((a, b) => 
-          (b['similar_user_count'] as int).compareTo(a['similar_user_count'] as int));
+      recommendations.sort((a, b) => (b['similar_user_count'] as int)
+          .compareTo(a['similar_user_count'] as int));
 
       return recommendations.take(5).toList();
     } catch (e) {
@@ -225,7 +228,8 @@ class PersonalizationService {
   }
 
   /// 获取个性化优惠
-  static Future<List<Map<String, dynamic>>> getPersonalizedOffers(String userId) async {
+  static Future<List<Map<String, dynamic>>> getPersonalizedOffers(
+      String userId) async {
     try {
       final userPreferences = await getUserPreferences(userId);
       final offers = <Map<String, dynamic>>[];
@@ -238,7 +242,8 @@ class PersonalizationService {
           'description': 'Get 15% off your first booking',
           'code': 'WELCOME15',
           'discount_percentage': 15,
-          'valid_until': DateTime.now().add(Duration(days: 30)).toIso8601String(),
+          'valid_until':
+              DateTime.now().add(Duration(days: 30)).toIso8601String(),
         });
       }
 
@@ -264,7 +269,8 @@ class PersonalizationService {
           'description': '20% off all cleaning services',
           'code': 'SPRING20',
           'discount_percentage': 20,
-          'valid_until': DateTime.now().add(Duration(days: 60)).toIso8601String(),
+          'valid_until':
+              DateTime.now().add(Duration(days: 60)).toIso8601String(),
         });
       }
 
@@ -276,11 +282,13 @@ class PersonalizationService {
   }
 
   /// 分析分类偏好
-  static Map<String, dynamic> _analyzeCategoryPreferences(List<dynamic> behaviors) {
+  static Map<String, dynamic> _analyzeCategoryPreferences(
+      List<dynamic> behaviors) {
     final categoryCounts = <String, int>{};
-    
+
     for (final behavior in behaviors) {
-      final categoryId = behavior['services']?['category_level1_id']?.toString();
+      final categoryId =
+          behavior['services']?['category_level1_id']?.toString();
       if (categoryId != null) {
         categoryCounts[categoryId] = (categoryCounts[categoryId] ?? 0) + 1;
       }
@@ -298,9 +306,10 @@ class PersonalizationService {
   }
 
   /// 分析价格偏好
-  static Map<String, dynamic> _analyzePricePreferences(List<dynamic> behaviors) {
+  static Map<String, dynamic> _analyzePricePreferences(
+      List<dynamic> behaviors) {
     final prices = <double>[];
-    
+
     for (final behavior in behaviors) {
       final price = behavior['services']?['service_details']?[0]?['price'];
       if (price != null) {
@@ -329,9 +338,10 @@ class PersonalizationService {
   }
 
   /// 分析评分偏好
-  static Map<String, dynamic> _analyzeRatingPreferences(List<dynamic> behaviors) {
+  static Map<String, dynamic> _analyzeRatingPreferences(
+      List<dynamic> behaviors) {
     final ratings = <double>[];
-    
+
     for (final behavior in behaviors) {
       final rating = behavior['services']?['average_rating'];
       if (rating != null) {
@@ -355,22 +365,22 @@ class PersonalizationService {
   static Map<String, dynamic> _analyzeTimePreferences(List<dynamic> behaviors) {
     final weekdayCounts = <int, int>{};
     final hourCounts = <int, int>{};
-    
+
     for (final behavior in behaviors) {
       final createdAt = DateTime.parse(behavior['created_at']);
       final weekday = createdAt.weekday;
       final hour = createdAt.hour;
-      
+
       weekdayCounts[weekday] = (weekdayCounts[weekday] ?? 0) + 1;
       hourCounts[hour] = (hourCounts[hour] ?? 0) + 1;
     }
 
     if (weekdayCounts.isEmpty) return {};
 
-    final preferredWeekday = weekdayCounts.entries
-        .reduce((a, b) => a.value > b.value ? a : b).key;
-    final preferredHour = hourCounts.entries
-        .reduce((a, b) => a.value > b.value ? a : b).key;
+    final preferredWeekday =
+        weekdayCounts.entries.reduce((a, b) => a.value > b.value ? a : b).key;
+    final preferredHour =
+        hourCounts.entries.reduce((a, b) => a.value > b.value ? a : b).key;
 
     return {
       'preferred_weekday': preferredWeekday,
@@ -395,7 +405,8 @@ class PersonalizationService {
       final similarUsers = await _supabase
           .from('user_behaviors')
           .select('user_id')
-          .inFilter('service_id', userBehaviors.map((b) => b['service_id']).toList())
+          .inFilter(
+              'service_id', userBehaviors.map((b) => b['service_id']).toList())
           .neq('user_id', userId)
           .limit(10);
 
@@ -405,4 +416,4 @@ class PersonalizationService {
       return [];
     }
   }
-} 
+}

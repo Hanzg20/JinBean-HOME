@@ -6,4 +6,4 @@ class SavedServicesBinding extends Bindings {
   void dependencies() {
     Get.lazyPut<SavedServicesController>(() => SavedServicesController());
   }
-} 
+}

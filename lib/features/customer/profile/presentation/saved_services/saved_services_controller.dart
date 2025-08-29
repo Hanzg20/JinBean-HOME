@@ -21,12 +21,14 @@ class SavedServicesController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    AppLogger.info('SavedServicesController initialized', tag: 'SavedServicesController');
+    AppLogger.info('SavedServicesController initialized',
+        tag: 'SavedServicesController');
     loadSavedServices();
   }
 
   Future<void> loadSavedServices() async {
-    AppLogger.info('SavedServicesController: loadSavedServices called', tag: 'SavedServicesController');
+    AppLogger.info('SavedServicesController: loadSavedServices called',
+        tag: 'SavedServicesController');
     isLoading.value = true;
     try {
       // TODO: Implement actual API call to fetch saved services
@@ -50,7 +52,8 @@ class SavedServicesController extends GetxController {
         ),
       ];
     } catch (e, stack) {
-      AppLogger.error('SavedServicesController: Failed to load saved services', error: e, stackTrace: stack, tag: 'SavedServicesController');
+      AppLogger.error('SavedServicesController: Failed to load saved services',
+          error: e, stackTrace: stack, tag: 'SavedServicesController');
     } finally {
       isLoading.value = false;
     }
@@ -59,7 +62,7 @@ class SavedServicesController extends GetxController {
   void removeService(String id) {
     savedServices.removeWhere((service) => service.id == id);
     // TODO: Implement API call to remove service from backend
-    
+
     // 使用空值安全的方式获取context
     final context = Get.context;
     if (context != null) {
@@ -89,7 +92,8 @@ class SavedServicesController extends GetxController {
   }
 
   Future<void> refreshSavedServices() async {
-    AppLogger.info('SavedServicesController: refreshSavedServices called', tag: 'SavedServicesController');
+    AppLogger.info('SavedServicesController: refreshSavedServices called',
+        tag: 'SavedServicesController');
     await loadSavedServices();
   }
-} 
+}

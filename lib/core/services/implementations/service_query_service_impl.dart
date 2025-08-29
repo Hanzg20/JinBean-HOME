@@ -28,7 +28,7 @@ class ServiceQueryService implements IServiceQueryService {
 
     try {
       print('ServiceQueryService: 获取推荐服务...');
-      
+
       final response = await _supabase
           .from('services')
           .select('''
@@ -47,10 +47,9 @@ class ServiceQueryService implements IServiceQueryService {
           .limit(limit);
 
       final services = response.map((json) => Service.fromJson(json)).toList();
-      
+
       print('ServiceQueryService: 获取到 ${services.length} 个推荐服务 ✅');
       return services;
-      
     } catch (e) {
       print('ServiceQueryService: 获取推荐服务失败 ❌ - $e');
       rethrow;
@@ -58,14 +57,15 @@ class ServiceQueryService implements IServiceQueryService {
   }
 
   @override
-  Future<List<Service>> getServicesByCategory(String categoryId, {int limit = 20}) async {
+  Future<List<Service>> getServicesByCategory(String categoryId,
+      {int limit = 20}) async {
     if (!_isInitialized) {
       throw Exception('ServiceQueryService未初始化');
     }
 
     try {
       print('ServiceQueryService: 获取分类服务 - $categoryId');
-      
+
       final response = await _supabase
           .from('services')
           .select('''
@@ -85,10 +85,9 @@ class ServiceQueryService implements IServiceQueryService {
           .limit(limit);
 
       final services = response.map((json) => Service.fromJson(json)).toList();
-      
+
       print('ServiceQueryService: 获取到 ${services.length} 个分类服务 ✅');
       return services;
-      
     } catch (e) {
       print('ServiceQueryService: 获取分类服务失败 ❌ - $e');
       rethrow;
@@ -103,11 +102,9 @@ class ServiceQueryService implements IServiceQueryService {
 
     try {
       print('ServiceQueryService: 搜索服务 - ${params.toJson()}');
-      
+
       // 构建基础查询 - 使用动态查询构建
-      dynamic baseQuery = _supabase
-          .from('services')
-          .select('''
+      dynamic baseQuery = _supabase.from('services').select('''
             *,
             provider_profiles!inner(
               id,
@@ -117,30 +114,30 @@ class ServiceQueryService implements IServiceQueryService {
               rating,
               review_count
             )
-          ''')
-          .eq('is_active', true);
+          ''').eq('is_active', true);
 
       // 应用查询参数
       if (params.categoryId != null) {
         baseQuery = baseQuery.eq('category_id', params.categoryId);
       }
-      
+
       if (params.providerId != null) {
         baseQuery = baseQuery.eq('provider_id', params.providerId);
       }
-      
+
       if (params.searchQuery != null && params.searchQuery!.isNotEmpty) {
-        baseQuery = baseQuery.or('title->en.ilike.%${params.searchQuery}%,description->en.ilike.%${params.searchQuery}%');
+        baseQuery = baseQuery.or(
+            'title->en.ilike.%${params.searchQuery}%,description->en.ilike.%${params.searchQuery}%');
       }
-      
+
       if (params.minPrice != null) {
         baseQuery = baseQuery.gte('price', params.minPrice);
       }
-      
+
       if (params.maxPrice != null) {
         baseQuery = baseQuery.lte('price', params.maxPrice);
       }
-      
+
       if (params.tags != null && params.tags!.isNotEmpty) {
         baseQuery = baseQuery.overlaps('tags', params.tags);
       }
@@ -157,20 +154,18 @@ class ServiceQueryService implements IServiceQueryService {
 
       final response = await baseQuery;
       final services = response.map((json) => Service.fromJson(json)).toList();
-      
+
       // 获取总数（简化版本）
-      final totalResponse = await _supabase
-          .from('services')
-          .select('id')
-          .eq('is_active', true);
-      
+      final totalResponse =
+          await _supabase.from('services').select('id').eq('is_active', true);
+
       final totalCount = totalResponse.length;
       final currentPage = (offset ~/ limit) + 1;
       final totalPages = (totalCount / limit).ceil();
       final hasMore = currentPage < totalPages;
 
       print('ServiceQueryService: 搜索完成，找到 ${services.length} 个服务 ✅');
-      
+
       return ServiceQueryResult(
         services: services,
         totalCount: totalCount,
@@ -178,7 +173,6 @@ class ServiceQueryService implements IServiceQueryService {
         totalPages: totalPages,
         hasMore: hasMore,
       );
-      
     } catch (e) {
       print('ServiceQueryService: 搜索服务失败 ❌ - $e');
       rethrow;
@@ -193,10 +187,8 @@ class ServiceQueryService implements IServiceQueryService {
 
     try {
       print('ServiceQueryService: 获取服务详情 - $serviceId');
-      
-      final response = await _supabase
-          .from('services')
-          .select('''
+
+      final response = await _supabase.from('services').select('''
             *,
             provider_profiles!inner(
               id,
@@ -206,16 +198,12 @@ class ServiceQueryService implements IServiceQueryService {
               rating,
               review_count
             )
-          ''')
-          .eq('id', serviceId)
-          .eq('is_active', true)
-          .single();
+          ''').eq('id', serviceId).eq('is_active', true).single();
 
       final service = Service.fromJson(response);
-      
+
       print('ServiceQueryService: 获取服务详情成功 ✅');
       return service;
-      
     } catch (e) {
       print('ServiceQueryService: 获取服务详情失败 ❌ - $e');
       return null;
@@ -223,14 +211,15 @@ class ServiceQueryService implements IServiceQueryService {
   }
 
   @override
-  Future<List<Service>> getServicesByProvider(String providerId, {int limit = 20}) async {
+  Future<List<Service>> getServicesByProvider(String providerId,
+      {int limit = 20}) async {
     if (!_isInitialized) {
       throw Exception('ServiceQueryService未初始化');
     }
 
     try {
       print('ServiceQueryService: 获取服务商服务 - $providerId');
-      
+
       final response = await _supabase
           .from('services')
           .select('''
@@ -250,10 +239,9 @@ class ServiceQueryService implements IServiceQueryService {
           .limit(limit);
 
       final services = response.map((json) => Service.fromJson(json)).toList();
-      
+
       print('ServiceQueryService: 获取到 ${services.length} 个服务商服务 ✅');
       return services;
-      
     } catch (e) {
       print('ServiceQueryService: 获取服务商服务失败 ❌ - $e');
       rethrow;
@@ -268,7 +256,7 @@ class ServiceQueryService implements IServiceQueryService {
 
     try {
       print('ServiceQueryService: 获取热门服务...');
-      
+
       final response = await _supabase
           .from('services')
           .select('''
@@ -287,10 +275,9 @@ class ServiceQueryService implements IServiceQueryService {
           .limit(limit);
 
       final services = response.map((json) => Service.fromJson(json)).toList();
-      
+
       print('ServiceQueryService: 获取到 ${services.length} 个热门服务 ✅');
       return services;
-      
     } catch (e) {
       print('ServiceQueryService: 获取热门服务失败 ❌ - $e');
       rethrow;
@@ -298,22 +285,73 @@ class ServiceQueryService implements IServiceQueryService {
   }
 
   @override
-  Future<List<Service>> getNearbyServices(double latitude, double longitude, {double radius = 10.0, int limit = 20}) async {
+  Future<List<Service>> getNearbyServices(double latitude, double longitude,
+      {double radius = 10.0, int limit = 20}) async {
     if (!_isInitialized) {
       throw Exception('ServiceQueryService未初始化');
     }
 
     try {
-      print('ServiceQueryService: 获取附近服务 - 纬度:$latitude, 经度:$longitude, 半径:$radius');
-      
+      print(
+          'ServiceQueryService: 获取附近服务 - 纬度:$latitude, 经度:$longitude, 半径:$radius');
+
       // 简化版本：直接返回推荐服务
       // 实际项目中可以使用PostGIS进行地理位置查询
       print('ServiceQueryService: 使用推荐服务作为附近服务');
       return getRecommendedServices(limit: limit);
-      
     } catch (e) {
       print('ServiceQueryService: 获取附近服务失败 ❌ - $e');
       rethrow;
+    }
+  }
+
+  @override
+  Future<List<Service>> getSimilarServices(String serviceId,
+      {int limit = 5}) async {
+    if (!_isInitialized) {
+      throw Exception('ServiceQueryService未初始化');
+    }
+
+    try {
+      print('ServiceQueryService: 获取相似服务 - $serviceId');
+
+      // 首先获取目标服务的分类信息
+      final targetService = await _supabase
+          .from('services')
+          .select('category_level1_id, category_level2_id')
+          .eq('id', serviceId)
+          .single();
+
+      final categoryLevel1Id = targetService['category_level1_id'];
+      final categoryLevel2Id = targetService['category_level2_id'];
+
+      // 查询同分类的其他服务
+      final response = await _supabase
+          .from('services')
+          .select('''
+            *,
+            provider_profiles!inner(
+              id,
+              display_name,
+              bio,
+              avatar_url,
+              rating,
+              review_count
+            )
+          ''')
+          .eq('is_active', true)
+          .neq('id', serviceId) // 排除当前服务
+          .or('category_level1_id.eq.$categoryLevel1Id,category_level2_id.eq.$categoryLevel2Id')
+          .order('rating', ascending: false)
+          .limit(limit);
+
+      final services = response.map((json) => Service.fromJson(json)).toList();
+
+      print('ServiceQueryService: 获取到 ${services.length} 个相似服务 ✅');
+      return services;
+    } catch (e) {
+      print('ServiceQueryService: 获取相似服务失败 ❌ - $e');
+      return [];
     }
   }
 
@@ -325,17 +363,13 @@ class ServiceQueryService implements IServiceQueryService {
 
     try {
       print('ServiceQueryService: 获取服务统计信息...');
-      
+
       // 获取各种统计数据
-      final totalServices = await _supabase
-          .from('services')
-          .select('id');
-      
-      final activeServices = await _supabase
-          .from('services')
-          .select('id')
-          .eq('is_active', true);
-      
+      final totalServices = await _supabase.from('services').select('id');
+
+      final activeServices =
+          await _supabase.from('services').select('id').eq('is_active', true);
+
       final avgRating = await _supabase
           .from('services')
           .select('rating')
@@ -343,11 +377,12 @@ class ServiceQueryService implements IServiceQueryService {
 
       final totalCount = totalServices.length;
       final activeCount = activeServices.length;
-      
+
       // 计算平均评分
       double averageRating = 0.0;
       if (avgRating.isNotEmpty) {
-        final ratings = avgRating.map((r) => (r['rating'] ?? 0.0).toDouble()).toList();
+        final ratings =
+            avgRating.map((r) => (r['rating'] ?? 0.0).toDouble()).toList();
         averageRating = ratings.reduce((a, b) => a + b) / ratings.length;
       }
 
@@ -358,10 +393,9 @@ class ServiceQueryService implements IServiceQueryService {
         'average_rating': averageRating,
         'last_updated': DateTime.now().toIso8601String(),
       };
-      
+
       print('ServiceQueryService: 获取统计信息成功 ✅');
       return stats;
-      
     } catch (e) {
       print('ServiceQueryService: 获取统计信息失败 ❌ - $e');
       rethrow;

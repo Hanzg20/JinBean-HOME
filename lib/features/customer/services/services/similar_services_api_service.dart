@@ -1,4 +1,5 @@
-import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:jinbeanpod_83904710/features/customer/domain/entities/similar_service.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
+import 'package:jinbeanpod_83904710/features/customer/domain/entities/similar_service.dart';
 
 class SimilarServicesApiService {
   /// 获取指定服务的相似服务列表
@@ -10,7 +11,7 @@ class SimilarServicesApiService {
     try {
       // 模拟网络延迟
       await Future.delayed(Duration(milliseconds: 500));
-      
+
       // 返回模拟数据
       return _getMockSimilarServices(serviceId, limit);
     } catch (e) {
@@ -18,7 +19,7 @@ class SimilarServicesApiService {
       return _getMockSimilarServices(serviceId, limit);
     }
   }
-  
+
   /// 根据分类获取相似服务
   static Future<List<SimilarService>> getSimilarServicesByCategory(
     String categoryId, {
@@ -30,7 +31,7 @@ class SimilarServicesApiService {
     try {
       // 模拟网络延迟
       await Future.delayed(Duration(milliseconds: 500));
-      
+
       // 返回模拟数据
       return _getMockSimilarServicesByCategory(categoryId, limit);
     } catch (e) {
@@ -38,7 +39,7 @@ class SimilarServicesApiService {
       return _getMockSimilarServicesByCategory(categoryId, limit);
     }
   }
-  
+
   /// 解析API响应中的相似服务数据
   static SimilarService _parseSimilarService(Map<String, dynamic> data) {
     return SimilarService(
@@ -57,14 +58,16 @@ class SimilarServicesApiService {
       metadata: data['metadata'],
     );
   }
-  
+
   /// 获取模拟相似服务数据
-  static List<SimilarService> _getMockSimilarServices(String serviceId, int limit) {
+  static List<SimilarService> _getMockSimilarServices(
+      String serviceId, int limit) {
     final mockServices = [
       SimilarService(
         id: 'similar_1',
         title: 'Professional Home Cleaning',
-        description: 'Comprehensive home cleaning service with professional equipment',
+        description:
+            'Comprehensive home cleaning service with professional equipment',
         providerId: 'provider_789',
         price: 42.0,
         currency: 'USD',
@@ -147,24 +150,28 @@ class SimilarServicesApiService {
         },
       ),
     ];
-    
+
     return mockServices.take(limit).toList();
   }
-  
+
   /// 根据分类获取模拟相似服务数据
-  static List<SimilarService> _getMockSimilarServicesByCategory(String categoryId, int limit) {
+  static List<SimilarService> _getMockSimilarServicesByCategory(
+      String categoryId, int limit) {
     // 根据分类ID返回不同的模拟数据
     final mockServices = _getMockSimilarServices('', limit);
-    
+
     // 这里可以根据categoryId调整数据
-    if (categoryId == '1020000') { // Home Services
+    if (categoryId == '1020000') {
+      // Home Services
       return mockServices;
-    } else if (categoryId == '1010000') { // Food & Dining
+    } else if (categoryId == '1010000') {
+      // Food & Dining
       return [
         SimilarService(
           id: 'food_1',
           title: 'Home Cooking Service',
-          description: 'Professional home cooking service with fresh ingredients',
+          description:
+              'Professional home cooking service with fresh ingredients',
           providerId: 'provider_food_1',
           price: 25.0,
           currency: 'USD',
@@ -197,10 +204,10 @@ class SimilarServicesApiService {
         ),
       ];
     }
-    
+
     return mockServices;
   }
-  
+
   /// 记录用户对相似服务的交互
   static Future<void> logSimilarServiceInteraction(
     String currentServiceId,
@@ -210,12 +217,13 @@ class SimilarServicesApiService {
     try {
       // 模拟网络延迟
       await Future.delayed(Duration(milliseconds: 500));
-      
+
       // 模拟成功
-      AppLogger.info('Logged similar service interaction: $currentServiceId -> $similarServiceId, type: $interactionType');
+      AppLogger.info(
+          'Logged similar service interaction: $currentServiceId -> $similarServiceId, type: $interactionType');
     } catch (e) {
       // 静默处理错误，不影响用户体验
       AppLogger.info('Failed to log similar service interaction: $e');
     }
   }
-} 
+}

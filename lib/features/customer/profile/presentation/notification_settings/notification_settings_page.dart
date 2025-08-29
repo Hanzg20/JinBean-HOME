@@ -25,7 +25,7 @@ class NotificationSettingsPage extends GetView<NotificationSettingsController> {
         if (controller.isLoading.value) {
           return const Center(child: CircularProgressIndicator());
         }
-        
+
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -55,9 +55,9 @@ class NotificationSettingsPage extends GetView<NotificationSettingsController> {
                 value: controller.smsNotificationsEnabled.value,
                 onChanged: controller.toggleSmsNotifications,
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Service Notifications
               _buildSectionTitle('Service Notifications'),
               const SizedBox(height: 12),
@@ -66,25 +66,28 @@ class NotificationSettingsPage extends GetView<NotificationSettingsController> {
                 subtitle: 'Get notified about booking status changes',
                 icon: Icons.calendar_today,
                 value: true,
-                onChanged: (value) => Get.snackbar('Setting', 'Booking updates ${value ? "enabled" : "disabled"}'),
+                onChanged: (value) => Get.snackbar('Setting',
+                    'Booking updates ${value ? "enabled" : "disabled"}'),
               ),
               _buildNotificationCard(
                 title: 'Service Reminders',
                 subtitle: 'Reminders for upcoming appointments',
                 icon: Icons.alarm,
                 value: true,
-                onChanged: (value) => Get.snackbar('Setting', 'Service reminders ${value ? "enabled" : "disabled"}'),
+                onChanged: (value) => Get.snackbar('Setting',
+                    'Service reminders ${value ? "enabled" : "disabled"}'),
               ),
               _buildNotificationCard(
                 title: 'Provider Messages',
                 subtitle: 'Messages from service providers',
                 icon: Icons.message,
                 value: true,
-                onChanged: (value) => Get.snackbar('Setting', 'Provider messages ${value ? "enabled" : "disabled"}'),
+                onChanged: (value) => Get.snackbar('Setting',
+                    'Provider messages ${value ? "enabled" : "disabled"}'),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Promotional Notifications
               _buildSectionTitle('Promotional Notifications'),
               const SizedBox(height: 12),
@@ -93,37 +96,40 @@ class NotificationSettingsPage extends GetView<NotificationSettingsController> {
                 subtitle: 'Deals and discounts from JinBean',
                 icon: Icons.local_offer,
                 value: false,
-                onChanged: (value) => Get.snackbar('Setting', 'Special offers ${value ? "enabled" : "disabled"}'),
+                onChanged: (value) => Get.snackbar('Setting',
+                    'Special offers ${value ? "enabled" : "disabled"}'),
               ),
               _buildNotificationCard(
                 title: 'New Services',
                 subtitle: 'Discover new services in your area',
                 icon: Icons.new_releases,
                 value: false,
-                onChanged: (value) => Get.snackbar('Setting', 'New services ${value ? "enabled" : "disabled"}'),
+                onChanged: (value) => Get.snackbar('Setting',
+                    'New services ${value ? "enabled" : "disabled"}'),
               ),
               _buildNotificationCard(
                 title: 'Community Updates',
                 subtitle: 'News and updates from your community',
                 icon: Icons.people,
                 value: false,
-                onChanged: (value) => Get.snackbar('Setting', 'Community updates ${value ? "enabled" : "disabled"}'),
+                onChanged: (value) => Get.snackbar('Setting',
+                    'Community updates ${value ? "enabled" : "disabled"}'),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Quiet Hours
               _buildSectionTitle('Quiet Hours'),
               const SizedBox(height: 12),
               _buildQuietHoursCard(),
-              
+
               const SizedBox(height: 24),
-              
+
               // Notification History
               _buildSectionTitle('Notification History'),
               const SizedBox(height: 12),
               _buildHistoryCard(),
-              
+
               const SizedBox(height: 80), // Bottom padding
             ],
           ),
@@ -218,7 +224,8 @@ class NotificationSettingsPage extends GetView<NotificationSettingsController> {
                     color: Colors.orange[50],
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(Icons.bedtime, color: Colors.orange[600], size: 20),
+                  child:
+                      Icon(Icons.bedtime, color: Colors.orange[600], size: 20),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -271,7 +278,8 @@ class NotificationSettingsPage extends GetView<NotificationSettingsController> {
                           InkWell(
                             onTap: () => _selectTime(context, true),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 8),
                               decoration: BoxDecoration(
                                 border: Border.all(color: Colors.grey[300]!),
                                 borderRadius: BorderRadius.circular(8),
@@ -304,7 +312,8 @@ class NotificationSettingsPage extends GetView<NotificationSettingsController> {
                           InkWell(
                             onTap: () => _selectTime(context, false),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 8),
                               decoration: BoxDecoration(
                                 border: Border.all(color: Colors.grey[300]!),
                                 borderRadius: BorderRadius.circular(8),
@@ -349,7 +358,8 @@ class NotificationSettingsPage extends GetView<NotificationSettingsController> {
                     color: Colors.green[50],
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(Icons.history, color: Colors.green[600], size: 20),
+                  child:
+                      Icon(Icons.history, color: Colors.green[600], size: 20),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -393,7 +403,8 @@ class NotificationSettingsPage extends GetView<NotificationSettingsController> {
       initialTime: TimeOfDay.now(),
     ).then((time) {
       if (time != null) {
-        final timeString = '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+        final timeString =
+            '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
         if (isStart) {
           controller.setQuietHoursStart(timeString);
         } else {
@@ -410,4 +421,4 @@ class NotificationSettingsPage extends GetView<NotificationSettingsController> {
       snackPosition: SnackPosition.BOTTOM,
     );
   }
-} 
+}

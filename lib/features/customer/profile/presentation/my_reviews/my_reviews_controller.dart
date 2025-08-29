@@ -24,12 +24,14 @@ class MyReviewsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    AppLogger.info('MyReviewsController initialized', tag: 'MyReviewsController');
+    AppLogger.info('MyReviewsController initialized',
+        tag: 'MyReviewsController');
     loadReviews();
   }
 
   Future<void> loadReviews() async {
-    AppLogger.info('MyReviewsController: loadReviews called', tag: 'MyReviewsController');
+    AppLogger.info('MyReviewsController: loadReviews called',
+        tag: 'MyReviewsController');
     isLoading.value = true;
     try {
       // TODO: Implement actual API call to fetch reviews
@@ -59,14 +61,16 @@ class MyReviewsController extends GetxController {
         ),
       ];
     } catch (e, stack) {
-      AppLogger.error('MyReviewsController: Failed to load reviews', error: e, stackTrace: stack, tag: 'MyReviewsController');
+      AppLogger.error('MyReviewsController: Failed to load reviews',
+          error: e, stackTrace: stack, tag: 'MyReviewsController');
     } finally {
       isLoading.value = false;
     }
   }
 
   Future<void> refreshReviews() async {
-    AppLogger.info('MyReviewsController: refreshReviews called', tag: 'MyReviewsController');
+    AppLogger.info('MyReviewsController: refreshReviews called',
+        tag: 'MyReviewsController');
     await loadReviews();
   }
-} 
+}

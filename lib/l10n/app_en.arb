@@ -266,5 +266,32 @@
     "customerReviewsAndReputationContent": "Customer Reviews and Reputation Content (Placeholder)",
     "switchToProvider": "Switch to Provider",
     "waitingForApproval": "Waiting for Approval",
-    "registerAsProvider": "Register as Provider"
+    "registerAsProvider": "Register as Provider",
+    
+    "menu": "Menu",
+    "addToCart": "Add to Cart",
+    "cart": "Cart",
+    "quantity": "Quantity",
+    "delete": "Delete",
+    "checkout": "Checkout",
+    "cartEmpty": "Cart is empty",
+    "cartItems": "Cart Items",
+    "selectDishes": "Select Dishes",
+    "foodMenu": "Food Menu",
+    "loading": "Loading",
+    "error": "Error",
+    "retry": "Retry",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "remove": "Remove",
+    "update": "Update",
+    "subtotal": "Subtotal",
+    "itemCount": "{count} items",
+    "@itemCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    }
 } 

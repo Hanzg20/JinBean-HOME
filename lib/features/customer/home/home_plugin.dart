@@ -1,4 +1,5 @@
-import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:flutter/material.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/core/plugin_management/app_plugin.dart';
 import 'package:jinbeanpod_83904710/features/customer/home/presentation/home_page.dart';
@@ -45,4 +46,4 @@ class HomePlugin implements AppPlugin {
   void dispose() {
     AppLogger.info('HomePlugin disposed!');
   }
-} 
+}

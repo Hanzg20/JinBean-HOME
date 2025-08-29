@@ -1,4 +1,5 @@
-import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ServiceImageManager {
   static final ServiceImageManager _instance = ServiceImageManager._internal();
@@ -81,7 +82,8 @@ class ServiceImageManager {
         'updated_at': DateTime.now().toIso8601String(),
       }).eq('service_id', serviceId);
 
-      AppLogger.info('[ServiceImageManager] Updated images for service $serviceId');
+      AppLogger.info(
+          '[ServiceImageManager] Updated images for service $serviceId');
     } catch (e) {
       AppLogger.info('[ServiceImageManager] Error updating service images: $e');
       rethrow;
@@ -91,7 +93,8 @@ class ServiceImageManager {
   /// Batch update all services with test images
   Future<void> batchUpdateAllServicesWithTestImages() async {
     try {
-      AppLogger.info('[ServiceImageManager] Starting batch update of service images...');
+      AppLogger.info(
+          '[ServiceImageManager] Starting batch update of service images...');
 
       // Get all services
       final services = await Supabase.instance.client
@@ -162,7 +165,7 @@ class ServiceImageManager {
 
     final String icon = serviceIcons[serviceType] ?? '📋';
     final String text = '$icon $serviceType';
-    
+
     // 使用picsum.photos替代via.placeholder.com，避免网络连接问题
     final int seed = text.hashCode;
     return 'https://picsum.photos/seed/$seed/$width/$height';

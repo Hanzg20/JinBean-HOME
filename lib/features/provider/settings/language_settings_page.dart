@@ -18,13 +18,15 @@ class ProviderLanguageSettingsPage extends GetView<LanguageSettingsController> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Get.back(),
         ),
-        title: Text((AppLocalizations.of(context) ?? AppLocalizationsEn()).languageSettings),
+        title: Text((AppLocalizations.of(context) ?? AppLocalizationsEn())
+            .languageSettings),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text((AppLocalizations.of(context) ?? AppLocalizationsEn()).languageSettingsPageContent),
+            Text((AppLocalizations.of(context) ?? AppLocalizationsEn())
+                .languageSettingsPageContent),
             const SizedBox(height: 32),
             SizedBox(
               width: 220,
@@ -64,4 +66,4 @@ class ProviderLanguageSettingsPage extends GetView<LanguageSettingsController> {
       ),
     );
   }
-} 
+}

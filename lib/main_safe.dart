@@ -32,16 +32,16 @@ class SafeApp extends StatelessWidget {
 
 class ErrorBoundary extends StatefulWidget {
   final Widget child;
-  
+
   const ErrorBoundary({Key? key, required this.child}) : super(key: key);
-  
+
   @override
   _ErrorBoundaryState createState() => _ErrorBoundaryState();
 }
 
 class _ErrorBoundaryState extends State<ErrorBoundary> {
   Error? _error;
-  
+
   @override
   void initState() {
     super.initState();
@@ -50,7 +50,7 @@ class _ErrorBoundaryState extends State<ErrorBoundary> {
       _initializeApp();
     });
   }
-  
+
   void _initializeApp() {
     try {
       // 这里可以添加应用初始化逻辑
@@ -63,16 +63,16 @@ class _ErrorBoundaryState extends State<ErrorBoundary> {
       });
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     if (_error != null) {
       return _buildErrorPage();
     }
-    
+
     return widget.child;
   }
-  
+
   Widget _buildErrorPage() {
     return Scaffold(
       appBar: AppBar(
@@ -117,14 +117,14 @@ class _ErrorBoundaryState extends State<ErrorBoundary> {
       ),
     );
   }
-  
+
   void _retryInitialization() {
     setState(() {
       _error = null;
     });
     _initializeApp();
   }
-  
+
   void _showErrorDetails() {
     Get.dialog(
       AlertDialog(
@@ -162,14 +162,14 @@ class _SafeHomePageState extends State<SafeHomePage> {
   bool _isInitialized = false;
   String _status = 'Initializing...';
   List<String> _logs = [];
-  
+
   @override
   void initState() {
     super.initState();
     _addLog('SafeHomePage initialized');
     _initializeSafely();
   }
-  
+
   void _addLog(String message) {
     setState(() {
       _logs.add('${DateTime.now().toString().substring(11, 19)}: $message');
@@ -178,24 +178,24 @@ class _SafeHomePageState extends State<SafeHomePage> {
       }
     });
   }
-  
+
   void _initializeSafely() async {
     try {
       _addLog('Starting safe initialization...');
-      
+
       // 模拟初始化步骤
       await Future.delayed(Duration(seconds: 1));
       _addLog('Step 1: Basic setup completed');
-      
+
       await Future.delayed(Duration(seconds: 1));
       _addLog('Step 2: Dependencies loaded');
-      
+
       await Future.delayed(Duration(seconds: 1));
       _addLog('Step 3: Services initialized');
-      
+
       await Future.delayed(Duration(seconds: 1));
       _addLog('Step 4: UI ready');
-      
+
       if (mounted) {
         setState(() {
           _isInitialized = true;
@@ -203,12 +203,11 @@ class _SafeHomePageState extends State<SafeHomePage> {
         });
         _addLog('Initialization completed successfully');
       }
-      
     } catch (e, stack) {
       _addLog('Error during initialization: $e');
       print('Initialization error: $e');
       print('Stack trace: $stack');
-      
+
       if (mounted) {
         setState(() {
           _status = 'Error: $e';
@@ -216,7 +215,7 @@ class _SafeHomePageState extends State<SafeHomePage> {
       }
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -230,7 +229,9 @@ class _SafeHomePageState extends State<SafeHomePage> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              _isInitialized ? Colors.green.withOpacity(0.1) : Colors.orange.withOpacity(0.1),
+              _isInitialized
+                  ? Colors.green.withOpacity(0.1)
+                  : Colors.orange.withOpacity(0.1),
               Colors.white,
             ],
           ),
@@ -243,7 +244,9 @@ class _SafeHomePageState extends State<SafeHomePage> {
               Container(
                 padding: EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: _isInitialized ? Colors.green.withOpacity(0.1) : Colors.orange.withOpacity(0.1),
+                  color: _isInitialized
+                      ? Colors.green.withOpacity(0.1)
+                      : Colors.orange.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: _isInitialized ? Colors.green : Colors.orange,
@@ -253,7 +256,9 @@ class _SafeHomePageState extends State<SafeHomePage> {
                 child: Column(
                   children: [
                     Icon(
-                      _isInitialized ? Icons.check_circle : Icons.hourglass_empty,
+                      _isInitialized
+                          ? Icons.check_circle
+                          : Icons.hourglass_empty,
                       size: 64,
                       color: _isInitialized ? Colors.green : Colors.orange,
                     ),
@@ -274,9 +279,9 @@ class _SafeHomePageState extends State<SafeHomePage> {
                   ],
                 ),
               ),
-              
+
               SizedBox(height: 32),
-              
+
               // 日志显示
               Expanded(
                 child: Container(
@@ -317,9 +322,9 @@ class _SafeHomePageState extends State<SafeHomePage> {
                   ),
                 ),
               ),
-              
+
               SizedBox(height: 24),
-              
+
               // 操作按钮
               if (_isInitialized) ...[
                 Row(
@@ -366,16 +371,16 @@ class _SafeHomePageState extends State<SafeHomePage> {
       ),
     );
   }
-  
+
   void _launchMainApp() {
     _addLog('Launching main app...');
     Get.snackbar(
-      'Launching Main App', 
+      'Launching Main App',
       'This would launch the actual main application',
       duration: Duration(seconds: 3),
     );
   }
-  
+
   void _resetApp() {
     _addLog('Resetting app...');
     setState(() {

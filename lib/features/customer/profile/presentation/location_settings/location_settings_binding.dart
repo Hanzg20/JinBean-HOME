@@ -8,4 +8,4 @@ class LocationSettingsBinding extends Bindings {
       () => LocationSettingsController(),
     );
   }
-} 
+}

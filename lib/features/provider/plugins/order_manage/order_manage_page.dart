@@ -32,10 +32,10 @@ class OrderManagePage extends GetView<OrderManageController> {
         children: [
           // Search and Filter Section
           _buildSearchAndFilterSection(),
-          
+
           // Statistics Section
           _buildStatisticsSection(),
-          
+
           // Orders List
           Expanded(
             child: _buildOrdersList(),
@@ -61,7 +61,8 @@ class OrderManagePage extends GetView<OrderManageController> {
             onChanged: (value) => controller.searchOrders(value),
             decoration: InputDecoration(
               hintText: '搜索订单ID或客户姓名...',
-              prefixIcon: const Icon(Icons.search, color: JinBeanColors.textSecondary),
+              prefixIcon:
+                  const Icon(Icons.search, color: JinBeanColors.textSecondary),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(color: JinBeanColors.border),
@@ -76,11 +77,12 @@ class OrderManagePage extends GetView<OrderManageController> {
               ),
               filled: true,
               fillColor: JinBeanColors.background,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
           ),
           const SizedBox(height: 12),
-          
+
           // Status Filter
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -89,17 +91,17 @@ class OrderManagePage extends GetView<OrderManageController> {
                 return Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: Obx(() => FilterChip(
-                    label: Text(controller.getStatusDisplayText(status)),
-                    selected: controller.currentStatus.value == status,
-                    onSelected: (selected) {
-                      if (selected) {
-                        controller.filterByStatus(status);
-                      }
-                    },
-                    backgroundColor: JinBeanColors.surface,
-                    selectedColor: JinBeanColors.primaryLight,
-                    checkmarkColor: JinBeanColors.primary,
-                  )),
+                        label: Text(controller.getStatusDisplayText(status)),
+                        selected: controller.currentStatus.value == status,
+                        onSelected: (selected) {
+                          if (selected) {
+                            controller.filterByStatus(status);
+                          }
+                        },
+                        backgroundColor: JinBeanColors.surface,
+                        selectedColor: JinBeanColors.primaryLight,
+                        checkmarkColor: JinBeanColors.primary,
+                      )),
                 );
               }).toList(),
             ),
@@ -118,25 +120,33 @@ class OrderManagePage extends GetView<OrderManageController> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-          
+
           final stats = snapshot.data ?? {};
-          
+
           return Row(
             children: [
               Expanded(
-                child: _buildStatCard('总订单', stats['total']?.toString() ?? '0', JinBeanColors.primary),
+                child: _buildStatCard('总订单', stats['total']?.toString() ?? '0',
+                    JinBeanColors.primary),
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: _buildStatCard('待接单', stats['pending']?.toString() ?? '0', JinBeanColors.warning),
+                child: _buildStatCard('待接单',
+                    stats['pending']?.toString() ?? '0', JinBeanColors.warning),
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: _buildStatCard('服务中', stats['in_progress']?.toString() ?? '0', JinBeanColors.success),
+                child: _buildStatCard(
+                    '服务中',
+                    stats['in_progress']?.toString() ?? '0',
+                    JinBeanColors.success),
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: _buildStatCard('已完成', stats['completed']?.toString() ?? '0', JinBeanColors.success),
+                child: _buildStatCard(
+                    '已完成',
+                    stats['completed']?.toString() ?? '0',
+                    JinBeanColors.success),
               ),
             ],
           );
@@ -213,12 +223,13 @@ class OrderManagePage extends GetView<OrderManageController> {
           ),
         );
       }
-      
+
       return RefreshIndicator(
         onRefresh: () => controller.refreshOrders(),
         child: ListView.builder(
           padding: const EdgeInsets.all(16),
-          itemCount: controller.orders.length + (controller.hasMoreData.value ? 1 : 0),
+          itemCount:
+              controller.orders.length + (controller.hasMoreData.value ? 1 : 0),
           itemBuilder: (context, index) {
             if (index == controller.orders.length) {
               // Load more indicator
@@ -233,7 +244,7 @@ class OrderManagePage extends GetView<OrderManageController> {
               }
               return const SizedBox.shrink();
             }
-            
+
             final order = controller.orders[index];
             return _buildOrderCard(order);
           },
@@ -284,7 +295,7 @@ class OrderManagePage extends GetView<OrderManageController> {
   Widget _buildOrderCard(Map<String, dynamic> order) {
     final status = order['status'] as String;
     final statusColor = Color(controller.getStatusColor(status));
-    
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 2,
@@ -308,11 +319,13 @@ class OrderManagePage extends GetView<OrderManageController> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: statusColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: statusColor.withValues(alpha: 0.3)),
+                    border:
+                        Border.all(color: statusColor.withValues(alpha: 0.3)),
                   ),
                   child: Text(
                     controller.getStatusDisplayText(status),
@@ -325,9 +338,9 @@ class OrderManagePage extends GetView<OrderManageController> {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             // Customer Info
             Row(
               children: [
@@ -341,9 +354,9 @@ class OrderManagePage extends GetView<OrderManageController> {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 8),
-            
+
             // Service Info
             Row(
               children: [
@@ -357,9 +370,9 @@ class OrderManagePage extends GetView<OrderManageController> {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 8),
-            
+
             // Price
             Row(
               children: [
@@ -375,9 +388,9 @@ class OrderManagePage extends GetView<OrderManageController> {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 8),
-            
+
             // Date
             Row(
               children: [
@@ -392,9 +405,9 @@ class OrderManagePage extends GetView<OrderManageController> {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Action Buttons
             _buildActionButtons(order),
           ],
@@ -406,7 +419,7 @@ class OrderManagePage extends GetView<OrderManageController> {
   Widget _buildActionButtons(Map<String, dynamic> order) {
     final status = order['status'] as String;
     final orderId = order['id'] as String;
-    
+
     return Row(
       children: [
         // View Details Button
@@ -414,14 +427,15 @@ class OrderManagePage extends GetView<OrderManageController> {
           child: OutlinedButton(
             onPressed: () => _showOrderDetails(order),
             style: OutlinedButton.styleFrom(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
             ),
             child: const Text('查看详情'),
           ),
         ),
-        
+
         const SizedBox(width: 8),
-        
+
         // Action Button based on status
         if (controller.canAcceptOrder(order))
           Expanded(
@@ -429,36 +443,39 @@ class OrderManagePage extends GetView<OrderManageController> {
               onPressed: () => _acceptOrder(orderId),
               style: ElevatedButton.styleFrom(
                 backgroundColor: JinBeanColors.success,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
               ),
               child: const Text('接单'),
             ),
           ),
-        
+
         if (controller.canStartOrder(order))
           Expanded(
             child: ElevatedButton(
               onPressed: () => _startService(orderId),
               style: ElevatedButton.styleFrom(
                 backgroundColor: JinBeanColors.primary,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
               ),
               child: const Text('开始服务'),
             ),
           ),
-        
+
         if (controller.canCompleteOrder(order))
           Expanded(
             child: ElevatedButton(
               onPressed: () => _completeService(orderId),
               style: ElevatedButton.styleFrom(
                 backgroundColor: JinBeanColors.success,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
               ),
               child: const Text('完成服务'),
             ),
           ),
-        
+
         if (status == 'pending')
           Expanded(
             child: ElevatedButton(
@@ -483,10 +500,13 @@ class OrderManagePage extends GetView<OrderManageController> {
               _buildDetailRow('客户', controller.getCustomerName(order)),
               _buildDetailRow('服务', controller.getServiceName(order)),
               _buildDetailRow('金额', controller.formatPrice(order['amount'])),
-              _buildDetailRow('状态', controller.getStatusDisplayText(order['status'])),
-              _buildDetailRow('创建时间', controller.formatDateTime(order['created_at'])),
+              _buildDetailRow(
+                  '状态', controller.getStatusDisplayText(order['status'])),
+              _buildDetailRow(
+                  '创建时间', controller.formatDateTime(order['created_at'])),
               if (order['scheduled_date'] != null)
-                _buildDetailRow('预约时间', controller.formatDateTime(order['scheduled_date'])),
+                _buildDetailRow(
+                    '预约时间', controller.formatDateTime(order['scheduled_date'])),
               if (order['notes'] != null && order['notes'].isNotEmpty)
                 _buildDetailRow('备注', order['notes']),
             ],
@@ -618,7 +638,8 @@ class OrderManagePage extends GetView<OrderManageController> {
           ElevatedButton(
             onPressed: () {
               Get.back();
-              controller.completeServiceWithClientConversion(orderId, orderData);
+              controller.completeServiceWithClientConversion(
+                  orderId, orderData);
             },
             child: const Text('完成'),
           ),
@@ -626,4 +647,4 @@ class OrderManagePage extends GetView<OrderManageController> {
       ),
     );
   }
-} 
+}

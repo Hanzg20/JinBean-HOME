@@ -43,11 +43,11 @@ class PaymentMethodsPage extends GetView<PaymentMethodsController> {
           if (controller.isLoading.value) {
             return const Center(child: CircularProgressIndicator());
           }
-          
+
           if (controller.paymentMethods.isEmpty) {
             return _buildEmptyState();
           }
-          
+
           return ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: controller.paymentMethods.length,
@@ -111,7 +111,8 @@ class PaymentMethodsPage extends GetView<PaymentMethodsController> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blue[600],
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
             onPressed: () => _showAddPaymentMethodDialog(),
@@ -123,7 +124,7 @@ class PaymentMethodsPage extends GetView<PaymentMethodsController> {
 
   Widget _buildPaymentMethodCard(dynamic paymentMethod, int index) {
     final isDefault = paymentMethod.isDefault ?? false;
-    
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 2,
@@ -169,7 +170,8 @@ class PaymentMethodsPage extends GetView<PaymentMethodsController> {
                             if (isDefault) ...[
                               const SizedBox(width: 8),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 4),
                                 decoration: BoxDecoration(
                                   color: Colors.blue[50],
                                   borderRadius: BorderRadius.circular(6),
@@ -210,7 +212,8 @@ class PaymentMethodsPage extends GetView<PaymentMethodsController> {
                   ),
                   PopupMenuButton<String>(
                     icon: Icon(Icons.more_vert, color: Colors.grey[600]),
-                    onSelected: (value) => _handleMenuAction(value, paymentMethod),
+                    onSelected: (value) =>
+                        _handleMenuAction(value, paymentMethod),
                     itemBuilder: (context) => [
                       const PopupMenuItem(
                         value: 'edit',
@@ -289,7 +292,7 @@ class PaymentMethodsPage extends GetView<PaymentMethodsController> {
     final expiryController = TextEditingController();
     final cvvController = TextEditingController();
     final nameController = TextEditingController();
-    
+
     Get.dialog(
       AlertDialog(
         title: const Text('Add Payment Method'),
@@ -350,8 +353,8 @@ class PaymentMethodsPage extends GetView<PaymentMethodsController> {
           ),
           ElevatedButton(
             onPressed: () {
-              if (cardNumberController.text.isNotEmpty && 
-                  expiryController.text.isNotEmpty && 
+              if (cardNumberController.text.isNotEmpty &&
+                  expiryController.text.isNotEmpty &&
                   cvvController.text.isNotEmpty &&
                   nameController.text.isNotEmpty) {
                 // TODO: Implement add payment method functionality
@@ -371,9 +374,11 @@ class PaymentMethodsPage extends GetView<PaymentMethodsController> {
   }
 
   void _showEditPaymentMethodDialog(dynamic paymentMethod) {
-    final nameController = TextEditingController(text: paymentMethod.cardholderName);
-    final expiryController = TextEditingController(text: paymentMethod.expiryDate);
-    
+    final nameController =
+        TextEditingController(text: paymentMethod.cardholderName);
+    final expiryController =
+        TextEditingController(text: paymentMethod.expiryDate);
+
     Get.dialog(
       AlertDialog(
         title: const Text('Edit Payment Method'),
@@ -404,7 +409,8 @@ class PaymentMethodsPage extends GetView<PaymentMethodsController> {
           ),
           ElevatedButton(
             onPressed: () {
-              if (nameController.text.isNotEmpty && expiryController.text.isNotEmpty) {
+              if (nameController.text.isNotEmpty &&
+                  expiryController.text.isNotEmpty) {
                 // TODO: Implement update functionality
                 Get.back();
                 Get.snackbar(
@@ -444,7 +450,8 @@ class PaymentMethodsPage extends GetView<PaymentMethodsController> {
     Get.dialog(
       AlertDialog(
         title: const Text('Delete Payment Method'),
-        content: Text('Are you sure you want to delete this ${paymentMethod.cardType} card?'),
+        content: Text(
+            'Are you sure you want to delete this ${paymentMethod.cardType} card?'),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
@@ -467,4 +474,4 @@ class PaymentMethodsPage extends GetView<PaymentMethodsController> {
       ),
     );
   }
-} 
+}

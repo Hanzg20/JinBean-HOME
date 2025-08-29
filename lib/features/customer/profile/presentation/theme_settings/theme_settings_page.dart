@@ -26,7 +26,8 @@ class ThemeSettingsPage extends GetView<ThemeSettingsController> {
           children: [
             Text('Choose App Appearance', style: TextStyle(color: onSurface)),
             Obx(() => RadioListTile<ThemeMode>(
-                  title: Text('Follow System', style: TextStyle(color: onSurface)),
+                  title:
+                      Text('Follow System', style: TextStyle(color: onSurface)),
                   value: ThemeMode.system,
                   groupValue: controller.selectedMode.value,
                   onChanged: (value) => controller.selectMode(value!),
@@ -48,4 +49,4 @@ class ThemeSettingsPage extends GetView<ThemeSettingsController> {
       ),
     );
   }
-} 
+}

@@ -28,4 +28,4 @@ class ProviderThemeSettingsController extends GetxController {
       snackPosition: SnackPosition.BOTTOM,
     );
   }
-} 
+}

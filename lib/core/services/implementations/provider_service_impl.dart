@@ -27,7 +27,7 @@ class ProviderService implements IProviderService {
 
     try {
       print('ProviderService: 获取服务商 - $providerId');
-      
+
       final response = await _supabase
           .from('provider_profiles')
           .select('*')
@@ -35,10 +35,9 @@ class ProviderService implements IProviderService {
           .single();
 
       final provider = Provider.fromJson(response);
-      
+
       print('ProviderService: 获取服务商成功 ✅');
       return provider;
-      
     } catch (e) {
       print('ProviderService: 获取服务商失败 ❌ - $e');
       return null;
@@ -53,30 +52,30 @@ class ProviderService implements IProviderService {
 
     try {
       print('ProviderService: 获取服务商列表 - 参数: ${params.toJson()}');
-      
+
       // 构建基础查询
-      dynamic query = _supabase
-          .from('provider_profiles')
-          .select('*');
+      dynamic query = _supabase.from('provider_profiles').select('*');
 
       // 应用查询参数
       if (params.providerType != null) {
         query = query.eq('provider_type', params.providerType);
       }
-      
+
       if (params.status != null) {
         query = query.eq('status', params.status);
       }
-      
+
       if (params.isVerified != null) {
         query = query.eq('is_verified', params.isVerified);
       }
-      
-      if (params.serviceCategories != null && params.serviceCategories!.isNotEmpty) {
+
+      if (params.serviceCategories != null &&
+          params.serviceCategories!.isNotEmpty) {
         query = query.overlaps('service_categories', params.serviceCategories);
       }
-      
-      if (params.serviceAreaCodes != null && params.serviceAreaCodes!.isNotEmpty) {
+
+      if (params.serviceAreaCodes != null &&
+          params.serviceAreaCodes!.isNotEmpty) {
         query = query.overlaps('service_area_codes', params.serviceAreaCodes);
       }
 
@@ -92,11 +91,11 @@ class ProviderService implements IProviderService {
       }
 
       final response = await query;
-      final providers = response.map((json) => Provider.fromJson(json)).toList();
-      
+      final providers =
+          response.map((json) => Provider.fromJson(json)).toList();
+
       print('ProviderService: 获取服务商列表完成，找到 ${providers.length} 个 ✅');
       return providers;
-      
     } catch (e) {
       print('ProviderService: 获取服务商列表失败 ❌ - $e');
       rethrow;
@@ -111,7 +110,7 @@ class ProviderService implements IProviderService {
 
     try {
       print('ProviderService: 搜索服务商 - 查询: $query, 限制: $limit');
-      
+
       // 构建搜索查询
       dynamic searchQuery = _supabase
           .from('provider_profiles')
@@ -122,11 +121,11 @@ class ProviderService implements IProviderService {
           .limit(limit);
 
       final response = await searchQuery;
-      final providers = response.map((json) => Provider.fromJson(json)).toList();
-      
+      final providers =
+          response.map((json) => Provider.fromJson(json)).toList();
+
       print('ProviderService: 搜索服务商完成，找到 ${providers.length} 个 ✅');
       return providers;
-      
     } catch (e) {
       print('ProviderService: 搜索服务商失败 ❌ - $e');
       rethrow;
@@ -141,7 +140,7 @@ class ProviderService implements IProviderService {
 
     try {
       print('ProviderService: 获取推荐服务商 - 限制: $limit');
-      
+
       // 构建推荐查询（基于评分和订单数）
       dynamic query = _supabase
           .from('provider_profiles')
@@ -152,18 +151,19 @@ class ProviderService implements IProviderService {
           .gte('order_count', 10);
 
       // 按评分和订单数排序
-      query = query.order('rating', ascending: false)
-                  .order('order_count', ascending: false);
+      query = query
+          .order('rating', ascending: false)
+          .order('order_count', ascending: false);
 
       // 分页
       query = query.range(0, limit - 1);
 
       final response = await query;
-      final providers = response.map((json) => Provider.fromJson(json)).toList();
-      
+      final providers =
+          response.map((json) => Provider.fromJson(json)).toList();
+
       print('ProviderService: 获取推荐服务商完成，找到 ${providers.length} 个 ✅');
       return providers;
-      
     } catch (e) {
       print('ProviderService: 获取推荐服务商失败 ❌ - $e');
       rethrow;
@@ -171,14 +171,16 @@ class ProviderService implements IProviderService {
   }
 
   @override
-  Future<List<Provider>> getNearbyProviders(double latitude, double longitude, {double radius = 10.0, int limit = 20}) async {
+  Future<List<Provider>> getNearbyProviders(double latitude, double longitude,
+      {double radius = 10.0, int limit = 20}) async {
     if (!_isInitialized) {
       throw Exception('ProviderService未初始化');
     }
 
     try {
-      print('ProviderService: 获取附近服务商 - 位置: ($latitude, $longitude), 半径: $radius km');
-      
+      print(
+          'ProviderService: 获取附近服务商 - 位置: ($latitude, $longitude), 半径: $radius km');
+
       // 使用PostGIS的ST_DWithin函数进行地理查询
       // 注意：这里简化处理，实际应该使用PostGIS扩展
       dynamic query = _supabase
@@ -187,22 +189,21 @@ class ProviderService implements IProviderService {
           .eq('status', 'active');
 
       // 按评分排序
-      query = query.order('rating', ascending: false)
-                  .limit(limit);
+      query = query.order('rating', ascending: false).limit(limit);
 
       final response = await query;
-      final providers = response.map((json) => Provider.fromJson(json)).toList();
-      
+      final providers =
+          response.map((json) => Provider.fromJson(json)).toList();
+
       // 简化距离计算（实际应该使用PostGIS）
       final nearbyProviders = providers.where((provider) {
         // 这里应该使用实际的地理距离计算
         // 暂时返回所有结果
         return true;
       }).toList();
-      
+
       print('ProviderService: 获取附近服务商完成，找到 ${nearbyProviders.length} 个 ✅');
       return nearbyProviders;
-      
     } catch (e) {
       print('ProviderService: 获取附近服务商失败 ❌ - $e');
       rethrow;
@@ -217,7 +218,7 @@ class ProviderService implements IProviderService {
 
     try {
       print('ProviderService: 获取服务商统计 - $providerId');
-      
+
       // 获取服务商基本信息
       final provider = await getProviderById(providerId);
       if (provider == null) {
@@ -232,8 +233,14 @@ class ProviderService implements IProviderService {
 
       final services = servicesResponse as List;
       final totalServices = services.length;
-      final totalRating = services.fold<double>(0.0, (sum, service) => sum + ((service['rating'] as num?)?.toDouble() ?? 0.0));
-      final totalReviews = services.fold<int>(0, (sum, service) => sum + ((service['review_count'] as num?)?.toInt() ?? 0));
+      final totalRating = services.fold<double>(
+          0.0,
+          (sum, service) =>
+              sum + ((service['rating'] as num?)?.toDouble() ?? 0.0));
+      final totalReviews = services.fold<int>(
+          0,
+          (sum, service) =>
+              sum + ((service['review_count'] as num?)?.toInt() ?? 0));
       final avgRating = totalServices > 0 ? totalRating / totalServices : 0.0;
 
       // 获取服务详情统计
@@ -244,9 +251,14 @@ class ProviderService implements IProviderService {
 
       final details = detailsResponse as List;
       final totalDetails = details.length;
-      final availableDetails = details.where((d) => d['is_available'] == true).length;
-      final totalStock = details.fold<int>(0, (sum, detail) => sum + ((detail['current_stock'] as num?)?.toInt() ?? 0));
-      final maxStock = details.fold<int>(0, (sum, detail) => sum + ((detail['max_stock'] as num?)?.toInt() ?? 0));
+      final availableDetails =
+          details.where((d) => d['is_available'] == true).length;
+      final totalStock = details.fold<int>(
+          0,
+          (sum, detail) =>
+              sum + ((detail['current_stock'] as num?)?.toInt() ?? 0));
+      final maxStock = details.fold<int>(0,
+          (sum, detail) => sum + ((detail['max_stock'] as num?)?.toInt() ?? 0));
 
       final stats = {
         'provider_info': {
@@ -269,14 +281,14 @@ class ProviderService implements IProviderService {
           'available': availableDetails,
           'current_stock': totalStock,
           'max_stock': maxStock,
-          'stock_percentage': maxStock > 0 ? (totalStock / maxStock * 100).round() : 0,
+          'stock_percentage':
+              maxStock > 0 ? (totalStock / maxStock * 100).round() : 0,
         },
         'last_updated': DateTime.now().toIso8601String(),
       };
-      
+
       print('ProviderService: 获取服务商统计成功 ✅');
       return stats;
-      
     } catch (e) {
       print('ProviderService: 获取服务商统计失败 ❌ - $e');
       rethrow;
@@ -291,7 +303,7 @@ class ProviderService implements IProviderService {
 
     try {
       print('ProviderService: 更新服务商 - ${provider.id}');
-      
+
       final updateData = {
         'display_name': provider.displayName,
         'bio': provider.bio,
@@ -320,7 +332,6 @@ class ProviderService implements IProviderService {
 
       print('ProviderService: 服务商更新成功 ✅');
       return true;
-      
     } catch (e) {
       print('ProviderService: 服务商更新失败 ❌ - $e');
       return false;
@@ -335,18 +346,14 @@ class ProviderService implements IProviderService {
 
     try {
       print('ProviderService: 更新服务商状态 - ID: $providerId, 状态: $status');
-      
-      await _supabase
-          .from('provider_profiles')
-          .update({
-            'status': status,
-            'updated_at': DateTime.now().toIso8601String(),
-          })
-          .eq('id', providerId);
+
+      await _supabase.from('provider_profiles').update({
+        'status': status,
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('id', providerId);
 
       print('ProviderService: 服务商状态更新成功 ✅');
       return true;
-      
     } catch (e) {
       print('ProviderService: 服务商状态更新失败 ❌ - $e');
       return false;
@@ -361,19 +368,15 @@ class ProviderService implements IProviderService {
 
     try {
       print('ProviderService: 验证服务商 - $providerId');
-      
-      await _supabase
-          .from('provider_profiles')
-          .update({
-            'is_verified': true,
-            'verification_status': 'verified',
-            'updated_at': DateTime.now().toIso8601String(),
-          })
-          .eq('id', providerId);
+
+      await _supabase.from('provider_profiles').update({
+        'is_verified': true,
+        'verification_status': 'verified',
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('id', providerId);
 
       print('ProviderService: 服务商验证成功 ✅');
       return true;
-      
     } catch (e) {
       print('ProviderService: 服务商验证失败 ❌ - $e');
       return false;
@@ -381,14 +384,15 @@ class ProviderService implements IProviderService {
   }
 
   @override
-  Future<List<dynamic>> getProviderServices(String providerId, {int limit = 20}) async {
+  Future<List<dynamic>> getProviderServices(String providerId,
+      {int limit = 20}) async {
     if (!_isInitialized) {
       throw Exception('ProviderService未初始化');
     }
 
     try {
       print('ProviderService: 获取服务商服务 - $providerId');
-      
+
       final response = await _supabase
           .from('services')
           .select('*')
@@ -397,7 +401,6 @@ class ProviderService implements IProviderService {
 
       print('ProviderService: 获取服务商服务成功，找到 ${response.length} 个 ✅');
       return response;
-      
     } catch (e) {
       print('ProviderService: 获取服务商服务失败 ❌ - $e');
       rethrow;
@@ -405,19 +408,19 @@ class ProviderService implements IProviderService {
   }
 
   @override
-  Future<List<Review>> getProviderReviews(String providerId, {int limit = 20}) async {
+  Future<List<Review>> getProviderReviews(String providerId,
+      {int limit = 20}) async {
     if (!_isInitialized) {
       throw Exception('ProviderService未初始化');
     }
 
     try {
       print('ProviderService: 获取服务商评价 - $providerId');
-      
+
       // 这里应该从reviews表获取数据
       // 暂时返回空列表
       print('ProviderService: 获取服务商评价成功，找到 0 个 ✅');
       return [];
-      
     } catch (e) {
       print('ProviderService: 获取服务商评价失败 ❌ - $e');
       rethrow;
@@ -446,10 +449,8 @@ class ProviderService implements IProviderService {
     }
 
     try {
-      final response = await _supabase
-          .from('provider_profiles')
-          .select('id');
-      
+      final response = await _supabase.from('provider_profiles').select('id');
+
       return response.length;
     } catch (e) {
       print('ProviderService: 获取服务商总数失败 ❌ - $e');
@@ -464,9 +465,8 @@ class ProviderService implements IProviderService {
     }
 
     try {
-      final response = await _supabase
-          .from('provider_profiles')
-          .select('provider_type');
+      final response =
+          await _supabase.from('provider_profiles').select('provider_type');
 
       final distribution = <String, int>{};
       for (final item in response) {
@@ -488,9 +488,8 @@ class ProviderService implements IProviderService {
     }
 
     try {
-      final response = await _supabase
-          .from('provider_profiles')
-          .select('status');
+      final response =
+          await _supabase.from('provider_profiles').select('status');
 
       final distribution = <String, int>{};
       for (final item in response) {

@@ -37,10 +37,10 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
         children: [
           // Search and Filter Section
           _buildSearchAndFilterSection(),
-          
+
           // Statistics Section
           _buildStatisticsSection(),
-          
+
           // Services List
           Expanded(
             child: _buildServicesList(),
@@ -66,7 +66,8 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
             onChanged: (value) => controller.searchServices(value),
             decoration: InputDecoration(
               hintText: '搜索服务名称或描述...',
-              prefixIcon: const Icon(Icons.search, color: JinBeanColors.textSecondary),
+              prefixIcon:
+                  const Icon(Icons.search, color: JinBeanColors.textSecondary),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(color: JinBeanColors.border),
@@ -81,11 +82,12 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
               ),
               filled: true,
               fillColor: JinBeanColors.background,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
           ),
           const SizedBox(height: 12),
-          
+
           // Status Filter
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -95,34 +97,34 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
                 Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: Obx(() => FilterChip(
-                    label: const Text('全部'),
-                    selected: controller.selectedStatus.value == null,
-                    onSelected: (selected) {
-                      if (selected) {
-                        controller.filterByStatus(null);
-                      }
-                    },
-                    backgroundColor: JinBeanColors.surface,
-                    selectedColor: JinBeanColors.primaryLight,
-                    checkmarkColor: JinBeanColors.primary,
-                  )),
+                        label: const Text('全部'),
+                        selected: controller.selectedStatus.value == null,
+                        onSelected: (selected) {
+                          if (selected) {
+                            controller.filterByStatus(null);
+                          }
+                        },
+                        backgroundColor: JinBeanColors.surface,
+                        selectedColor: JinBeanColors.primaryLight,
+                        checkmarkColor: JinBeanColors.primary,
+                      )),
                 ),
                 // Status options
                 ...controller.statusOptions.map((status) {
                   return Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: Obx(() => FilterChip(
-                      label: Text(controller.getStatusDisplayText(status)),
-                      selected: controller.selectedStatus.value == status,
-                      onSelected: (selected) {
-                        if (selected) {
-                          controller.filterByStatus(status);
-                        }
-                      },
-                      backgroundColor: JinBeanColors.surface,
-                      selectedColor: JinBeanColors.primaryLight,
-                      checkmarkColor: JinBeanColors.primary,
-                    )),
+                          label: Text(controller.getStatusDisplayText(status)),
+                          selected: controller.selectedStatus.value == status,
+                          onSelected: (selected) {
+                            if (selected) {
+                              controller.filterByStatus(status);
+                            }
+                          },
+                          backgroundColor: JinBeanColors.surface,
+                          selectedColor: JinBeanColors.primaryLight,
+                          checkmarkColor: JinBeanColors.primary,
+                        )),
                   );
                 }),
               ],
@@ -138,19 +140,28 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
       padding: const EdgeInsets.all(16),
       child: Obx(() {
         final stats = controller.serviceStats;
-        
+
         return Row(
           children: [
             Expanded(
-              child: _buildStatCard('总服务', stats['total_services']?.toString() ?? '0', JinBeanColors.primary),
+              child: _buildStatCard(
+                  '总服务',
+                  stats['total_services']?.toString() ?? '0',
+                  JinBeanColors.primary),
             ),
             const SizedBox(width: 8),
             Expanded(
-              child: _buildStatCard('活跃服务', stats['active_services']?.toString() ?? '0', JinBeanColors.success),
+              child: _buildStatCard(
+                  '活跃服务',
+                  stats['active_services']?.toString() ?? '0',
+                  JinBeanColors.success),
             ),
             const SizedBox(width: 8),
             Expanded(
-              child: _buildStatCard('热门服务', '${(stats['top_services'] as List?)?.length ?? 0}', JinBeanColors.warning),
+              child: _buildStatCard(
+                  '热门服务',
+                  '${(stats['top_services'] as List?)?.length ?? 0}',
+                  JinBeanColors.warning),
             ),
           ],
         );
@@ -195,7 +206,7 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
       if (controller.isLoading.value && controller.services.isEmpty) {
         return const Center(child: CircularProgressIndicator());
       }
-      
+
       if (controller.services.isEmpty) {
         return Center(
           child: Column(
@@ -236,7 +247,7 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
           ),
         );
       }
-      
+
       return RefreshIndicator(
         onRefresh: () => controller.refreshData(),
         child: ListView.builder(
@@ -253,7 +264,7 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
 
   Widget _buildServiceCard(Service service) {
     final statusColor = controller.getStatusColor(service.status);
-    
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 2,
@@ -277,11 +288,13 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: statusColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: statusColor.withValues(alpha: 0.3)),
+                    border:
+                        Border.all(color: statusColor.withValues(alpha: 0.3)),
                   ),
                   child: Text(
                     controller.getStatusDisplayText(service.status),
@@ -294,9 +307,9 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             // Description
             if (service.description.isNotEmpty) ...[
               Text(
@@ -310,7 +323,7 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
               ),
               const SizedBox(height: 12),
             ],
-            
+
             // Price and Stats
             Row(
               children: [
@@ -348,9 +361,9 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
                 ],
               ],
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Action Buttons
             Row(
               children: [
@@ -358,7 +371,8 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
                   child: OutlinedButton(
                     onPressed: () => _showServiceDetails(service),
                     style: OutlinedButton.styleFrom(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
                     ),
                     child: const Text('查看详情'),
                   ),
@@ -368,7 +382,8 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
                   child: OutlinedButton(
                     onPressed: () => _showEditServiceDialog(service),
                     style: OutlinedButton.styleFrom(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
                     ),
                     child: const Text('编辑'),
                   ),
@@ -378,7 +393,8 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
                   child: OutlinedButton(
                     onPressed: () => _showDeleteServiceDialog(service),
                     style: OutlinedButton.styleFrom(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
                       foregroundColor: Colors.red,
                     ),
                     child: const Text('删除'),
@@ -397,7 +413,7 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
     final descriptionController = TextEditingController();
     final priceController = TextEditingController();
     ServiceStatus selectedStatus = ServiceStatus.active;
-    
+
     Get.dialog(
       AlertDialog(
         title: const Text('添加新服务'),
@@ -437,10 +453,13 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
                   decoration: const InputDecoration(
                     labelText: '状态',
                   ),
-                  items: ServiceStatus.values.map((status) => DropdownMenuItem(
-                    value: status,
-                    child: Text(controller.getStatusDisplayText(status)),
-                  )).toList(),
+                  items: ServiceStatus.values
+                      .map((status) => DropdownMenuItem(
+                            value: status,
+                            child:
+                                Text(controller.getStatusDisplayText(status)),
+                          ))
+                      .toList(),
                   onChanged: (value) {
                     setState(() {
                       selectedStatus = value!;
@@ -458,7 +477,8 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
           ),
           ElevatedButton(
             onPressed: () {
-              if (nameController.text.isNotEmpty && priceController.text.isNotEmpty) {
+              if (nameController.text.isNotEmpty &&
+                  priceController.text.isNotEmpty) {
                 final newService = Service(
                   id: '', // Will be generated by database
                   providerId: '', // Will be set by service
@@ -489,10 +509,12 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
 
   void _showEditServiceDialog(Service service) {
     final nameController = TextEditingController(text: service.title);
-    final descriptionController = TextEditingController(text: service.description);
-    final priceController = TextEditingController(text: service.price.toString());
+    final descriptionController =
+        TextEditingController(text: service.description);
+    final priceController =
+        TextEditingController(text: service.price.toString());
     ServiceStatus selectedStatus = service.status;
-    
+
     Get.dialog(
       AlertDialog(
         title: const Text('编辑服务'),
@@ -532,10 +554,13 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
                   decoration: const InputDecoration(
                     labelText: '状态',
                   ),
-                  items: ServiceStatus.values.map((status) => DropdownMenuItem(
-                    value: status,
-                    child: Text(controller.getStatusDisplayText(status)),
-                  )).toList(),
+                  items: ServiceStatus.values
+                      .map((status) => DropdownMenuItem(
+                            value: status,
+                            child:
+                                Text(controller.getStatusDisplayText(status)),
+                          ))
+                      .toList(),
                   onChanged: (value) {
                     setState(() {
                       selectedStatus = value!;
@@ -553,7 +578,8 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
           ),
           ElevatedButton(
             onPressed: () {
-              if (nameController.text.isNotEmpty && priceController.text.isNotEmpty) {
+              if (nameController.text.isNotEmpty &&
+                  priceController.text.isNotEmpty) {
                 final updatedService = Service(
                   id: service.id,
                   providerId: service.providerId,
@@ -616,10 +642,12 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
             children: [
               _buildDetailRow('描述', service.description),
               _buildDetailRow('价格', '\$${service.price.toStringAsFixed(2)}'),
-              _buildDetailRow('状态', controller.getStatusDisplayText(service.status)),
+              _buildDetailRow(
+                  '状态', controller.getStatusDisplayText(service.status)),
               _buildDetailRow('评论数', '${service.reviewCount}'),
               _buildDetailRow('平均评分', service.averageRating.toStringAsFixed(1)),
-              _buildDetailRow('创建时间', _formatDateTime(service.createdAt.toIso8601String())),
+              _buildDetailRow(
+                  '创建时间', _formatDateTime(service.createdAt.toIso8601String())),
             ],
           ),
         ),
@@ -670,4 +698,4 @@ class ServiceManagementPage extends GetView<ServiceManagementController> {
       return 'N/A';
     }
   }
-} 
+}

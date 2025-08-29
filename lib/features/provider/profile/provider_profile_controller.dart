@@ -1,4 +1,5 @@
-import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:get/get.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
+import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:jinbeanpod_83904710/features/customer/auth/presentation/auth_controller.dart';
 import 'package:get_storage/get_storage.dart';
@@ -33,7 +34,8 @@ class ProviderProfileController extends GetxController {
           .from('provider_profiles')
           .select()
           .eq('user_id', user.id)
-          .order('created_at', ascending: false) // Order by creation date to get the latest
+          .order('created_at',
+              ascending: false) // Order by creation date to get the latest
           .limit(1) // Limit to one result
           .maybeSingle();
 
@@ -41,22 +43,29 @@ class ProviderProfileController extends GetxController {
         displayName.value = profile['display_name'] ?? '';
         email.value = profile['email'] ?? '';
         phone.value = profile['phone'] ?? '';
-        avatarUrl.value = (profile['avatar_url'] != null && profile['avatar_url'].toString().isNotEmpty)
+        avatarUrl.value = (profile['avatar_url'] != null &&
+                profile['avatar_url'].toString().isNotEmpty)
             ? profile['avatar_url']
             : '';
         status.value = profile['status'] ?? '';
         providerType.value = profile['provider_type'] ?? '';
-        serviceCategories.value = (profile['service_categories'] as List?)?.map((e) => e.toString()).toList() ?? [];
+        serviceCategories.value = (profile['service_categories'] as List?)
+                ?.map((e) => e.toString())
+                .toList() ??
+            [];
         certificationStatus.value = profile['certification_status'] ?? '';
       } else {
-        AppLogger.info('[ProviderProfileController] No provider profile found for user ${user.id}');
+        AppLogger.info(
+            '[ProviderProfileController] No provider profile found for user ${user.id}');
         // Optionally set default empty values if no profile is found
       }
     } on PostgrestException catch (e) {
-      AppLogger.info('[ProviderProfileController] PostgrestException loading profile: ${e.message}, details: ${e.details}');
+      AppLogger.info(
+          '[ProviderProfileController] PostgrestException loading profile: ${e.message}, details: ${e.details}');
       // Handle specific Postgrest errors, e.g., show a user-friendly message
     } catch (e, stack) {
-      AppLogger.info('[ProviderProfileController] Unexpected error loading profile: $e\n$stack');
+      AppLogger.info(
+          '[ProviderProfileController] Unexpected error loading profile: $e\n$stack');
     } finally {
       isLoading.value = false;
     }
@@ -64,9 +73,9 @@ class ProviderProfileController extends GetxController {
 
   Future<void> logout() async {
     AppLogger.info('[ProviderProfileController] Provider logout started.');
-    
+
     // 像Customer端一样，直接调用AuthController的logout方法
     // AuthController会处理所有的清理和导航逻辑
     await Get.find<AuthController>().logout();
   }
-} 
+}

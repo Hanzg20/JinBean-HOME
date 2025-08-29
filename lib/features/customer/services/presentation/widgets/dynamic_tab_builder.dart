@@ -30,12 +30,13 @@ class _DynamicTabBuilderState extends State<DynamicTabBuilder> {
     _tabConfigurations = TabConfigurationFactory.generateTabsForService(
       widget.service.categoryId ?? '0',
     );
-    
+
     // 更新外部TabController的长度，而不是创建新的
     if (widget.tabController.length != _tabConfigurations.length) {
       // 注意：这里我们不能直接修改外部TabController的长度
       // 所以我们需要确保外部TabController有足够的长度
-      debugPrint('Warning: TabController length mismatch. Expected: ${_tabConfigurations.length}, Actual: ${widget.tabController.length}');
+      debugPrint(
+          'Warning: TabController length mismatch. Expected: ${_tabConfigurations.length}, Actual: ${widget.tabController.length}');
     }
   }
 
@@ -133,7 +134,8 @@ class EnhancedTabContent extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: (iconColor ?? Theme.of(context).colorScheme.primary).withValues(alpha: 0.1),
+            color: (iconColor ?? Theme.of(context).colorScheme.primary)
+                .withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(
@@ -150,15 +152,15 @@ class EnhancedTabContent extends StatelessWidget {
               Text(
                 title,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
               const SizedBox(height: 16),
               Text(
                 description,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey[600],
-                ),
+                      color: Colors.grey[600],
+                    ),
               ),
             ],
           ),
@@ -230,16 +232,16 @@ class InfoCard extends StatelessWidget {
                     Text(
                       title,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[600],
-                        fontWeight: FontWeight.w500,
-                      ),
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.w500,
+                          ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       value,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                            fontWeight: FontWeight.w600,
+                          ),
                     ),
                   ],
                 ),

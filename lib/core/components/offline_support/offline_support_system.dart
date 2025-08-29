@@ -32,10 +32,10 @@ class PlatformOfflineSupport {
 
 /// 离线支持类型
 enum OfflineType {
-  cache,      // 缓存模式
-  sync,       // 同步模式
-  hybrid,     // 混合模式
-  adaptive,   // 自适应模式
+  cache, // 缓存模式
+  sync, // 同步模式
+  hybrid, // 混合模式
+  adaptive, // 自适应模式
 }
 
 /// 离线支持配置
@@ -44,7 +44,7 @@ class OfflineConfig {
   final Duration cacheExpiration;
   final int maxCacheSize;
   final Duration syncInterval;
-  
+
   const OfflineConfig({
     required this.enableOfflineMode,
     required this.cacheExpiration,
@@ -91,7 +91,7 @@ class _OfflineSupportWidgetState extends State<OfflineSupportWidget> {
     // _connectivitySubscription = Connectivity()
     //     .onConnectivityChanged
     //     .listen(_onConnectivityChanged);
-    
+
     // 临时实现：默认在线状态，不模拟网络状态变化
     _isOnline = true;
   }
@@ -106,19 +106,19 @@ class _OfflineSupportWidgetState extends State<OfflineSupportWidget> {
     // 检查初始网络状态
     // final result = await Connectivity().checkConnectivity();
     // _onConnectivityChanged(result);
-    
+
     // 临时实现：假设初始为在线状态
     _isOnline = true;
   }
 
   void _onConnectivityChanged(ConnectivityResult result) {
     final isOnline = result != ConnectivityResult.none;
-    
+
     if (mounted && _isOnline != isOnline) {
       setState(() {
         _isOnline = isOnline;
       });
-      
+
       if (isOnline && widget.type == OfflineType.sync) {
         _startSync();
       }
@@ -127,7 +127,7 @@ class _OfflineSupportWidgetState extends State<OfflineSupportWidget> {
 
   Future<void> _startSync() async {
     if (_isSyncing) return;
-    
+
     setState(() {
       _isSyncing = true;
     });
@@ -192,32 +192,32 @@ enum ConnectivityResult {
 class OfflineSupportManager {
   static final Map<String, OfflineSupportWidget> _offlineWidgets = {};
   static bool _isOnline = true;
-  
+
   /// 注册离线支持组件
   static void register(String key, OfflineSupportWidget widget) {
     _offlineWidgets[key] = widget;
   }
-  
+
   /// 获取离线支持组件
   static OfflineSupportWidget? get(String key) {
     return _offlineWidgets[key];
   }
-  
+
   /// 移除离线支持组件
   static void remove(String key) {
     _offlineWidgets.remove(key);
   }
-  
+
   /// 清理所有离线支持组件
   static void clear() {
     _offlineWidgets.clear();
   }
-  
+
   /// 检查网络状态
   static bool get isOnline => _isOnline;
-  
+
   /// 设置网络状态
   static void setOnlineStatus(bool isOnline) {
     _isOnline = isOnline;
   }
-} 
+}

@@ -10,7 +10,10 @@ class OnboardingPageModel {
   final String title;
   final String description;
 
-  OnboardingPageModel({required this.imagePath, required this.title, required this.description});
+  OnboardingPageModel(
+      {required this.imagePath,
+      required this.title,
+      required this.description});
 }
 
 class SplashController extends GetxController {
@@ -33,78 +36,99 @@ class SplashController extends GetxController {
     OnboardingPageModel(
       imagePath: 'assets/images/onboarding_3.png',
       title: 'Connect with Community',
-      description: 'Engage with neighbors, share tips, and attend local events.',
+      description:
+          'Engage with neighbors, share tips, and attend local events.',
     ),
   ];
 
   @override
   void onInit() {
     super.onInit();
-    AppLogger.info('[SplashController] onInit called.', tag: 'SplashController');
+    AppLogger.info('[SplashController] onInit called.',
+        tag: 'SplashController');
     pageController = PageController();
-    AppLogger.info('[SplashController] PageController initialized.', tag: 'SplashController');
-    AppLogger.info('[SplashController] Initializing. Checking login status...', tag: 'SplashController');
+    AppLogger.info('[SplashController] PageController initialized.',
+        tag: 'SplashController');
+    AppLogger.info('[SplashController] Initializing. Checking login status...',
+        tag: 'SplashController');
     _initializeApp();
   }
 
   Future<void> _initializeApp() async {
     try {
-    AppLogger.info('[SplashController] _initializeApp called.', tag: 'SplashController');
-    final session = Supabase.instance.client.auth.currentSession;
-    AppLogger.debug('[SplashController] Supabase session: $session', tag: 'SplashController');
-      
-    if (session != null) {
-      // 拉取 profile
-      final user = Supabase.instance.client.auth.currentUser;
+      AppLogger.info('[SplashController] _initializeApp called.',
+          tag: 'SplashController');
+      final session = Supabase.instance.client.auth.currentSession;
+      AppLogger.debug('[SplashController] Supabase session: $session',
+          tag: 'SplashController');
+
+      if (session != null) {
+        // 拉取 profile
+        final user = Supabase.instance.client.auth.currentUser;
         if (user != null) {
           try {
-      final profile = await Supabase.instance.client
-          .from('user_profiles')
-          .select('role')
+            final profile = await Supabase.instance.client
+                .from('user_profiles')
+                .select('role')
                 .eq('id', user.id)
-          .maybeSingle();
-      final role = profile?['role'] ?? 'customer';
-      AppLogger.info('[SplashController] User profile role: $role', tag: 'SplashController');
-            
-      if (role == 'customer+provider') {
-        AppLogger.info('[SplashController] User is customer+provider, navigating to /auth with showRoleSwitch', tag: 'SplashController');
-        Get.offAllNamed('/auth', arguments: {'showRoleSwitch': true});
-      } else if (role == 'provider') {
-              AppLogger.info('[SplashController] User is provider, navigating to /provider_shell', tag: 'SplashController');
+                .maybeSingle();
+            final role = profile?['role'] ?? 'customer';
+            AppLogger.info('[SplashController] User profile role: $role',
+                tag: 'SplashController');
+
+            if (role == 'customer+provider') {
+              AppLogger.info(
+                  '[SplashController] User is customer+provider, navigating to /auth with showRoleSwitch',
+                  tag: 'SplashController');
+              Get.offAllNamed('/auth', arguments: {'showRoleSwitch': true});
+            } else if (role == 'provider') {
+              AppLogger.info(
+                  '[SplashController] User is provider, navigating to /provider_shell',
+                  tag: 'SplashController');
               // 设置PluginManager的角色为provider
               try {
                 final pluginManager = Get.find<PluginManager>();
                 pluginManager.setRole('provider');
               } catch (e) {
-                AppLogger.error('[SplashController] Error setting provider role: $e', tag: 'SplashController');
+                AppLogger.error(
+                    '[SplashController] Error setting provider role: $e',
+                    tag: 'SplashController');
               }
               Get.offAllNamed('/provider_shell');
-      } else {
-              AppLogger.info('[SplashController] User is customer, navigating to /main_shell', tag: 'SplashController');
+            } else {
+              AppLogger.info(
+                  '[SplashController] User is customer, navigating to /main_shell',
+                  tag: 'SplashController');
               // 设置PluginManager的角色为customer
               try {
                 final pluginManager = Get.find<PluginManager>();
                 pluginManager.setRole('customer');
               } catch (e) {
-                AppLogger.error('[SplashController] Error setting customer role: $e', tag: 'SplashController');
+                AppLogger.error(
+                    '[SplashController] Error setting customer role: $e',
+                    tag: 'SplashController');
               }
               Get.offAllNamed('/main_shell');
             }
           } catch (e) {
-            AppLogger.error('[SplashController] Error fetching profile: $e', tag: 'SplashController');
+            AppLogger.error('[SplashController] Error fetching profile: $e',
+                tag: 'SplashController');
             // 如果获取profile失败，默认导航到main_shell
-        Get.offAllNamed('/main_shell');
+            Get.offAllNamed('/main_shell');
           }
         } else {
-          AppLogger.info('[SplashController] No user found, staying on splash.', tag: 'SplashController');
+          AppLogger.info('[SplashController] No user found, staying on splash.',
+              tag: 'SplashController');
           isReadyToNavigate.value = true;
-      }
-    } else {
-      AppLogger.info('[SplashController] No session, staying on splash.', tag: 'SplashController');
+        }
+      } else {
+        AppLogger.info('[SplashController] No session, staying on splash.',
+            tag: 'SplashController');
         isReadyToNavigate.value = true;
       }
     } catch (e) {
-      AppLogger.error('[SplashController] Error in _initializeApp: $e', tag: 'SplashController');
+      AppLogger.error('[SplashController] Error in _initializeApp: $e',
+          tag: 'SplashController');
       // 如果出现错误，确保用户可以继续使用应用
       isReadyToNavigate.value = true;
     }
@@ -116,20 +140,24 @@ class SplashController extends GetxController {
 
   void goToNextPage() {
     if (currentPageIndex.value < onboardingPages.length - 1) {
-      pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.ease);
+      pageController.nextPage(
+          duration: const Duration(milliseconds: 300), curve: Curves.ease);
     } else {
       // If on the last page and user clicks next, assume they are ready for login/register
-      isReadyToNavigate.value = true; // Or directly navigate to login/register if no skip button
+      isReadyToNavigate.value =
+          true; // Or directly navigate to login/register if no skip button
     }
   }
 
   void navigateToLogin() {
-    AppLogger.info('SplashController: Navigating to /auth', tag: 'SplashController');
+    AppLogger.info('SplashController: Navigating to /auth',
+        tag: 'SplashController');
     Get.offAllNamed('/auth');
   }
 
   void navigateToRegister() {
-    AppLogger.info('SplashController: Navigating to /register', tag: 'SplashController');
+    AppLogger.info('SplashController: Navigating to /register',
+        tag: 'SplashController');
     Get.offAllNamed('/register');
   }
 
@@ -150,4 +178,4 @@ class SplashController extends GetxController {
     AppLogger.info('SplashController disposed', tag: 'SplashController');
     super.onClose();
   }
-} 
+}

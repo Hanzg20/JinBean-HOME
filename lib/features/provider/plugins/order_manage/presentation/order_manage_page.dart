@@ -21,7 +21,8 @@ class OrderManagePage extends StatelessWidget {
           children: [
             Text(
               AppLocalizations.of(context)!.orderManagementDescription,
-              style: theme.textTheme.titleLarge?.copyWith(color: Colors.grey.shade600),
+              style: theme.textTheme.titleLarge
+                  ?.copyWith(color: Colors.grey.shade600),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
@@ -31,4 +32,4 @@ class OrderManagePage extends StatelessWidget {
       ),
     );
   }
-} 
+}

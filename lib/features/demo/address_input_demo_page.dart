@@ -1,4 +1,5 @@
-import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:flutter/material.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/shared/widgets/smart_address_input.dart';
 import 'package:jinbeanpod_83904710/core/controllers/location_controller.dart';
@@ -18,7 +19,8 @@ class _AddressInputDemoPageState extends State<AddressInputDemoPage> {
   @override
   void initState() {
     super.initState();
-    _addressController.text = _locationController.selectedLocation.value?.address ?? '';
+    _addressController.text =
+        _locationController.selectedLocation.value?.address ?? '';
   }
 
   @override
@@ -56,7 +58,8 @@ class _AddressInputDemoPageState extends State<AddressInputDemoPage> {
                     ),
                     const SizedBox(height: 12),
                     Obx(() {
-                      final location = _locationController.selectedLocation.value;
+                      final location =
+                          _locationController.selectedLocation.value;
                       if (location == null) {
                         return Text(
                           AppLocalizations.of(context)!.noLocationSelected,
@@ -66,17 +69,23 @@ class _AddressInputDemoPageState extends State<AddressInputDemoPage> {
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('${AppLocalizations.of(context)!.address}: ${location.address}'),
+                          Text(
+                              '${AppLocalizations.of(context)!.address}: ${location.address}'),
                           const SizedBox(height: 4),
-                          Text('${AppLocalizations.of(context)!.latitude}: ${location.latitude.toStringAsFixed(6)}'),
+                          Text(
+                              '${AppLocalizations.of(context)!.latitude}: ${location.latitude.toStringAsFixed(6)}'),
                           const SizedBox(height: 4),
-                          Text('${AppLocalizations.of(context)!.longitude}: ${location.longitude.toStringAsFixed(6)}'),
+                          Text(
+                              '${AppLocalizations.of(context)!.longitude}: ${location.longitude.toStringAsFixed(6)}'),
                           const SizedBox(height: 4),
-                          Text('${AppLocalizations.of(context)!.city}: ${location.city}'),
+                          Text(
+                              '${AppLocalizations.of(context)!.city}: ${location.city}'),
                           const SizedBox(height: 4),
-                          Text('${AppLocalizations.of(context)!.province}: ${location.district}'),
+                          Text(
+                              '${AppLocalizations.of(context)!.province}: ${location.district}'),
                           const SizedBox(height: 4),
-                          Text('${AppLocalizations.of(context)!.postalCode}: ${location.district}'),
+                          Text(
+                              '${AppLocalizations.of(context)!.postalCode}: ${location.district}'),
                         ],
                       );
                     }),
@@ -105,14 +114,17 @@ class _AddressInputDemoPageState extends State<AddressInputDemoPage> {
                       initialValue: _addressController.text,
                       onAddressChanged: (address) {
                         _addressController.text = address;
-                        _addressController.selection = TextSelection.fromPosition(
+                        _addressController.selection =
+                            TextSelection.fromPosition(
                           TextPosition(offset: address.length),
                         );
                       },
                       onAddressParsed: (parsedData) {
-                        AppLogger.info('[AddressInputDemoPage] Address parsed: $parsedData');
+                        AppLogger.info(
+                            '[AddressInputDemoPage] Address parsed: $parsedData');
                         if (parsedData['position'] != null) {
-                          AppLogger.info('[AddressInputDemoPage] Location: ${parsedData['position']}');
+                          AppLogger.info(
+                              '[AddressInputDemoPage] Location: ${parsedData['position']}');
                         }
                       },
                       labelText: AppLocalizations.of(context)!.address,

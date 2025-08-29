@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 /// Customer端主题组件库
 /// 提供与Customer主题一致的UI组件
 class CustomerThemeComponents {
-  
   /// 圆角装饰头部组件
   static Widget buildRoundedHeader({
     required BuildContext context,
@@ -16,13 +15,14 @@ class CustomerThemeComponents {
   }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
-    final colors = gradientColors ?? [
-      colorScheme.primary,
-      colorScheme.primary.withValues(alpha: 0.7),
-      colorScheme.primary.withValues(alpha: 0.5),
-    ];
-    
+
+    final colors = gradientColors ??
+        [
+          colorScheme.primary,
+          colorScheme.primary.withValues(alpha: 0.7),
+          colorScheme.primary.withValues(alpha: 0.5),
+        ];
+
     return Container(
       height: height,
       decoration: BoxDecoration(
@@ -159,7 +159,7 @@ class CustomerThemeComponents {
   }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 20, 16, 16),
       child: Container(
@@ -219,38 +219,40 @@ class CustomerThemeComponents {
                 ),
               ),
               Obx(() => controller.text.isNotEmpty && showClearButton
-                ? Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: IconButton(
-                      icon: Icon(
-                        Icons.clear,
-                        color: colorScheme.onSurfaceVariant,
-                        size: 20,
+                  ? Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(20),
                       ),
-                      onPressed: onClear,
-                    ),
-                  )
-                : showMicButton ? Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: colorScheme.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: IconButton(
-                      icon: Icon(
-                        Icons.mic,
-                        color: colorScheme.primary,
-                        size: 20,
+                      child: IconButton(
+                        icon: Icon(
+                          Icons.clear,
+                          color: colorScheme.onSurfaceVariant,
+                          size: 20,
+                        ),
+                        onPressed: onClear,
                       ),
-                      onPressed: onMicTap,
-                    ),
-                  ) : const SizedBox.shrink()),
+                    )
+                  : showMicButton
+                      ? Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: colorScheme.primary.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: IconButton(
+                            icon: Icon(
+                              Icons.mic,
+                              color: colorScheme.primary,
+                              size: 20,
+                            ),
+                            onPressed: onMicTap,
+                          ),
+                        )
+                      : const SizedBox.shrink()),
             ],
           ),
         ),
@@ -268,7 +270,7 @@ class CustomerThemeComponents {
   }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: verticalPadding),
       child: Row(
@@ -298,7 +300,8 @@ class CustomerThemeComponents {
               decoration: BoxDecoration(
                 color: colorScheme.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: colorScheme.primary.withValues(alpha: 0.2)),
+                border: Border.all(
+                    color: colorScheme.primary.withValues(alpha: 0.2)),
               ),
               child: TextButton(
                 onPressed: onActionTap,
@@ -333,7 +336,7 @@ class CustomerThemeComponents {
   }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -455,7 +458,7 @@ class CustomerThemeComponents {
   }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Container(
       width: width,
       margin: const EdgeInsets.only(right: 16),
@@ -522,7 +525,8 @@ class CustomerThemeComponents {
                       top: 12,
                       left: 12,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: Colors.red,
                           borderRadius: BorderRadius.circular(12),
@@ -542,7 +546,8 @@ class CustomerThemeComponents {
                       top: 12,
                       right: 12,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: Colors.green,
                           borderRadius: BorderRadius.circular(12),
@@ -576,7 +581,7 @@ class CustomerThemeComponents {
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
-                      
+
                       // Provider Name
                       Text(
                         providerName,
@@ -588,12 +593,13 @@ class CustomerThemeComponents {
                         overflow: TextOverflow.ellipsis,
                       ),
                       const Spacer(),
-                      
+
                       // Rating and Distance
                       Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
                               color: Colors.amber.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(8),
@@ -616,14 +622,16 @@ class CustomerThemeComponents {
                           const Spacer(),
                           if (distance != null)
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
                                 color: Colors.grey.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Row(
                                 children: [
-                                  Icon(Icons.location_on, color: Colors.grey[500], size: 12),
+                                  Icon(Icons.location_on,
+                                      color: Colors.grey[500], size: 12),
                                   const SizedBox(width: 2),
                                   Text(
                                     '${distance.toStringAsFixed(1)}km',
@@ -638,13 +646,14 @@ class CustomerThemeComponents {
                         ],
                       ),
                       const SizedBox(height: 6),
-                      
+
                       // Price and Action
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
                               color: colorScheme.primary.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(8),
@@ -692,7 +701,7 @@ class CustomerThemeComponents {
   }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Center(
       child: Container(
         padding: const EdgeInsets.all(40),
@@ -735,7 +744,7 @@ class CustomerThemeComponents {
   }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Container(
       padding: const EdgeInsets.all(40),
       child: Column(
@@ -788,7 +797,8 @@ class CustomerThemeComponents {
               style: ElevatedButton.styleFrom(
                 backgroundColor: colorScheme.primary,
                 foregroundColor: colorScheme.onPrimary,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(25),
                 ),
@@ -806,4 +816,4 @@ class CustomerThemeComponents {
       ),
     );
   }
-} 
+}

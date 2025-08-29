@@ -49,23 +49,23 @@ class JinBeanOrderCard extends StatelessWidget {
           // 订单头部
           _buildOrderHeader(),
           const SizedBox(height: 12),
-          
+
           // 服务信息
           _buildServiceInfo(),
           const SizedBox(height: 12),
-          
+
           // 客户信息
           if (customerName != null) ...[
             _buildCustomerInfo(),
             const SizedBox(height: 12),
           ],
-          
+
           // 服务详情
           if (serviceDate != null || serviceAddress != null) ...[
             _buildServiceDetails(),
             const SizedBox(height: 12),
           ],
-          
+
           // 操作按钮
           if (showActions) ...[
             _buildActionButtons(),
@@ -139,9 +139,8 @@ class JinBeanOrderCard extends StatelessWidget {
         CircleAvatar(
           radius: 16,
           backgroundColor: JinBeanColors.surfaceContainerHighest,
-          backgroundImage: customerAvatar != null 
-              ? NetworkImage(customerAvatar!) 
-              : null,
+          backgroundImage:
+              customerAvatar != null ? NetworkImage(customerAvatar!) : null,
           child: customerAvatar == null
               ? Text(
                   customerName!.substring(0, 1).toUpperCase(),
@@ -423,4 +422,4 @@ class JinBeanOrderListItem extends StatelessWidget {
         return status;
     }
   }
-} 
+}

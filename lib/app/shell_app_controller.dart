@@ -8,7 +8,8 @@ class ShellAppController extends GetxController {
 
   void changeTab(int index) {
     _currentIndex.value = index;
-    AppLogger.info('ShellAppController: Changed tab to index: $index', tag: 'ShellAppController');
+    AppLogger.info('ShellAppController: Changed tab to index: $index',
+        tag: 'ShellAppController');
   }
 
   // 安全设置tab index，防止越界
@@ -22,7 +23,9 @@ class ShellAppController extends GetxController {
     } else {
       _currentIndex.value = index;
     }
-    AppLogger.info('ShellAppController: setTabSafe to index: \\${_currentIndex.value} (maxTabs: \\$maxTabs)', tag: 'ShellAppController');
+    AppLogger.info(
+        'ShellAppController: setTabSafe to index: \\${_currentIndex.value} (maxTabs: \\$maxTabs)',
+        tag: 'ShellAppController');
   }
 
   @override
@@ -37,4 +40,4 @@ class ShellAppController extends GetxController {
     _currentIndex.close();
     super.onClose();
   }
-} 
+}

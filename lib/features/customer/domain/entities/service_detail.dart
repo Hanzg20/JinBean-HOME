@@ -5,7 +5,7 @@ class ServiceDetail {
   // 新的主键字段
   final String id;
   final String serviceId;
-  
+
   // 子服务基本信息（新增）
   final Map<String, String> name; // 多语言名称
   final Map<String, String>? description; // 多语言描述
@@ -17,7 +17,7 @@ class ServiceDetail {
   final int? maxStock; // 最大库存
   final Map<String, dynamic>? industryAttributes; // 行业特定属性
   final String? parentId; // 父服务ID（用于子服务）
-  
+
   // 原有字段
   final String? pricingType;
   final double? price;
@@ -66,31 +66,42 @@ class ServiceDetail {
       category: json['category'] ?? 'main',
       subCategory: json['sub_category'] ?? json['subCategory'],
       isAvailable: json['is_active'] ?? json['isAvailable'] ?? true,
-      sortOrder: json['sort_order'] ?? json['sortOrder'] ?? 0,
-      currentStock: json['current_stock'] ?? json['currentStock'],
-      maxStock: json['max_stock'] ?? json['maxStock'],
-      industryAttributes: json['industry_attributes'] ?? json['industryAttributes'],
+      sortOrder: json['sort_order'] is String
+          ? int.tryParse(json['sort_order']) ?? 0
+          : json['sort_order'] ?? json['sortOrder'] ?? 0,
+      currentStock: json['current_stock'] is String
+          ? int.tryParse(json['current_stock'])
+          : json['current_stock'] ?? json['currentStock'],
+      maxStock: json['max_stock'] is String
+          ? int.tryParse(json['max_stock'])
+          : json['max_stock'] ?? json['maxStock'],
+      industryAttributes:
+          json['industry_attributes'] ?? json['industryAttributes'],
       parentId: json['parent_id'] ?? json['parentId'],
       pricingType: json['pricing_type'] ?? json['pricingType'],
-      price: json['price']?.toDouble(),
+      price: json['price'] is String
+          ? double.tryParse(json['price'])
+          : json['price']?.toDouble(),
       currency: json['currency'],
-      negotiationDetails: json['negotiation_details'] ?? json['negotiationDetails'],
+      negotiationDetails:
+          json['negotiation_details'] ?? json['negotiationDetails'],
       durationType: json['duration_type'] ?? json['durationType'],
-      duration: json['duration'],
-      images: json['images_url'] != null 
+      duration: json['duration'] is String
+          ? int.tryParse(json['duration'])
+          : json['duration'],
+      images: json['images_url'] != null
           ? List<String>.from(json['images_url'])
-          : json['images'] != null 
+          : json['images'] != null
               ? List<String>.from(json['images'])
               : null,
-      tags: json['tags'] != null 
-          ? List<String>.from(json['tags'])
-          : null,
-      serviceAreaCodes: json['service_area_codes'] != null 
+      tags: json['tags'] != null ? List<String>.from(json['tags']) : null,
+      serviceAreaCodes: json['service_area_codes'] != null
           ? List<String>.from(json['service_area_codes'])
-          : json['serviceAreaCodes'] != null 
+          : json['serviceAreaCodes'] != null
               ? List<String>.from(json['serviceAreaCodes'])
               : null,
-      serviceDetailsJson: json['service_details_json'] ?? json['serviceDetailsJson'],
+      serviceDetailsJson:
+          json['service_details_json'] ?? json['serviceDetailsJson'],
       details: json['details'],
     );
   }
@@ -128,22 +139,21 @@ class ServiceDetail {
     if (value == null) {
       return {'en': 'Main Service', 'zh': '主要服务'};
     }
-    
+
     if (value is Map) {
       return Map<String, String>.from(value);
     }
-    
+
     if (value is String) {
       try {
-        final Map<String, dynamic> parsed = Map<String, dynamic>.from(
-          jsonDecode(value)
-        );
+        final Map<String, dynamic> parsed =
+            Map<String, dynamic>.from(jsonDecode(value));
         return Map<String, String>.from(parsed);
       } catch (e) {
         return {'en': value, 'zh': value};
       }
     }
-    
+
     return {'en': 'Main Service', 'zh': '主要服务'};
   }
 
@@ -164,7 +174,8 @@ class ServiceDetail {
   bool get isSubService => category == 'sub';
 
   /// 检查是否可用
-  bool get isAvailableForBooking => isAvailable && (currentStock == null || currentStock! > 0);
+  bool get isAvailableForBooking =>
+      isAvailable && (currentStock == null || currentStock! > 0);
 
   /// 复制并更新字段
   ServiceDetail copyWith({
@@ -232,4 +243,4 @@ class ServiceDetail {
 
   @override
   int get hashCode => id.hashCode;
-} 
+}

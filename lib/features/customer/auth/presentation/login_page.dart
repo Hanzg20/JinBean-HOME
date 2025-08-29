@@ -1,4 +1,5 @@
-import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:flutter/material.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/features/customer/auth/presentation/auth_controller.dart';
 import 'package:jinbeanpod_83904710/app/theme/app_colors.dart';
@@ -85,7 +86,8 @@ class _LoginPageState extends State<LoginPage> {
                   controller: controller.emailController,
                   decoration: InputDecoration(
                     labelText: 'Email',
-                    prefixIcon: Icon(Icons.email_outlined, color: Theme.of(context).colorScheme.primary),
+                    prefixIcon: Icon(Icons.email_outlined,
+                        color: Theme.of(context).colorScheme.primary),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -94,25 +96,26 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 16),
                 // Password Field
                 Obx(() => TextField(
-                  controller: controller.passwordController,
-                  obscureText: !controller.isPasswordVisible.value,
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    prefixIcon: Icon(Icons.lock_outline, color: Theme.of(context).colorScheme.primary),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        controller.isPasswordVisible.value
-                            ? Icons.visibility_off
-                            : Icons.visibility,
-                        color: Theme.of(context).colorScheme.primary,
+                      controller: controller.passwordController,
+                      obscureText: !controller.isPasswordVisible.value,
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        prefixIcon: Icon(Icons.lock_outline,
+                            color: Theme.of(context).colorScheme.primary),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            controller.isPasswordVisible.value
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          onPressed: controller.togglePasswordVisibility,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
-                      onPressed: controller.togglePasswordVisibility,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                )),
+                    )),
                 const SizedBox(height: 24),
                 if (_showRoleSwitch)
                   Obx(() => Center(
@@ -122,13 +125,15 @@ class _LoginPageState extends State<LoginPage> {
                           second: 'provider',
                           spacing: 8.0,
                           styleBuilder: (role) => ToggleStyle(
-                            borderRadius: const BorderRadius.all(Radius.circular(30)),
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(30)),
                             indicatorColor: Colors.white,
                             backgroundColor: Colors.transparent,
                             borderColor: role == 'provider'
                                 ? Theme.of(context).colorScheme.primary
                                 : Theme.of(context).colorScheme.secondary,
-                            indicatorBorderRadius: const BorderRadius.all(Radius.circular(30)),
+                            indicatorBorderRadius:
+                                const BorderRadius.all(Radius.circular(30)),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black.withValues(alpha: 0.05),
@@ -142,8 +147,11 @@ class _LoginPageState extends State<LoginPage> {
                             controller.selectedLoginRole.value = val;
                           },
                           iconBuilder: (role) => role == 'provider'
-                              ? Icon(Icons.engineering, color: Theme.of(context).colorScheme.primary)
-                              : Icon(Icons.person, color: Theme.of(context).colorScheme.secondary),
+                              ? Icon(Icons.engineering,
+                                  color: Theme.of(context).colorScheme.primary)
+                              : Icon(Icons.person,
+                                  color:
+                                      Theme.of(context).colorScheme.secondary),
                           textBuilder: (role) => Text(
                             role == 'provider' ? '服务者' : '客户',
                             style: const TextStyle(
@@ -164,21 +172,24 @@ class _LoginPageState extends State<LoginPage> {
                       // 未显示角色选择项，执行登录流程
                       final loginSuccess = await controller.login();
                       if (!loginSuccess) return;
-                      
+
                       // 登录成功后，重新判断是否显示角色选择项
                       final userRole = controller.userProfileRole.value;
-                      AppLogger.info('[LoginPage] Login successful, user role: $userRole');
-                      
+                      AppLogger.info(
+                          '[LoginPage] Login successful, user role: $userRole');
+
                       if (userRole == 'customer+provider') {
                         // 多角色用户，显示角色选择项
-                        AppLogger.info('[LoginPage] User is customer+provider, showing role switch');
+                        AppLogger.info(
+                            '[LoginPage] User is customer+provider, showing role switch');
                         setState(() {
                           _showRoleSwitch = true;
                         });
                         return; // 不跳转，让用户选择角色
                       } else {
                         // 单一角色用户，直接跳转
-                        AppLogger.info('[LoginPage] User is single role: $userRole, navigating directly');
+                        AppLogger.info(
+                            '[LoginPage] User is single role: $userRole, navigating directly');
                         Get.find<PluginManager>().currentRole.value = userRole;
                         if (userRole == 'provider') {
                           Get.offAllNamed('/provider_shell');
@@ -189,19 +200,22 @@ class _LoginPageState extends State<LoginPage> {
                     } else {
                       // 已显示角色选择项，直接使用选择的角色进行跳转
                       final selectedRole = controller.selectedLoginRole.value;
-                      AppLogger.info('[LoginPage] User selected role: $selectedRole');
-                      
+                      AppLogger.info(
+                          '[LoginPage] User selected role: $selectedRole');
+
                       // 确保selectedRole不为空
                       if (selectedRole.isEmpty) {
                         controller.selectedLoginRole.value = 'customer';
-                        AppLogger.info('[LoginPage] Selected role was empty, defaulting to customer');
+                        AppLogger.info(
+                            '[LoginPage] Selected role was empty, defaulting to customer');
                       }
-                      
+
                       // 使用选择的角色进行跳转
                       final finalRole = controller.selectedLoginRole.value;
                       Get.find<PluginManager>().currentRole.value = finalRole;
-                      AppLogger.info('[LoginPage] Navigating with final role: $finalRole');
-                      
+                      AppLogger.info(
+                          '[LoginPage] Navigating with final role: $finalRole');
+
                       if (finalRole == 'provider') {
                         Get.offAllNamed('/provider_shell');
                       } else {
@@ -217,7 +231,9 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   child: Text(
                     _showRoleSwitch ? '继续' : 'Sign In',
-                    style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onPrimary),
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: Theme.of(context).colorScheme.onPrimary),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -226,7 +242,8 @@ class _LoginPageState extends State<LoginPage> {
                   onPressed: () => Get.toNamed('/register'),
                   child: Text(
                     'Don\'t have an account? Sign Up',
-                    style: TextStyle(color: Theme.of(context).colorScheme.primary),
+                    style:
+                        TextStyle(color: Theme.of(context).colorScheme.primary),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -247,13 +264,14 @@ class _LoginPageState extends State<LoginPage> {
                     child: Text(
                       '测试：设置为多角色用户',
                       style: TextStyle(color: Colors.orange),
+                    ),
                   ),
-                ),
                 const SizedBox(height: 40),
                 // Divider with "or" text
                 Row(
                   children: [
-                    const Expanded(child: Divider(color: AppColors.dividerColor)),
+                    const Expanded(
+                        child: Divider(color: AppColors.dividerColor)),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
@@ -264,7 +282,8 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                     ),
-                    const Expanded(child: Divider(color: AppColors.dividerColor)),
+                    const Expanded(
+                        child: Divider(color: AppColors.dividerColor)),
                   ],
                 ),
                 const SizedBox(height: 40),
@@ -289,7 +308,12 @@ class _LoginPageState extends State<LoginPage> {
                         'https://www.google.com/favicon.ico',
                         height: 24,
                       ),
-                      label: Text('Google', style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color)),
+                      label: Text('Google',
+                          style: TextStyle(
+                              color: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.color)),
                     ),
                     // Apple Sign In Button
                     OutlinedButton.icon(
@@ -304,8 +328,14 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         side: const BorderSide(color: AppColors.dividerColor),
                       ),
-                      icon: Icon(Icons.apple, color: Theme.of(context).textTheme.bodyMedium?.color),
-                      label: Text('Apple', style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color)),
+                      icon: Icon(Icons.apple,
+                          color: Theme.of(context).textTheme.bodyMedium?.color),
+                      label: Text('Apple',
+                          style: TextStyle(
+                              color: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.color)),
                     ),
                   ],
                 ),
@@ -316,4 +346,4 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
-} 
+}

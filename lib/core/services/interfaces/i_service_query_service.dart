@@ -73,34 +73,40 @@ class ServiceQueryResult {
 abstract class IServiceQueryService {
   /// 初始化服务
   Future<void> initialize();
-  
+
   /// 获取推荐服务
   Future<List<Service>> getRecommendedServices({int limit = 10});
-  
+
   /// 根据分类获取服务
-  Future<List<Service>> getServicesByCategory(String categoryId, {int limit = 20});
-  
+  Future<List<Service>> getServicesByCategory(String categoryId,
+      {int limit = 20});
+
   /// 搜索服务
   Future<ServiceQueryResult> searchServices(ServiceQueryParams params);
-  
+
   /// 根据ID获取服务
   Future<Service?> getServiceById(String serviceId);
-  
+
   /// 根据服务商获取服务
-  Future<List<Service>> getServicesByProvider(String providerId, {int limit = 20});
-  
+  Future<List<Service>> getServicesByProvider(String providerId,
+      {int limit = 20});
+
   /// 获取热门服务
   Future<List<Service>> getPopularServices({int limit = 10});
-  
+
   /// 获取附近服务
-  Future<List<Service>> getNearbyServices(double latitude, double longitude, {double radius = 10.0, int limit = 20});
-  
+  Future<List<Service>> getNearbyServices(double latitude, double longitude,
+      {double radius = 10.0, int limit = 20});
+
+  /// 获取相似服务
+  Future<List<Service>> getSimilarServices(String serviceId, {int limit = 5});
+
   /// 获取服务统计信息
   Future<Map<String, dynamic>> getServiceStatistics();
-  
+
   /// 刷新服务缓存
   Future<void> refreshCache();
-  
+
   /// 清除服务缓存
   Future<void> clearCache();
 }

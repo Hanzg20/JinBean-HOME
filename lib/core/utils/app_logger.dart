@@ -28,7 +28,8 @@ class AppLogger {
     }
   }
 
-  static void error(String msg, {String? tag, dynamic error, StackTrace? stackTrace}) {
+  static void error(String msg,
+      {String? tag, dynamic error, StackTrace? stackTrace}) {
     if (errorEnabled) {
       var out = _format('ERROR', msg, tag);
       if (error != null) out += '\nError: $error';
@@ -42,4 +43,4 @@ class AppLogger {
     final tagStr = tag != null ? '[$tag]' : '';
     return '[$level]$tagStr $now $msg';
   }
-} 
+}

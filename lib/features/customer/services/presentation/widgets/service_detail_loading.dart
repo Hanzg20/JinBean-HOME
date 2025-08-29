@@ -51,7 +51,8 @@ class _ShimmerSkeletonState extends State<ShimmerSkeleton>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final baseColor = widget.baseColor ?? theme.colorScheme.surfaceContainerHighest;
+    final baseColor =
+        widget.baseColor ?? theme.colorScheme.surfaceContainerHighest;
     final highlightColor = widget.highlightColor ?? theme.colorScheme.surface;
 
     return AnimatedBuilder(
@@ -90,15 +91,15 @@ class ServiceDetailSkeleton extends StatelessWidget {
           // Hero区域骨架屏
           _buildHeroSkeleton(),
           const SizedBox(height: 16),
-          
+
           // 操作按钮骨架屏
           _buildActionButtonsSkeleton(),
           const SizedBox(height: 24),
-          
+
           // Tab栏骨架屏
           _buildTabBarSkeleton(),
           const SizedBox(height: 16),
-          
+
           // 内容区域骨架屏
           _buildContentSkeleton(),
         ],
@@ -121,7 +122,8 @@ class ServiceDetailSkeleton extends StatelessWidget {
             height: 200,
             decoration: BoxDecoration(
               color: Colors.grey[300],
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(12)),
             ),
           ),
           // 信息骨架屏
@@ -140,7 +142,8 @@ class ServiceDetailSkeleton extends StatelessWidget {
                     Colors.black.withValues(alpha: 0.7),
                   ],
                 ),
-                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
+                borderRadius:
+                    const BorderRadius.vertical(bottom: Radius.circular(12)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -264,7 +267,8 @@ class ProgressiveLoadingWidget extends StatefulWidget {
   });
 
   @override
-  State<ProgressiveLoadingWidget> createState() => _ProgressiveLoadingWidgetState();
+  State<ProgressiveLoadingWidget> createState() =>
+      _ProgressiveLoadingWidgetState();
 }
 
 class _ProgressiveLoadingWidgetState extends State<ProgressiveLoadingWidget>
@@ -567,24 +571,26 @@ class ServiceDetailLoading extends StatelessWidget {
     AppLogger.debug('ServiceDetailLoading.build() called with state: $state');
     AppLogger.debug('ServiceDetailLoading - child is null: ${child == null}');
     AppLogger.debug('ServiceDetailLoading - showSkeleton: $showSkeleton');
-    
+
     switch (state) {
       case LoadingStateType.initial:
-        AppLogger.debug('ServiceDetailLoading - showing initial state (loading)');
-        return showSkeleton 
+        AppLogger.debug(
+            'ServiceDetailLoading - showing initial state (loading)');
+        return showSkeleton
             ? const ServiceDetailSkeleton()
             : _buildLoadingIndicator(context);
-      
+
       case LoadingStateType.loading:
         AppLogger.debug('ServiceDetailLoading - showing loading state');
-        return showSkeleton 
+        return showSkeleton
             ? const ServiceDetailSkeleton()
             : _buildLoadingIndicator(context);
-      
+
       case LoadingStateType.success:
-        AppLogger.debug('ServiceDetailLoading - showing success state with child: ${child != null ? 'has child' : 'no child'}');
+        AppLogger.debug(
+            'ServiceDetailLoading - showing success state with child: ${child != null ? 'has child' : 'no child'}');
         return child ?? const SizedBox.shrink();
-      
+
       case LoadingStateType.error:
         AppLogger.debug('ServiceDetailLoading - showing error state');
         return ServiceDetailError(
@@ -592,7 +598,7 @@ class ServiceDetailLoading extends StatelessWidget {
           onRetry: onRetry,
           onBack: onBack,
         );
-      
+
       case LoadingStateType.offline:
         AppLogger.debug('ServiceDetailLoading - showing offline state');
         return OfflineSupportWidget(
@@ -614,8 +620,8 @@ class ServiceDetailLoading extends StatelessWidget {
             Text(
               loadingMessage!,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.grey[600],
-              ),
+                    color: Colors.grey[600],
+                  ),
             ),
           ],
         ],

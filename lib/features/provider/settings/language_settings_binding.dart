@@ -6,4 +6,4 @@ class ProviderLanguageSettingsBinding extends Bindings {
   void dependencies() {
     Get.lazyPut<LanguageSettingsController>(() => LanguageSettingsController());
   }
-} 
+}

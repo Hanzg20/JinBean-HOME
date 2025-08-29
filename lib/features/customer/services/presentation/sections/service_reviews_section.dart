@@ -39,7 +39,7 @@ class ServiceReviewsSection extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            
+
             // 评价统计
             Obx(() {
               final service = controller.service.value;
@@ -60,8 +60,11 @@ class ServiceReviewsSection extends StatelessWidget {
                         children: List.generate(5, (index) {
                           final rating = service?.rating ?? 0;
                           return Icon(
-                            index < rating.floor() ? Icons.star : 
-                            (index < rating ? Icons.star_half : Icons.star_border),
+                            index < rating.floor()
+                                ? Icons.star
+                                : (index < rating
+                                    ? Icons.star_half
+                                    : Icons.star_border),
                             color: Colors.amber,
                             size: 20,
                           );
@@ -95,11 +98,11 @@ class ServiceReviewsSection extends StatelessWidget {
                 ],
               );
             }),
-            
+
             const SizedBox(height: 16),
             const Divider(),
             const SizedBox(height: 16),
-            
+
             // 评价列表
             Obx(() {
               final reviews = controller.reviews;
@@ -109,7 +112,8 @@ class ServiceReviewsSection extends StatelessWidget {
                     padding: EdgeInsets.all(32),
                     child: Column(
                       children: [
-                        Icon(Icons.rate_review_outlined, size: 48, color: Colors.grey),
+                        Icon(Icons.rate_review_outlined,
+                            size: 48, color: Colors.grey),
                         SizedBox(height: 16),
                         Text(
                           '暂无评价',
@@ -123,11 +127,12 @@ class ServiceReviewsSection extends StatelessWidget {
                   ),
                 );
               }
-              
+
               return Column(
-                children: reviews.take(3).map((review) => 
-                  _buildReviewCard(review)
-                ).toList(),
+                children: reviews
+                    .take(3)
+                    .map((review) => _buildReviewCard(review))
+                    .toList(),
               );
             }),
           ],
@@ -151,12 +156,13 @@ class ServiceReviewsSection extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundImage: review.userAvatar != null 
-                  ? NetworkImage(review.userAvatar!) 
-                  : null,
-                child: review.userAvatar == null 
-                  ? Text(review.userName?.substring(0, 1).toUpperCase() ?? 'U')
-                  : null,
+                backgroundImage: review.userAvatar != null
+                    ? NetworkImage(review.userAvatar!)
+                    : null,
+                child: review.userAvatar == null
+                    ? Text(
+                        review.userName?.substring(0, 1).toUpperCase() ?? 'U')
+                    : null,
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -171,11 +177,15 @@ class ServiceReviewsSection extends StatelessWidget {
                     ),
                     Row(
                       children: [
-                        ...List.generate(5, (index) => Icon(
-                          index < review.rating ? Icons.star : Icons.star_border,
-                          color: Colors.amber,
-                          size: 16,
-                        )),
+                        ...List.generate(
+                            5,
+                            (index) => Icon(
+                                  index < review.rating
+                                      ? Icons.star
+                                      : Icons.star_border,
+                                  color: Colors.amber,
+                                  size: 16,
+                                )),
                         const SizedBox(width: 8),
                         Text(
                           review.createdAt.toString().substring(0, 10),
@@ -246,12 +256,13 @@ class ServiceReviewsSection extends StatelessWidget {
                 final review = reviews[index];
                 return ListTile(
                   leading: CircleAvatar(
-                    backgroundImage: review.userAvatar != null 
-                      ? NetworkImage(review.userAvatar!) 
-                      : null,
-                    child: review.userAvatar == null 
-                      ? Text(review.userName?.substring(0, 1).toUpperCase() ?? 'U')
-                      : null,
+                    backgroundImage: review.userAvatar != null
+                        ? NetworkImage(review.userAvatar!)
+                        : null,
+                    child: review.userAvatar == null
+                        ? Text(review.userName?.substring(0, 1).toUpperCase() ??
+                            'U')
+                        : null,
                   ),
                   title: Text(review.userName ?? '匿名用户'),
                   subtitle: Column(
@@ -259,11 +270,15 @@ class ServiceReviewsSection extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          ...List.generate(5, (index) => Icon(
-                            index < review.rating ? Icons.star : Icons.star_border,
-                            color: Colors.amber,
-                            size: 14,
-                          )),
+                          ...List.generate(
+                              5,
+                              (index) => Icon(
+                                    index < review.rating
+                                        ? Icons.star
+                                        : Icons.star_border,
+                                    color: Colors.amber,
+                                    size: 14,
+                                  )),
                           const SizedBox(width: 8),
                           Text(
                             review.createdAt.toString().substring(0, 10),
@@ -279,9 +294,9 @@ class ServiceReviewsSection extends StatelessWidget {
                       ),
                     ],
                   ),
-                  trailing: review.isVerified 
-                    ? const Icon(Icons.verified, color: Colors.blue, size: 16)
-                    : null,
+                  trailing: review.isVerified
+                      ? const Icon(Icons.verified, color: Colors.blue, size: 16)
+                      : null,
                 );
               },
             );
@@ -296,4 +311,4 @@ class ServiceReviewsSection extends StatelessWidget {
       ),
     );
   }
-} 
+}

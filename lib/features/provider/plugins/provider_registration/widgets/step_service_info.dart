@@ -10,18 +10,22 @@ class StepServiceInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context) ?? AppLocalizationsEn();
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(localizations.serviceInformation, style: TextStyle(fontWeight: FontWeight.bold)),
+        Text(localizations.serviceInformation,
+            style: TextStyle(fontWeight: FontWeight.bold)),
         TextField(
-          decoration: InputDecoration(labelText: localizations.mainServiceCategories),
-          onChanged: (value) => controller.serviceCategories = value.split(',').map((e) => e.trim()).toList(),
+          decoration:
+              InputDecoration(labelText: localizations.mainServiceCategories),
+          onChanged: (value) => controller.serviceCategories =
+              value.split(',').map((e) => e.trim()).toList(),
         ),
         TextField(
           decoration: InputDecoration(labelText: localizations.serviceAreas),
-          onChanged: (value) => controller.serviceAreas = value.split(',').map((e) => e.trim()).toList(),
+          onChanged: (value) => controller.serviceAreas =
+              value.split(',').map((e) => e.trim()).toList(),
         ),
         TextField(
           decoration: InputDecoration(labelText: localizations.basePrice),

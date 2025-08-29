@@ -3,10 +3,10 @@ import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
 
 /// 服务状态枚举 - 根据设计文档定义
 enum ServiceStatus {
-  active,      // Available for booking
-  inactive,    // Temporarily unavailable
-  draft,       // Under development
-  archived     // No longer offered
+  active, // Available for booking
+  inactive, // Temporarily unavailable
+  draft, // Under development
+  archived // No longer offered
 }
 
 /// 服务模型 - 根据设计文档定义
@@ -128,7 +128,8 @@ class ServiceManagementService {
   }
 
   /// 根据状态获取服务
-  Future<List<Service>> getServicesByStatus(ServiceStatus status, {int limit = 50}) async {
+  Future<List<Service>> getServicesByStatus(ServiceStatus status,
+      {int limit = 50}) async {
     try {
       final userId = _supabase.auth.currentUser?.id;
       if (userId == null) {
@@ -146,7 +147,8 @@ class ServiceManagementService {
 
       return response.map<Service>((map) => Service.fromMap(map)).toList();
     } catch (e) {
-      AppLogger.error('[ServiceManagementService] Error getting services by status: $e');
+      AppLogger.error(
+          '[ServiceManagementService] Error getting services by status: $e');
       return [];
     }
   }
@@ -160,9 +162,7 @@ class ServiceManagementService {
         return false;
       }
 
-      await _supabase
-          .from('services')
-          .insert(service.toMap());
+      await _supabase.from('services').insert(service.toMap());
 
       AppLogger.info('[ServiceManagementService] Service created successfully');
       return true;
@@ -180,7 +180,8 @@ class ServiceManagementService {
           .update(service.toMap())
           .eq('id', service.id);
 
-      AppLogger.info('[ServiceManagementService] Service ${service.id} updated successfully');
+      AppLogger.info(
+          '[ServiceManagementService] Service ${service.id} updated successfully');
       return true;
     } catch (e) {
       AppLogger.error('[ServiceManagementService] Error updating service: $e');
@@ -191,12 +192,10 @@ class ServiceManagementService {
   /// 删除服务
   Future<bool> deleteService(String serviceId) async {
     try {
-      await _supabase
-          .from('services')
-          .delete()
-          .eq('id', serviceId);
+      await _supabase.from('services').delete().eq('id', serviceId);
 
-      AppLogger.info('[ServiceManagementService] Service $serviceId deleted successfully');
+      AppLogger.info(
+          '[ServiceManagementService] Service $serviceId deleted successfully');
       return true;
     } catch (e) {
       AppLogger.error('[ServiceManagementService] Error deleting service: $e');
@@ -221,22 +220,29 @@ class ServiceManagementService {
 
       // 计算统计信息
       final totalServices = allServicesResponse.length;
-      final activeServices = allServicesResponse.where((s) => s['status'] == 'active').length;
-      final inactiveServices = allServicesResponse.where((s) => s['status'] == 'inactive').length;
-      final draftServices = allServicesResponse.where((s) => s['status'] == 'draft').length;
-      
+      final activeServices =
+          allServicesResponse.where((s) => s['status'] == 'active').length;
+      final inactiveServices =
+          allServicesResponse.where((s) => s['status'] == 'inactive').length;
+      final draftServices =
+          allServicesResponse.where((s) => s['status'] == 'draft').length;
+
       // 计算平均评分
-      final totalRating = allServicesResponse.fold<double>(0.0, (sum, s) => sum + (s['average_rating'] ?? 0.0));
-      final averageRating = totalServices > 0 ? totalRating / totalServices : 0.0;
-      
+      final totalRating = allServicesResponse.fold<double>(
+          0.0, (sum, s) => sum + (s['average_rating'] ?? 0.0));
+      final averageRating =
+          totalServices > 0 ? totalRating / totalServices : 0.0;
+
       // 计算总评论数
-      final totalReviews = allServicesResponse.fold<int>(0, (sum, s) => sum + (s['review_count'] as int? ?? 0));
-      
+      final totalReviews = allServicesResponse.fold<int>(
+          0, (sum, s) => sum + (s['review_count'] as int? ?? 0));
+
       // 获取热门服务（按评论数排序）
       final topServices = allServicesResponse
           .where((s) => s['status'] == 'active')
           .toList()
-        ..sort((a, b) => (b['review_count'] ?? 0).compareTo(a['review_count'] ?? 0));
+        ..sort((a, b) =>
+            (b['review_count'] ?? 0).compareTo(a['review_count'] ?? 0));
 
       return {
         'total_services': totalServices,
@@ -248,26 +254,27 @@ class ServiceManagementService {
         'top_services': topServices.take(5).toList(),
       };
     } catch (e) {
-      AppLogger.error('[ServiceManagementService] Error getting service statistics: $e');
+      AppLogger.error(
+          '[ServiceManagementService] Error getting service statistics: $e');
       return {};
     }
   }
 
   /// 更新服务状态
-  Future<bool> updateServiceStatus(String serviceId, ServiceStatus status) async {
+  Future<bool> updateServiceStatus(
+      String serviceId, ServiceStatus status) async {
     try {
-      await _supabase
-          .from('services')
-          .update({
-            'status': status.name,
-            'updated_at': DateTime.now().toIso8601String(),
-          })
-          .eq('id', serviceId);
+      await _supabase.from('services').update({
+        'status': status.name,
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('id', serviceId);
 
-      AppLogger.info('[ServiceManagementService] Service $serviceId status updated to ${status.name}');
+      AppLogger.info(
+          '[ServiceManagementService] Service $serviceId status updated to ${status.name}');
       return true;
     } catch (e) {
-      AppLogger.error('[ServiceManagementService] Error updating service status: $e');
+      AppLogger.error(
+          '[ServiceManagementService] Error updating service status: $e');
       return false;
     }
   }
@@ -283,7 +290,8 @@ class ServiceManagementService {
 
       return Service.fromMap(response);
     } catch (e) {
-      AppLogger.error('[ServiceManagementService] Error getting service details: $e');
+      AppLogger.error(
+          '[ServiceManagementService] Error getting service details: $e');
       return null;
     }
   }
@@ -307,7 +315,8 @@ class ServiceManagementService {
 
       return response.map<Service>((map) => Service.fromMap(map)).toList();
     } catch (e) {
-      AppLogger.error('[ServiceManagementService] Error searching services: $e');
+      AppLogger.error(
+          '[ServiceManagementService] Error searching services: $e');
       return [];
     }
   }
@@ -335,8 +344,9 @@ class ServiceManagementService {
 
       return categoryStats;
     } catch (e) {
-      AppLogger.error('[ServiceManagementService] Error getting category statistics: $e');
+      AppLogger.error(
+          '[ServiceManagementService] Error getting category statistics: $e');
       return {};
     }
   }
-} 
+}

@@ -1,4 +1,4 @@
-import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';// 点评系统服务层
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart'; // 点评系统服务层
 // 处理所有点评相关的API调用和业务逻辑
 
 import 'package:get/get.dart';
@@ -92,7 +92,8 @@ class ReviewService extends GetxService {
   }
 
   /// 获取用户点评列表
-  Future<List<Review>> getUserReviews(String userId, {int page = 1, int limit = 10}) async {
+  Future<List<Review>> getUserReviews(String userId,
+      {int page = 1, int limit = 10}) async {
     try {
       final response = await _supabase
           .from('user_reviews_view')
@@ -127,7 +128,8 @@ class ReviewService extends GetxService {
   }
 
   /// 更新点评
-  Future<Review> updateReview(String reviewId, Map<String, dynamic> updates) async {
+  Future<Review> updateReview(
+      String reviewId, Map<String, dynamic> updates) async {
     try {
       final response = await _supabase
           .from('reviews')
@@ -148,8 +150,7 @@ class ReviewService extends GetxService {
     try {
       await _supabase
           .from('reviews')
-          .update({'status': 'deleted'})
-          .eq('id', reviewId);
+          .update({'status': 'deleted'}).eq('id', reviewId);
     } catch (e) {
       AppLogger.info('Error deleting review: $e');
       throw Exception('Failed to delete review: $e');
@@ -161,7 +162,8 @@ class ReviewService extends GetxService {
   // ========================================
 
   /// 创建点评回复
-  Future<ReviewReply> createReviewReply(CreateReviewReplyRequest request) async {
+  Future<ReviewReply> createReviewReply(
+      CreateReviewReplyRequest request) async {
     try {
       final response = await _supabase
           .from('review_replies')
@@ -186,7 +188,9 @@ class ReviewService extends GetxService {
           .eq('status', 'active')
           .order('created_at', ascending: true);
 
-      return (response as List).map((json) => ReviewReply.fromJson(json)).toList();
+      return (response as List)
+          .map((json) => ReviewReply.fromJson(json))
+          .toList();
     } catch (e) {
       AppLogger.info('Error fetching review replies: $e');
       throw Exception('Failed to fetch review replies: $e');
@@ -211,16 +215,12 @@ class ReviewService extends GetxService {
       if (existingVote != null) {
         // 更新现有投票
         if (existingVote['is_helpful'] != request.isHelpful) {
-          await _supabase
-              .from('review_helpful_votes')
-              .update({'is_helpful': request.isHelpful})
-              .eq('id', existingVote['id']);
+          await _supabase.from('review_helpful_votes').update(
+              {'is_helpful': request.isHelpful}).eq('id', existingVote['id']);
         }
       } else {
         // 创建新投票
-        await _supabase
-            .from('review_helpful_votes')
-            .insert(request.toJson());
+        await _supabase.from('review_helpful_votes').insert(request.toJson());
       }
     } catch (e) {
       AppLogger.info('Error voting review: $e');
@@ -252,9 +252,7 @@ class ReviewService extends GetxService {
   /// 举报点评
   Future<void> reportReview(ReviewReportRequest request) async {
     try {
-      await _supabase
-          .from('review_reports')
-          .insert(request.toJson());
+      await _supabase.from('review_reports').insert(request.toJson());
     } catch (e) {
       AppLogger.info('Error reporting review: $e');
       throw Exception('Failed to report review: $e');
@@ -274,7 +272,9 @@ class ReviewService extends GetxService {
           .eq('is_active', true)
           .order('sort_order', ascending: true);
 
-      return (response as List).map((json) => ReviewTag.fromJson(json)).toList();
+      return (response as List)
+          .map((json) => ReviewTag.fromJson(json))
+          .toList();
     } catch (e) {
       AppLogger.info('Error fetching review tags: $e');
       throw Exception('Failed to fetch review tags: $e');
@@ -291,7 +291,9 @@ class ReviewService extends GetxService {
           .eq('is_active', true)
           .order('sort_order', ascending: true);
 
-      return (response as List).map((json) => ReviewTag.fromJson(json)).toList();
+      return (response as List)
+          .map((json) => ReviewTag.fromJson(json))
+          .toList();
     } catch (e) {
       AppLogger.info('Error fetching review tags by category: $e');
       throw Exception('Failed to fetch review tags by category: $e');
@@ -410,4 +412,4 @@ class ReviewService extends GetxService {
   bool isValidContentLength(String content) {
     return content.length >= 10 && content.length <= 1000;
   }
-} 
+}

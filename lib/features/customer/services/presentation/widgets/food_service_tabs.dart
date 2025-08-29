@@ -57,7 +57,6 @@ class FoodMenuTab extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            
             _buildMenuCategory(
               'Appetizers',
               'Start your meal with our delicious starters',
@@ -88,7 +87,8 @@ class FoodMenuTab extends StatelessWidget {
     );
   }
 
-  Widget _buildMenuCategory(String title, String description, IconData icon, Color color) {
+  Widget _buildMenuCategory(
+      String title, String description, IconData icon, Color color) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
@@ -151,7 +151,6 @@ class FoodMenuTab extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            
             _buildDishItem(
               'Grilled Salmon',
               'Fresh Atlantic salmon with herbs and lemon',
@@ -182,7 +181,8 @@ class FoodMenuTab extends StatelessWidget {
     );
   }
 
-  Widget _buildDishItem(String name, String description, String price, IconData icon) {
+  Widget _buildDishItem(
+      String name, String description, String price, IconData icon) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
@@ -246,7 +246,6 @@ class FoodMenuTab extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            
             _buildOfferItem(
               'Lunch Special',
               '20% off all main courses 11AM-2PM',
@@ -271,7 +270,8 @@ class FoodMenuTab extends StatelessWidget {
     );
   }
 
-  Widget _buildOfferItem(String title, String description, String validity, Color color) {
+  Widget _buildOfferItem(
+      String title, String description, String validity, Color color) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
@@ -362,7 +362,6 @@ class FoodIngredientsTab extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            
             _buildSupplierItem(
               'Fresh Market',
               'Daily fresh vegetables and fruits',
@@ -393,7 +392,8 @@ class FoodIngredientsTab extends StatelessWidget {
     );
   }
 
-  Widget _buildSupplierItem(String name, String description, String distance, IconData icon) {
+  Widget _buildSupplierItem(
+      String name, String description, String distance, IconData icon) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
@@ -464,10 +464,11 @@ class FoodIngredientsTab extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            
-            _buildStandardItem('Fresh Daily', 'All ingredients delivered same day'),
+            _buildStandardItem(
+                'Fresh Daily', 'All ingredients delivered same day'),
             _buildStandardItem('No Preservatives', '100% natural ingredients'),
-            _buildStandardItem('Temperature Controlled', 'Proper storage conditions'),
+            _buildStandardItem(
+                'Temperature Controlled', 'Proper storage conditions'),
             _buildStandardItem('Quality Check', 'Inspected before use'),
           ],
         ),
@@ -530,7 +531,6 @@ class FoodIngredientsTab extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -541,11 +541,13 @@ class FoodIngredientsTab extends StatelessWidget {
                 'Winter Root Vegetables',
                 'Fresh Herbs',
                 'Local Honey',
-              ].map((item) => Chip(
-                label: Text(item),
-                backgroundColor: Colors.orange.withValues(alpha: 0.1),
-                labelStyle: const TextStyle(color: Colors.orange),
-              )).toList(),
+              ]
+                  .map((item) => Chip(
+                        label: Text(item),
+                        backgroundColor: Colors.orange.withValues(alpha: 0.1),
+                        labelStyle: const TextStyle(color: Colors.orange),
+                      ))
+                  .toList(),
             ),
           ],
         ),
@@ -602,7 +604,6 @@ class FoodNutritionTab extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            
             _buildNutritionRow('Calories', '250-350 per serving'),
             _buildNutritionRow('Protein', '15-25g per serving'),
             _buildNutritionRow('Carbohydrates', '30-45g per serving'),
@@ -663,7 +664,6 @@ class FoodNutritionTab extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            
             _buildDietaryItem('Vegetarian', 'Plant-based options available'),
             _buildDietaryItem('Vegan', 'No animal products'),
             _buildDietaryItem('Gluten-Free', 'Safe for celiac disease'),
@@ -731,12 +731,16 @@ class FoodNutritionTab extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            
-            _buildAllergenItem('Contains Nuts', 'Some dishes may contain tree nuts'),
-            _buildAllergenItem('Contains Dairy', 'Milk and cheese in some dishes'),
-            _buildAllergenItem('Contains Gluten', 'Wheat products in some dishes'),
-            _buildAllergenItem('Contains Seafood', 'Fish and shellfish options'),
-            _buildAllergenItem('Contains Eggs', 'Eggs used in some preparations'),
+            _buildAllergenItem(
+                'Contains Nuts', 'Some dishes may contain tree nuts'),
+            _buildAllergenItem(
+                'Contains Dairy', 'Milk and cheese in some dishes'),
+            _buildAllergenItem(
+                'Contains Gluten', 'Wheat products in some dishes'),
+            _buildAllergenItem(
+                'Contains Seafood', 'Fish and shellfish options'),
+            _buildAllergenItem(
+                'Contains Eggs', 'Eggs used in some preparations'),
             _buildAllergenItem('Contains Soy', 'Soy products in some dishes'),
           ],
         ),

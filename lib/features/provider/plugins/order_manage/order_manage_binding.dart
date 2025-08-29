@@ -6,4 +6,4 @@ class OrderManageBinding extends Bindings {
   void dependencies() {
     Get.lazyPut<OrderManageController>(() => OrderManageController());
   }
-} 
+}

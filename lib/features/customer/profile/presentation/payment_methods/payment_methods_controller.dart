@@ -109,4 +109,4 @@ class PaymentMethodsController extends GetxController {
   Future<void> refreshPaymentMethods() async {
     await loadPaymentMethods();
   }
-} 
+}

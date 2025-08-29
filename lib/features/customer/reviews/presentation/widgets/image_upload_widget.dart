@@ -1,4 +1,4 @@
-import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';// 图片上传组件
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart'; // 图片上传组件
 // 支持多图片选择、预览、删除等功能
 
 import 'package:flutter/material.dart';
@@ -43,7 +43,7 @@ class ImageUploadWidget extends StatelessWidget {
             },
           ),
         ),
-        
+
         // 提示文本
         if (images.length < maxImages) ...[
           const SizedBox(height: 8),
@@ -132,7 +132,7 @@ class ImageUploadWidget extends StatelessWidget {
               },
             ),
           ),
-          
+
           // 删除按钮
           Positioned(
             top: 4,
@@ -154,7 +154,7 @@ class ImageUploadWidget extends StatelessWidget {
               ),
             ),
           ),
-          
+
           // 图片序号
           Positioned(
             bottom: 4,
@@ -245,4 +245,4 @@ class ImageUploadWidget extends StatelessWidget {
     // 这里应该调用相册API，获取图片后调用onImageAdded
     AppLogger.info('Gallery functionality to be implemented');
   }
-} 
+}

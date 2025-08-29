@@ -1,4 +1,5 @@
-import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:flutter/material.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -39,6 +40,8 @@ import 'package:jinbeanpod_83904710/core/ui/themes/provider_theme.dart';
 import 'package:jinbeanpod_83904710/features/customer/services/presentation/service_detail_page.dart';
 import 'package:jinbeanpod_83904710/features/customer/services/presentation/service_detail_binding.dart';
 import 'package:jinbeanpod_83904710/app/provider_shell_app.dart';
+import 'package:jinbeanpod_83904710/core/services/service_manager.dart';
+
 void main() async {
   AppLogger.info('[main] App starting...');
   WidgetsFlutterBinding.ensureInitialized();
@@ -68,6 +71,10 @@ void main() async {
   Get.put(SplashController());
   AppLogger.info('[main] SplashController put.');
 
+  // 注入 ServiceManagerState，确保 ServiceManager 能够正确初始化
+  Get.put(ServiceManagerState(), permanent: true);
+  AppLogger.info('[main] ServiceManagerState put.');
+
   final box = GetStorage();
   final user = Supabase.instance.client.auth.currentUser;
   String? role;
@@ -84,7 +91,8 @@ void main() async {
       Get.find<PluginManager>().currentRole.value = role;
       AppLogger.info('[main] PluginManager current role set to: $role');
     } else {
-      AppLogger.info('[main] User profile role not found, defaulting to customer.');
+      AppLogger.info(
+          '[main] User profile role not found, defaulting to customer.');
       Get.find<PluginManager>().currentRole.value = 'customer';
     }
   } else {
@@ -98,10 +106,12 @@ void main() async {
   Locale? initialLocale;
   if (preferredLocaleCode != null) {
     initialLocale = Locale(preferredLocaleCode);
-    AppLogger.info('[main] Preferred locale from storage: \\$preferredLocaleCode');
+    AppLogger.info(
+        '[main] Preferred locale from storage: \\$preferredLocaleCode');
   } else {
     initialLocale = null;
-    AppLogger.info('[main] No preferred locale found, will use system default.');
+    AppLogger.info(
+        '[main] No preferred locale found, will use system default.');
   }
 
   // Simplified: Always start at SplashPage, which handles routing based on login and role.
@@ -126,7 +136,7 @@ void main() async {
         final role = Get.find<PluginManager>().currentRole.value;
         final themeService = AppThemeService();
         AppLogger.info('Current Role: $role');
-        
+
         // 根据角色选择主题
         ThemeData theme;
         try {
@@ -148,7 +158,7 @@ void main() async {
           // 如果主题应用失败，使用默认主题
           theme = ThemeData.light();
         }
-        
+
         return GetMaterialApp(
           debugShowCheckedModeBanner: false,
           theme: theme,
@@ -167,21 +177,48 @@ void main() async {
           home: const SplashPage(), // 从启动页面开始，让SplashController处理路由逻辑
           getPages: [
             GetPage(name: '/auth', page: () => const LoginPage()),
-            GetPage(name: '/register', page: () => RegisterPage(), binding: RegisterBinding()),
+            GetPage(
+                name: '/register',
+                page: () => RegisterPage(),
+                binding: RegisterBinding()),
             GetPage(name: '/main_shell', page: () => ShellApp()),
-            GetPage(name: '/address_demo', page: () => const AddressInputDemoPage()),
+            GetPage(
+                name: '/address_demo',
+                page: () => const AddressInputDemoPage()),
             GetPage(name: '/settings', page: () => const SettingsPage()),
-            GetPage(name: '/splash', page: () => const SplashPage(), binding: SplashBinding()),
+            GetPage(
+                name: '/splash',
+                page: () => const SplashPage(),
+                binding: SplashBinding()),
             GetPage(name: '/service_map', page: () => const ServiceMapPage()),
-            GetPage(name: '/theme_settings', page: () => const ThemeSettingsPage(), binding: ThemeSettingsBinding()),
-            GetPage(name: '/language_settings', page: () => const LanguageSettingsPage(), binding: LanguageSettingsBinding()),
-            GetPage(name: '/provider/language_settings', page: () => const ProviderLanguageSettingsPage(), binding: ProviderLanguageSettingsBinding()),
+            GetPage(
+                name: '/theme_settings',
+                page: () => const ThemeSettingsPage(),
+                binding: ThemeSettingsBinding()),
+            GetPage(
+                name: '/language_settings',
+                page: () => const LanguageSettingsPage(),
+                binding: LanguageSettingsBinding()),
+            GetPage(
+                name: '/provider/language_settings',
+                page: () => const ProviderLanguageSettingsPage(),
+                binding: ProviderLanguageSettingsBinding()),
             GetPage(name: '/simulator', page: () => const SimulatorLauncher()),
-            GetPage(name: '/provider_theme_demo', page: () => const ProviderThemeDemoPage()),
-            GetPage(name: '/service_detail', page: () => ServiceDetailPageNew(serviceId: Get.parameters['serviceId'] ?? ''), binding: ServiceDetailBinding()),
+            GetPage(
+                name: '/provider_theme_demo',
+                page: () => const ProviderThemeDemoPage()),
+            GetPage(
+                name: '/service_detail',
+                page: () => ServiceDetailPageNew(
+                    serviceId: Get.parameters['serviceId'] ?? ''),
+                binding: ServiceDetailBinding()),
             // 只保留 ProviderShellApp 相关静态路由，其它 provider 插件式页面全部移除
-            GetPage(name: '/provider_shell', page: () => const ProviderShellApp()),
-            GetPage(name: '/provider_home', page: () => ProviderHomePage(onNavigateToTab: (index) {})),          ],
+            GetPage(
+                name: '/provider_shell', page: () => const ProviderShellApp()),
+            GetPage(
+                name: '/provider_home',
+                page: () => ProviderHomePage(onNavigateToTab: (index) {})),
+          ],
         );
       }),
     ),

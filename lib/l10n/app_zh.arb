@@ -8,6 +8,24 @@
     "profilePageTitle": "个人资料",
     "settingsPageTitle": "设置",
     "serviceBookingPageTitle": "服务预约",
+    "usernameHint": "请输入用户名",
+    "passwordHint": "请输入密码",
+    "loginButton": "登录",
+    "registerButton": "注册",
+    "noAccountPrompt": "还没有账户？",
+    "alreadyHaveAccountPrompt": "已有账户？",
+    "home": "首页",
+    "service": "服务",
+    "community": "社区",
+    "profile": "个人",
+    "provider_home": "服务商首页",
+    "availableServices": "可用服务",
+    "bookService": "预约{service}",
+    "selectDateAndTime": "选择日期和时间",
+    "yourBookings": "您的预约",
+    "provider_switch_button": "切换到服务商",
+    "provider_register_button": "注册服务商",
+    "continueText": "继续",
     "languageSettings": "语言设置",
     "languageSettingsPageContent": "语言设置页面内容",
     "languageChanged": "语言已更改",
@@ -241,5 +259,32 @@
     "customerReviewsAndReputationContent": "客户评价与信誉内容（占位符）",
     "switchToProvider": "切换到服务商",
     "waitingForApproval": "等待审核中",
-    "registerAsProvider": "注册服务商"
+    "registerAsProvider": "注册服务商",
+    
+    "menu": "菜单",
+    "addToCart": "加入购物车",
+    "cart": "购物车",
+    "quantity": "数量",
+    "delete": "删除",
+    "checkout": "结算",
+    "cartEmpty": "购物车为空",
+    "cartItems": "购物车商品",
+    "selectDishes": "选择菜品",
+    "foodMenu": "美食菜单",
+    "loading": "加载中",
+    "error": "错误",
+    "retry": "重试",
+    "confirm": "确认",
+    "cancel": "取消",
+    "remove": "移除",
+    "update": "更新",
+    "subtotal": "小计",
+    "itemCount": "{count} 项",
+    "@itemCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    }
 } 

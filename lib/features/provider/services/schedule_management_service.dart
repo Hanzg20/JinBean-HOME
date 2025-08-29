@@ -32,7 +32,8 @@ class ScheduleManagementService {
       final response = await query;
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {
-      AppLogger.error('[ScheduleManagementService] Error getting schedules: $e');
+      AppLogger.error(
+          '[ScheduleManagementService] Error getting schedules: $e');
       return [];
     }
   }
@@ -46,39 +47,39 @@ class ScheduleManagementService {
         return false;
       }
 
-      await _supabase
-          .from('provider_schedules')
-          .insert({
-            ...scheduleData,
-            'provider_id': userId,
-            'status': 'scheduled',
-            'created_at': DateTime.now().toIso8601String(),
-            'updated_at': DateTime.now().toIso8601String(),
-          });
+      await _supabase.from('provider_schedules').insert({
+        ...scheduleData,
+        'provider_id': userId,
+        'status': 'scheduled',
+        'created_at': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
+      });
 
-      AppLogger.info('[ScheduleManagementService] Schedule created successfully');
+      AppLogger.info(
+          '[ScheduleManagementService] Schedule created successfully');
       return true;
     } catch (e) {
-      AppLogger.error('[ScheduleManagementService] Error creating schedule: $e');
+      AppLogger.error(
+          '[ScheduleManagementService] Error creating schedule: $e');
       return false;
     }
   }
 
   /// 更新日程安排
-  Future<bool> updateSchedule(String scheduleId, Map<String, dynamic> scheduleData) async {
+  Future<bool> updateSchedule(
+      String scheduleId, Map<String, dynamic> scheduleData) async {
     try {
-      await _supabase
-          .from('provider_schedules')
-          .update({
-            ...scheduleData,
-            'updated_at': DateTime.now().toIso8601String(),
-          })
-          .eq('id', scheduleId);
+      await _supabase.from('provider_schedules').update({
+        ...scheduleData,
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('id', scheduleId);
 
-      AppLogger.info('[ScheduleManagementService] Schedule $scheduleId updated successfully');
+      AppLogger.info(
+          '[ScheduleManagementService] Schedule $scheduleId updated successfully');
       return true;
     } catch (e) {
-      AppLogger.error('[ScheduleManagementService] Error updating schedule: $e');
+      AppLogger.error(
+          '[ScheduleManagementService] Error updating schedule: $e');
       return false;
     }
   }
@@ -86,15 +87,14 @@ class ScheduleManagementService {
   /// 删除日程安排
   Future<bool> deleteSchedule(String scheduleId) async {
     try {
-      await _supabase
-          .from('provider_schedules')
-          .delete()
-          .eq('id', scheduleId);
+      await _supabase.from('provider_schedules').delete().eq('id', scheduleId);
 
-      AppLogger.info('[ScheduleManagementService] Schedule $scheduleId deleted successfully');
+      AppLogger.info(
+          '[ScheduleManagementService] Schedule $scheduleId deleted successfully');
       return true;
     } catch (e) {
-      AppLogger.error('[ScheduleManagementService] Error deleting schedule: $e');
+      AppLogger.error(
+          '[ScheduleManagementService] Error deleting schedule: $e');
       return false;
     }
   }
@@ -118,7 +118,8 @@ class ScheduleManagementService {
           .lt('scheduled_date', '$today 23:59:59');
 
       // 获取本周日程
-      final weekStart = DateTime.now().subtract(Duration(days: DateTime.now().weekday - 1));
+      final weekStart =
+          DateTime.now().subtract(Duration(days: DateTime.now().weekday - 1));
       final weekEnd = weekStart.add(const Duration(days: 7));
       final weekSchedules = await _supabase
           .from('provider_schedules')
@@ -129,7 +130,8 @@ class ScheduleManagementService {
 
       // 获取本月日程
       final monthStart = DateTime(DateTime.now().year, DateTime.now().month, 1);
-      final monthEnd = DateTime(DateTime.now().year, DateTime.now().month + 1, 1);
+      final monthEnd =
+          DateTime(DateTime.now().year, DateTime.now().month + 1, 1);
       final monthSchedules = await _supabase
           .from('provider_schedules')
           .select('id, status')
@@ -139,14 +141,18 @@ class ScheduleManagementService {
 
       return {
         'today_total': todaySchedules.length,
-        'today_completed': todaySchedules.where((s) => s['status'] == 'completed').length,
+        'today_completed':
+            todaySchedules.where((s) => s['status'] == 'completed').length,
         'week_total': weekSchedules.length,
-        'week_completed': weekSchedules.where((s) => s['status'] == 'completed').length,
+        'week_completed':
+            weekSchedules.where((s) => s['status'] == 'completed').length,
         'month_total': monthSchedules.length,
-        'month_completed': monthSchedules.where((s) => s['status'] == 'completed').length,
+        'month_completed':
+            monthSchedules.where((s) => s['status'] == 'completed').length,
       };
     } catch (e) {
-      AppLogger.error('[ScheduleManagementService] Error getting schedule statistics: $e');
+      AppLogger.error(
+          '[ScheduleManagementService] Error getting schedule statistics: $e');
       return {};
     }
   }
@@ -154,18 +160,17 @@ class ScheduleManagementService {
   /// 更新日程状态
   Future<bool> updateScheduleStatus(String scheduleId, String status) async {
     try {
-      await _supabase
-          .from('provider_schedules')
-          .update({
-            'status': status,
-            'updated_at': DateTime.now().toIso8601String(),
-          })
-          .eq('id', scheduleId);
+      await _supabase.from('provider_schedules').update({
+        'status': status,
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('id', scheduleId);
 
-      AppLogger.info('[ScheduleManagementService] Schedule $scheduleId status updated to $status');
+      AppLogger.info(
+          '[ScheduleManagementService] Schedule $scheduleId status updated to $status');
       return true;
     } catch (e) {
-      AppLogger.error('[ScheduleManagementService] Error updating schedule status: $e');
+      AppLogger.error(
+          '[ScheduleManagementService] Error updating schedule status: $e');
       return false;
     }
   }
@@ -181,8 +186,9 @@ class ScheduleManagementService {
 
       return response;
     } catch (e) {
-      AppLogger.error('[ScheduleManagementService] Error getting schedule details: $e');
+      AppLogger.error(
+          '[ScheduleManagementService] Error getting schedule details: $e');
       return null;
     }
   }
-} 
+}

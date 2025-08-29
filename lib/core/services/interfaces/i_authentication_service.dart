@@ -84,31 +84,31 @@ enum AuthState {
 abstract class IAuthenticationService {
   /// 初始化服务
   Future<void> initialize();
-  
+
   /// 用户登录
   Future<AuthResult> signIn(String email, String password);
-  
+
   /// 用户注册
   Future<AuthResult> signUp(String email, String password, String name);
-  
+
   /// 用户登出
   Future<void> signOut();
-  
+
   /// 检查是否已认证
   Future<bool> isAuthenticated();
-  
+
   /// 获取当前用户
   Future<User?> getCurrentUser();
-  
+
   /// 获取认证状态变化流
   Stream<AuthState> get authStateChanges;
-  
+
   /// 刷新用户信息
   Future<void> refreshUser();
-  
+
   /// 重置密码
   Future<bool> resetPassword(String email);
-  
+
   /// 更新用户信息
   Future<bool> updateUser(User user);
 }

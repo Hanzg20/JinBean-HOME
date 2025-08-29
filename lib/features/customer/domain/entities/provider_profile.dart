@@ -46,9 +46,8 @@ class ProviderProfile {
       completedOrders: json['completedOrders'],
       businessLicense: json['businessLicense'],
       isVerified: json['isVerified'] ?? false,
-      createdAt: json['createdAt'] != null 
-          ? DateTime.parse(json['createdAt']) 
-          : null,
+      createdAt:
+          json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
       metadata: json['metadata'],
     );
   }
@@ -71,4 +70,4 @@ class ProviderProfile {
       'metadata': metadata,
     };
   }
-} 
+}

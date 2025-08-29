@@ -94,14 +94,17 @@ class JinBeanCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     // 默认样式
     final defaultBorderRadius = borderRadius ?? BorderRadius.circular(20);
     final defaultPadding = padding ?? const EdgeInsets.all(20);
-    final defaultMargin = margin ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8);
+    final defaultMargin =
+        margin ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8);
     final defaultBackgroundColor = backgroundColor ?? Colors.white;
-    final defaultShadow = boxShadow ?? (enableShadow ? JinBeanColors.cardShadow : null);
-    final defaultGradient = gradient ?? (enableGradient ? JinBeanColors.cardGradient : null);
+    final defaultShadow =
+        boxShadow ?? (enableShadow ? JinBeanColors.cardShadow : null);
+    final defaultGradient =
+        gradient ?? (enableGradient ? JinBeanColors.cardGradient : null);
 
     Widget cardContent = Container(
       decoration: BoxDecoration(
@@ -222,7 +225,8 @@ class JinBeanGradientCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final defaultBorderRadius = borderRadius ?? BorderRadius.circular(20);
     final defaultPadding = padding ?? const EdgeInsets.all(20);
-    final defaultMargin = margin ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8);
+    final defaultMargin =
+        margin ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8);
     final defaultGradient = gradient ?? JinBeanColors.cardGradient;
     final defaultShadow = boxShadow ?? JinBeanColors.cardShadow;
 
@@ -426,4 +430,4 @@ class JinBeanServiceCard extends StatelessWidget {
       ),
     );
   }
-} 
+}

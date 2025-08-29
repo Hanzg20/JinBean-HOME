@@ -60,13 +60,13 @@ class _RobOrderHallPageState extends State<RobOrderHallPage> {
             children: [
               // 抢单统计概览
               _buildOrderStatistics(),
-              
+
               // 筛选器
               _buildFilterSection(),
-              
+
               // 可用订单列表
               _buildAvailableOrdersList(),
-              
+
               const SizedBox(height: 20),
             ],
           ),
@@ -155,7 +155,8 @@ class _RobOrderHallPageState extends State<RobOrderHallPage> {
     );
   }
 
-  Widget _buildStatCard(String title, String value, String subtitle, Color color, IconData icon) {
+  Widget _buildStatCard(
+      String title, String value, String subtitle, Color color, IconData icon) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -233,22 +234,23 @@ class _RobOrderHallPageState extends State<RobOrderHallPage> {
                       return Padding(
                         padding: const EdgeInsets.only(right: 8),
                         child: Obx(() => FilterChip(
-                          label: Text(_getFilterDisplayText(filter)),
-                          selected: controller.selectedFilter.value == filter,
-                          onSelected: (selected) {
-                            if (selected) {
-                              controller.filterByUrgency(filter);
-                            }
-                          },
-                          backgroundColor: Colors.grey[100],
-                          selectedColor: Colors.blue[100],
-                          checkmarkColor: Colors.blue,
-                          labelStyle: TextStyle(
-                            color: controller.selectedFilter.value == filter 
-                                ? Colors.blue[700] 
-                                : Colors.grey[700],
-                          ),
-                        )),
+                              label: Text(_getFilterDisplayText(filter)),
+                              selected:
+                                  controller.selectedFilter.value == filter,
+                              onSelected: (selected) {
+                                if (selected) {
+                                  controller.filterByUrgency(filter);
+                                }
+                              },
+                              backgroundColor: Colors.grey[100],
+                              selectedColor: Colors.blue[100],
+                              checkmarkColor: Colors.blue,
+                              labelStyle: TextStyle(
+                                color: controller.selectedFilter.value == filter
+                                    ? Colors.blue[700]
+                                    : Colors.grey[700],
+                              ),
+                            )),
                       );
                     }),
                   ],
@@ -286,17 +288,18 @@ class _RobOrderHallPageState extends State<RobOrderHallPage> {
           ),
         );
       }
-      
+
       if (controller.availableOrders.isEmpty) {
         return _buildEmptyState();
       }
-      
+
       return Container(
         margin: const EdgeInsets.symmetric(horizontal: 16),
         child: ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: controller.availableOrders.length + (controller.hasMoreData.value ? 1 : 0),
+          itemCount: controller.availableOrders.length +
+              (controller.hasMoreData.value ? 1 : 0),
           itemBuilder: (context, index) {
             if (index == controller.availableOrders.length) {
               if (controller.hasMoreData.value) {
@@ -310,7 +313,7 @@ class _RobOrderHallPageState extends State<RobOrderHallPage> {
               }
               return const SizedBox.shrink();
             }
-            
+
             final order = controller.availableOrders[index];
             return _buildOrderCard(order);
           },
@@ -377,7 +380,7 @@ class _RobOrderHallPageState extends State<RobOrderHallPage> {
   Widget _buildOrderCard(Map<String, dynamic> order) {
     final urgency = order['urgency_level'] ?? 'medium';
     final urgencyColor = controller.getUrgencyColor(urgency);
-    
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 2,
@@ -400,7 +403,8 @@ class _RobOrderHallPageState extends State<RobOrderHallPage> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: urgencyColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
@@ -416,9 +420,9 @@ class _RobOrderHallPageState extends State<RobOrderHallPage> {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             // 价格和时长
             Row(
               children: [
@@ -432,7 +436,8 @@ class _RobOrderHallPageState extends State<RobOrderHallPage> {
                 ),
                 const SizedBox(width: 16),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
                     color: Colors.blue[100],
                     borderRadius: BorderRadius.circular(4),
@@ -448,9 +453,9 @@ class _RobOrderHallPageState extends State<RobOrderHallPage> {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             // 客户信息
             Row(
               children: [
@@ -490,7 +495,8 @@ class _RobOrderHallPageState extends State<RobOrderHallPage> {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          Icon(Icons.location_on, size: 12, color: Colors.grey[600]),
+                          Icon(Icons.location_on,
+                              size: 12, color: Colors.grey[600]),
                           const SizedBox(width: 2),
                           Text(
                             '${order['distance'] ?? '2.5'}km',
@@ -506,9 +512,9 @@ class _RobOrderHallPageState extends State<RobOrderHallPage> {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             // 服务时间和要求
             Row(
               children: [
@@ -523,7 +529,7 @@ class _RobOrderHallPageState extends State<RobOrderHallPage> {
                 ),
               ],
             ),
-            
+
             if (order['requirements'] != null) ...[
               const SizedBox(height: 8),
               Text(
@@ -536,9 +542,9 @@ class _RobOrderHallPageState extends State<RobOrderHallPage> {
                 overflow: TextOverflow.ellipsis,
               ),
             ],
-            
+
             const SizedBox(height: 16),
-            
+
             // 抢单按钮
             SizedBox(
               width: double.infinity,
@@ -677,4 +683,4 @@ class _RobOrderHallPageState extends State<RobOrderHallPage> {
       },
     );
   }
-} 
+}

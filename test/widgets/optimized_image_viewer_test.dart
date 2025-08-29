@@ -10,7 +10,8 @@ void main() {
       'https://example.com/image3.jpg',
     ];
 
-    testWidgets('should display placeholder when no images', (WidgetTester tester) async {
+    testWidgets('should display placeholder when no images',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -27,7 +28,8 @@ void main() {
       expect(find.byIcon(Icons.image), findsOneWidget);
     });
 
-    testWidgets('should display single image without indicators', (WidgetTester tester) async {
+    testWidgets('should display single image without indicators',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -46,7 +48,8 @@ void main() {
       expect(find.byType(Column), findsOneWidget);
     });
 
-    testWidgets('should display multiple images with indicators', (WidgetTester tester) async {
+    testWidgets('should display multiple images with indicators',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -61,15 +64,16 @@ void main() {
       );
 
       expect(find.byType(PageView), findsOneWidget);
-      
+
       // 应该显示指示器相关的UI
       expect(find.byType(Column), findsOneWidget);
       expect(find.byType(Container), findsWidgets);
     });
 
-    testWidgets('should handle image tap with custom callback', (WidgetTester tester) async {
+    testWidgets('should handle image tap with custom callback',
+        (WidgetTester tester) async {
       bool callbackCalled = false;
-      
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -90,7 +94,8 @@ void main() {
       expect(callbackCalled, isTrue);
     });
 
-    testWidgets('should handle image tap without callback (enable zoom)', (WidgetTester tester) async {
+    testWidgets('should handle image tap without callback (enable zoom)',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -113,7 +118,8 @@ void main() {
       expect(find.text('Image 1 of 3'), findsOneWidget);
     });
 
-    testWidgets('should handle page changes and update indicators', (WidgetTester tester) async {
+    testWidgets('should handle page changes and update indicators',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -135,9 +141,10 @@ void main() {
       expect(find.byType(Column), findsOneWidget);
     });
 
-    testWidgets('should handle error images gracefully', (WidgetTester tester) async {
+    testWidgets('should handle error images gracefully',
+        (WidgetTester tester) async {
       const errorImageUrl = 'https://invalid-url.com/image.jpg';
-      
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -166,7 +173,8 @@ void main() {
       'https://example.com/image3.jpg',
     ];
 
-    testWidgets('should display grid with correct number of images', (WidgetTester tester) async {
+    testWidgets('should display grid with correct number of images',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -199,7 +207,8 @@ void main() {
       expect(find.byType(SizedBox), findsOneWidget);
     });
 
-    testWidgets('should handle custom grid configuration', (WidgetTester tester) async {
+    testWidgets('should handle custom grid configuration',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -222,13 +231,13 @@ void main() {
   group('ImagePreloadManager Tests', () {
     test('should track preloaded images correctly', () async {
       const testUrl = 'https://example.com/test.jpg';
-      
+
       // 初始状态
       expect(ImagePreloadManager.isImagePreloaded(testUrl), isFalse);
-      
+
       // 预加载图片
       await ImagePreloadManager.preloadImage(testUrl);
-      
+
       // 检查状态
       expect(ImagePreloadManager.isImagePreloaded(testUrl), isTrue);
     });
@@ -239,10 +248,10 @@ void main() {
         'https://example.com/image2.jpg',
         'https://example.com/image3.jpg',
       ];
-      
+
       // 预加载多张图片
       await ImagePreloadManager.preloadImages(testUrls);
-      
+
       // 检查所有图片状态
       for (final url in testUrls) {
         expect(ImagePreloadManager.isImagePreloaded(url), isTrue);
@@ -251,25 +260,25 @@ void main() {
 
     test('should clear cache correctly', () async {
       const testUrl = 'https://example.com/test.jpg';
-      
+
       // 预加载图片
       await ImagePreloadManager.preloadImage(testUrl);
       expect(ImagePreloadManager.isImagePreloaded(testUrl), isTrue);
-      
+
       // 清理缓存
       ImagePreloadManager.clearCache();
-      
+
       // 检查状态
       expect(ImagePreloadManager.isImagePreloaded(testUrl), isFalse);
     });
 
     test('should not preload same image twice', () async {
       const testUrl = 'https://example.com/test.jpg';
-      
+
       // 第一次预加载
       await ImagePreloadManager.preloadImage(testUrl);
       expect(ImagePreloadManager.isImagePreloaded(testUrl), isTrue);
-      
+
       // 第二次预加载（应该跳过）
       await ImagePreloadManager.preloadImage(testUrl);
       expect(ImagePreloadManager.isImagePreloaded(testUrl), isTrue);

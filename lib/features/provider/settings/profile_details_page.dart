@@ -27,23 +27,27 @@ class ProfileDetailsPage extends StatelessWidget {
             Center(
               child: CircleAvatar(
                 radius: 48,
-                backgroundImage: (controller.avatarUrl.value.isNotEmpty && controller.avatarUrl.value.startsWith('http'))
+                backgroundImage: (controller.avatarUrl.value.isNotEmpty &&
+                        controller.avatarUrl.value.startsWith('http'))
                     ? NetworkImage(controller.avatarUrl.value)
-                    : const AssetImage('assets/images/default_avatar.png') as ImageProvider,
+                    : const AssetImage('assets/images/default_avatar.png')
+                        as ImageProvider,
               ),
             ),
             const SizedBox(height: 16),
             Center(
               child: Text(
                 controller.displayName.value,
-                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
             ),
             const SizedBox(height: 8),
             Center(
               child: Chip(
                 label: Text('认证状态：${controller.certificationStatus.value}'),
-                backgroundColor: controller.certificationStatus.value == 'approved'
+                backgroundColor: controller.certificationStatus.value ==
+                        'approved'
                     ? theme.primaryColor.withValues(alpha: 0.15)
                     : controller.certificationStatus.value == 'pending'
                         ? theme.colorScheme.secondary.withValues(alpha: 0.15)
@@ -76,7 +80,8 @@ class ProfileDetailsPage extends StatelessWidget {
             ElevatedButton.icon(
               icon: const Icon(Icons.logout),
               label: const Text('退出登录'),
-              style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+              style: ElevatedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(48)),
               onPressed: controller.logout,
             ),
           ],
@@ -84,4 +89,4 @@ class ProfileDetailsPage extends StatelessWidget {
       }),
     );
   }
-} 
+}

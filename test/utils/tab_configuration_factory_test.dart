@@ -6,16 +6,16 @@ void main() {
   group('TabConfigurationFactory Tests', () {
     test('should generate correct tabs for cleaning service', () {
       final tabs = TabConfigurationFactory.generateTabsForService('1020000');
-      
+
       expect(tabs.length, 7); // 5 common + 2 specific
-      
+
       // 检查通用Tab
       expect(tabs.any((tab) => tab.label == 'Overview'), isTrue);
       expect(tabs.any((tab) => tab.label == 'Details'), isTrue);
       expect(tabs.any((tab) => tab.label == 'Provider'), isTrue);
       expect(tabs.any((tab) => tab.label == 'Reviews'), isTrue);
       expect(tabs.any((tab) => tab.label == 'For You'), isTrue);
-      
+
       // 检查家政服务特定Tab
       expect(tabs.any((tab) => tab.label == 'Schedule'), isTrue);
       expect(tabs.any((tab) => tab.label == 'Equipment'), isTrue);
@@ -23,16 +23,16 @@ void main() {
 
     test('should generate correct tabs for food service', () {
       final tabs = TabConfigurationFactory.generateTabsForService('1010000');
-      
+
       expect(tabs.length, 8); // 5 common + 3 specific
-      
+
       // 检查通用Tab
       expect(tabs.any((tab) => tab.label == 'Overview'), isTrue);
       expect(tabs.any((tab) => tab.label == 'Details'), isTrue);
       expect(tabs.any((tab) => tab.label == 'Provider'), isTrue);
       expect(tabs.any((tab) => tab.label == 'Reviews'), isTrue);
       expect(tabs.any((tab) => tab.label == 'For You'), isTrue);
-      
+
       // 检查餐饮服务特定Tab
       expect(tabs.any((tab) => tab.label == 'Menu'), isTrue);
       expect(tabs.any((tab) => tab.label == 'Ingredients'), isTrue);
@@ -41,16 +41,16 @@ void main() {
 
     test('should generate correct tabs for transportation service', () {
       final tabs = TabConfigurationFactory.generateTabsForService('1030000');
-      
+
       expect(tabs.length, 7); // 5 common + 2 specific
-      
+
       // 检查通用Tab
       expect(tabs.any((tab) => tab.label == 'Overview'), isTrue);
       expect(tabs.any((tab) => tab.label == 'Details'), isTrue);
       expect(tabs.any((tab) => tab.label == 'Provider'), isTrue);
       expect(tabs.any((tab) => tab.label == 'Reviews'), isTrue);
       expect(tabs.any((tab) => tab.label == 'For You'), isTrue);
-      
+
       // 检查运输服务特定Tab
       expect(tabs.any((tab) => tab.label == 'Routes'), isTrue);
       expect(tabs.any((tab) => tab.label == 'Vehicles'), isTrue);
@@ -58,16 +58,16 @@ void main() {
 
     test('should generate correct tabs for education service', () {
       final tabs = TabConfigurationFactory.generateTabsForService('1040000');
-      
+
       expect(tabs.length, 8); // 5 common + 3 specific
-      
+
       // 检查通用Tab
       expect(tabs.any((tab) => tab.label == 'Overview'), isTrue);
       expect(tabs.any((tab) => tab.label == 'Details'), isTrue);
       expect(tabs.any((tab) => tab.label == 'Provider'), isTrue);
       expect(tabs.any((tab) => tab.label == 'Reviews'), isTrue);
       expect(tabs.any((tab) => tab.label == 'For You'), isTrue);
-      
+
       // 检查教育服务特定Tab
       expect(tabs.any((tab) => tab.label == 'Courses'), isTrue);
       expect(tabs.any((tab) => tab.label == 'Curriculum'), isTrue);
@@ -76,16 +76,16 @@ void main() {
 
     test('should generate correct tabs for technology service', () {
       final tabs = TabConfigurationFactory.generateTabsForService('1050000');
-      
+
       expect(tabs.length, 8); // 5 common + 3 specific
-      
+
       // 检查通用Tab
       expect(tabs.any((tab) => tab.label == 'Overview'), isTrue);
       expect(tabs.any((tab) => tab.label == 'Details'), isTrue);
       expect(tabs.any((tab) => tab.label == 'Provider'), isTrue);
       expect(tabs.any((tab) => tab.label == 'Reviews'), isTrue);
       expect(tabs.any((tab) => tab.label == 'For You'), isTrue);
-      
+
       // 检查技术服务特定Tab
       expect(tabs.any((tab) => tab.label == 'Features'), isTrue);
       expect(tabs.any((tab) => tab.label == 'Specifications'), isTrue);
@@ -94,9 +94,9 @@ void main() {
 
     test('should generate default tabs for unknown service type', () {
       final tabs = TabConfigurationFactory.generateTabsForService('9999999');
-      
+
       expect(tabs.length, 5); // 只有通用Tab
-      
+
       // 检查通用Tab
       expect(tabs.any((tab) => tab.label == 'Overview'), isTrue);
       expect(tabs.any((tab) => tab.label == 'Details'), isTrue);
@@ -107,9 +107,9 @@ void main() {
 
     test('should generate tabs for empty category ID', () {
       final tabs = TabConfigurationFactory.generateTabsForService('');
-      
+
       expect(tabs.length, 5); // 只有通用Tab
-      
+
       // 检查通用Tab
       expect(tabs.any((tab) => tab.label == 'Overview'), isTrue);
       expect(tabs.any((tab) => tab.label == 'Details'), isTrue);
@@ -120,7 +120,7 @@ void main() {
 
     test('should have correct icons for all tabs', () {
       final tabs = TabConfigurationFactory.generateTabsForService('1020000');
-      
+
       for (final tab in tabs) {
         expect(tab.icon, isNotNull);
         expect(tab.builder, isNotNull);
@@ -130,15 +130,15 @@ void main() {
     test('should have unique labels for all tabs', () {
       final tabs = TabConfigurationFactory.generateTabsForService('1020000');
       final labels = tabs.map((tab) => tab.label).toSet();
-      
+
       expect(labels.length, tabs.length); // 所有标签都应该是唯一的
     });
 
     test('should handle empty category ID', () {
       final tabs = TabConfigurationFactory.generateTabsForService('');
-      
+
       expect(tabs.length, 5); // 只有通用Tab
-      
+
       // 检查通用Tab
       expect(tabs.any((tab) => tab.label == 'Overview'), isTrue);
       expect(tabs.any((tab) => tab.label == 'Details'), isTrue);
@@ -149,7 +149,8 @@ void main() {
   });
 
   group('Tab Content Builder Tests', () {
-    testWidgets('should build overview tab content', (WidgetTester tester) async {
+    testWidgets('should build overview tab content',
+        (WidgetTester tester) async {
       final mockService = MockService(
         title: 'Test Service',
         description: 'Test Description',
@@ -163,9 +164,10 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: Builder(
-              builder: (context) => TabConfigurationFactory.generateTabsForService('1020000')
-                  .firstWhere((tab) => tab.label == 'Overview')
-                  .builder(context, mockService),
+              builder: (context) =>
+                  TabConfigurationFactory.generateTabsForService('1020000')
+                      .firstWhere((tab) => tab.label == 'Overview')
+                      .builder(context, mockService),
             ),
           ),
         ),
@@ -178,7 +180,8 @@ void main() {
       expect(find.text('(10 reviews)'), findsOneWidget);
     });
 
-    testWidgets('should build details tab content', (WidgetTester tester) async {
+    testWidgets('should build details tab content',
+        (WidgetTester tester) async {
       final mockService = MockService(
         title: 'Test Service',
         description: 'Test Description',
@@ -189,19 +192,22 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: Builder(
-              builder: (context) => TabConfigurationFactory.generateTabsForService('1020000')
-                  .firstWhere((tab) => tab.label == 'Details')
-                  .builder(context, mockService),
+              builder: (context) =>
+                  TabConfigurationFactory.generateTabsForService('1020000')
+                      .firstWhere((tab) => tab.label == 'Details')
+                      .builder(context, mockService),
             ),
           ),
         ),
       );
 
       expect(find.text('Service Details'), findsOneWidget);
-      expect(find.text('Detailed information about the service'), findsOneWidget);
+      expect(
+          find.text('Detailed information about the service'), findsOneWidget);
     });
 
-    testWidgets('should build provider tab content', (WidgetTester tester) async {
+    testWidgets('should build provider tab content',
+        (WidgetTester tester) async {
       final mockService = MockService(
         title: 'Test Service',
         description: 'Test Description',
@@ -212,19 +218,22 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: Builder(
-              builder: (context) => TabConfigurationFactory.generateTabsForService('1020000')
-                  .firstWhere((tab) => tab.label == 'Provider')
-                  .builder(context, mockService),
+              builder: (context) =>
+                  TabConfigurationFactory.generateTabsForService('1020000')
+                      .firstWhere((tab) => tab.label == 'Provider')
+                      .builder(context, mockService),
             ),
           ),
         ),
       );
 
       expect(find.text('Provider Information'), findsOneWidget);
-      expect(find.text('Information about the service provider'), findsOneWidget);
+      expect(
+          find.text('Information about the service provider'), findsOneWidget);
     });
 
-    testWidgets('should build reviews tab content', (WidgetTester tester) async {
+    testWidgets('should build reviews tab content',
+        (WidgetTester tester) async {
       final mockService = MockService(
         title: 'Test Service',
         description: 'Test Description',
@@ -235,9 +244,10 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: Builder(
-              builder: (context) => TabConfigurationFactory.generateTabsForService('1020000')
-                  .firstWhere((tab) => tab.label == 'Reviews')
-                  .builder(context, mockService),
+              builder: (context) =>
+                  TabConfigurationFactory.generateTabsForService('1020000')
+                      .firstWhere((tab) => tab.label == 'Reviews')
+                      .builder(context, mockService),
             ),
           ),
         ),
@@ -247,7 +257,8 @@ void main() {
       expect(find.text('Reviews and ratings from customers'), findsOneWidget);
     });
 
-    testWidgets('should build personalized tab content', (WidgetTester tester) async {
+    testWidgets('should build personalized tab content',
+        (WidgetTester tester) async {
       final mockService = MockService(
         title: 'Test Service',
         description: 'Test Description',
@@ -258,16 +269,18 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: Builder(
-              builder: (context) => TabConfigurationFactory.generateTabsForService('1020000')
-                  .firstWhere((tab) => tab.label == 'For You')
-                  .builder(context, mockService),
+              builder: (context) =>
+                  TabConfigurationFactory.generateTabsForService('1020000')
+                      .firstWhere((tab) => tab.label == 'For You')
+                      .builder(context, mockService),
             ),
           ),
         ),
       );
 
       expect(find.text('Personalized Recommendations'), findsOneWidget);
-      expect(find.text('Customized suggestions based on your preferences'), findsOneWidget);
+      expect(find.text('Customized suggestions based on your preferences'),
+          findsOneWidget);
     });
   });
 }

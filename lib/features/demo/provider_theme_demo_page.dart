@@ -62,18 +62,20 @@ class _ProviderThemeDemoPageState extends State<ProviderThemeDemoPage> {
                       const SizedBox(height: 16),
                       Row(
                         children: [
-                          _buildThemeInfo('主色调', _currentTheme.colorScheme.primary),
+                          _buildThemeInfo(
+                              '主色调', _currentTheme.colorScheme.primary),
                           const SizedBox(width: 16),
-                          _buildThemeInfo('第三色', _currentTheme.colorScheme.tertiary),
+                          _buildThemeInfo(
+                              '第三色', _currentTheme.colorScheme.tertiary),
                         ],
                       ),
                     ],
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // 按钮演示
               Text(
                 '按钮样式',
@@ -97,9 +99,9 @@ class _ProviderThemeDemoPageState extends State<ProviderThemeDemoPage> {
                   ),
                 ],
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // 输入框演示
               Text(
                 '输入框样式',
@@ -113,9 +115,9 @@ class _ProviderThemeDemoPageState extends State<ProviderThemeDemoPage> {
                   prefixIcon: const Icon(Icons.edit),
                 ),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // 卡片演示
               Text(
                 '卡片样式',
@@ -133,9 +135,9 @@ class _ProviderThemeDemoPageState extends State<ProviderThemeDemoPage> {
                   trailing: const Icon(Icons.arrow_forward_ios),
                 ),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // 开关和复选框演示
               Text(
                 '交互组件',
@@ -159,9 +161,9 @@ class _ProviderThemeDemoPageState extends State<ProviderThemeDemoPage> {
                   ),
                 ],
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // 进度指示器演示
               Text(
                 '进度指示器',
@@ -170,16 +172,18 @@ class _ProviderThemeDemoPageState extends State<ProviderThemeDemoPage> {
               const SizedBox(height: 12),
               LinearProgressIndicator(
                 value: 0.7,
-                backgroundColor: _currentTheme.colorScheme.surfaceContainerHighest,
+                backgroundColor:
+                    _currentTheme.colorScheme.surfaceContainerHighest,
               ),
               const SizedBox(height: 16),
               CircularProgressIndicator(
                 value: 0.7,
-                backgroundColor: _currentTheme.colorScheme.surfaceContainerHighest,
+                backgroundColor:
+                    _currentTheme.colorScheme.surfaceContainerHighest,
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // 底部导航栏演示
               Text(
                 '底部导航栏',
@@ -230,10 +234,10 @@ class _ProviderThemeDemoPageState extends State<ProviderThemeDemoPage> {
   }
 
   Widget _buildNavItem(IconData icon, String label, bool isSelected) {
-    final color = isSelected 
+    final color = isSelected
         ? _currentTheme.bottomNavigationBarTheme.selectedItemColor
         : _currentTheme.bottomNavigationBarTheme.unselectedItemColor;
-    
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -250,4 +254,4 @@ class _ProviderThemeDemoPageState extends State<ProviderThemeDemoPage> {
       ],
     );
   }
-} 
+}

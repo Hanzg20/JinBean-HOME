@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:jinbeanpod_83904710/test/provider_integration_test.dart' as integration_test;
-import 'package:jinbeanpod_83904710/test/provider_widget_test.dart' as widget_test;
+import 'package:jinbeanpod_83904710/test/provider_integration_test.dart'
+    as integration_test;
+import 'package:jinbeanpod_83904710/test/provider_widget_test.dart'
+    as widget_test;
 
 void main() {
   group('Provider Test Suite', () {
@@ -175,4 +177,4 @@ class ProviderTestReport {
 ╚══════════════════════════════════════════════════════════════╝
 ''');
   }
-} 
+}

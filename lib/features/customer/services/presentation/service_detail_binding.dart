@@ -6,4 +6,4 @@ class ServiceDetailBinding extends Bindings {
   void dependencies() {
     Get.lazyPut<ServiceDetailController>(() => ServiceDetailController());
   }
-} 
+}

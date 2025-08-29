@@ -1,4 +1,5 @@
-import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:flutter/material.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/core/plugin_management/app_plugin.dart';
 import 'service_map_page.dart';
@@ -11,7 +12,8 @@ class ServiceMapPlugin implements AppPlugin {
         icon: Icons.map,
         enabled: true,
         order: 5, // 可根据实际顺序调整
-        type: PluginType.standalonePage, // Changed from bottomTab to standalonePage
+        type: PluginType
+            .standalonePage, // Changed from bottomTab to standalonePage
         routeName: '/service_map',
         role: 'customer',
       );
@@ -43,4 +45,4 @@ class ServiceMapPlugin implements AppPlugin {
   void dispose() {
     AppLogger.info('ServiceMapPlugin disposed!');
   }
-} 
+}

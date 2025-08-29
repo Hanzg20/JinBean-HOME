@@ -257,4 +257,4 @@ class _ProviderSettingsPageState extends State<ProviderSettingsPage> {
       ),
     );
   }
-} 
+}

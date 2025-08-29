@@ -10,11 +10,12 @@ class StepCertification extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context) ?? AppLocalizationsEn();
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(localizations.certificationUpload, style: TextStyle(fontWeight: FontWeight.bold)),
+        Text(localizations.certificationUpload,
+            style: TextStyle(fontWeight: FontWeight.bold)),
         ElevatedButton(
           onPressed: () {
             // TODO: 实现文件选择与上传逻辑
@@ -33,7 +34,8 @@ class StepCertification extends StatelessWidget {
                 ),
               )),
         const SizedBox(height: 8),
-        Text('${localizations.currentStatus}: ${controller.certificationStatus}'),
+        Text(
+            '${localizations.currentStatus}: ${controller.certificationStatus}'),
       ],
     );
   }

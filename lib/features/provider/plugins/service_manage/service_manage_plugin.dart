@@ -6,23 +6,23 @@ import 'presentation/service_manage_page.dart';
 class ServiceManagePlugin extends AppPlugin {
   @override
   PluginMetadata get metadata => PluginMetadata(
-    id: 'service_manage',
-    nameKey: 'service_manage',
-    icon: Icons.build,
-    enabled: true,
-    order: 2,
-    type: PluginType.bottomTab,
-    routeName: '/provider/service_manage',
-    role: 'provider',
-  );
+        id: 'service_manage',
+        nameKey: 'service_manage',
+        icon: Icons.build,
+        enabled: true,
+        order: 2,
+        type: PluginType.bottomTab,
+        routeName: '/provider/service_manage',
+        role: 'provider',
+      );
 
   @override
   List<GetPage> getRoutes() => [
-    GetPage(
-      name: '/provider/service_manage',
-      page: () => const ServiceManagePage(),
-    ),
-  ];
+        GetPage(
+          name: '/provider/service_manage',
+          page: () => const ServiceManagePage(),
+        ),
+      ];
 
   @override
   Widget buildEntryWidget() => const ServiceManagePage();
@@ -31,4 +31,4 @@ class ServiceManagePlugin extends AppPlugin {
   void init() {}
   @override
   void dispose() {}
-} 
+}

@@ -84,9 +84,11 @@ class ReviewListCard extends StatelessWidget {
               items: [
                 DropdownMenuItem(value: 'newest', child: Text('Newest')),
                 DropdownMenuItem(value: 'oldest', child: Text('Oldest')),
-                DropdownMenuItem(value: 'highest', child: Text('Highest Rating')),
+                DropdownMenuItem(
+                    value: 'highest', child: Text('Highest Rating')),
                 DropdownMenuItem(value: 'lowest', child: Text('Lowest Rating')),
-                DropdownMenuItem(value: 'most_helpful', child: Text('Most Helpful')),
+                DropdownMenuItem(
+                    value: 'most_helpful', child: Text('Most Helpful')),
               ],
               onChanged: (value) {
                 if (value != null) onSortChanged(value);
@@ -136,11 +138,12 @@ class ReviewListCard extends StatelessWidget {
 
   Widget _buildReviewStats() {
     if (reviews.isEmpty) return const SizedBox.shrink();
-    
+
     final totalReviews = reviews.length;
-    final averageRating = reviews.fold(0.0, (sum, review) => sum + review.rating) / totalReviews;
+    final averageRating =
+        reviews.fold(0.0, (sum, review) => sum + review.rating) / totalReviews;
     final ratingDistribution = _calculateRatingDistribution();
-    
+
     return Row(
       children: [
         Expanded(
@@ -171,8 +174,9 @@ class ReviewListCard extends StatelessWidget {
             children: ratingDistribution.entries.map((entry) {
               final rating = entry.key;
               final count = entry.value;
-              final percentage = totalReviews > 0 ? (count / totalReviews * 100).round() : 0;
-              
+              final percentage =
+                  totalReviews > 0 ? (count / totalReviews * 100).round() : 0;
+
               return Padding(
                 padding: const EdgeInsets.only(bottom: 4),
                 child: Row(
@@ -190,7 +194,8 @@ class ReviewListCard extends StatelessWidget {
                       child: LinearProgressIndicator(
                         value: totalReviews > 0 ? count / totalReviews : 0,
                         backgroundColor: Colors.grey[300],
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(Colors.orange),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -216,14 +221,14 @@ class ReviewListCard extends StatelessWidget {
     for (int i = 1; i <= 5; i++) {
       distribution[i] = 0;
     }
-    
+
     for (final review in reviews) {
       final rating = review.rating.round();
       if (rating >= 1 && rating <= 5) {
         distribution[rating] = (distribution[rating] ?? 0) + 1;
       }
     }
-    
+
     return distribution;
   }
 
@@ -236,7 +241,7 @@ class ReviewListCard extends StatelessWidget {
         ),
       );
     }
-    
+
     if (reviews.isEmpty) {
       return const Center(
         child: Padding(
@@ -259,7 +264,7 @@ class ReviewListCard extends StatelessWidget {
         ),
       );
     }
-    
+
     return Column(
       children: reviews.map((review) => _buildReviewItem(review)).toList(),
     );
@@ -280,15 +285,17 @@ class ReviewListCard extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundImage: review.userAvatar != null && review.userAvatar!.isNotEmpty
-                    ? NetworkImage(review.userAvatar!)
-                    : null,
+                backgroundImage:
+                    review.userAvatar != null && review.userAvatar!.isNotEmpty
+                        ? NetworkImage(review.userAvatar!)
+                        : null,
                 child: review.userAvatar == null || review.userAvatar!.isEmpty
                     ? Text(
-                        review.userName?.isNotEmpty == true 
-                            ? review.userName![0].toUpperCase() 
+                        review.userName?.isNotEmpty == true
+                            ? review.userName![0].toUpperCase()
                             : 'U',
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
                       )
                     : null,
               ),
@@ -308,7 +315,9 @@ class ReviewListCard extends StatelessWidget {
                       children: [
                         ...List.generate(5, (index) {
                           return Icon(
-                            index < review.rating ? Icons.star : Icons.star_border,
+                            index < review.rating
+                                ? Icons.star
+                                : Icons.star_border,
                             color: Colors.orange,
                             size: 16,
                           );
@@ -328,7 +337,8 @@ class ReviewListCard extends StatelessWidget {
               ),
               if (review.isVerified)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
                     color: Colors.green,
                     borderRadius: BorderRadius.circular(8),
@@ -340,14 +350,11 @@ class ReviewListCard extends StatelessWidget {
                 ),
             ],
           ),
-          
           const SizedBox(height: 12),
-          
           Text(
             review.comment,
             style: const TextStyle(fontSize: 14),
           ),
-          
           if (review.images != null && review.images!.isNotEmpty) ...[
             const SizedBox(height: 12),
             SizedBox(
@@ -370,7 +377,8 @@ class ReviewListCard extends StatelessWidget {
                             width: 80,
                             height: 80,
                             color: Colors.grey[300],
-                            child: const Icon(Icons.broken_image, color: Colors.grey),
+                            child: const Icon(Icons.broken_image,
+                                color: Colors.grey),
                           );
                         },
                       ),

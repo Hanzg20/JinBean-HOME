@@ -24,60 +24,60 @@ class AppLocalizationsZh extends AppLocalizations {
   String get registerPageTitle => '注册';
 
   @override
-  String get usernameHint => 'Enter your username';
+  String get usernameHint => '请输入用户名';
 
   @override
-  String get passwordHint => 'Enter your password';
+  String get passwordHint => '请输入密码';
 
   @override
-  String get loginButton => 'Login';
+  String get loginButton => '登录';
 
   @override
-  String get registerButton => 'Register';
+  String get registerButton => '注册';
 
   @override
-  String get noAccountPrompt => 'Don\'t have an account?';
+  String get noAccountPrompt => '还没有账户？';
 
   @override
-  String get alreadyHaveAccountPrompt => 'Already have an account?';
+  String get alreadyHaveAccountPrompt => '已有账户？';
 
   @override
-  String get home => 'Home';
+  String get home => '首页';
 
   @override
-  String get service => 'Service';
+  String get service => '服务';
 
   @override
-  String get community => 'Community';
+  String get community => '社区';
 
   @override
-  String get profile => 'Profile';
+  String get profile => '个人';
 
   @override
-  String get provider_home => 'Provider Home';
+  String get provider_home => '服务商首页';
 
   @override
   String get serviceBookingPageTitle => '服务预约';
 
   @override
-  String get availableServices => 'Available Services';
+  String get availableServices => '可用服务';
 
   @override
   String bookService(Object service) {
-    return 'Book $service';
+    return '预约$service';
   }
 
   @override
-  String get selectDateAndTime => 'Select Date and Time';
+  String get selectDateAndTime => '选择日期和时间';
 
   @override
-  String get yourBookings => 'Your Bookings';
+  String get yourBookings => '您的预约';
 
   @override
-  String get provider_switch_button => 'Switch to Provider';
+  String get provider_switch_button => '切换到服务商';
 
   @override
-  String get provider_register_button => 'Register as Provider';
+  String get provider_register_button => '注册服务商';
 
   @override
   String get welcomeBack => '欢迎回来';
@@ -86,7 +86,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get signInToContinue => '登录以继续';
 
   @override
-  String get continueText => 'Continue';
+  String get continueText => '继续';
 
   @override
   String get searchForServices => '搜索服务...';
@@ -690,4 +690,57 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get registerAsProvider => '注册服务商';
+
+  @override
+  String get menu => '菜单';
+
+  @override
+  String get addToCart => '加入购物车';
+
+  @override
+  String get cart => '购物车';
+
+  @override
+  String get quantity => '数量';
+
+  @override
+  String get delete => '删除';
+
+  @override
+  String get checkout => '结算';
+
+  @override
+  String get cartEmpty => '购物车为空';
+
+  @override
+  String get cartItems => '购物车商品';
+
+  @override
+  String get selectDishes => '选择菜品';
+
+  @override
+  String get foodMenu => '美食菜单';
+
+  @override
+  String get loading => '加载中';
+
+  @override
+  String get confirm => '确认';
+
+  @override
+  String get cancel => '取消';
+
+  @override
+  String get remove => '移除';
+
+  @override
+  String get update => '更新';
+
+  @override
+  String get subtotal => '小计';
+
+  @override
+  String itemCount(int count) {
+    return '$count 项';
+  }
 }

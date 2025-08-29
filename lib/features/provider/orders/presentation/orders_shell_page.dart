@@ -17,20 +17,22 @@ class OrdersShellPage extends StatefulWidget {
   State<OrdersShellPage> createState() => _OrdersShellPageState();
 }
 
-class _OrdersShellPageState extends State<OrdersShellPage> with SingleTickerProviderStateMixin {
+class _OrdersShellPageState extends State<OrdersShellPage>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  
+
   // 平台组件状态管理
   final LoadingStateManager _loadingManager = LoadingStateManager();
 
   @override
   void initState() {
     super.initState();
-    AppLogger.debug('[OrdersShellPage] initState called', tag: 'OrdersShellPage');
-    
+    AppLogger.debug('[OrdersShellPage] initState called',
+        tag: 'OrdersShellPage');
+
     // 初始化网络状态为在线
     _loadingManager.setOnline();
-    
+
     // 确保Controller被注册
     if (!Get.isRegistered<OrderManageController>()) {
       Get.put(OrderManageController());
@@ -38,9 +40,9 @@ class _OrdersShellPageState extends State<OrdersShellPage> with SingleTickerProv
     if (!Get.isRegistered<RobOrderHallController>()) {
       Get.put(RobOrderHallController());
     }
-    
+
     _tabController = TabController(length: 2, vsync: this);
-    
+
     // 数据已经在controller中加载完成，直接设置为成功状态
     _loadingManager.setSuccess();
   }
@@ -56,11 +58,11 @@ class _OrdersShellPageState extends State<OrdersShellPage> with SingleTickerProv
   Future<void> _loadOrdersData() async {
     try {
       _loadingManager.setLoading();
-      
+
       // 加载订单数据
       await Get.find<OrderManageController>().loadOrders();
       await Get.find<RobOrderHallController>().loadStatistics();
-      
+
       _loadingManager.setSuccess();
     } catch (e) {
       _loadingManager.setError('加载订单数据失败: $e');
@@ -124,4 +126,4 @@ class _OrdersShellPageState extends State<OrdersShellPage> with SingleTickerProv
       ),
     );
   }
-} 
+}

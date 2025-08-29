@@ -68,7 +68,7 @@ class _OptimizedImageViewerState extends State<OptimizedImageViewer> {
             },
           ),
         ),
-        
+
         // 指示器
         if (widget.showIndicators && widget.imageUrls.length > 1)
           _buildPageIndicator(),
@@ -98,8 +98,12 @@ class _OptimizedImageViewerState extends State<OptimizedImageViewer> {
             fit: widget.fit,
             placeholder: (context, url) => _buildLoadingPlaceholder(),
             errorWidget: (context, url, error) => _buildErrorPlaceholder(),
-            memCacheWidth: (widget.width * MediaQuery.of(context).devicePixelRatio).round(),
-            memCacheHeight: (widget.height * MediaQuery.of(context).devicePixelRatio).round(),
+            memCacheWidth:
+                (widget.width * MediaQuery.of(context).devicePixelRatio)
+                    .round(),
+            memCacheHeight:
+                (widget.height * MediaQuery.of(context).devicePixelRatio)
+                    .round(),
             fadeInDuration: const Duration(milliseconds: 300),
             fadeOutDuration: const Duration(milliseconds: 300),
           ),
@@ -200,7 +204,8 @@ class _OptimizedImageViewerState extends State<OptimizedImageViewer> {
           appBar: AppBar(
             backgroundColor: Colors.black,
             foregroundColor: Colors.white,
-            title: Text('Image ${initialIndex + 1} of ${widget.imageUrls.length}'),
+            title:
+                Text('Image ${initialIndex + 1} of ${widget.imageUrls.length}'),
           ),
           body: PageView.builder(
             controller: PageController(initialPage: initialIndex),
@@ -217,7 +222,8 @@ class _OptimizedImageViewerState extends State<OptimizedImageViewer> {
                       child: CircularProgressIndicator(color: Colors.white),
                     ),
                     errorWidget: (context, url, error) => const Center(
-                      child: Icon(Icons.broken_image, color: Colors.white, size: 48),
+                      child: Icon(Icons.broken_image,
+                          color: Colors.white, size: 48),
                     ),
                   ),
                 ),
@@ -340,11 +346,11 @@ class ImagePreloadManager {
       final imageProvider = CachedNetworkImageProvider(imageUrl);
       final stream = imageProvider.resolve(const ImageConfiguration());
       final completer = Completer<void>();
-      
+
       stream.addListener(ImageStreamListener((info, _) {
         completer.complete();
       }));
-      
+
       await completer.future;
       _preloadedImages[imageUrl] = true;
       _imageCache[imageUrl] = imageProvider;

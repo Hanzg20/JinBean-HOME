@@ -12,19 +12,20 @@ class ProviderBindings extends Bindings {
   void dependencies() {
     // 收入管理控制器
     Get.lazyPut<IncomeController>(() => IncomeController());
-    
+
     // 通知管理控制器
     Get.lazyPut<NotificationController>(() => NotificationController());
-    
+
     // 服务管理控制器
-    Get.lazyPut<ServiceManagementController>(() => ServiceManagementController());
-    
+    Get.lazyPut<ServiceManagementController>(
+        () => ServiceManagementController());
+
     // 客户管理控制器
     Get.lazyPut<ClientController>(() => ClientController());
-    
+
     // 订单管理控制器
     Get.lazyPut<OrderManageController>(() => OrderManageController());
-    
+
     // 抢单大厅控制器
     Get.lazyPut<RobOrderHallController>(() => RobOrderHallController());
   }
@@ -37,30 +38,31 @@ class ProviderControllerManager {
     if (!Get.isRegistered<IncomeController>()) {
       Get.lazyPut<IncomeController>(() => IncomeController());
     }
-    
+
     // 通知管理控制器
     if (!Get.isRegistered<NotificationController>()) {
       Get.lazyPut<NotificationController>(() => NotificationController());
     }
-    
+
     // 服务管理控制器
     if (!Get.isRegistered<ServiceManagementController>()) {
-      Get.lazyPut<ServiceManagementController>(() => ServiceManagementController());
+      Get.lazyPut<ServiceManagementController>(
+          () => ServiceManagementController());
     }
-    
+
     // 客户管理控制器
     if (!Get.isRegistered<ClientController>()) {
       Get.lazyPut<ClientController>(() => ClientController());
     }
-    
+
     // 订单管理控制器
     if (!Get.isRegistered<OrderManageController>()) {
       Get.lazyPut<OrderManageController>(() => OrderManageController());
     }
-    
+
     // 抢单大厅控制器
     if (!Get.isRegistered<RobOrderHallController>()) {
       Get.lazyPut<RobOrderHallController>(() => RobOrderHallController());
     }
   }
-} 
+}

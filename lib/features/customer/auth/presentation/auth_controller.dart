@@ -1,4 +1,5 @@
-import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:flutter/material.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:crypto/crypto.dart';
@@ -22,7 +23,8 @@ class AuthController extends GetxController {
   final isPasswordVisible = false.obs;
   final isLoading = false.obs;
   final errorMessage = ''.obs;
-  final selectedLoginRole = 'customer'.obs; // New: Observable for selected login role
+  final selectedLoginRole =
+      'customer'.obs; // New: Observable for selected login role
   final userProfileRole = ''.obs; // New: Observable for the user's role from DB
 
   // Remove Mock user database
@@ -74,16 +76,18 @@ class AuthController extends GetxController {
       );
 
       if (response.user != null) {
-        AppLogger.info('[AuthController] Login successful for user: ${response.user!.id}');
-        
+        AppLogger.info(
+            '[AuthController] Login successful for user: ${response.user!.id}');
+
         // 立即检查并打印 provider 角色状态
         try {
-          final providerStatus = await ProviderIdentityService.getProviderStatus();
+          final providerStatus =
+              await ProviderIdentityService.getProviderStatus();
           AppLogger.info('[AuthController] 登录后 provider 角色状态: $providerStatus');
         } catch (e) {
           AppLogger.info('[AuthController] 获取 provider 角色状态时出错: $e');
         }
-        
+
         // 拉取用户 profile
         final profile = await Supabase.instance.client
             .from('user_profiles')
@@ -93,23 +97,27 @@ class AuthController extends GetxController {
         AppLogger.info('[AuthController] User profile fetched: $profile');
         final String userProfileRoleFromDb = profile?['role'] ?? 'customer';
         userProfileRole.value = userProfileRoleFromDb;
-        AppLogger.info('[AuthController] User profile role set to: $userProfileRoleFromDb');
-        
+        AppLogger.info(
+            '[AuthController] User profile role set to: $userProfileRoleFromDb');
+
         // 如果用户是customer+provider，不在这里设置finalRole，让login_page处理
         if (userProfileRoleFromDb == 'customer+provider') {
-          AppLogger.info('[AuthController] User is customer+provider, will be handled by login_page');
+          AppLogger.info(
+              '[AuthController] User is customer+provider, will be handled by login_page');
           // 不设置PluginManager的角色，让login_page处理角色选择
           return true;
         } else if (userProfileRoleFromDb == 'provider') {
-          AppLogger.info('[AuthController] User is provider, setting PluginManager role');
+          AppLogger.info(
+              '[AuthController] User is provider, setting PluginManager role');
           Get.find<PluginManager>().currentRole.value = 'provider';
           return true;
         } else {
           // 单一角色用户，直接设置角色
           String finalRole = userProfileRoleFromDb;
-        Get.find<PluginManager>().currentRole.value = finalRole;
-          AppLogger.info('[AuthController] User is single role: $finalRole, setting PluginManager role');
-        return true;
+          Get.find<PluginManager>().currentRole.value = finalRole;
+          AppLogger.info(
+              '[AuthController] User is single role: $finalRole, setting PluginManager role');
+          return true;
         }
       } else {
         errorMessage.value = 'Login failed. Please check your credentials.';
@@ -231,7 +239,8 @@ class AuthController extends GetxController {
 
   // Modified to accept a Supabase User object
   Future<void> _handleSuccessfulLogin(User user) async {
-    AppLogger.info('[AuthController] _handleSuccessfulLogin called for user: ${user.id}');
+    AppLogger.info(
+        '[AuthController] _handleSuccessfulLogin called for user: ${user.id}');
     try {
       // Store user ID for session persistence
       await _storage.write('userId', user.id);
@@ -246,18 +255,23 @@ class AuthController extends GetxController {
           .maybeSingle();
 
       if (profileResponse != null) {
-        AppLogger.info('[AuthController] User profile fetched: $profileResponse');
+        AppLogger.info(
+            '[AuthController] User profile fetched: $profileResponse');
         final Map<String, dynamic> cleanedProfile = Map.from(profileResponse);
         // Ensure the fetched role is respected if user has an existing role
-        final String userProfileRoleFromDb = cleanedProfile['role'] ?? 'customer';
-        userProfileRole.value = userProfileRoleFromDb; // Update the observable with fetched role
-        AppLogger.info('[AuthController] userProfileRoleFromDb: $userProfileRoleFromDb');
-        
+        final String userProfileRoleFromDb =
+            cleanedProfile['role'] ?? 'customer';
+        userProfileRole.value =
+            userProfileRoleFromDb; // Update the observable with fetched role
+        AppLogger.info(
+            '[AuthController] userProfileRoleFromDb: $userProfileRoleFromDb');
+
         // Use the explicitly selected role if available, otherwise use profile role
         // This logic allows the user to select 'customer' or 'provider' even if their DB role is 'customer+provider'
         // or to choose the specific role if they are 'customer+provider' and haven't selected yet.
         final String finalRole = selectedLoginRole.value;
-        AppLogger.info('[AuthController] selectedLoginRole: $selectedLoginRole, finalRole for PluginManager: $finalRole');
+        AppLogger.info(
+            '[AuthController] selectedLoginRole: $selectedLoginRole, finalRole for PluginManager: $finalRole');
 
         // Update PluginManager's current role
         Get.find<PluginManager>().currentRole.value = finalRole;
@@ -277,7 +291,8 @@ class AuthController extends GetxController {
         AppLogger.info('[AuthController] User profile stored locally.');
         AppLogger.info('User profile loaded successfully');
       } else {
-        AppLogger.info('[AuthController] No user profile found. Defaulting role to customer.');
+        AppLogger.info(
+            '[AuthController] No user profile found. Defaulting role to customer.');
       }
       final profileController = Get.find<ProfileController>();
       profileController.loadUserProfile();
@@ -332,7 +347,8 @@ class AuthController extends GetxController {
       // This ensures any active UI listeners bound to ProfileController see safe empty values
       if (Get.isRegistered<ProfileController>()) {
         final profileController = Get.find<ProfileController>();
-        AppLogger.info('[AuthController] logout: Resetting ProfileController states.');
+        AppLogger.info(
+            '[AuthController] logout: Resetting ProfileController states.');
         profileController.userName.value = '';
         profileController.memberSince.value = '';
         profileController.avatarUrl.value = '';
@@ -347,19 +363,20 @@ class AuthController extends GetxController {
         AppLogger.info(
             '[AuthController] logout: ProfileController avatarUrl after reset: ${profileController.avatarUrl.value}');
       } else {
-        AppLogger.info('[AuthController] logout: ProfileController not registered.');
+        AppLogger.info(
+            '[AuthController] logout: ProfileController not registered.');
       }
 
       // Step 2: Dismiss any open dialogs or bottom sheets
       if (Get.isDialogOpen == true || Get.isBottomSheetOpen == true) {
         Get.back();
       }
-      
+
       // Step 3: Clear stored user ID and user profile from local storage
       await _storage.remove('userId');
       await _storage.remove('userProfile');
       AppLogger.info('Local storage userId and userProfile cleared.');
-      
+
       // Step 4: Sign out from Supabase
       await Supabase.instance.client.auth.signOut();
       AppLogger.info('User signed out successfully from Supabase.');
@@ -368,7 +385,8 @@ class AuthController extends GetxController {
       await Future.delayed(const Duration(milliseconds: 500));
 
       Get.offAllNamed('/auth');
-    } catch (e, s) { // Added StackTrace s
+    } catch (e, s) {
+      // Added StackTrace s
       AppLogger.info('Logout error: $e\nStackTrace: $s'); // Print StackTrace
       Get.snackbar('Error', 'Failed to logout. Please try again.');
     }
@@ -376,14 +394,16 @@ class AuthController extends GetxController {
 
   // Social login methods remain as placeholders for now
   Future<void> signInWithGoogle() async {
-    AppLogger.info('Google Sign In button pressed (functionality disabled for now)');
+    AppLogger.info(
+        'Google Sign In button pressed (functionality disabled for now)');
     errorMessage.value = 'Google Sign-In is not yet implemented.';
     // await Supabase.instance.client.auth.signInWithOAuth(OAuthProvider.google);
     return;
   }
 
   Future<void> signInWithApple() async {
-    AppLogger.info('Apple Sign In button pressed (functionality disabled for now)');
+    AppLogger.info(
+        'Apple Sign In button pressed (functionality disabled for now)');
     errorMessage.value = 'Apple Sign-In is not yet implemented.';
     // await Supabase.instance.client.auth.signInWithOAuth(OAuthProvider.apple);
     return;
@@ -411,18 +431,20 @@ class AuthController extends GetxController {
       if (user != null) {
         final updateResp = await Supabase.instance.client
             .from('user_profiles')
-            .update({'role': 'customer+provider'})
-            .eq('id', user.id);
-        
+            .update({'role': 'customer+provider'}).eq('id', user.id);
+
         if (updateResp.error != null) {
-          AppLogger.info('[AuthController] Error updating user role: ${updateResp.error!.message}');
+          AppLogger.info(
+              '[AuthController] Error updating user role: ${updateResp.error!.message}');
         } else {
-          AppLogger.info('[AuthController] User role updated to customer+provider for ${user.id}');
+          AppLogger.info(
+              '[AuthController] User role updated to customer+provider for ${user.id}');
           userProfileRole.value = 'customer+provider';
         }
       }
     } catch (e) {
-      AppLogger.info('[AuthController] Error setting user as customer+provider: $e');
+      AppLogger.info(
+          '[AuthController] Error setting user as customer+provider: $e');
     }
   }
 }

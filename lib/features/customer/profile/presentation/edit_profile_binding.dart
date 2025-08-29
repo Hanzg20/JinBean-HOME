@@ -6,4 +6,4 @@ class EditProfileBinding extends Bindings {
     // Get.lazyPut<EditProfileController>(() => EditProfileController());
     // You can add a controller for EditProfilePage here if needed later
   }
-} 
+}

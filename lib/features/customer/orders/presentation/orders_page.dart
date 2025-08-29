@@ -16,10 +16,10 @@ class OrdersPage extends StatefulWidget {
 class _OrdersPageState extends State<OrdersPage> {
   // 平台组件状态管理
   final LoadingStateManager _loadingManager = LoadingStateManager();
-  
+
   // 获取controller
   late OrdersController controller;
-  
+
   @override
   void initState() {
     super.initState();
@@ -41,10 +41,10 @@ class _OrdersPageState extends State<OrdersPage> {
   Future<void> _loadOrdersData() async {
     try {
       _loadingManager.setLoading();
-      
+
       // 加载订单列表
       await controller.loadOrders();
-      
+
       _loadingManager.setSuccess();
     } catch (e) {
       _loadingManager.setError('加载订单数据失败: $e');
@@ -55,11 +55,13 @@ class _OrdersPageState extends State<OrdersPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        title: Text('My Orders', style: theme.textTheme.titleLarge?.copyWith(color: colorScheme.onPrimary)),
+        title: Text('My Orders',
+            style: theme.textTheme.titleLarge
+                ?.copyWith(color: colorScheme.onPrimary)),
         backgroundColor: colorScheme.primary,
         foregroundColor: colorScheme.onPrimary,
         elevation: 0,
@@ -75,7 +77,7 @@ class _OrdersPageState extends State<OrdersPage> {
               children: [
                 // 状态筛选栏
                 _buildStatusFilter(),
-                
+
                 // 订单列表
                 Expanded(
                   child: _buildOrdersList(),
@@ -93,7 +95,7 @@ class _OrdersPageState extends State<OrdersPage> {
       builder: (context) {
         final theme = Theme.of(context);
         final colorScheme = theme.colorScheme;
-        
+
         return Container(
           height: 60,
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -108,40 +110,45 @@ class _OrdersPageState extends State<OrdersPage> {
             ],
           ),
           child: Obx(() => ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: controller.statusFilters.length,
-            itemBuilder: (context, index) {
-              final filter = controller.statusFilters[index];
-              final isSelected = controller.selectedStatus.value == filter;
-              
-              return Container(
-                margin: const EdgeInsets.only(right: 12),
-                child: FilterChip(
-                  label: Text(
-                    filter,
-                    style: TextStyle(
-                      color: isSelected ? colorScheme.onPrimary : colorScheme.onSurface,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                scrollDirection: Axis.horizontal,
+                itemCount: controller.statusFilters.length,
+                itemBuilder: (context, index) {
+                  final filter = controller.statusFilters[index];
+                  final isSelected = controller.selectedStatus.value == filter;
+
+                  return Container(
+                    margin: const EdgeInsets.only(right: 12),
+                    child: FilterChip(
+                      label: Text(
+                        filter,
+                        style: TextStyle(
+                          color: isSelected
+                              ? colorScheme.onPrimary
+                              : colorScheme.onSurface,
+                          fontWeight:
+                              isSelected ? FontWeight.w600 : FontWeight.normal,
+                        ),
+                      ),
+                      selected: isSelected,
+                      onSelected: (selected) {
+                        controller.filterByStatus(filter);
+                      },
+                      backgroundColor: colorScheme.surfaceContainerHighest,
+                      selectedColor: colorScheme.primary,
+                      checkmarkColor: colorScheme.onPrimary,
+                      side: BorderSide(
+                        color: isSelected
+                            ? colorScheme.primary
+                            : colorScheme.outline.withValues(alpha: 0.3),
+                        width: 1,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
                     ),
-                  ),
-                  selected: isSelected,
-                  onSelected: (selected) {
-                    controller.filterByStatus(filter);
-                  },
-                  backgroundColor: colorScheme.surfaceContainerHighest,
-                  selectedColor: colorScheme.primary,
-                  checkmarkColor: colorScheme.onPrimary,
-                  side: BorderSide(
-                    color: isSelected ? colorScheme.primary : colorScheme.outline.withValues(alpha: 0.3),
-                    width: 1,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-              );
-            },
-          )),
+                  );
+                },
+              )),
         );
       },
     );
@@ -152,7 +159,7 @@ class _OrdersPageState extends State<OrdersPage> {
       builder: (context) {
         final theme = Theme.of(context);
         final colorScheme = theme.colorScheme;
-        
+
         return CustomerCard(
           onTap: () => _showOrderDetails(order),
           child: Padding(
@@ -190,11 +197,12 @@ class _OrdersPageState extends State<OrdersPage> {
                   ],
                 ),
                 const SizedBox(height: 12),
-                
+
                 // 订单详情
                 Row(
                   children: [
-                    Icon(Icons.calendar_today, size: 16, color: colorScheme.onSurfaceVariant),
+                    Icon(Icons.calendar_today,
+                        size: 16, color: colorScheme.onSurfaceVariant),
                     const SizedBox(width: 8),
                     Text(
                       order.scheduledDate ?? 'Date not set',
@@ -203,7 +211,8 @@ class _OrdersPageState extends State<OrdersPage> {
                       ),
                     ),
                     const Spacer(),
-                    Icon(Icons.access_time, size: 16, color: colorScheme.onSurfaceVariant),
+                    Icon(Icons.access_time,
+                        size: 16, color: colorScheme.onSurfaceVariant),
                     const SizedBox(width: 8),
                     Text(
                       order.scheduledTime ?? 'Time not set',
@@ -214,10 +223,11 @@ class _OrdersPageState extends State<OrdersPage> {
                   ],
                 ),
                 const SizedBox(height: 8),
-                
+
                 Row(
                   children: [
-                    Icon(Icons.location_on, size: 16, color: colorScheme.onSurfaceVariant),
+                    Icon(Icons.location_on,
+                        size: 16, color: colorScheme.onSurfaceVariant),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -232,7 +242,7 @@ class _OrdersPageState extends State<OrdersPage> {
                   ],
                 ),
                 const SizedBox(height: 12),
-                
+
                 // 价格和操作按钮
                 Row(
                   children: [
@@ -248,7 +258,8 @@ class _OrdersPageState extends State<OrdersPage> {
                       OutlinedButton(
                         onPressed: () => _cancelOrder(order),
                         style: OutlinedButton.styleFrom(
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
                           side: BorderSide(color: colorScheme.error),
                         ),
                         child: Text(
@@ -261,7 +272,8 @@ class _OrdersPageState extends State<OrdersPage> {
                         onPressed: () => _reviewService(order),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: colorScheme.primary,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
                         ),
                         child: Text(
                           'Review',
@@ -281,7 +293,7 @@ class _OrdersPageState extends State<OrdersPage> {
   Widget _buildStatusBadge(String status, ColorScheme colorScheme) {
     Color badgeColor;
     Color textColor;
-    
+
     switch (status.toLowerCase()) {
       case 'pending':
         badgeColor = Colors.orange;
@@ -307,7 +319,7 @@ class _OrdersPageState extends State<OrdersPage> {
         badgeColor = colorScheme.surfaceContainerHighest;
         textColor = colorScheme.onSurfaceVariant;
     }
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
@@ -329,7 +341,7 @@ class _OrdersPageState extends State<OrdersPage> {
     Color chipColor;
     Color textColor;
     IconData icon;
-    
+
     switch (status.toLowerCase()) {
       case 'pendingacceptance':
         chipColor = Colors.orange[50]!;
@@ -361,7 +373,7 @@ class _OrdersPageState extends State<OrdersPage> {
         textColor = Colors.grey[700]!;
         icon = Icons.info_outline;
     }
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
@@ -397,7 +409,11 @@ class _OrdersPageState extends State<OrdersPage> {
       child: Column(
         children: [
           _buildDetailRow('Date', _formatDate(order.createdAt)),
-          _buildDetailRow('Time', order.scheduledStartTime != null ? _formatDateTime(order.scheduledStartTime!) : 'Not scheduled'),
+          _buildDetailRow(
+              'Time',
+              order.scheduledStartTime != null
+                  ? _formatDateTime(order.scheduledStartTime!)
+                  : 'Not scheduled'),
           _buildDetailRow('Total', '\$${order.totalPrice.toStringAsFixed(2)}'),
           _buildDetailRow('Payment', order.paymentStatus),
         ],
@@ -437,7 +453,7 @@ class _OrdersPageState extends State<OrdersPage> {
 
   Widget _buildOrderActions(dynamic order) {
     final status = order.orderStatus.toLowerCase();
-    
+
     return Row(
       children: [
         // 查看详情按钮
@@ -446,20 +462,21 @@ class _OrdersPageState extends State<OrdersPage> {
             icon: const Icon(Icons.visibility, size: 16),
             label: const Text('Details'),
             style: OutlinedButton.styleFrom(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
               padding: const EdgeInsets.symmetric(vertical: 8),
             ),
             onPressed: () => _showOrderDetails(order),
           ),
         ),
-        
+
         const SizedBox(width: 8),
-        
+
         // 主要操作按钮
         Expanded(
           child: _buildMainActionButton(order, status),
         ),
-        
+
         // 更多操作按钮
         const SizedBox(width: 8),
         PopupMenuButton<String>(
@@ -480,7 +497,8 @@ class _OrdersPageState extends State<OrdersPage> {
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.red,
             foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             padding: const EdgeInsets.symmetric(vertical: 8),
           ),
           onPressed: () => _cancelOrder(order),
@@ -492,7 +510,8 @@ class _OrdersPageState extends State<OrdersPage> {
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.blue,
             foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             padding: const EdgeInsets.symmetric(vertical: 8),
           ),
           onPressed: () => _messageProvider(order),
@@ -504,7 +523,8 @@ class _OrdersPageState extends State<OrdersPage> {
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.green,
             foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             padding: const EdgeInsets.symmetric(vertical: 8),
           ),
           onPressed: () => _reviewService(order),
@@ -516,7 +536,8 @@ class _OrdersPageState extends State<OrdersPage> {
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.grey,
             foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             padding: const EdgeInsets.symmetric(vertical: 8),
           ),
           onPressed: () => _showOrderDetails(order),
@@ -526,7 +547,7 @@ class _OrdersPageState extends State<OrdersPage> {
 
   List<PopupMenuEntry<String>> _buildMenuItems(dynamic order, String status) {
     final items = <PopupMenuEntry<String>>[];
-    
+
     items.add(
       const PopupMenuItem(
         value: 'details',
@@ -539,7 +560,7 @@ class _OrdersPageState extends State<OrdersPage> {
         ),
       ),
     );
-    
+
     if (status == 'pendingacceptance') {
       items.add(
         const PopupMenuItem(
@@ -554,7 +575,7 @@ class _OrdersPageState extends State<OrdersPage> {
         ),
       );
     }
-    
+
     if (status == 'completed') {
       items.add(
         const PopupMenuItem(
@@ -569,7 +590,7 @@ class _OrdersPageState extends State<OrdersPage> {
         ),
       );
     }
-    
+
     items.add(
       const PopupMenuItem(
         value: 'share',
@@ -582,7 +603,7 @@ class _OrdersPageState extends State<OrdersPage> {
         ),
       ),
     );
-    
+
     return items;
   }
 
@@ -672,7 +693,6 @@ class _OrdersPageState extends State<OrdersPage> {
 
   Widget _buildOrdersList() {
     return Obx(() {
-      
       if (controller.orders.isEmpty) {
         return const CustomerEmptyState(
           icon: Icons.receipt_long,
@@ -680,7 +700,7 @@ class _OrdersPageState extends State<OrdersPage> {
           subtitle: 'Your orders will appear here once you book a service',
         );
       }
-      
+
       return RefreshIndicator(
         onRefresh: () async {
           await _loadOrdersData();
@@ -696,4 +716,4 @@ class _OrdersPageState extends State<OrdersPage> {
       );
     });
   }
-} 
+}

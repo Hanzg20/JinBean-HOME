@@ -58,4 +58,4 @@ class NotificationSettingsController extends GetxController {
     quietHoursEnd.value = time;
     // TODO: Save setting to storage/backend
   }
-} 
+}

@@ -31,7 +31,8 @@ class MyOrdersController extends GetxController {
   }
 
   Future<void> loadOrders() async {
-    AppLogger.info('MyOrdersController: loadOrders called', tag: 'MyOrdersController');
+    AppLogger.info('MyOrdersController: loadOrders called',
+        tag: 'MyOrdersController');
     isLoading.value = true;
     try {
       // TODO: Implement actual API call to fetch orders
@@ -64,14 +65,16 @@ class MyOrdersController extends GetxController {
         ),
       ];
     } catch (e, stack) {
-      AppLogger.error('MyOrdersController: Failed to load orders', error: e, stackTrace: stack, tag: 'MyOrdersController');
+      AppLogger.error('MyOrdersController: Failed to load orders',
+          error: e, stackTrace: stack, tag: 'MyOrdersController');
     } finally {
       isLoading.value = false;
     }
   }
 
   Future<void> refreshOrders() async {
-    AppLogger.info('MyOrdersController: refreshOrders called', tag: 'MyOrdersController');
+    AppLogger.info('MyOrdersController: refreshOrders called',
+        tag: 'MyOrdersController');
     await loadOrders();
   }
-} 
+}

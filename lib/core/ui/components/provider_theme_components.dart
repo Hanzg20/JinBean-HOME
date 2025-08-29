@@ -24,7 +24,7 @@ class ProviderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     Widget cardContent = Container(
       padding: padding ?? const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -34,13 +34,15 @@ class ProviderCard extends StatelessWidget {
           color: colorScheme.outline.withValues(alpha: 0.1),
           width: 1,
         ),
-        boxShadow: showShadow ? [
-          BoxShadow(
-            color: colorScheme.shadow.withValues(alpha: 0.08),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ] : null,
+        boxShadow: showShadow
+            ? [
+                BoxShadow(
+                  color: colorScheme.shadow.withValues(alpha: 0.08),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ]
+            : null,
       ),
       child: child,
     );
@@ -79,7 +81,7 @@ class ProviderIconContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Container(
       width: size,
       height: size,
@@ -119,10 +121,10 @@ class ProviderButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     ButtonStyle buttonStyle;
     Color textColor;
-    
+
     switch (type) {
       case ProviderButtonType.primary:
         buttonStyle = ElevatedButton.styleFrom(
@@ -241,11 +243,12 @@ class ProviderListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Column(
       children: [
         ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           leading: leadingIcon != null
               ? ProviderIconContainer(
                   icon: leadingIcon!,
@@ -267,13 +270,14 @@ class ProviderListTile extends StatelessWidget {
                   ),
                 )
               : null,
-          trailing: trailing ?? (onTap != null
-              ? Icon(
-                  Icons.arrow_forward_ios,
-                  color: colorScheme.onSurfaceVariant,
-                  size: 16,
-                )
-              : null),
+          trailing: trailing ??
+              (onTap != null
+                  ? Icon(
+                      Icons.arrow_forward_ios,
+                      color: colorScheme.onSurfaceVariant,
+                      size: 16,
+                    )
+                  : null),
           onTap: onTap,
         ),
         if (showDivider)
@@ -305,10 +309,10 @@ class ProviderBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     Color backgroundColor;
     Color textColor;
-    
+
     switch (type) {
       case ProviderBadgeType.primary:
         backgroundColor = colorScheme.primary;
@@ -327,7 +331,7 @@ class ProviderBadge extends StatelessWidget {
         textColor = colorScheme.onTertiary;
         break;
     }
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
@@ -371,9 +375,10 @@ class ProviderSectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Padding(
-      padding: padding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding:
+          padding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
           Expanded(
@@ -416,7 +421,7 @@ class ProviderStatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return ProviderCard(
       onTap: onTap,
       padding: const EdgeInsets.all(16),
@@ -470,7 +475,7 @@ class ProviderLoadingState extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -516,7 +521,7 @@ class ProviderEmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -577,7 +582,7 @@ class ProviderErrorState extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -611,4 +616,4 @@ class ProviderErrorState extends StatelessWidget {
       ),
     );
   }
-} 
+}

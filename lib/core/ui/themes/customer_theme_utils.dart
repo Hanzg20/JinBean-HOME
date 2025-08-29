@@ -8,7 +8,7 @@ class CustomerThemeUtils {
   static BoxDecoration getCardDecoration(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return BoxDecoration(
       color: colorScheme.surface,
       borderRadius: const BorderRadius.only(
@@ -35,7 +35,7 @@ class CustomerThemeUtils {
   static BoxDecoration getIconContainerDecoration(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return BoxDecoration(
       gradient: LinearGradient(
         begin: Alignment.topLeft,
@@ -65,7 +65,7 @@ class CustomerThemeUtils {
   static ButtonStyle getPrimaryButtonStyle(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return ElevatedButton.styleFrom(
       backgroundColor: colorScheme.primary,
       foregroundColor: colorScheme.onPrimary,
@@ -79,7 +79,8 @@ class CustomerThemeUtils {
           bottomRight: Radius.circular(12),
         ),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16), // Customer端使用更大的内边距
+      padding: const EdgeInsets.symmetric(
+          horizontal: 32, vertical: 16), // Customer端使用更大的内边距
       textStyle: theme.textTheme.labelLarge?.copyWith(
         fontWeight: FontWeight.w600,
         fontSize: 16,
@@ -91,7 +92,7 @@ class CustomerThemeUtils {
   static ButtonStyle getSecondaryButtonStyle(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return OutlinedButton.styleFrom(
       foregroundColor: colorScheme.primary,
       side: BorderSide(color: colorScheme.primary, width: 1.5),
@@ -121,7 +122,7 @@ class CustomerThemeUtils {
   }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return InputDecoration(
       labelText: labelText,
       hintText: hintText,
@@ -131,7 +132,8 @@ class CustomerThemeUtils {
       fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16), // Customer端使用更大的圆角
-        borderSide: BorderSide(color: colorScheme.outline.withValues(alpha: 0.2)),
+        borderSide:
+            BorderSide(color: colorScheme.outline.withValues(alpha: 0.2)),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
@@ -147,7 +149,8 @@ class CustomerThemeUtils {
           width: 2,
         ),
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16), // Customer端使用更大的内边距
+      contentPadding: const EdgeInsets.symmetric(
+          horizontal: 20, vertical: 16), // Customer端使用更大的内边距
       labelStyle: theme.textTheme.bodyMedium?.copyWith(
         color: colorScheme.onSurfaceVariant,
         fontSize: 15, // Customer端使用稍大的字体
@@ -163,7 +166,7 @@ class CustomerThemeUtils {
   static Widget getDivider(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Divider(
       color: colorScheme.outline.withValues(alpha: 0.2),
       height: 1,
@@ -175,7 +178,7 @@ class CustomerThemeUtils {
   static Widget getLoadingIndicator(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Center(
       child: CircularProgressIndicator(
         color: colorScheme.primary,
@@ -195,7 +198,7 @@ class CustomerThemeUtils {
   }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -263,7 +266,7 @@ class CustomerThemeUtils {
   }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -324,7 +327,7 @@ class CustomerThemeUtils {
   }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -376,7 +379,7 @@ class CustomerThemeUtils {
   }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -397,7 +400,7 @@ class CustomerThemeUtils {
   }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -420,7 +423,7 @@ class CustomerThemeUtils {
   }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return InputDecoration(
       hintText: hintText ?? '搜索服务...',
       hintStyle: theme.textTheme.bodyMedium?.copyWith(
@@ -471,7 +474,7 @@ class CustomerThemeUtils {
   static BoxDecoration getServiceCardDecoration(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return BoxDecoration(
       color: colorScheme.surface,
       borderRadius: BorderRadius.circular(16),
@@ -493,7 +496,7 @@ class CustomerThemeUtils {
   static BoxDecoration getRecommendationCardDecoration(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return BoxDecoration(
       color: colorScheme.surface,
       borderRadius: BorderRadius.circular(12),
@@ -510,4 +513,4 @@ class CustomerThemeUtils {
       ],
     );
   }
-} 
+}

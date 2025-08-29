@@ -39,7 +39,7 @@ class ProviderDetailsSection extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            
+
             // 提供商基本信息
             Obx(() {
               final provider = controller.providerProfile.value;
@@ -49,7 +49,8 @@ class ProviderDetailsSection extends StatelessWidget {
                     padding: EdgeInsets.all(32),
                     child: Column(
                       children: [
-                        Icon(Icons.business_outlined, size: 48, color: Colors.grey),
+                        Icon(Icons.business_outlined,
+                            size: 48, color: Colors.grey),
                         SizedBox(height: 16),
                         Text(
                           '暂无提供商信息',
@@ -71,15 +72,15 @@ class ProviderDetailsSection extends StatelessWidget {
                       // 提供商头像
                       CircleAvatar(
                         radius: 30,
-                        backgroundImage: provider.avatar != null 
-                          ? NetworkImage(provider.avatar!) 
-                          : null,
-                        child: provider.avatar == null 
-                          ? Text(provider.name.substring(0, 1).toUpperCase())
-                          : null,
+                        backgroundImage: provider.avatar != null
+                            ? NetworkImage(provider.avatar!)
+                            : null,
+                        child: provider.avatar == null
+                            ? Text(provider.name.substring(0, 1).toUpperCase())
+                            : null,
                       ),
                       const SizedBox(width: 16),
-                      
+
                       // 提供商信息
                       Expanded(
                         child: Column(
@@ -96,7 +97,8 @@ class ProviderDetailsSection extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 8),
                                 if (provider.isVerified)
-                                  Icon(Icons.verified, color: Colors.blue, size: 20),
+                                  Icon(Icons.verified,
+                                      color: Colors.blue, size: 20),
                               ],
                             ),
                             const SizedBox(height: 4),
@@ -113,11 +115,15 @@ class ProviderDetailsSection extends StatelessWidget {
                             const SizedBox(height: 8),
                             Row(
                               children: [
-                                ...List.generate(5, (index) => Icon(
-                                  index < (provider.rating ?? 0) ? Icons.star : Icons.star_border,
-                                  color: Colors.amber,
-                                  size: 16,
-                                )),
+                                ...List.generate(
+                                    5,
+                                    (index) => Icon(
+                                          index < (provider.rating ?? 0)
+                                              ? Icons.star
+                                              : Icons.star_border,
+                                          color: Colors.amber,
+                                          size: 16,
+                                        )),
                                 const SizedBox(width: 4),
                                 Text(
                                   '${provider.rating?.toStringAsFixed(1) ?? 'N/A'} (${provider.reviewCount ?? 0})',
@@ -133,11 +139,11 @@ class ProviderDetailsSection extends StatelessWidget {
                       ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 16),
                   const Divider(),
                   const SizedBox(height: 16),
-                  
+
                   // 提供商统计信息
                   Row(
                     children: [
@@ -167,9 +173,9 @@ class ProviderDetailsSection extends StatelessWidget {
                       ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // 联系信息
                   if (provider.phone != null || provider.email != null)
                     Column(
@@ -185,7 +191,8 @@ class ProviderDetailsSection extends StatelessWidget {
                         const SizedBox(height: 8),
                         if (provider.phone != null)
                           ListTile(
-                            leading: const Icon(Icons.phone, color: Colors.green),
+                            leading:
+                                const Icon(Icons.phone, color: Colors.green),
                             title: Text(provider.phone!),
                             trailing: IconButton(
                               icon: const Icon(Icons.call),
@@ -195,7 +202,8 @@ class ProviderDetailsSection extends StatelessWidget {
                           ),
                         if (provider.email != null)
                           ListTile(
-                            leading: const Icon(Icons.email, color: Colors.blue),
+                            leading:
+                                const Icon(Icons.email, color: Colors.blue),
                             title: Text(provider.email!),
                             trailing: IconButton(
                               icon: const Icon(Icons.email_outlined),
@@ -214,7 +222,8 @@ class ProviderDetailsSection extends StatelessWidget {
     );
   }
 
-  Widget _buildStatItem(String label, String value, IconData icon, Color color) {
+  Widget _buildStatItem(
+      String label, String value, IconData icon, Color color) {
     return Column(
       children: [
         Icon(icon, color: color, size: 24),
@@ -260,15 +269,15 @@ class ProviderDetailsSection extends StatelessWidget {
                   Center(
                     child: CircleAvatar(
                       radius: 50,
-                      backgroundImage: provider.avatar != null 
-                        ? NetworkImage(provider.avatar!) 
-                        : null,
-                      child: provider.avatar == null 
-                        ? Text(
-                            provider.name.substring(0, 1).toUpperCase(),
-                            style: const TextStyle(fontSize: 32),
-                          )
-                        : null,
+                      backgroundImage: provider.avatar != null
+                          ? NetworkImage(provider.avatar!)
+                          : null,
+                      child: provider.avatar == null
+                          ? Text(
+                              provider.name.substring(0, 1).toUpperCase(),
+                              style: const TextStyle(fontSize: 32),
+                            )
+                          : null,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -314,7 +323,7 @@ class ProviderDetailsSection extends StatelessWidget {
                     Text(provider.description!),
                     const SizedBox(height: 16),
                   ],
-                  
+
                   // 专业资质说明
                   Container(
                     padding: const EdgeInsets.all(12),
@@ -328,7 +337,8 @@ class ProviderDetailsSection extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.verified_user, color: Colors.blue[600], size: 20),
+                            Icon(Icons.verified_user,
+                                color: Colors.blue[600], size: 20),
                             const SizedBox(width: 8),
                             Text(
                               '专业资质',
@@ -353,7 +363,7 @@ class ProviderDetailsSection extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // 服务经验说明
                   Container(
                     padding: const EdgeInsets.all(12),
@@ -367,7 +377,8 @@ class ProviderDetailsSection extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.work_history, color: Colors.green[600], size: 20),
+                            Icon(Icons.work_history,
+                                color: Colors.green[600], size: 20),
                             const SizedBox(width: 8),
                             Text(
                               '服务经验',
@@ -392,7 +403,7 @@ class ProviderDetailsSection extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // 服务特色说明
                   Container(
                     padding: const EdgeInsets.all(12),
@@ -406,7 +417,8 @@ class ProviderDetailsSection extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.star, color: Colors.orange[600], size: 20),
+                            Icon(Icons.star,
+                                color: Colors.orange[600], size: 20),
                             const SizedBox(width: 8),
                             Text(
                               '服务特色',
@@ -431,7 +443,7 @@ class ProviderDetailsSection extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  
+
                   if (provider.address != null) ...[
                     const Text(
                       '地址',
@@ -514,19 +526,22 @@ class ProviderDetailsSection extends StatelessWidget {
   String _getProfessionalQualification() {
     final serviceType = _getServiceType();
     final providerData = _getProviderData();
-    return ProfessionalRemarksTemplates.getProfessionalQualification(serviceType, providerData);
+    return ProfessionalRemarksTemplates.getProfessionalQualification(
+        serviceType, providerData);
   }
 
   String _getServiceExperience() {
     final serviceType = _getServiceType();
     final providerData = _getProviderData();
-    return ProfessionalRemarksTemplates.getServiceExperience(serviceType, providerData);
+    return ProfessionalRemarksTemplates.getServiceExperience(
+        serviceType, providerData);
   }
 
   String _getServiceHighlights() {
     final serviceType = _getServiceType();
     final providerData = _getProviderData();
-    return ProfessionalRemarksTemplates.getServiceHighlights(serviceType, providerData);
+    return ProfessionalRemarksTemplates.getServiceHighlights(
+        serviceType, providerData);
   }
 
   String _getServiceType() {
@@ -538,7 +553,7 @@ class ProviderDetailsSection extends StatelessWidget {
   Map<String, dynamic>? _getProviderData() {
     final provider = controller.providerProfile.value;
     if (provider == null) return null;
-    
+
     return {
       'completedOrders': provider.completedOrders,
       'rating': provider.rating,
@@ -547,4 +562,4 @@ class ProviderDetailsSection extends StatelessWidget {
       'businessLicense': provider.businessLicense,
     };
   }
-} 
+}

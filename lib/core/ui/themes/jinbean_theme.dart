@@ -12,7 +12,7 @@ class JinBeanTheme {
       colorScheme: JinBeanColors.lightColorScheme,
       textTheme: JinBeanTypography.textTheme,
       fontFamily: JinBeanTypography.fontFamily,
-      
+
       // AppBar 主题
       appBarTheme: AppBarTheme(
         backgroundColor: JinBeanColors.primary,
@@ -25,7 +25,7 @@ class JinBeanTheme {
         ),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
-      
+
       // 卡片主题
       cardTheme: CardThemeData(
         color: JinBeanColors.surface,
@@ -36,7 +36,7 @@ class JinBeanTheme {
         ),
         margin: const EdgeInsets.all(8),
       ),
-      
+
       // 按钮主题
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -51,7 +51,7 @@ class JinBeanTheme {
           textStyle: JinBeanTypography.button,
         ),
       ),
-      
+
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: JinBeanColors.primary,
@@ -63,7 +63,7 @@ class JinBeanTheme {
           textStyle: JinBeanTypography.button,
         ),
       ),
-      
+
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: JinBeanColors.primary,
@@ -74,7 +74,7 @@ class JinBeanTheme {
           textStyle: JinBeanTypography.button,
         ),
       ),
-      
+
       // 输入框主题
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -95,7 +95,8 @@ class JinBeanTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: JinBeanColors.error),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         labelStyle: JinBeanTypography.bodyMedium.copyWith(
           color: JinBeanColors.textSecondary,
         ),
@@ -103,7 +104,7 @@ class JinBeanTheme {
           color: JinBeanColors.textTertiary,
         ),
       ),
-      
+
       // 底部导航栏主题
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: JinBeanColors.surface,
@@ -111,10 +112,12 @@ class JinBeanTheme {
         unselectedItemColor: JinBeanColors.textTertiary,
         type: BottomNavigationBarType.fixed,
         elevation: 8,
-        selectedLabelStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-        unselectedLabelStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
+        selectedLabelStyle:
+            TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+        unselectedLabelStyle:
+            TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
       ),
-      
+
       // 浮动操作按钮主题
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
         backgroundColor: JinBeanColors.primary,
@@ -124,7 +127,7 @@ class JinBeanTheme {
           borderRadius: BorderRadius.all(Radius.circular(16)),
         ),
       ),
-      
+
       // 对话框主题
       dialogTheme: DialogThemeData(
         backgroundColor: JinBeanColors.surface,
@@ -140,7 +143,7 @@ class JinBeanTheme {
           color: JinBeanColors.textSecondary,
         ),
       ),
-      
+
       // 底部表单主题
       bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: JinBeanColors.surface,
@@ -149,21 +152,21 @@ class JinBeanTheme {
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
       ),
-      
+
       // 分割线主题
       dividerTheme: const DividerThemeData(
         color: JinBeanColors.divider,
         thickness: 1,
         space: 1,
       ),
-      
+
       // 进度指示器主题
       progressIndicatorTheme: const ProgressIndicatorThemeData(
         color: JinBeanColors.primary,
         linearTrackColor: JinBeanColors.surfaceContainerHighest,
         circularTrackColor: JinBeanColors.surfaceContainerHighest,
       ),
-      
+
       // 开关主题
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith((states) {
@@ -179,7 +182,7 @@ class JinBeanTheme {
           return JinBeanColors.surfaceContainerHighest;
         }),
       ),
-      
+
       // 复选框主题
       checkboxTheme: CheckboxThemeData(
         fillColor: WidgetStateProperty.resolveWith((states) {
@@ -193,7 +196,7 @@ class JinBeanTheme {
           borderRadius: BorderRadius.circular(4),
         ),
       ),
-      
+
       // 单选按钮主题
       radioTheme: RadioThemeData(
         fillColor: WidgetStateProperty.resolveWith((states) {
@@ -203,7 +206,7 @@ class JinBeanTheme {
           return JinBeanColors.textTertiary;
         }),
       ),
-      
+
       // 滑块主题
       sliderTheme: SliderThemeData(
         activeTrackColor: JinBeanColors.primary,
@@ -217,7 +220,7 @@ class JinBeanTheme {
       ),
     );
   }
-  
+
   /// 深色主题
   static ThemeData get darkTheme {
     return ThemeData(
@@ -226,7 +229,7 @@ class JinBeanTheme {
       colorScheme: JinBeanColors.darkColorScheme,
       textTheme: JinBeanTypography.textTheme,
       fontFamily: JinBeanTypography.fontFamily,
-      
+
       // AppBar 主题
       appBarTheme: AppBarTheme(
         backgroundColor: JinBeanColors.primaryLight,
@@ -239,7 +242,7 @@ class JinBeanTheme {
         ),
         iconTheme: const IconThemeData(color: Colors.black),
       ),
-      
+
       // 卡片主题
       cardTheme: CardThemeData(
         color: const Color(0xFF1E1E1E),
@@ -250,7 +253,7 @@ class JinBeanTheme {
         ),
         margin: const EdgeInsets.all(8),
       ),
-      
+
       // 按钮主题
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -265,7 +268,7 @@ class JinBeanTheme {
           textStyle: JinBeanTypography.button,
         ),
       ),
-      
+
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: JinBeanColors.primaryLight,
@@ -277,7 +280,7 @@ class JinBeanTheme {
           textStyle: JinBeanTypography.button,
         ),
       ),
-      
+
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: JinBeanColors.primaryLight,
@@ -288,7 +291,7 @@ class JinBeanTheme {
           textStyle: JinBeanTypography.button,
         ),
       ),
-      
+
       // 输入框主题
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -303,13 +306,15 @@ class JinBeanTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: JinBeanColors.primaryLight, width: 2),
+          borderSide:
+              const BorderSide(color: JinBeanColors.primaryLight, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: JinBeanColors.errorLight),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         labelStyle: JinBeanTypography.bodyMedium.copyWith(
           color: Colors.grey[400],
         ),
@@ -317,7 +322,7 @@ class JinBeanTheme {
           color: Colors.grey[500],
         ),
       ),
-      
+
       // 底部导航栏主题
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: Color(0xFF1E1E1E),
@@ -325,10 +330,12 @@ class JinBeanTheme {
         unselectedItemColor: Color(0xFF9E9E9E), // 修复：使用常量颜色替代Colors.grey[500]
         type: BottomNavigationBarType.fixed,
         elevation: 8,
-        selectedLabelStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-        unselectedLabelStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
+        selectedLabelStyle:
+            TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+        unselectedLabelStyle:
+            TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
       ),
-      
+
       // 浮动操作按钮主题
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
         backgroundColor: JinBeanColors.primaryLight,
@@ -338,7 +345,7 @@ class JinBeanTheme {
           borderRadius: BorderRadius.all(Radius.circular(16)),
         ),
       ),
-      
+
       // 对话框主题
       dialogTheme: DialogThemeData(
         backgroundColor: const Color(0xFF1E1E1E),
@@ -354,7 +361,7 @@ class JinBeanTheme {
           color: Colors.grey[300],
         ),
       ),
-      
+
       // 底部表单主题
       bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: Color(0xFF1E1E1E),
@@ -363,21 +370,21 @@ class JinBeanTheme {
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
       ),
-      
+
       // 分割线主题
       dividerTheme: const DividerThemeData(
         color: Color(0xFF404040),
         thickness: 1,
         space: 1,
       ),
-      
+
       // 进度指示器主题
       progressIndicatorTheme: const ProgressIndicatorThemeData(
         color: JinBeanColors.primaryLight,
         linearTrackColor: Color(0xFF2A2A2A),
         circularTrackColor: Color(0xFF2A2A2A),
       ),
-      
+
       // 开关主题
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith((states) {
@@ -393,7 +400,7 @@ class JinBeanTheme {
           return const Color(0xFF2A2A2A);
         }),
       ),
-      
+
       // 复选框主题
       checkboxTheme: CheckboxThemeData(
         fillColor: WidgetStateProperty.resolveWith((states) {
@@ -407,7 +414,7 @@ class JinBeanTheme {
           borderRadius: BorderRadius.circular(4),
         ),
       ),
-      
+
       // 单选按钮主题
       radioTheme: RadioThemeData(
         fillColor: WidgetStateProperty.resolveWith((states) {
@@ -417,7 +424,7 @@ class JinBeanTheme {
           return Colors.grey[500];
         }),
       ),
-      
+
       // 滑块主题
       sliderTheme: SliderThemeData(
         activeTrackColor: JinBeanColors.primaryLight,
@@ -431,4 +438,4 @@ class JinBeanTheme {
       ),
     );
   }
-} 
+}

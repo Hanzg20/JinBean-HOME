@@ -710,4 +710,57 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get registerAsProvider => 'Register as Provider';
+
+  @override
+  String get menu => 'Menu';
+
+  @override
+  String get addToCart => 'Add to Cart';
+
+  @override
+  String get cart => 'Cart';
+
+  @override
+  String get quantity => 'Quantity';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get checkout => 'Checkout';
+
+  @override
+  String get cartEmpty => 'Cart is empty';
+
+  @override
+  String get cartItems => 'Cart Items';
+
+  @override
+  String get selectDishes => 'Select Dishes';
+
+  @override
+  String get foodMenu => 'Food Menu';
+
+  @override
+  String get loading => 'Loading';
+
+  @override
+  String get confirm => 'Confirm';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get remove => 'Remove';
+
+  @override
+  String get update => 'Update';
+
+  @override
+  String get subtotal => 'Subtotal';
+
+  @override
+  String itemCount(int count) {
+    return '$count items';
+  }
 }

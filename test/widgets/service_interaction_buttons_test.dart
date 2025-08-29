@@ -17,7 +17,8 @@ void main() {
       Get.reset();
     });
 
-    testWidgets('should display all interaction buttons', (WidgetTester tester) async {
+    testWidgets('should display all interaction buttons',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -36,9 +37,10 @@ void main() {
       expect(find.text('Contact'), findsOneWidget);
     });
 
-    testWidgets('should handle favorite toggle correctly', (WidgetTester tester) async {
+    testWidgets('should handle favorite toggle correctly',
+        (WidgetTester tester) async {
       bool favoriteChanged = false;
-      
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -61,12 +63,13 @@ void main() {
 
       // 应该调用回调
       expect(favoriteChanged, isTrue);
-      
+
       // 状态应该变为已收藏
       expect(find.text('Favorited'), findsOneWidget);
     });
 
-    testWidgets('should show snackbar when favorite is toggled', (WidgetTester tester) async {
+    testWidgets('should show snackbar when favorite is toggled',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -85,10 +88,12 @@ void main() {
 
       // 应该显示snackbar
       expect(find.text('Added to Favorites'), findsOneWidget);
-      expect(find.text('$testServiceTitle has been added to your favorites'), findsOneWidget);
+      expect(find.text('$testServiceTitle has been added to your favorites'),
+          findsOneWidget);
     });
 
-    testWidgets('should handle share functionality', (WidgetTester tester) async {
+    testWidgets('should handle share functionality',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -111,9 +116,10 @@ void main() {
       expect(find.text(testServiceDescription), findsOneWidget);
     });
 
-    testWidgets('should handle book service with custom callback', (WidgetTester tester) async {
+    testWidgets('should handle book service with custom callback',
+        (WidgetTester tester) async {
       bool bookServiceCalled = false;
-      
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -135,7 +141,8 @@ void main() {
       expect(bookServiceCalled, isTrue);
     });
 
-    testWidgets('should show booking dialog when no custom callback', (WidgetTester tester) async {
+    testWidgets('should show booking dialog when no custom callback',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -154,12 +161,14 @@ void main() {
 
       // 应该显示预约对话框
       expect(find.text('Book Service'), findsOneWidget);
-      expect(find.text('Would you like to book "$testServiceTitle"?'), findsOneWidget);
+      expect(find.text('Would you like to book "$testServiceTitle"?'),
+          findsOneWidget);
     });
 
-    testWidgets('should handle contact provider with custom callback', (WidgetTester tester) async {
+    testWidgets('should handle contact provider with custom callback',
+        (WidgetTester tester) async {
       bool contactProviderCalled = false;
-      
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -181,7 +190,8 @@ void main() {
       expect(contactProviderCalled, isTrue);
     });
 
-    testWidgets('should show contact dialog when no custom callback', (WidgetTester tester) async {
+    testWidgets('should show contact dialog when no custom callback',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -200,10 +210,14 @@ void main() {
 
       // 应该显示联系对话框
       expect(find.text('Contact Provider'), findsOneWidget);
-      expect(find.text('How would you like to contact the provider for "$testServiceTitle"?'), findsOneWidget);
+      expect(
+          find.text(
+              'How would you like to contact the provider for "$testServiceTitle"?'),
+          findsOneWidget);
     });
 
-    testWidgets('should handle initial favorite state correctly', (WidgetTester tester) async {
+    testWidgets('should handle initial favorite state correctly',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -221,7 +235,8 @@ void main() {
       expect(find.text('Favorited'), findsOneWidget);
     });
 
-    testWidgets('should animate favorite button when toggled', (WidgetTester tester) async {
+    testWidgets('should animate favorite button when toggled',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -245,7 +260,8 @@ void main() {
   });
 
   group('QuickActionButton Tests', () {
-    testWidgets('should display button with icon and label', (WidgetTester tester) async {
+    testWidgets('should display button with icon and label',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -262,7 +278,8 @@ void main() {
       expect(find.text('Test Button'), findsOneWidget);
     });
 
-    testWidgets('should handle active state correctly', (WidgetTester tester) async {
+    testWidgets('should handle active state correctly',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -281,9 +298,10 @@ void main() {
       expect(find.byType(Container), findsOneWidget);
     });
 
-    testWidgets('should call onPressed when tapped', (WidgetTester tester) async {
+    testWidgets('should call onPressed when tapped',
+        (WidgetTester tester) async {
       bool buttonPressed = false;
-      
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -306,7 +324,8 @@ void main() {
   });
 
   group('CustomFloatingActionButton Tests', () {
-    testWidgets('should display extended floating action button', (WidgetTester tester) async {
+    testWidgets('should display extended floating action button',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -324,7 +343,8 @@ void main() {
       expect(find.text('Add Item'), findsOneWidget);
     });
 
-    testWidgets('should display compact floating action button', (WidgetTester tester) async {
+    testWidgets('should display compact floating action button',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -342,9 +362,10 @@ void main() {
       expect(find.text('Add Item'), findsNothing); // 紧凑模式不显示标签
     });
 
-    testWidgets('should call onPressed when tapped', (WidgetTester tester) async {
+    testWidgets('should call onPressed when tapped',
+        (WidgetTester tester) async {
       bool buttonPressed = false;
-      
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -366,4 +387,3 @@ void main() {
     });
   });
 }
-

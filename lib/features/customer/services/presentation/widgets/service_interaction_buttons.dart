@@ -25,7 +25,8 @@ class ServiceInteractionButtons extends StatefulWidget {
   });
 
   @override
-  State<ServiceInteractionButtons> createState() => _ServiceInteractionButtonsState();
+  State<ServiceInteractionButtons> createState() =>
+      _ServiceInteractionButtonsState();
 }
 
 class _ServiceInteractionButtonsState extends State<ServiceInteractionButtons>
@@ -38,12 +39,12 @@ class _ServiceInteractionButtonsState extends State<ServiceInteractionButtons>
   void initState() {
     super.initState();
     _isFavorite = widget.isFavorite;
-    
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 200),
       vsync: this,
     );
-    
+
     _scaleAnimation = Tween<double>(
       begin: 1.0,
       end: 1.2,
@@ -98,9 +99,9 @@ class _ServiceInteractionButtonsState extends State<ServiceInteractionButtons>
               ),
             ],
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           // 次要操作按钮
           Row(
             children: [
@@ -195,23 +196,23 @@ class _ServiceInteractionButtonsState extends State<ServiceInteractionButtons>
     setState(() {
       _isFavorite = !_isFavorite;
     });
-    
+
     // 播放动画
     if (_isFavorite) {
       _animationController.forward().then((_) {
         _animationController.reverse();
       });
     }
-    
+
     // 调用回调
     if (widget.onFavoriteChanged != null) {
       widget.onFavoriteChanged!();
     }
-    
+
     // 显示提示
     Get.snackbar(
       _isFavorite ? 'Added to Favorites' : 'Removed from Favorites',
-      _isFavorite 
+      _isFavorite
           ? '${widget.serviceTitle} has been added to your favorites'
           : '${widget.serviceTitle} has been removed from your favorites',
       snackPosition: SnackPosition.BOTTOM,
@@ -219,7 +220,7 @@ class _ServiceInteractionButtonsState extends State<ServiceInteractionButtons>
       colorText: Colors.white,
       duration: const Duration(seconds: 2),
     );
-    
+
     AppLogger.info('Favorite toggled for service: ${widget.serviceId}');
   }
 
@@ -233,12 +234,12 @@ ${widget.serviceDescription}
 
 Download JinBean app to book this service now!
 ''';
-    
+
     Share.share(
       shareText,
       subject: 'Amazing Service: ${widget.serviceTitle}',
     );
-    
+
     AppLogger.info('Service shared: ${widget.serviceId}');
   }
 
@@ -249,7 +250,7 @@ Download JinBean app to book this service now!
       // 默认预约流程
       _showBookingDialog();
     }
-    
+
     AppLogger.info('Book service requested: ${widget.serviceId}');
   }
 
@@ -260,7 +261,7 @@ Download JinBean app to book this service now!
       // 默认联系流程
       _showContactDialog();
     }
-    
+
     AppLogger.info('Contact provider requested: ${widget.serviceId}');
   }
 
@@ -307,7 +308,8 @@ Download JinBean app to book this service now!
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('How would you like to contact the provider for "${widget.serviceTitle}"?'),
+            Text(
+                'How would you like to contact the provider for "${widget.serviceTitle}"?'),
             const SizedBox(height: 16),
             const Text(
               'Choose your preferred contact method.',
@@ -374,8 +376,9 @@ class QuickActionButton extends StatelessWidget {
       children: [
         Container(
           decoration: BoxDecoration(
-            color: isActive 
-                ? (color ?? Theme.of(context).colorScheme.primary).withValues(alpha: 0.1)
+            color: isActive
+                ? (color ?? Theme.of(context).colorScheme.primary)
+                    .withValues(alpha: 0.1)
                 : Colors.grey[100],
             borderRadius: BorderRadius.circular(12),
           ),
@@ -383,7 +386,7 @@ class QuickActionButton extends StatelessWidget {
             onPressed: onPressed,
             icon: Icon(
               icon,
-              color: isActive 
+              color: isActive
                   ? (color ?? Theme.of(context).colorScheme.primary)
                   : Colors.grey[600],
               size: 24,
@@ -395,7 +398,7 @@ class QuickActionButton extends StatelessWidget {
           label,
           style: TextStyle(
             fontSize: 12,
-            color: isActive 
+            color: isActive
                 ? (color ?? Theme.of(context).colorScheme.primary)
                 : Colors.grey[600],
             fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
@@ -434,7 +437,7 @@ class CustomFloatingActionButton extends StatelessWidget {
         foregroundColor: Colors.white,
       );
     }
-    
+
     return FloatingActionButton(
       onPressed: onPressed,
       backgroundColor: color ?? Theme.of(context).colorScheme.primary,

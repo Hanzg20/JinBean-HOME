@@ -25,7 +25,7 @@ class ReviewsListPage extends StatelessWidget {
     final controller = Get.put(ReviewsController());
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     // 初始化页面数据
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.initializeReviews(serviceId);
@@ -34,7 +34,9 @@ class ReviewsListPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        title: Text('Reviews', style: theme.textTheme.titleLarge?.copyWith(color: colorScheme.onSurface)),
+        title: Text('Reviews',
+            style: theme.textTheme.titleLarge
+                ?.copyWith(color: colorScheme.onSurface)),
         backgroundColor: colorScheme.surface,
         foregroundColor: colorScheme.onSurface,
         elevation: 0,
@@ -51,17 +53,19 @@ class ReviewsListPage extends StatelessWidget {
           Obx(() => controller.ratingStats.value != null
               ? RatingStatsCard(stats: controller.ratingStats.value!)
               : const SizedBox.shrink()),
-          
+
           // 筛选标签
           Obx(() => _buildFilterTags(controller)),
-          
+
           // 点评列表
           Expanded(
             child: Obx(() {
-              if (controller.isLoadingReviews.value && controller.reviews.isEmpty) {
-                return const CustomerLoadingState(message: 'Loading reviews...');
+              if (controller.isLoadingReviews.value &&
+                  controller.reviews.isEmpty) {
+                return const CustomerLoadingState(
+                    message: 'Loading reviews...');
               }
-              
+
               if (controller.reviews.isEmpty) {
                 return const CustomerEmptyState(
                   icon: Icons.rate_review,
@@ -69,9 +73,10 @@ class ReviewsListPage extends StatelessWidget {
                   subtitle: 'Be the first to review this service',
                 );
               }
-              
+
               return RefreshIndicator(
-                onRefresh: () => controller.loadReviews(serviceId, refresh: true),
+                onRefresh: () =>
+                    controller.loadReviews(serviceId, refresh: true),
                 child: ListView.builder(
                   padding: const EdgeInsets.all(16),
                   itemCount: controller.reviews.length + 1,
@@ -91,15 +96,18 @@ class ReviewsListPage extends StatelessWidget {
                       }
                       return const SizedBox.shrink();
                     }
-                    
+
                     final review = controller.reviews[index];
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 16),
                       child: ReviewCard(
                         review: review,
-                        onVote: (isHelpful) => controller.voteReview(review.id, isHelpful),
-                        onReply: () => _showReplyDialog(context, controller, review),
-                        onReport: () => _showReportDialog(context, controller, review),
+                        onVote: (isHelpful) =>
+                            controller.voteReview(review.id, isHelpful),
+                        onReply: () =>
+                            _showReplyDialog(context, controller, review),
+                        onReport: () =>
+                            _showReportDialog(context, controller, review),
                       ),
                     );
                   },
@@ -112,11 +120,12 @@ class ReviewsListPage extends StatelessWidget {
       floatingActionButton: Builder(
         builder: (context) {
           final colorScheme = Theme.of(context).colorScheme;
-          
+
           return FloatingActionButton.extended(
             onPressed: () => _navigateToWriteReview(context, controller),
             icon: Icon(Icons.rate_review, color: colorScheme.onPrimary),
-            label: Text('Write Review', style: TextStyle(color: colorScheme.onPrimary)),
+            label: Text('Write Review',
+                style: TextStyle(color: colorScheme.onPrimary)),
             backgroundColor: colorScheme.primary,
             foregroundColor: colorScheme.onPrimary,
           );
@@ -130,10 +139,10 @@ class ReviewsListPage extends StatelessWidget {
       builder: (context) {
         final theme = Theme.of(context);
         final colorScheme = theme.colorScheme;
-        
+
         final selectedTags = controller.filterOptions.value.tags;
         if (selectedTags.isEmpty) return const SizedBox.shrink();
-        
+
         return Container(
           height: 50,
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -155,17 +164,19 @@ class ReviewsListPage extends StatelessWidget {
                   ),
                 );
               }
-              
+
               final tag = selectedTags[index];
               return Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: Chip(
                   label: Text(tag),
                   backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
-                  side: BorderSide(color: colorScheme.primary.withValues(alpha: 0.3)),
+                  side: BorderSide(
+                      color: colorScheme.primary.withValues(alpha: 0.3)),
                   labelStyle: TextStyle(color: colorScheme.primary),
                   onDeleted: () {
-                    final newTags = List<String>.from(selectedTags)..remove(tag);
+                    final newTags = List<String>.from(selectedTags)
+                      ..remove(tag);
                     controller.updateFilterOptions(
                       controller.filterOptions.value.copyWith(tags: newTags),
                     );
@@ -194,7 +205,8 @@ class ReviewsListPage extends StatelessWidget {
     );
   }
 
-  void _showReplyDialog(BuildContext context, ReviewsController controller, Review review) {
+  void _showReplyDialog(
+      BuildContext context, ReviewsController controller, Review review) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -213,29 +225,31 @@ class ReviewsListPage extends StatelessWidget {
             child: const Text('Cancel'),
           ),
           Obx(() => ElevatedButton(
-            onPressed: controller.isSubmittingReply.value
-                ? null
-                : () async {
-                    final success = await controller.submitReply(review.id, 'user');
-                    if (success) Navigator.pop(context);
-                  },
-            child: controller.isSubmittingReply.value
-                ? const SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Text('Submit'),
-          )),
+                onPressed: controller.isSubmittingReply.value
+                    ? null
+                    : () async {
+                        final success =
+                            await controller.submitReply(review.id, 'user');
+                        if (success) Navigator.pop(context);
+                      },
+                child: controller.isSubmittingReply.value
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text('Submit'),
+              )),
         ],
       ),
     );
   }
 
-  void _showReportDialog(BuildContext context, ReviewsController controller, Review review) {
+  void _showReportDialog(
+      BuildContext context, ReviewsController controller, Review review) {
     String? selectedReason;
     final descriptionController = TextEditingController();
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -253,7 +267,8 @@ class ReviewsListPage extends StatelessWidget {
               ),
               items: const [
                 DropdownMenuItem(value: 'spam', child: Text('Spam')),
-                DropdownMenuItem(value: 'inappropriate', child: Text('Inappropriate')),
+                DropdownMenuItem(
+                    value: 'inappropriate', child: Text('Inappropriate')),
                 DropdownMenuItem(value: 'fake', child: Text('Fake Review')),
                 DropdownMenuItem(value: 'other', child: Text('Other')),
               ],
@@ -295,10 +310,11 @@ class ReviewsListPage extends StatelessWidget {
     );
   }
 
-  void _navigateToWriteReview(BuildContext context, ReviewsController controller) {
+  void _navigateToWriteReview(
+      BuildContext context, ReviewsController controller) {
     Get.toNamed('/write_review', arguments: {
       'serviceId': serviceId,
       'serviceTitle': serviceTitle,
     });
   }
-} 
+}

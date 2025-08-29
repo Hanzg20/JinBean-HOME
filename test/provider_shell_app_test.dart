@@ -5,7 +5,8 @@ import 'package:jinbeanpod_83904710/features/provider/provider_home_page.dart';
 
 void main() {
   group('ProviderShellApp Test', () {
-    testWidgets('ProviderShellApp should display content', (WidgetTester tester) async {
+    testWidgets('ProviderShellApp should display content',
+        (WidgetTester tester) async {
       // Arrange
       await tester.pumpWidget(
         GetMaterialApp(
@@ -23,7 +24,8 @@ void main() {
       expect(find.text('最新动态'), findsOneWidget);
     });
 
-    testWidgets('ProviderShellApp should show bottom navigation', (WidgetTester tester) async {
+    testWidgets('ProviderShellApp should show bottom navigation',
+        (WidgetTester tester) async {
       // Arrange
       await tester.pumpWidget(
         GetMaterialApp(
@@ -41,7 +43,8 @@ void main() {
       expect(find.text('设置'), findsOneWidget);
     });
 
-    testWidgets('ProviderShellApp should show center button', (WidgetTester tester) async {
+    testWidgets('ProviderShellApp should show center button',
+        (WidgetTester tester) async {
       // Arrange
       await tester.pumpWidget(
         GetMaterialApp(
@@ -56,4 +59,4 @@ void main() {
       expect(find.byIcon(Icons.add), findsOneWidget);
     });
   });
-} 
+}

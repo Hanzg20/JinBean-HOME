@@ -52,7 +52,7 @@ class ServiceDetailSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return ServiceDetailCard(
       padding: padding,
       child: Column(
@@ -108,7 +108,7 @@ class ServiceDetailRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(

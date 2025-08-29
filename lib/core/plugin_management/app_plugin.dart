@@ -45,15 +45,15 @@ class PluginMetadata {
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'nameKey': nameKey,
-    'iconName': icon.codePoint, // 这里只是示例，实际项目需映射
-    'enabled': enabled,
-    'order': order,
-    'type': type.toString().split('.').last,
-    'routeName': routeName,
-    'role': role,
-  };
+        'id': id,
+        'nameKey': nameKey,
+        'iconName': icon.codePoint, // 这里只是示例，实际项目需映射
+        'enabled': enabled,
+        'order': order,
+        'type': type.toString().split('.').last,
+        'routeName': routeName,
+        'role': role,
+      };
 
   PluginMetadata copyWith({
     String? id,
@@ -81,14 +81,21 @@ class PluginMetadata {
   static IconData _parseIconData(String? iconName) {
     // 实际项目中需要一个IconData映射表或更复杂的解析逻辑
     switch (iconName) {
-      case 'home': return Icons.home;
-      case 'event': return Icons.event;
-      case 'build': return Icons.build;
-      case 'person': return Icons.person;
-      case 'calendar_today': return Icons.calendar_today;
-      case 'groups': return Icons.groups;
+      case 'home':
+        return Icons.home;
+      case 'event':
+        return Icons.event;
+      case 'build':
+        return Icons.build;
+      case 'person':
+        return Icons.person;
+      case 'calendar_today':
+        return Icons.calendar_today;
+      case 'groups':
+        return Icons.groups;
       // ... 更多图标
-      default: return Icons.extension; // 默认图标
+      default:
+        return Icons.extension; // 默认图标
     }
   }
 }
@@ -111,4 +118,4 @@ abstract class AppPlugin {
 
   // 获取插件的控制器 (可选，用于GetX依赖注入和状态管理)
   Bindings? get bindings => null;
-} 
+}

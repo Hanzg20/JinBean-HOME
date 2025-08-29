@@ -11,7 +11,8 @@ class NotificationPage extends GetView<NotificationController> {
     return Scaffold(
       backgroundColor: JinBeanColors.background,
       appBar: AppBar(
-        title: const Text('通知中心', style: TextStyle(color: JinBeanColors.textPrimary)),
+        title: const Text('通知中心',
+            style: TextStyle(color: JinBeanColors.textPrimary)),
         backgroundColor: JinBeanColors.background,
         elevation: 0,
         iconTheme: const IconThemeData(color: JinBeanColors.textPrimary),
@@ -61,7 +62,7 @@ class NotificationPage extends GetView<NotificationController> {
         if (controller.isLoading.value && controller.notifications.isEmpty) {
           return const Center(child: CircularProgressIndicator());
         }
-        
+
         if (controller.notifications.isEmpty) {
           return Center(
             child: Column(
@@ -92,7 +93,7 @@ class NotificationPage extends GetView<NotificationController> {
             ),
           );
         }
-        
+
         return RefreshIndicator(
           onRefresh: () => controller.refreshNotifications(),
           child: ListView.builder(
@@ -107,21 +108,25 @@ class NotificationPage extends GetView<NotificationController> {
       }),
     );
   }
-  
+
   Widget _buildNotificationCard(Map<String, dynamic> notification) {
     final isRead = notification['is_read'] as bool? ?? false;
     final type = notification['notification_type'] as String? ?? '';
     final title = notification['title'] as String? ?? '';
     final message = notification['message'] as String? ?? '';
     final createdAt = notification['created_at'] as String?;
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: isRead ? JinBeanColors.surface : JinBeanColors.primary.withValues(alpha: 0.05),
+        color: isRead
+            ? JinBeanColors.surface
+            : JinBeanColors.primary.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isRead ? JinBeanColors.border : JinBeanColors.primary.withValues(alpha: 0.2),
+          color: isRead
+              ? JinBeanColors.border
+              : JinBeanColors.primary.withValues(alpha: 0.2),
         ),
       ),
       child: ListTile(
@@ -130,7 +135,8 @@ class NotificationPage extends GetView<NotificationController> {
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            color: Color(controller.getNotificationTypeColor(type)).withValues(alpha: 0.1),
+            color: Color(controller.getNotificationTypeColor(type))
+                .withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
@@ -162,9 +168,11 @@ class NotificationPage extends GetView<NotificationController> {
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Color(controller.getNotificationTypeColor(type)).withValues(alpha: 0.1),
+                    color: Color(controller.getNotificationTypeColor(type))
+                        .withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -235,7 +243,7 @@ class NotificationPage extends GetView<NotificationController> {
       ),
     );
   }
-  
+
   IconData _getNotificationIcon(String type) {
     switch (type) {
       case 'order':
@@ -252,4 +260,4 @@ class NotificationPage extends GetView<NotificationController> {
         return Icons.notifications;
     }
   }
-} 
+}

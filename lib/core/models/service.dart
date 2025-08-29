@@ -1,10 +1,10 @@
-import 'package:get/get.dart';
+// import 'package:get/get.dart'; // 未使用的导入
 
 // 服务模型
 class Service {
   final String id;
-  final Map<String, String> title;           // jsonb: 国际化标题
-  final Map<String, String> description;     // jsonb: 国际化描述
+  final Map<String, String> title; // jsonb: 国际化标题
+  final Map<String, String> description; // jsonb: 国际化描述
   final double price;
   final String currency;
   final String pricingType;
@@ -68,8 +68,10 @@ class Service {
       providerId: json['provider_id'] ?? '',
       serviceDeliveryMethod: json['service_delivery_method'] ?? 'onsite',
       status: json['status'] ?? 'active',
-      createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
-      updatedAt: DateTime.parse(json['updated_at'] ?? DateTime.now().toIso8601String()),
+      createdAt: DateTime.parse(
+          json['created_at'] ?? DateTime.now().toIso8601String()),
+      updatedAt: DateTime.parse(
+          json['updated_at'] ?? DateTime.now().toIso8601String()),
       images: List<String>.from(json['images'] ?? []),
       imagesUrl: List<String>.from(json['images_url'] ?? []),
       rating: (json['rating'] ?? 0).toDouble(),
@@ -114,16 +116,26 @@ class Service {
 
   // 获取本地化标题
   String getLocalizedTitle(String languageCode) {
-    return title[languageCode] ?? title['en'] ?? title.values.firstOrNull ?? 'Unknown';
+    return title[languageCode] ??
+        title['en'] ??
+        title.values.firstOrNull ??
+        'Unknown';
   }
 
   // 获取本地化描述
   String getLocalizedDescription(String languageCode) {
-    return description[languageCode] ?? description['en'] ?? description.values.firstOrNull ?? '';
+    return description[languageCode] ??
+        description['en'] ??
+        description.values.firstOrNull ??
+        '';
   }
 
   // 获取主要图片
-  String? get mainImage => images.isNotEmpty ? images.first : imagesUrl.isNotEmpty ? imagesUrl.first : null;
+  String? get mainImage => images.isNotEmpty
+      ? images.first
+      : imagesUrl.isNotEmpty
+          ? imagesUrl.first
+          : null;
 
   // 获取价格显示
   String get priceDisplay => '$currency ${price.toStringAsFixed(2)}';
@@ -169,7 +181,8 @@ class Service {
       categoryLevel1Id: categoryLevel1Id ?? this.categoryLevel1Id,
       categoryLevel2Id: categoryLevel2Id ?? this.categoryLevel2Id,
       providerId: providerId ?? this.providerId,
-      serviceDeliveryMethod: serviceDeliveryMethod ?? this.serviceDeliveryMethod,
+      serviceDeliveryMethod:
+          serviceDeliveryMethod ?? this.serviceDeliveryMethod,
       status: status ?? this.status,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,

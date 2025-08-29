@@ -10,11 +10,12 @@ class StepCompliance extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context) ?? AppLocalizationsEn();
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(localizations.complianceInformation, style: TextStyle(fontWeight: FontWeight.bold)),
+        Text(localizations.complianceInformation,
+            style: TextStyle(fontWeight: FontWeight.bold)),
         CheckboxListTile(
           title: Text(localizations.hasGstHst),
           value: controller.hasGstHst,
@@ -25,15 +26,18 @@ class StepCompliance extends StatelessWidget {
           onChanged: (value) => controller.bnNumber = value,
         ),
         TextField(
-          decoration: InputDecoration(labelText: localizations.annualIncomeEstimate),
+          decoration:
+              InputDecoration(labelText: localizations.annualIncomeEstimate),
           keyboardType: TextInputType.number,
-          onChanged: (value) => controller.annualIncomeEstimate = double.tryParse(value),
+          onChanged: (value) =>
+              controller.annualIncomeEstimate = double.tryParse(value),
         ),
         TextField(
           decoration: InputDecoration(labelText: localizations.licenseNumber),
           onChanged: (value) => controller.licenseNumber = value,
         ),
-        Text(localizations.taxComplianceNotice, style: TextStyle(fontSize: 12, color: Colors.grey)),
+        Text(localizations.taxComplianceNotice,
+            style: TextStyle(fontSize: 12, color: Colors.grey)),
         CheckboxListTile(
           title: Text(localizations.taxReportUploaded),
           value: controller.taxReportAvailable,

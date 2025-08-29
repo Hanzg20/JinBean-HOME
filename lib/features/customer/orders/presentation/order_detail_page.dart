@@ -7,7 +7,7 @@ class OrderDetailPage extends GetView {
   @override
   Widget build(BuildContext context) {
     final orderId = Get.arguments as String?;
-    
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Order Detail'),
@@ -30,8 +30,8 @@ class OrderDetailPage extends GetView {
             Text(
               'Order ID: ${orderId ?? 'N/A'}',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.grey[600],
-              ),
+                    color: Colors.grey[600],
+                  ),
             ),
             const SizedBox(height: 24),
             const Text(
@@ -47,4 +47,4 @@ class OrderDetailPage extends GetView {
       ),
     );
   }
-} 
+}

@@ -16,4 +16,4 @@ class PrivacySettingsPage extends GetView<PrivacySettingsController> {
       ),
     );
   }
-} 
+}

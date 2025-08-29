@@ -66,16 +66,16 @@ class Service {
       providerId: json['provider_id']?.toString(),
       serviceDeliveryMethod: json['service_delivery_method'],
       status: json['status'],
-      createdAt: json['created_at'] != null 
-          ? DateTime.parse(json['created_at']) 
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'])
           : null,
-      updatedAt: json['updated_at'] != null 
-          ? DateTime.parse(json['updated_at']) 
+      updatedAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'])
           : null,
-      images: json['images_url'] != null 
+      images: json['images_url'] != null
           ? List<String>.from(json['images_url'])
           : null,
-      images_url: json['images_url'] != null 
+      images_url: json['images_url'] != null
           ? List<String>.from(json['images_url'])
           : null,
       rating: json['average_rating']?.toDouble(),
@@ -84,12 +84,10 @@ class Service {
       serviceDetailsJson: json['serviceDetailsJson'],
       latitude: json['latitude']?.toDouble(),
       longitude: json['longitude']?.toDouble(),
-      serviceAreaCodes: json['service_area_codes'] != null 
+      serviceAreaCodes: json['service_area_codes'] != null
           ? List<String>.from(json['service_area_codes'])
           : null,
-      tags: json['tags'] != null 
-          ? List<String>.from(json['tags'])
-          : null,
+      tags: json['tags'] != null ? List<String>.from(json['tags']) : null,
     );
   }
 
@@ -121,4 +119,4 @@ class Service {
       'tags': tags,
     };
   }
-} 
+}

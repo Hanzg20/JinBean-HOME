@@ -1,7 +1,6 @@
 // 推荐系统数据模型
 // 支持用户行为分析、推荐算法、A/B测试等功能
 
-
 // ========================================
 // 1. 用户行为模型 (UserBehavior)
 // ========================================
@@ -74,13 +73,17 @@ class UserProfile {
   factory UserProfile.fromJson(Map<String, dynamic> json) {
     return UserProfile(
       userId: json['user_id'],
-      categoryPreferences: Map<String, double>.from(json['category_preferences'] ?? {}),
+      categoryPreferences:
+          Map<String, double>.from(json['category_preferences'] ?? {}),
       tagPreferences: Map<String, double>.from(json['tag_preferences'] ?? {}),
-      pricePreferences: Map<String, double>.from(json['price_preferences'] ?? {}),
-      locationPreferences: Map<String, double>.from(json['location_preferences'] ?? {}),
+      pricePreferences:
+          Map<String, double>.from(json['price_preferences'] ?? {}),
+      locationPreferences:
+          Map<String, double>.from(json['location_preferences'] ?? {}),
       favoriteCategories: List<String>.from(json['favorite_categories'] ?? []),
       favoriteTags: List<String>.from(json['favorite_tags'] ?? []),
-      averageRatingPreference: (json['average_rating_preference'] as num?)?.toDouble() ?? 0.0,
+      averageRatingPreference:
+          (json['average_rating_preference'] as num?)?.toDouble() ?? 0.0,
       lastUpdated: DateTime.parse(json['last_updated']),
     );
   }
@@ -107,7 +110,8 @@ class Recommendation {
   final String id;
   final String userId;
   final String serviceId;
-  final String algorithmType; // 'collaborative', 'content', 'hybrid', 'popularity'
+  final String
+      algorithmType; // 'collaborative', 'content', 'hybrid', 'popularity'
   final double score; // 推荐分数
   final Map<String, dynamic> metadata; // 推荐相关的元数据
   final DateTime createdAt;
@@ -385,4 +389,4 @@ class RecommendationMetrics {
       'recorded_at': recordedAt.toIso8601String(),
     };
   }
-} 
+}

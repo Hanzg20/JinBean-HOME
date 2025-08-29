@@ -1,4 +1,5 @@
-import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:flutter/material.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
+import 'package:flutter/material.dart';
 import 'package:jinbeanpod_83904710/features/provider/provider_home_page.dart';
 import 'package:jinbeanpod_83904710/features/provider/orders/presentation/orders_shell_page.dart';
 import 'package:jinbeanpod_83904710/features/provider/clients/presentation/client_page.dart';
@@ -33,12 +34,13 @@ class _ProviderShellAppState extends State<ProviderShellApp> {
       SettingsPage(), // Settings/My - Updated to use the new SettingsPage
     ];
     AppLogger.info('[ProviderShellApp] _pages initialized: '
-      '${_pages.map((w) => w.runtimeType).join(', ')}');
+        '${_pages.map((w) => w.runtimeType).join(', ')}');
   }
 
   @override
   Widget build(BuildContext context) {
-    AppLogger.info('[ProviderShellApp] build called, _currentIndex: $_currentIndex');
+    AppLogger.info(
+        '[ProviderShellApp] build called, _currentIndex: $_currentIndex');
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
@@ -51,7 +53,8 @@ class _ProviderShellAppState extends State<ProviderShellApp> {
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Dashboard'),
           BottomNavigationBarItem(icon: Icon(Icons.list_alt), label: 'Orders'),
           BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Clients'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.settings), label: 'Settings'),
         ],
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Theme.of(context).primaryColor,
@@ -59,4 +62,4 @@ class _ProviderShellAppState extends State<ProviderShellApp> {
       ),
     );
   }
-} 
+}

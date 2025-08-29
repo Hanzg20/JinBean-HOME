@@ -22,12 +22,14 @@ class MyAddressesController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    AppLogger.info('MyAddressesController initialized', tag: 'MyAddressesController');
+    AppLogger.info('MyAddressesController initialized',
+        tag: 'MyAddressesController');
     loadAddresses();
   }
 
   Future<void> loadAddresses() async {
-    AppLogger.info('MyAddressesController: loadAddresses called', tag: 'MyAddressesController');
+    AppLogger.info('MyAddressesController: loadAddresses called',
+        tag: 'MyAddressesController');
     isLoading.value = true;
     try {
       // TODO: Implement actual API call to fetch addresses
@@ -47,14 +49,16 @@ class MyAddressesController extends GetxController {
         ),
       ];
     } catch (e, stack) {
-      AppLogger.error('MyAddressesController: Failed to load addresses', error: e, stackTrace: stack, tag: 'MyAddressesController');
+      AppLogger.error('MyAddressesController: Failed to load addresses',
+          error: e, stackTrace: stack, tag: 'MyAddressesController');
     } finally {
       isLoading.value = false;
     }
   }
 
   void addAddress(Address newAddress) {
-    AppLogger.info('MyAddressesController: addAddress called', tag: 'MyAddressesController');
+    AppLogger.info('MyAddressesController: addAddress called',
+        tag: 'MyAddressesController');
     addresses.add(newAddress);
     // TODO: Implement API call to add address to backend
     Get.snackbar(
@@ -65,7 +69,8 @@ class MyAddressesController extends GetxController {
   }
 
   void removeAddress(String id) {
-    AppLogger.info('MyAddressesController: removeAddress called', tag: 'MyAddressesController');
+    AppLogger.info('MyAddressesController: removeAddress called',
+        tag: 'MyAddressesController');
     addresses.removeWhere((address) => address.id == id);
     // TODO: Implement API call to remove address from backend
     Get.snackbar(
@@ -99,4 +104,4 @@ class MyAddressesController extends GetxController {
   Future<void> refreshAddresses() async {
     await loadAddresses();
   }
-} 
+}

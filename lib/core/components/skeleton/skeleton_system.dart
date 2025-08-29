@@ -17,7 +17,7 @@ abstract class PlatformSkeleton {
     Map<String, dynamic>? customData,
   }) {
     final skeletonConfig = config ?? defaultConfig;
-    
+
     switch (type) {
       case SkeletonType.list:
         return SkeletonListWidget(config: skeletonConfig);
@@ -36,10 +36,10 @@ abstract class PlatformSkeleton {
 
 /// 骨架屏类型枚举
 enum SkeletonType {
-  list,    // 列表骨架屏
-  card,    // 卡片骨架屏
-  detail,  // 详情页骨架屏
-  custom,  // 自定义骨架屏
+  list, // 列表骨架屏
+  card, // 卡片骨架屏
+  detail, // 详情页骨架屏
+  custom, // 自定义骨架屏
 }
 
 /// 骨架屏配置
@@ -48,7 +48,7 @@ class SkeletonConfig {
   final Color shimmerColor;
   final Color baseColor;
   final double borderRadius;
-  
+
   const SkeletonConfig({
     required this.animationDuration,
     required this.shimmerColor,
@@ -100,7 +100,8 @@ class _ShimmerSkeletonState extends State<ShimmerSkeleton>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final baseColor = widget.baseColor ?? theme.colorScheme.surfaceContainerHighest;
+    final baseColor =
+        widget.baseColor ?? theme.colorScheme.surfaceContainerHighest;
     final highlightColor = widget.highlightColor ?? theme.colorScheme.surface;
 
     return AnimatedBuilder(
@@ -129,7 +130,7 @@ class _ShimmerSkeletonState extends State<ShimmerSkeleton>
 /// 列表骨架屏组件
 class SkeletonListWidget extends StatefulWidget {
   final SkeletonConfig config;
-  
+
   const SkeletonListWidget({
     super.key,
     required this.config,
@@ -221,7 +222,7 @@ class _SkeletonListWidgetState extends State<SkeletonListWidget>
 /// 卡片骨架屏组件
 class SkeletonCardWidget extends StatelessWidget {
   final SkeletonConfig config;
-  
+
   const SkeletonCardWidget({
     super.key,
     required this.config,
@@ -280,7 +281,7 @@ class SkeletonCardWidget extends StatelessWidget {
 /// 详情页骨架屏组件
 class SkeletonDetailWidget extends StatelessWidget {
   final SkeletonConfig config;
-  
+
   const SkeletonDetailWidget({
     super.key,
     required this.config,
@@ -295,15 +296,15 @@ class SkeletonDetailWidget extends StatelessWidget {
           // Hero区域骨架屏
           _buildHeroSkeleton(),
           const SizedBox(height: 16),
-          
+
           // 操作按钮骨架屏
           _buildActionButtonsSkeleton(),
           const SizedBox(height: 24),
-          
+
           // Tab栏骨架屏
           _buildTabBarSkeleton(),
           const SizedBox(height: 16),
-          
+
           // 内容区域骨架屏
           _buildContentSkeleton(context),
         ],
@@ -326,7 +327,8 @@ class SkeletonDetailWidget extends StatelessWidget {
             height: 200,
             decoration: BoxDecoration(
               color: config.baseColor,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(12)),
             ),
           ),
           // 信息骨架屏
@@ -345,7 +347,8 @@ class SkeletonDetailWidget extends StatelessWidget {
                     Colors.black.withValues(alpha: 0.7),
                   ],
                 ),
-                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
+                borderRadius:
+                    const BorderRadius.vertical(bottom: Radius.circular(12)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -412,69 +415,73 @@ class SkeletonDetailWidget extends StatelessWidget {
 
   Widget _buildTabBarSkeleton() {
     return Row(
-      children: List.generate(3, (index) => Expanded(
-        child: ShimmerSkeleton(
-          child: Container(
-            height: 40,
-            margin: const EdgeInsets.symmetric(horizontal: 4),
-            decoration: BoxDecoration(
-              color: config.baseColor,
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-        ),
-      )),
+      children: List.generate(
+          3,
+          (index) => Expanded(
+                child: ShimmerSkeleton(
+                  child: Container(
+                    height: 40,
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    decoration: BoxDecoration(
+                      color: config.baseColor,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+              )),
     );
   }
 
   Widget _buildContentSkeleton(BuildContext context) {
     return Column(
-      children: List.generate(5, (index) => Container(
-        margin: const EdgeInsets.symmetric(vertical: 8),
-        child: Row(
-          children: [
-            ShimmerSkeleton(
-              child: Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: config.baseColor,
-                  borderRadius: BorderRadius.circular(8),
+      children: List.generate(
+          5,
+          (index) => Container(
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  children: [
+                    ShimmerSkeleton(
+                      child: Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: config.baseColor,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ShimmerSkeleton(
+                            child: Container(
+                              height: 16,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: config.baseColor,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          ShimmerSkeleton(
+                            child: Container(
+                              height: 12,
+                              width: MediaQuery.of(context).size.width * 0.6,
+                              decoration: BoxDecoration(
+                                color: config.baseColor,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ShimmerSkeleton(
-                    child: Container(
-                      height: 16,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: config.baseColor,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  ShimmerSkeleton(
-                    child: Container(
-                      height: 12,
-                      width: MediaQuery.of(context).size.width * 0.6,
-                      decoration: BoxDecoration(
-                        color: config.baseColor,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      )),
+              )),
     );
   }
 }
@@ -483,7 +490,7 @@ class SkeletonDetailWidget extends StatelessWidget {
 class SkeletonCustomWidget extends StatelessWidget {
   final SkeletonConfig config;
   final Map<String, dynamic>? customData;
-  
+
   const SkeletonCustomWidget({
     super.key,
     required this.config,
@@ -494,7 +501,7 @@ class SkeletonCustomWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     // 根据customData构建自定义骨架屏
     final itemCount = customData?['items'] ?? 5;
-    
+
     return ListView.builder(
       itemCount: itemCount,
       itemBuilder: (context, index) {
@@ -535,4 +542,4 @@ class SkeletonCustomWidget extends StatelessWidget {
       },
     );
   }
-} 
+}

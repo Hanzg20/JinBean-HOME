@@ -43,11 +43,11 @@ class MyAddressesPage extends GetView<MyAddressesController> {
           if (controller.isLoading.value) {
             return const Center(child: CircularProgressIndicator());
           }
-          
+
           if (controller.addresses.isEmpty) {
             return _buildEmptyState();
           }
-          
+
           return ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: controller.addresses.length,
@@ -111,7 +111,8 @@ class MyAddressesPage extends GetView<MyAddressesController> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blue[600],
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
             onPressed: () => _showAddAddressDialog(),
@@ -123,7 +124,7 @@ class MyAddressesPage extends GetView<MyAddressesController> {
 
   Widget _buildAddressCard(dynamic address, int index) {
     final isDefault = address.isDefault ?? false;
-    
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 2,
@@ -169,7 +170,8 @@ class MyAddressesPage extends GetView<MyAddressesController> {
                             if (address.isDefault) ...[
                               const SizedBox(width: 8),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 4),
                                 decoration: BoxDecoration(
                                   color: Colors.blue[50],
                                   borderRadius: BorderRadius.circular(6),
@@ -265,7 +267,7 @@ class MyAddressesPage extends GetView<MyAddressesController> {
     final labelController = TextEditingController();
     final addressController = TextEditingController();
     final phoneController = TextEditingController();
-    
+
     Get.dialog(
       AlertDialog(
         title: const Text('Add New Address'),
@@ -309,7 +311,8 @@ class MyAddressesPage extends GetView<MyAddressesController> {
           ),
           ElevatedButton(
             onPressed: () {
-              if (labelController.text.isNotEmpty && addressController.text.isNotEmpty) {
+              if (labelController.text.isNotEmpty &&
+                  addressController.text.isNotEmpty) {
                 controller.addAddress(Address(
                   id: DateTime.now().millisecondsSinceEpoch.toString(),
                   alias: labelController.text,
@@ -329,7 +332,7 @@ class MyAddressesPage extends GetView<MyAddressesController> {
     final labelController = TextEditingController(text: address.label);
     final addressController = TextEditingController(text: address.fullAddress);
     final phoneController = TextEditingController(text: address.phone);
-    
+
     Get.dialog(
       AlertDialog(
         title: const Text('Edit Address'),
@@ -370,7 +373,8 @@ class MyAddressesPage extends GetView<MyAddressesController> {
           ),
           ElevatedButton(
             onPressed: () {
-              if (labelController.text.isNotEmpty && addressController.text.isNotEmpty) {
+              if (labelController.text.isNotEmpty &&
+                  addressController.text.isNotEmpty) {
                 // TODO: Implement update functionality
                 Get.back();
               }
@@ -418,4 +422,4 @@ class MyAddressesPage extends GetView<MyAddressesController> {
       ),
     );
   }
-} 
+}

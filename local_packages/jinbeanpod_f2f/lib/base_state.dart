@@ -31,7 +31,6 @@ abstract class BaseState<T extends StatefulWidget> extends State {
 
   bool triggersBuiltInEvents = true;
 
-
   GlobalKey globalKey = GlobalKey();
   /*
    wrap in 
@@ -40,20 +39,20 @@ abstract class BaseState<T extends StatefulWidget> extends State {
         child:
   )
   */
-  screenShot() async{
-      RenderRepaintBoundary? boundary = globalKey.currentContext?.findRenderObject() as RenderRepaintBoundary;
+  screenShot() async {
+    RenderRepaintBoundary? boundary =
+        globalKey.currentContext?.findRenderObject() as RenderRepaintBoundary;
 
-      ui.Image image = await boundary.toImage();
-      ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    ui.Image image = await boundary.toImage();
+    ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
 
-      print('IMAGE: \${byteData?.buffer.asUint8List()}');
-      /*
+    print('IMAGE: \${byteData?.buffer.asUint8List()}');
+    /*
   
       var filePath = await ImagePickerSaver.saveFile(
           fileData:byteData.buffer.asUint8List() );
       print(filePath);
       */
-  
   }
 
   void onBuild(BuildContext context) {
@@ -83,7 +82,7 @@ abstract class BaseState<T extends StatefulWidget> extends State {
             })));
   }
 
-  void redraw(){
+  void redraw() {
     redrawObject = Object();
   }
 

@@ -156,16 +156,19 @@ class ProfileController extends GetxController {
   }
 
   Future<void> loadUserProfile() async {
-    AppLogger.info('ProfileController: loadUserProfile called', tag: 'ProfileController');
+    AppLogger.info('ProfileController: loadUserProfile called',
+        tag: 'ProfileController');
     isLoading.value = true;
     final user = Supabase.instance.client.auth.currentUser;
     if (user == null) {
       // Added user.id == null check for robustness
-      AppLogger.info('[ProfileController] No authenticated user or user ID found. Returning. user: \\$user');
+      AppLogger.info(
+          '[ProfileController] No authenticated user or user ID found. Returning. user: \\$user');
       isLoading.value = false;
       return;
     }
-    AppLogger.info('[ProfileController] Loading profile for user ID: \\${user.id}');
+    AppLogger.info(
+        '[ProfileController] Loading profile for user ID: \\${user.id}');
 
     try {
       // Load user profile from Supabase
@@ -237,7 +240,8 @@ class ProfileController extends GetxController {
         memberSince.value = 'Member since ${DateTime.now().year}';
       }
     } catch (e, stack) {
-      AppLogger.error('ProfileController: Failed to load user profile', error: e, stackTrace: stack, tag: 'ProfileController');
+      AppLogger.error('ProfileController: Failed to load user profile',
+          error: e, stackTrace: stack, tag: 'ProfileController');
       Get.snackbar(
         'Error',
         'Failed to load user profile',

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'theme_settings_controller.dart';
 
-class ProviderThemeSettingsPage extends GetView<ProviderThemeSettingsController> {
+class ProviderThemeSettingsPage
+    extends GetView<ProviderThemeSettingsController> {
   const ProviderThemeSettingsPage({super.key});
 
   @override
@@ -45,4 +46,4 @@ class ProviderThemeSettingsPage extends GetView<ProviderThemeSettingsController>
       ),
     );
   }
-} 
+}

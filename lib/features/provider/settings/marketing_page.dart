@@ -23,7 +23,7 @@ class _MarketingPageState extends State<MarketingPage> {
   Future<void> _loadMarketingData() async {
     isLoading.value = true;
     await Future.delayed(const Duration(seconds: 1));
-    
+
     // 模拟推广活动数据
     campaigns.value = [
       {
@@ -55,7 +55,7 @@ class _MarketingPageState extends State<MarketingPage> {
         'description': '周末清洁服务特价优惠',
       },
     ];
-    
+
     // 模拟促销活动数据
     promotions.value = [
       {
@@ -83,7 +83,7 @@ class _MarketingPageState extends State<MarketingPage> {
         'end_date': DateTime.now().add(const Duration(days: 25)),
       },
     ];
-    
+
     isLoading.value = false;
   }
 
@@ -118,13 +118,13 @@ class _MarketingPageState extends State<MarketingPage> {
             children: [
               // 推广概览
               _buildMarketingOverview(),
-              
+
               // 标签页选择器
               _buildTabSelector(),
-              
+
               // 标签页内容
               _buildTabContent(),
-              
+
               const SizedBox(height: 20),
             ],
           ),
@@ -155,11 +155,13 @@ class _MarketingPageState extends State<MarketingPage> {
               Row(
                 children: [
                   Expanded(
-                    child: _buildOverviewCard('总预算', '\$800', Colors.blue, Icons.account_balance_wallet),
+                    child: _buildOverviewCard('总预算', '\$800', Colors.blue,
+                        Icons.account_balance_wallet),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: _buildOverviewCard('已花费', '\$500', Colors.orange, Icons.money_off),
+                    child: _buildOverviewCard(
+                        '已花费', '\$500', Colors.orange, Icons.money_off),
                   ),
                 ],
               ),
@@ -167,11 +169,13 @@ class _MarketingPageState extends State<MarketingPage> {
               Row(
                 children: [
                   Expanded(
-                    child: _buildOverviewCard('展示次数', '2,140', Colors.green, Icons.visibility),
+                    child: _buildOverviewCard(
+                        '展示次数', '2,140', Colors.green, Icons.visibility),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: _buildOverviewCard('转化次数', '35', Colors.purple, Icons.trending_up),
+                    child: _buildOverviewCard(
+                        '转化次数', '35', Colors.purple, Icons.trending_up),
                   ),
                 ],
               ),
@@ -206,7 +210,8 @@ class _MarketingPageState extends State<MarketingPage> {
     );
   }
 
-  Widget _buildOverviewCard(String title, String value, Color color, IconData icon) {
+  Widget _buildOverviewCard(
+      String title, String value, Color color, IconData icon) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -249,35 +254,37 @@ class _MarketingPageState extends State<MarketingPage> {
         child: Padding(
           padding: const EdgeInsets.all(4),
           child: Obx(() => Row(
-            children: [
-              'campaigns',
-              'promotions',
-              'analytics',
-            ].map((tab) {
-              final isSelected = selectedTab.value == tab;
-              return Expanded(
-                child: GestureDetector(
-                  onTap: () => selectedTab.value = tab,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    decoration: BoxDecoration(
-                      color: isSelected ? Colors.blue : Colors.transparent,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      _getTabText(tab),
-                      style: TextStyle(
-                        color: isSelected ? Colors.white : Colors.grey[700],
-                        fontSize: 14,
-                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                children: [
+                  'campaigns',
+                  'promotions',
+                  'analytics',
+                ].map((tab) {
+                  final isSelected = selectedTab.value == tab;
+                  return Expanded(
+                    child: GestureDetector(
+                      onTap: () => selectedTab.value = tab,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          color: isSelected ? Colors.blue : Colors.transparent,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          _getTabText(tab),
+                          style: TextStyle(
+                            color: isSelected ? Colors.white : Colors.grey[700],
+                            fontSize: 14,
+                            fontWeight: isSelected
+                                ? FontWeight.w600
+                                : FontWeight.normal,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
-                      textAlign: TextAlign.center,
                     ),
-                  ),
-                ),
-              );
-            }).toList(),
-          )),
+                  );
+                }).toList(),
+              )),
         ),
       ),
     );
@@ -345,10 +352,10 @@ class _MarketingPageState extends State<MarketingPage> {
     final budget = campaign['budget'] as double;
     final spent = campaign['spent'] as double;
     final progress = spent / budget;
-    
+
     Color statusColor;
     String statusText;
-    
+
     switch (status) {
       case 'active':
         statusColor = Colors.green;
@@ -366,7 +373,7 @@ class _MarketingPageState extends State<MarketingPage> {
         statusColor = Colors.grey;
         statusText = '未知';
     }
-    
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 1,
@@ -401,11 +408,13 @@ class _MarketingPageState extends State<MarketingPage> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: statusColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: statusColor.withValues(alpha: 0.3)),
+                    border:
+                        Border.all(color: statusColor.withValues(alpha: 0.3)),
                   ),
                   child: Text(
                     statusText,
@@ -422,10 +431,12 @@ class _MarketingPageState extends State<MarketingPage> {
             Row(
               children: [
                 Expanded(
-                  child: _buildCampaignStat('预算', '\$${budget.toStringAsFixed(0)}'),
+                  child: _buildCampaignStat(
+                      '预算', '\$${budget.toStringAsFixed(0)}'),
                 ),
                 Expanded(
-                  child: _buildCampaignStat('已花费', '\$${spent.toStringAsFixed(0)}'),
+                  child: _buildCampaignStat(
+                      '已花费', '\$${spent.toStringAsFixed(0)}'),
                 ),
                 Expanded(
                   child: _buildCampaignStat('展示', '${campaign['impressions']}'),
@@ -533,10 +544,10 @@ class _MarketingPageState extends State<MarketingPage> {
     final usageCount = promotion['usage_count'] as int;
     final maxUsage = promotion['max_usage'] as int;
     final progress = usageCount / maxUsage;
-    
+
     Color statusColor;
     String statusText;
-    
+
     switch (status) {
       case 'active':
         statusColor = Colors.green;
@@ -554,7 +565,7 @@ class _MarketingPageState extends State<MarketingPage> {
         statusColor = Colors.grey;
         statusText = '未知';
     }
-    
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 1,
@@ -589,13 +600,15 @@ class _MarketingPageState extends State<MarketingPage> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: statusColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: statusColor.withValues(alpha: 0.3)),
+                    border:
+                        Border.all(color: statusColor.withValues(alpha: 0.3)),
                   ),
-        child: Text(
+                  child: Text(
                     statusText,
                     style: TextStyle(
                       fontSize: 10,
@@ -696,7 +709,8 @@ class _MarketingPageState extends State<MarketingPage> {
           const SizedBox(height: 16),
           Card(
             elevation: 2,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -721,7 +735,8 @@ class _MarketingPageState extends State<MarketingPage> {
           const SizedBox(height: 16),
           Card(
             elevation: 2,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -843,7 +858,7 @@ class _MarketingPageState extends State<MarketingPage> {
     final type = promotion['type'] as String;
     final discount = promotion['discount'] as double;
     final minAmount = promotion['min_amount'] as double;
-    
+
     switch (type) {
       case 'first_order':
         return '首次下单立减\$${discount.toStringAsFixed(0)}';
@@ -924,7 +939,8 @@ class _MarketingPageState extends State<MarketingPage> {
             _buildDetailRow('最低金额', '\$${promotion['min_amount']}'),
             _buildDetailRow('已使用', '${promotion['usage_count']}'),
             _buildDetailRow('总数量', '${promotion['max_usage']}'),
-            _buildDetailRow('剩余', '${promotion['max_usage'] - promotion['usage_count']}'),
+            _buildDetailRow(
+                '剩余', '${promotion['max_usage'] - promotion['usage_count']}'),
           ],
         ),
         actions: [
@@ -981,4 +997,4 @@ class _MarketingPageState extends State<MarketingPage> {
   void _editPromotion(Map<String, dynamic> promotion) {
     Get.snackbar('编辑促销', '编辑功能正在开发中...');
   }
-} 
+}

@@ -93,4 +93,4 @@ class LocationSettingsController extends GetxController {
     filteredLocations.value = savedLocations;
     saveLocations();
   }
-} 
+}

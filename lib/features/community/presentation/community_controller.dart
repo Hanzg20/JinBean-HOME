@@ -1,4 +1,5 @@
-import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:get/get.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
+import 'package:get/get.dart';
 
 enum CommunityPostType {
   event,
@@ -33,26 +34,30 @@ class CommunityController extends GetxController {
     ),
     CommunityPost(
       title: 'Housing Subsidy Program',
-      description: 'Apply for the new housing subsidy program to help with your rent or mortgage.',
+      description:
+          'Apply for the new housing subsidy program to help with your rent or mortgage.',
       imageUrl: 'https://picsum.photos/200/300?random=5',
       type: CommunityPostType.subsidy,
     ),
     CommunityPost(
       title: 'Road Closure Notice',
-      description: 'Main Street will be closed for construction from July 1st to July 15th.',
+      description:
+          'Main Street will be closed for construction from July 1st to July 15th.',
       imageUrl: 'https://picsum.photos/200/300?random=6',
       type: CommunityPostType.announcement,
     ),
   ].obs;
 
-  Rx<CommunityPostType?> selectedPostType = Rx<CommunityPostType?>(null); // Null means 'All'
+  Rx<CommunityPostType?> selectedPostType =
+      Rx<CommunityPostType?>(null); // Null means 'All'
 
   // Filtered list of posts based on selectedPostType
-  RxList<CommunityPost> get filteredPosts => (
-    selectedPostType.value == null
-        ? allPosts
-        : allPosts.where((post) => post.type == selectedPostType.value).toList()
-  ).obs; // Using .obs to make it reactive
+  RxList<CommunityPost> get filteredPosts => (selectedPostType.value == null
+          ? allPosts
+          : allPosts
+              .where((post) => post.type == selectedPostType.value)
+              .toList())
+      .obs; // Using .obs to make it reactive
 
   void selectPostType(CommunityPostType? type) {
     selectedPostType.value = type;
@@ -69,4 +74,4 @@ class CommunityController extends GetxController {
     AppLogger.info('CommunityController disposed');
     super.onClose();
   }
-} 
+}

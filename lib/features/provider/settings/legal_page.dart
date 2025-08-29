@@ -55,13 +55,13 @@ class _LegalPageState extends State<LegalPage> {
             children: [
               // 合规概览
               _buildComplianceOverview(),
-              
+
               // 标签页选择器
               _buildTabSelector(),
-              
+
               // 标签页内容
               _buildTabContent(),
-              
+
               const SizedBox(height: 20),
             ],
           ),
@@ -92,11 +92,13 @@ class _LegalPageState extends State<LegalPage> {
               Row(
                 children: [
                   Expanded(
-                    child: _buildOverviewCard('合规状态', '良好', Colors.green, Icons.check_circle),
+                    child: _buildOverviewCard(
+                        '合规状态', '良好', Colors.green, Icons.check_circle),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: _buildOverviewCard('待处理', '2', Colors.orange, Icons.pending),
+                    child: _buildOverviewCard(
+                        '待处理', '2', Colors.orange, Icons.pending),
                   ),
                 ],
               ),
@@ -104,11 +106,13 @@ class _LegalPageState extends State<LegalPage> {
               Row(
                 children: [
                   Expanded(
-                    child: _buildOverviewCard('认证状态', '已验证', Colors.blue, Icons.verified),
+                    child: _buildOverviewCard(
+                        '认证状态', '已验证', Colors.blue, Icons.verified),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: _buildOverviewCard('风险等级', '低', Colors.green, Icons.security),
+                    child: _buildOverviewCard(
+                        '风险等级', '低', Colors.green, Icons.security),
                   ),
                 ],
               ),
@@ -143,7 +147,8 @@ class _LegalPageState extends State<LegalPage> {
     );
   }
 
-  Widget _buildOverviewCard(String title, String value, Color color, IconData icon) {
+  Widget _buildOverviewCard(
+      String title, String value, Color color, IconData icon) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -186,36 +191,38 @@ class _LegalPageState extends State<LegalPage> {
         child: Padding(
           padding: const EdgeInsets.all(4),
           child: Obx(() => Row(
-            children: [
-              'compliance',
-              'security',
-              'documents',
-              'policies',
-            ].map((tab) {
-              final isSelected = selectedTab.value == tab;
-              return Expanded(
-                child: GestureDetector(
-                  onTap: () => selectedTab.value = tab,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    decoration: BoxDecoration(
-                      color: isSelected ? Colors.blue : Colors.transparent,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      _getTabText(tab),
-                      style: TextStyle(
-                        color: isSelected ? Colors.white : Colors.grey[700],
-                        fontSize: 14,
-                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                children: [
+                  'compliance',
+                  'security',
+                  'documents',
+                  'policies',
+                ].map((tab) {
+                  final isSelected = selectedTab.value == tab;
+                  return Expanded(
+                    child: GestureDetector(
+                      onTap: () => selectedTab.value = tab,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          color: isSelected ? Colors.blue : Colors.transparent,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          _getTabText(tab),
+                          style: TextStyle(
+                            color: isSelected ? Colors.white : Colors.grey[700],
+                            fontSize: 14,
+                            fontWeight: isSelected
+                                ? FontWeight.w600
+                                : FontWeight.normal,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
-                      textAlign: TextAlign.center,
                     ),
-                  ),
-                ),
-              );
-            }).toList(),
-          )),
+                  );
+                }).toList(),
+              )),
         ),
       ),
     );
@@ -301,7 +308,8 @@ class _LegalPageState extends State<LegalPage> {
     );
   }
 
-  Widget _buildComplianceItem(String title, String status, String description, Color color, IconData icon) {
+  Widget _buildComplianceItem(String title, String status, String description,
+      Color color, IconData icon) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 1,
@@ -412,7 +420,8 @@ class _LegalPageState extends State<LegalPage> {
           const SizedBox(height: 16),
           Card(
             elevation: 1,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -439,7 +448,9 @@ class _LegalPageState extends State<LegalPage> {
     );
   }
 
-  Widget _buildSecurityItem(String title, String status, String description, Color color, IconData icon, {VoidCallback? onTap}) {
+  Widget _buildSecurityItem(String title, String status, String description,
+      Color color, IconData icon,
+      {VoidCallback? onTap}) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 1,
@@ -570,7 +581,8 @@ class _LegalPageState extends State<LegalPage> {
           const SizedBox(height: 16),
           Card(
             elevation: 1,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -597,7 +609,8 @@ class _LegalPageState extends State<LegalPage> {
     );
   }
 
-  Widget _buildDocumentItem(String title, String status, String date, Color color, IconData icon) {
+  Widget _buildDocumentItem(
+      String title, String status, String date, Color color, IconData icon) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 1,
@@ -753,7 +766,8 @@ class _LegalPageState extends State<LegalPage> {
           const SizedBox(height: 16),
           Card(
             elevation: 1,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -780,7 +794,9 @@ class _LegalPageState extends State<LegalPage> {
     );
   }
 
-  Widget _buildPolicyItem(String title, String version, String description, IconData icon, {VoidCallback? onTap}) {
+  Widget _buildPolicyItem(
+      String title, String version, String description, IconData icon,
+      {VoidCallback? onTap}) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 1,
@@ -828,9 +844,10 @@ class _LegalPageState extends State<LegalPage> {
                 decoration: BoxDecoration(
                   color: Colors.green.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
+                  border:
+                      Border.all(color: Colors.green.withValues(alpha: 0.3)),
                 ),
-        child: Text(
+                child: Text(
                   version,
                   style: const TextStyle(
                     fontSize: 10,
@@ -922,4 +939,4 @@ class _LegalPageState extends State<LegalPage> {
   void _viewPolicy(String policy) {
     Get.snackbar('查看政策', '政策查看功能正在开发中...');
   }
-} 
+}

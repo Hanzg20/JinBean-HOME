@@ -30,4 +30,4 @@ class ServiceMarkerModel {
   });
 
   LatLng get location => LatLng(latitude, longitude);
-} 
+}

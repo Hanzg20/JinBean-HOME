@@ -1,4 +1,5 @@
-import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:get/get.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
+import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Order {
@@ -33,7 +34,7 @@ class Order {
       orderStatus: json['order_status'],
       paymentStatus: json['payment_status'],
       createdAt: DateTime.parse(json['created_at']),
-      scheduledStartTime: json['scheduled_start_time'] != null 
+      scheduledStartTime: json['scheduled_start_time'] != null
           ? DateTime.parse(json['scheduled_start_time'])
           : null,
       providerName: json['provider_name'],
@@ -74,9 +75,7 @@ class OrdersController extends GetxController {
       }
 
       // Build the query with proper chaining
-      var query = Supabase.instance.client
-          .from('orders')
-          .select('''
+      var query = Supabase.instance.client.from('orders').select('''
             id,
             order_number,
             order_status,
@@ -88,8 +87,7 @@ class OrdersController extends GetxController {
             order_items(
               service_name_snapshot
             )
-          ''')
-          .eq('user_id', user.id);
+          ''').eq('user_id', user.id);
 
       // Apply status filter if not 'All'
       if (selectedStatus.value != 'All') {
@@ -99,14 +97,15 @@ class OrdersController extends GetxController {
       final response = await query.order('created_at', ascending: false);
 
       final List<Order> orderList = [];
-      
+
       for (final orderData in response) {
         // Extract service name from order_items
         String serviceName = 'Unknown Service';
-        if (orderData['order_items'] != null && 
-            orderData['order_items'] is List && 
+        if (orderData['order_items'] != null &&
+            orderData['order_items'] is List &&
             orderData['order_items'].isNotEmpty) {
-          serviceName = orderData['order_items'][0]['service_name_snapshot'] ?? 'Unknown Service';
+          serviceName = orderData['order_items'][0]['service_name_snapshot'] ??
+              'Unknown Service';
         }
 
         orderList.add(Order(
@@ -117,7 +116,7 @@ class OrdersController extends GetxController {
           orderStatus: orderData['order_status'],
           paymentStatus: orderData['payment_status'],
           createdAt: DateTime.parse(orderData['created_at']),
-          scheduledStartTime: orderData['scheduled_start_time'] != null 
+          scheduledStartTime: orderData['scheduled_start_time'] != null
               ? DateTime.parse(orderData['scheduled_start_time'])
               : null,
         ));
@@ -125,7 +124,7 @@ class OrdersController extends GetxController {
 
       orders.value = orderList;
       AppLogger.info('Loaded ${orderList.length} orders');
-        } catch (e) {
+    } catch (e) {
       AppLogger.info('Error loading orders: $e');
       errorMessage.value = 'Failed to load orders: $e';
     } finally {
@@ -195,14 +194,11 @@ class OrdersController extends GetxController {
 
   Future<void> cancelOrder(String orderId) async {
     try {
-      await Supabase.instance.client
-          .from('orders')
-          .update({
-            'order_status': 'Canceled',
-            'cancellation_reason': 'Cancelled by user',
-            'updated_at': DateTime.now().toIso8601String(),
-          })
-          .eq('id', orderId);
+      await Supabase.instance.client.from('orders').update({
+        'order_status': 'Canceled',
+        'cancellation_reason': 'Cancelled by user',
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('id', orderId);
 
       Get.snackbar(
         'Success',
@@ -221,4 +217,4 @@ class OrdersController extends GetxController {
       );
     }
   }
-} 
+}

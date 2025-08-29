@@ -46,14 +46,14 @@ class JinBeanButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final buttonWidget = _buildButtonWidget();
-    
+
     if (isFullWidth) {
       return SizedBox(
         width: double.infinity,
         child: buttonWidget,
       );
     }
-    
+
     return buttonWidget;
   }
 
@@ -138,7 +138,7 @@ class JinBeanButton extends StatelessWidget {
   Widget _buildGradientButton() {
     return Container(
       decoration: BoxDecoration(
-        gradient: color != null 
+        gradient: color != null
             ? LinearGradient(
                 colors: [color!, color!.withValues(alpha: 0.8)],
                 begin: Alignment.topLeft,
@@ -178,7 +178,8 @@ class JinBeanButton extends StatelessWidget {
         child: CircularProgressIndicator(
           strokeWidth: 2,
           valueColor: AlwaysStoppedAnimation<Color>(
-            type == JinBeanButtonType.primary || type == JinBeanButtonType.gradient
+            type == JinBeanButtonType.primary ||
+                    type == JinBeanButtonType.gradient
                 ? Colors.white
                 : JinBeanColors.primary,
           ),
@@ -339,4 +340,4 @@ class JinBeanIconButton extends StatelessWidget {
         return 16;
     }
   }
-} 
+}

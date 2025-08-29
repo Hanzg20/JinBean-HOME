@@ -10,11 +10,13 @@ class MyReviewsPage extends GetView<MyReviewsController> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        title: Text('My Reviews', style: theme.textTheme.titleLarge?.copyWith(color: colorScheme.onSurface)),
+        title: Text('My Reviews',
+            style: theme.textTheme.titleLarge
+                ?.copyWith(color: colorScheme.onSurface)),
         backgroundColor: colorScheme.surface,
         foregroundColor: colorScheme.onSurface,
         elevation: 0,
@@ -23,7 +25,7 @@ class MyReviewsPage extends GetView<MyReviewsController> {
         if (controller.isLoading.value) {
           return const CustomerLoadingState(message: 'Loading your reviews...');
         }
-        
+
         if (controller.reviews.isEmpty) {
           return const CustomerEmptyState(
             icon: Icons.rate_review,
@@ -33,7 +35,7 @@ class MyReviewsPage extends GetView<MyReviewsController> {
             onAction: null, // TODO: Navigate to service booking
           );
         }
-        
+
         return RefreshIndicator(
           onRefresh: controller.loadReviews,
           child: ListView.builder(
@@ -77,7 +79,7 @@ class MyReviewsPage extends GetView<MyReviewsController> {
                           ],
                         ),
                         const SizedBox(height: 8),
-                        
+
                         // 评价内容
                         Text(
                           review.comment,
@@ -86,7 +88,7 @@ class MyReviewsPage extends GetView<MyReviewsController> {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        
+
                         // 评价时间
                         Text(
                           'Reviewed on ${review.date}',
@@ -105,4 +107,4 @@ class MyReviewsPage extends GetView<MyReviewsController> {
       }),
     );
   }
-} 
+}

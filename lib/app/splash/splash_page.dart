@@ -1,4 +1,5 @@
-import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:flutter/material.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../features/customer/splash/presentation/splash_controller.dart';
 
@@ -17,7 +18,8 @@ class SplashPage extends StatelessWidget {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           controller.navigateToLogin();
         });
-        return const SizedBox.shrink(); // Hide splash page immediately after navigation
+        return const SizedBox
+            .shrink(); // Hide splash page immediately after navigation
       }
       return const Scaffold(
         body: Center(
@@ -26,4 +28,4 @@ class SplashPage extends StatelessWidget {
       );
     });
   }
-} 
+}

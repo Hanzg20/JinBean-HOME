@@ -1,4 +1,5 @@
-import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:flutter/material.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
+import 'package:flutter/material.dart';
 import 'skeleton/skeleton_system.dart';
 import 'progressive_loading/progressive_loading_system.dart';
 import 'offline_support/offline_support_system.dart';
@@ -67,7 +68,7 @@ class PlatformCore {
       customData: customData,
     );
   }
-  
+
   /// 获取渐进式加载系统（静态方法）
   static Widget createProgressiveLoading({
     required ProgressiveType type,
@@ -86,7 +87,7 @@ class PlatformCore {
       errorWidget: errorWidget,
     );
   }
-  
+
   /// 获取离线支持系统（静态方法）
   static Widget createOfflineSupport({
     required OfflineType type,
@@ -103,7 +104,7 @@ class PlatformCore {
       syncIndicator: syncIndicator,
     );
   }
-  
+
   /// 获取错误恢复系统（静态方法）
   static Widget createErrorRecovery({
     required ErrorRecoveryType type,
@@ -122,4 +123,4 @@ class PlatformCore {
       recoveryWidget: recoveryWidget,
     );
   }
-} 
+}

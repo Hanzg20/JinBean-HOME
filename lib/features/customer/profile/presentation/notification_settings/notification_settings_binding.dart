@@ -8,4 +8,4 @@ class NotificationSettingsBinding extends Bindings {
       () => NotificationSettingsController(),
     );
   }
-} 
+}

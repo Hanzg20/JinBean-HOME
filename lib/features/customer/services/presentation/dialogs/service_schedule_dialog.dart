@@ -30,7 +30,7 @@ class _ServiceScheduleDialogState extends State<ServiceScheduleDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Dialog(
       child: Container(
         width: double.maxFinite,
@@ -57,9 +57,9 @@ class _ServiceScheduleDialogState extends State<ServiceScheduleDialog> {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 20),
-            
+
             // 内容
             Expanded(
               child: SingleChildScrollView(
@@ -68,33 +68,33 @@ class _ServiceScheduleDialogState extends State<ServiceScheduleDialog> {
                   children: [
                     // 服务信息
                     _buildServiceInfo(),
-                    
+
                     const SizedBox(height: 24),
-                    
+
                     // 日期选择
                     _buildDateSelection(),
-                    
+
                     const SizedBox(height: 24),
-                    
+
                     // 时间选择
                     _buildTimeSelection(),
-                    
+
                     const SizedBox(height: 24),
-                    
+
                     // 可用时段
                     _buildAvailableTimeSlots(),
-                    
+
                     const SizedBox(height: 24),
-                    
+
                     // 注意事项
                     _buildNotes(),
                   ],
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 20),
-            
+
             // 按钮
             Row(
               children: [
@@ -203,7 +203,8 @@ class _ServiceScheduleDialogState extends State<ServiceScheduleDialog> {
                       : '请选择日期',
                   style: TextStyle(
                     fontSize: 16,
-                    color: _selectedDate != null ? Colors.black : Colors.grey[500],
+                    color:
+                        _selectedDate != null ? Colors.black : Colors.grey[500],
                   ),
                 ),
               ),
@@ -247,7 +248,8 @@ class _ServiceScheduleDialogState extends State<ServiceScheduleDialog> {
                       : '请选择时间',
                   style: TextStyle(
                     fontSize: 16,
-                    color: _selectedTime != null ? Colors.black : Colors.grey[500],
+                    color:
+                        _selectedTime != null ? Colors.black : Colors.grey[500],
                   ),
                 ),
               ),
@@ -286,7 +288,8 @@ class _ServiceScheduleDialogState extends State<ServiceScheduleDialog> {
                 });
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
                   color: isSelected ? Colors.blue : Colors.grey[100],
                   borderRadius: BorderRadius.circular(20),
@@ -298,7 +301,8 @@ class _ServiceScheduleDialogState extends State<ServiceScheduleDialog> {
                   slot,
                   style: TextStyle(
                     color: isSelected ? Colors.white : Colors.black,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    fontWeight:
+                        isSelected ? FontWeight.bold : FontWeight.normal,
                   ),
                 ),
               ),
@@ -359,7 +363,8 @@ class _ServiceScheduleDialogState extends State<ServiceScheduleDialog> {
       lastDate: DateTime.now().add(const Duration(days: 30)),
       selectableDayPredicate: (DateTime date) {
         // 排除周末（可选）
-        return date.weekday != DateTime.saturday && date.weekday != DateTime.sunday;
+        return date.weekday != DateTime.saturday &&
+            date.weekday != DateTime.sunday;
       },
     );
     if (picked != null) {
@@ -382,21 +387,23 @@ class _ServiceScheduleDialogState extends State<ServiceScheduleDialog> {
   }
 
   bool _canConfirm() {
-    return _selectedDate != null && (_selectedTime != null || _selectedTimeSlot.isNotEmpty);
+    return _selectedDate != null &&
+        (_selectedTime != null || _selectedTimeSlot.isNotEmpty);
   }
 
   void _confirmSchedule() {
-    final selectedTime = _selectedTimeSlot.isNotEmpty 
-        ? _selectedTimeSlot 
+    final selectedTime = _selectedTimeSlot.isNotEmpty
+        ? _selectedTimeSlot
         : _selectedTime?.format(context);
-    
+
     // 更新控制器中的预订详情
-    widget.controller.bookingDetails['serviceDate'] = _selectedDate?.toIso8601String();
+    widget.controller.bookingDetails['serviceDate'] =
+        _selectedDate?.toIso8601String();
     widget.controller.bookingDetails['serviceTime'] = selectedTime;
     widget.controller.bookingDetails['timeSlot'] = _selectedTimeSlot;
-    
+
     Get.back(); // 关闭对话框
-    
+
     // 显示确认信息
     Get.snackbar(
       '日程已安排',
@@ -406,8 +413,8 @@ class _ServiceScheduleDialogState extends State<ServiceScheduleDialog> {
       colorText: Colors.white,
       duration: const Duration(seconds: 3),
     );
-    
+
     // 可以在这里调用预订API
     // widget.controller.createBooking();
   }
-} 
+}

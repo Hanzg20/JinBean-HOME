@@ -1,0 +1,221 @@
+{
+  "food_services": {
+    "name_zh": "美食天地",
+    "name_en": "Food World",
+    "services_per_category": 2,
+    "subcategories": ["社区美食", "餐厅预订", "团体餐饮", "食材采购", "其它"],
+    "providers": [
+      {
+        "name_zh": "张妈妈川菜工坊",
+        "name_en": "Auntie Zhang's Sichuan Kitchen",
+        "bio_zh": "20年川菜制作经验，社区认证美食服务商，专注正宗川菜制作",
+        "bio_en": "20 years of Sichuan cuisine experience, community-certified food service provider, specializing in authentic Sichuan dishes",
+        "phone": "+1-416-555-0101",
+        "email": "zhangmama@jinbean.ca",
+        "rating": 4.8,
+        "review_count": 156,
+        "type": "individual",
+        "experience_years": 20,
+        "tags": ["川菜", "麻辣", "家常菜"],
+        "specialties": ["川菜", "麻辣", "家常菜"],
+        "certifications": ["社区认证", "食品安全"],
+        "languages": ["中文", "英文"]
+      },
+      {
+        "name_zh": "李师傅饺子屋",
+        "name_en": "Master Li's Dumpling House",
+        "bio_zh": "专业手工饺子制作，新鲜食材，多种馅料，社区口碑美食",
+        "bio_en": "Professional handmade dumplings, fresh ingredients, various fillings, community-reputed food",
+        "phone": "+1-416-555-0102",
+        "email": "masterli@jinbean.ca",
+        "rating": 4.7,
+        "review_count": 89,
+        "type": "individual",
+        "experience_years": 15,
+        "tags": ["饺子", "手工制作", "新鲜食材"],
+        "specialties": ["饺子", "手工制作", "新鲜食材"],
+        "certifications": ["社区认证", "食品安全"],
+        "languages": ["中文", "英文"]
+      },
+      {
+        "name_zh": "龙腾中餐厅",
+        "name_en": "Dragon Palace Chinese Restaurant",
+        "bio_zh": "高档中餐厅，专业服务团队，适合商务宴请和特殊场合",
+        "bio_en": "Fine Chinese restaurant, professional service team, perfect for business dinners and special occasions",
+        "phone": "+1-416-555-0103",
+        "email": "dragonpalace@jinbean.ca",
+        "rating": 4.9,
+        "review_count": 234,
+        "type": "corporate",
+        "experience_years": 25,
+        "tags": ["粤菜", "商务宴请", "高档服务"],
+        "specialties": ["粤菜", "商务宴请", "高档服务"],
+        "certifications": ["餐厅执照", "食品安全"],
+        "languages": ["中文", "英文", "粤语"]
+      }
+    ],
+    "services": [
+      {
+        "provider_name": "张妈妈川菜工坊",
+        "name_zh": "张妈妈川菜工坊",
+        "name_en": "Auntie Zhang's Sichuan Kitchen",
+        "description_zh": "社区认证的川菜制作，正宗麻辣味道，温馨家常",
+        "description_en": "Community-certified Sichuan cuisine, authentic spicy flavors, warm home-style",
+        "subcategory_id": "subcategory1_id",
+        "rating": 4.8,
+        "review_count": 156,
+        "delivery_method": "delivery"
+      },
+      {
+        "provider_name": "李师傅饺子屋",
+        "name_zh": "李师傅饺子屋",
+        "name_en": "Master Li's Dumpling House",
+        "description_zh": "手工饺子制作，新鲜食材，多种馅料可选",
+        "description_en": "Handmade dumplings, fresh ingredients, various fillings available",
+        "subcategory_id": "subcategory1_id",
+        "rating": 4.7,
+        "review_count": 89,
+        "delivery_method": "delivery"
+      },
+      {
+        "provider_name": "龙腾中餐厅",
+        "name_zh": "龙腾中餐厅",
+        "name_en": "Dragon Palace Chinese Restaurant",
+        "description_zh": "高档中餐厅，专业服务，适合商务宴请",
+        "description_en": "Fine Chinese restaurant, professional service, perfect for business dinners",
+        "subcategory_id": "subcategory2_id",
+        "rating": 4.9,
+        "review_count": 234,
+        "delivery_method": "on_site"
+      }
+    ]
+  },
+  "home_services": {
+    "name_zh": "家政服务",
+    "name_en": "Home Services",
+    "services_per_category": 2,
+    "subcategories": ["清洁服务", "维修服务", "搬家服务", "其他"],
+    "providers": [
+      {
+        "name_zh": "专业清洁公司",
+        "name_en": "Professional Cleaning Company",
+        "bio_zh": "专业家庭清洁服务，10年经验，环保清洁产品",
+        "bio_en": "Professional home cleaning service, 10 years experience, eco-friendly cleaning products",
+        "phone": "+1-416-555-0201",
+        "email": "cleaning@example.com",
+        "rating": 4.9,
+        "review_count": 234,
+        "type": "corporate",
+        "experience_years": 10,
+        "tags": ["清洁", "消毒", "整理"],
+        "specialties": ["清洁", "消毒"],
+        "certifications": ["清洁认证", "环保认证"],
+        "languages": ["中文", "英文"]
+      },
+      {
+        "name_zh": "家电维修师傅",
+        "name_en": "Appliance Repair Master",
+        "bio_zh": "专业家电维修，20年经验，快速上门服务",
+        "bio_en": "Professional appliance repair, 20 years experience, fast on-site service",
+        "phone": "+1-416-555-0202",
+        "email": "repair@example.com",
+        "rating": 4.6,
+        "review_count": 189,
+        "type": "individual",
+        "experience_years": 20,
+        "tags": ["家电维修", "上门服务", "快速响应"],
+        "specialties": ["家电维修", "上门服务"],
+        "certifications": ["维修认证", "安全认证"],
+        "languages": ["中文", "英文"]
+      }
+    ],
+    "services": [
+      {
+        "provider_name": "专业清洁公司",
+        "name_zh": "家庭深度清洁",
+        "name_en": "Deep Home Cleaning",
+        "description_zh": "专业家庭深度清洁服务，包括厨房、卫生间、客厅等",
+        "description_en": "Professional deep home cleaning service, including kitchen, bathroom, living room",
+        "subcategory_id": "subcategory1_id",
+        "rating": 4.9,
+        "review_count": 234,
+        "delivery_method": "on_site"
+      },
+      {
+        "provider_name": "家电维修师傅",
+        "name_zh": "家电维修服务",
+        "name_en": "Appliance Repair Service",
+        "description_zh": "专业家电维修服务，包括冰箱、洗衣机、空调等",
+        "description_en": "Professional appliance repair service, including refrigerator, washing machine, air conditioner",
+        "subcategory_id": "subcategory2_id",
+        "rating": 4.6,
+        "review_count": 189,
+        "delivery_method": "on_site"
+      }
+    ]
+  },
+  "education_services": {
+    "name_zh": "教育培训",
+    "name_en": "Education & Training",
+    "services_per_category": 2,
+    "subcategories": ["语言培训", "技能培训", "学术辅导", "其他"],
+    "providers": [
+      {
+        "name_zh": "英语培训中心",
+        "name_en": "English Training Center",
+        "bio_zh": "专业英语培训，雅思托福专家，10年教学经验",
+        "bio_en": "Professional English training, IELTS TOEFL expert, 10 years teaching experience",
+        "phone": "+1-416-555-0301",
+        "email": "english@example.com",
+        "rating": 4.7,
+        "review_count": 189,
+        "type": "corporate",
+        "experience_years": 10,
+        "tags": ["英语", "雅思", "托福"],
+        "specialties": ["英语", "雅思"],
+        "certifications": ["教师资格", "雅思认证"],
+        "languages": ["中文", "英文"]
+      },
+      {
+        "name_zh": "编程技能培训",
+        "name_en": "Programming Skills Training",
+        "bio_zh": "专业编程技能培训，Python、Java、前端开发",
+        "bio_en": "Professional programming skills training, Python, Java, frontend development",
+        "phone": "+1-416-555-0302",
+        "email": "programming@example.com",
+        "rating": 4.8,
+        "review_count": 156,
+        "type": "corporate",
+        "experience_years": 8,
+        "tags": ["编程", "Python", "Java", "前端"],
+        "specialties": ["编程", "Python"],
+        "certifications": ["技术认证", "教学认证"],
+        "languages": ["中文", "英文"]
+      }
+    ],
+    "services": [
+      {
+        "provider_name": "英语培训中心",
+        "name_zh": "雅思培训课程",
+        "name_en": "IELTS Training Course",
+        "description_zh": "专业雅思培训课程，听说读写全面提升",
+        "description_en": "Professional IELTS training course, comprehensive improvement in listening, speaking, reading, writing",
+        "subcategory_id": "subcategory1_id",
+        "rating": 4.7,
+        "review_count": 189,
+        "delivery_method": "online"
+      },
+      {
+        "provider_name": "编程技能培训",
+        "name_zh": "Python编程课程",
+        "name_en": "Python Programming Course",
+        "description_zh": "从零开始学习Python编程，适合初学者",
+        "description_en": "Learn Python programming from scratch, suitable for beginners",
+        "subcategory_id": "subcategory2_id",
+        "rating": 4.8,
+        "review_count": 156,
+        "delivery_method": "online"
+      }
+    ]
+  }
+}

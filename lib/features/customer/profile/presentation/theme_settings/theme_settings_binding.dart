@@ -6,4 +6,4 @@ class ThemeSettingsBinding extends Bindings {
   void dependencies() {
     Get.lazyPut<ThemeSettingsController>(() => ThemeSettingsController());
   }
-} 
+}

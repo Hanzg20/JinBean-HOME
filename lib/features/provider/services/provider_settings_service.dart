@@ -28,7 +28,8 @@ class ProviderSettingsService {
   }
 
   /// 设置Provider设置
-  Future<bool> setSetting(String settingKey, Map<String, dynamic> settingValue) async {
+  Future<bool> setSetting(
+      String settingKey, Map<String, dynamic> settingValue) async {
     try {
       final userId = _supabase.auth.currentUser?.id;
       if (userId == null) {
@@ -36,16 +37,15 @@ class ProviderSettingsService {
         return false;
       }
 
-      await _supabase
-          .from('provider_settings')
-          .upsert({
-            'provider_id': userId,
-            'setting_key': settingKey,
-            'setting_value': settingValue,
-            'updated_at': DateTime.now().toIso8601String(),
-          });
+      await _supabase.from('provider_settings').upsert({
+        'provider_id': userId,
+        'setting_key': settingKey,
+        'setting_value': settingValue,
+        'updated_at': DateTime.now().toIso8601String(),
+      });
 
-      AppLogger.info('[ProviderSettingsService] Setting $settingKey updated successfully');
+      AppLogger.info(
+          '[ProviderSettingsService] Setting $settingKey updated successfully');
       return true;
     } catch (e) {
       AppLogger.error('[ProviderSettingsService] Error setting setting: $e');
@@ -88,8 +88,9 @@ class ProviderSettingsService {
 
       return settings;
     } catch (e) {
-      AppLogger.error('[ProviderSettingsService] Error getting all settings: $e');
+      AppLogger.error(
+          '[ProviderSettingsService] Error getting all settings: $e');
       return {};
     }
   }
-} 
+}

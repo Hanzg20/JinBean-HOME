@@ -18,4 +18,4 @@ ProviderRegistrationController mockProviderRegistrationController() {
   c.taxStatusNoticeShown = true;
   c.taxReportAvailable = true;
   return c;
-} 
+}

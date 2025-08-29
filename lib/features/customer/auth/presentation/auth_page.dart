@@ -28,22 +28,22 @@ class AuthPage extends GetView<AuthController> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 60),
-                
+
                 // Logo and Welcome Section
                 _buildWelcomeSection(),
-                
+
                 const SizedBox(height: 40),
-                
+
                 // Auth Form Card
                 _buildAuthFormCard(),
-                
+
                 const SizedBox(height: 24),
-                
+
                 // Social Login Section
                 _buildSocialLoginSection(),
-                
+
                 const SizedBox(height: 24),
-                
+
                 // Footer Links
                 _buildFooterLinks(),
               ],
@@ -78,9 +78,9 @@ class AuthPage extends GetView<AuthController> {
             color: Colors.blue,
           ),
         ),
-        
+
         const SizedBox(height: 24),
-        
+
         // Welcome Text
         const Text(
           'Welcome to JinBean',
@@ -91,9 +91,9 @@ class AuthPage extends GetView<AuthController> {
           ),
           textAlign: TextAlign.center,
         ),
-        
+
         const SizedBox(height: 8),
-        
+
         Text(
           'Your trusted platform for home services',
           style: TextStyle(
@@ -125,9 +125,9 @@ class AuthPage extends GetView<AuthController> {
               ),
               textAlign: TextAlign.center,
             ),
-            
+
             const SizedBox(height: 8),
-            
+
             Text(
               'Welcome back! Please sign in to continue',
               style: TextStyle(
@@ -136,9 +136,9 @@ class AuthPage extends GetView<AuthController> {
               ),
               textAlign: TextAlign.center,
             ),
-            
+
             const SizedBox(height: 32),
-            
+
             // Email Field
             _buildTextField(
               controller: controller.emailController,
@@ -146,9 +146,9 @@ class AuthPage extends GetView<AuthController> {
               icon: Icons.email_outlined,
               keyboardType: TextInputType.emailAddress,
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Password Field
             _buildTextField(
               controller: controller.passwordController,
@@ -156,9 +156,9 @@ class AuthPage extends GetView<AuthController> {
               icon: Icons.lock_outlined,
               isPassword: true,
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Forgot Password Link
             Align(
               alignment: Alignment.centerRight,
@@ -173,41 +173,45 @@ class AuthPage extends GetView<AuthController> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 8),
-            
+
             // Main Action Button
             SizedBox(
               height: 50,
               child: Obx(() => ElevatedButton(
-                onPressed: controller.isLoading.value ? null : () => controller.login(),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  elevation: 2,
-                ),
-                child: controller.isLoading.value
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                        ),
-                      )
-                    : const Text(
-                        'Sign In',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-              )),
+                    onPressed: controller.isLoading.value
+                        ? null
+                        : () => controller.login(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      elevation: 2,
+                    ),
+                    child: controller.isLoading.value
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : const Text(
+                            'Sign In',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                  )),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Error Message
             Obx(() => controller.errorMessage.value.isNotEmpty
                 ? Container(
@@ -227,9 +231,9 @@ class AuthPage extends GetView<AuthController> {
                     ),
                   )
                 : const SizedBox.shrink()),
-            
+
             const SizedBox(height: 16),
-            
+
             // Toggle Login/Register
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -268,38 +272,41 @@ class AuthPage extends GetView<AuthController> {
     TextInputType? keyboardType,
   }) {
     return Obx(() => TextField(
-      controller: controller,
-      obscureText: isPassword && !this.controller.isPasswordVisible.value,
-      keyboardType: keyboardType,
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon, color: Colors.grey[600]),
-        suffixIcon: isPassword ? IconButton(
-          icon: Icon(
-            this.controller.isPasswordVisible.value
-                ? Icons.visibility_off
-                : Icons.visibility,
-            color: Colors.grey[600],
+          controller: controller,
+          obscureText: isPassword && !this.controller.isPasswordVisible.value,
+          keyboardType: keyboardType,
+          decoration: InputDecoration(
+            labelText: label,
+            prefixIcon: Icon(icon, color: Colors.grey[600]),
+            suffixIcon: isPassword
+                ? IconButton(
+                    icon: Icon(
+                      this.controller.isPasswordVisible.value
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                      color: Colors.grey[600],
+                    ),
+                    onPressed: () => this.controller.togglePasswordVisibility(),
+                  )
+                : null,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.blue, width: 2),
+            ),
+            filled: true,
+            fillColor: Colors.grey[50],
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           ),
-          onPressed: () => this.controller.togglePasswordVisibility(),
-        ) : null,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey[300]!),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey[300]!),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.blue, width: 2),
-        ),
-        filled: true,
-        fillColor: Colors.grey[50],
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      ),
-    ));
+        ));
   }
 
   Widget _buildSocialLoginSection() {
@@ -322,9 +329,9 @@ class AuthPage extends GetView<AuthController> {
             Expanded(child: Divider(color: Colors.grey[300])),
           ],
         ),
-        
+
         const SizedBox(height: 24),
-        
+
         // Social Login Buttons
         Row(
           children: [
@@ -376,7 +383,8 @@ class AuthPage extends GetView<AuthController> {
         style: OutlinedButton.styleFrom(
           backgroundColor: backgroundColor,
           side: BorderSide(color: Colors.grey[300]!),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       ),
     );
@@ -431,7 +439,7 @@ class AuthPage extends GetView<AuthController> {
 
   void _showForgotPasswordDialog() {
     final emailController = TextEditingController();
-    
+
     Get.dialog(
       AlertDialog(
         title: const Text('Reset Password'),
@@ -475,4 +483,4 @@ class AuthPage extends GetView<AuthController> {
       ),
     );
   }
-} 
+}

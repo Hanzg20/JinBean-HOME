@@ -5,7 +5,8 @@ import 'package:jinbeanpod_83904710/features/provider/provider_home_page.dart';
 
 void main() {
   group('Simple Provider Test', () {
-    testWidgets('ProviderShellApp should not crash', (WidgetTester tester) async {
+    testWidgets('ProviderShellApp should not crash',
+        (WidgetTester tester) async {
       // Arrange
       await tester.pumpWidget(
         GetMaterialApp(
@@ -20,7 +21,8 @@ void main() {
       expect(find.byType(ProviderShellApp), findsOneWidget);
     });
 
-    testWidgets('ProviderHomePage should display content', (WidgetTester tester) async {
+    testWidgets('ProviderHomePage should display content',
+        (WidgetTester tester) async {
       // Arrange
       await tester.pumpWidget(
         MaterialApp(
@@ -38,4 +40,4 @@ void main() {
       expect(find.text('今日概览'), findsOneWidget);
     });
   });
-} 
+}

@@ -27,7 +27,7 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -40,7 +40,10 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
             const SizedBox(width: 8),
             Text(
               '服务管理',
-              style: TextStyle(color: theme.colorScheme.onPrimary, fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  color: theme.colorScheme.onPrimary,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -49,7 +52,8 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
         actions: [
           IconButton(
             icon: Icon(Icons.view_list, color: theme.colorScheme.onPrimary),
-            onPressed: () => selectedView.value = selectedView.value == 'grid' ? 'list' : 'grid',
+            onPressed: () => selectedView.value =
+                selectedView.value == 'grid' ? 'list' : 'grid',
           ),
           IconButton(
             icon: Icon(Icons.add, color: theme.colorScheme.onPrimary),
@@ -65,13 +69,13 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
             children: [
               // 服务概览统计
               _buildServiceOverview(),
-              
+
               // 搜索和筛选
               _buildSearchAndFilter(),
-              
+
               // 服务列表
               _buildServicesContent(),
-              
+
               const SizedBox(height: 20),
             ],
           ),
@@ -116,9 +120,9 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   }
-                  
+
                   final stats = snapshot.data ?? {};
-                  
+
                   return Column(
                     children: [
                       Row(
@@ -193,7 +197,8 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
     );
   }
 
-  Widget _buildOverviewCard(String title, String value, Color color, IconData icon) {
+  Widget _buildOverviewCard(
+      String title, String value, Color color, IconData icon) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -253,11 +258,12 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
                   ),
                   filled: true,
                   fillColor: Colors.grey[50],
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
               ),
               const SizedBox(height: 12),
-              
+
               // 筛选器
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
@@ -267,48 +273,55 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
                       return Padding(
                         padding: const EdgeInsets.only(right: 8),
                         child: Obx(() => FilterChip(
-                          label: Text(_getCategoryDisplayText(category)),
-                          selected: controller.selectedCategory.value == category,
-                          onSelected: (selected) {
-                            if (selected) {
-                              controller.filterByCategory(category);
-                            }
-                          },
-                          backgroundColor: Colors.grey[100],
-                          selectedColor: Colors.blue[100],
-                          checkmarkColor: Colors.blue,
-                          labelStyle: TextStyle(
-                            color: controller.selectedCategory.value == category 
-                                ? Colors.blue[700] 
-                                : Colors.grey[700],
-                          ),
-                        )),
+                              label: Text(_getCategoryDisplayText(category)),
+                              selected:
+                                  controller.selectedCategory.value == category,
+                              onSelected: (selected) {
+                                if (selected) {
+                                  controller.filterByCategory(category);
+                                }
+                              },
+                              backgroundColor: Colors.grey[100],
+                              selectedColor: Colors.blue[100],
+                              checkmarkColor: Colors.blue,
+                              labelStyle: TextStyle(
+                                color: controller.selectedCategory.value ==
+                                        category
+                                    ? Colors.blue[700]
+                                    : Colors.grey[700],
+                              ),
+                            )),
                       );
                     }),
-                    
+
                     // 视图切换
                     Padding(
                       padding: const EdgeInsets.only(left: 8),
                       child: Obx(() => FilterChip(
-                        label: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              selectedView.value == 'grid' ? Icons.grid_view : Icons.view_list,
-                              size: 16,
+                            label: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  selectedView.value == 'grid'
+                                      ? Icons.grid_view
+                                      : Icons.view_list,
+                                  size: 16,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                    selectedView.value == 'grid' ? '网格' : '列表'),
+                              ],
                             ),
-                            const SizedBox(width: 4),
-                            Text(selectedView.value == 'grid' ? '网格' : '列表'),
-                          ],
-                        ),
-                        selected: true,
-                        onSelected: (_) {
-                          selectedView.value = selectedView.value == 'grid' ? 'list' : 'grid';
-                        },
-                        backgroundColor: Colors.blue[100],
-                        selectedColor: Colors.blue[100],
-                        checkmarkColor: Colors.blue,
-                      )),
+                            selected: true,
+                            onSelected: (_) {
+                              selectedView.value = selectedView.value == 'grid'
+                                  ? 'list'
+                                  : 'grid';
+                            },
+                            backgroundColor: Colors.blue[100],
+                            selectedColor: Colors.blue[100],
+                            checkmarkColor: Colors.blue,
+                          )),
                     ),
                   ],
                 ),
@@ -330,16 +343,15 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
           ),
         );
       }
-      
+
       if (controller.services.isEmpty) {
         return _buildEmptyState();
       }
-      
+
       return Container(
         margin: const EdgeInsets.symmetric(horizontal: 16),
-        child: selectedView.value == 'grid' 
-            ? _buildGridView() 
-            : _buildListView(),
+        child:
+            selectedView.value == 'grid' ? _buildGridView() : _buildListView(),
       );
     });
   }
@@ -409,7 +421,8 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
         mainAxisSpacing: 12,
         childAspectRatio: 0.85,
       ),
-      itemCount: controller.services.length + (controller.hasMoreData.value ? 1 : 0),
+      itemCount:
+          controller.services.length + (controller.hasMoreData.value ? 1 : 0),
       itemBuilder: (context, index) {
         if (index == controller.services.length) {
           if (controller.hasMoreData.value) {
@@ -418,7 +431,7 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
           }
           return const SizedBox.shrink();
         }
-        
+
         final service = controller.services[index];
         return _buildServiceGridCard(service);
       },
@@ -429,7 +442,8 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: controller.services.length + (controller.hasMoreData.value ? 1 : 0),
+      itemCount:
+          controller.services.length + (controller.hasMoreData.value ? 1 : 0),
       itemBuilder: (context, index) {
         if (index == controller.services.length) {
           if (controller.hasMoreData.value) {
@@ -443,7 +457,7 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
           }
           return const SizedBox.shrink();
         }
-        
+
         final service = controller.services[index];
         return _buildServiceListCard(service);
       },
@@ -454,7 +468,7 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
     final status = service['status'] as String;
     final statusColor = controller.getStatusColor(status);
     final isAvailable = controller.isServiceAvailable(service);
-    
+
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -484,7 +498,8 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
                   ),
                   const Spacer(),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
                       color: statusColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
@@ -500,9 +515,9 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
                   ),
                 ],
               ),
-              
+
               const SizedBox(height: 12),
-              
+
               // 服务名称
               Text(
                 controller.getServiceName(service),
@@ -513,9 +528,9 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              
+
               const SizedBox(height: 4),
-              
+
               // 分类
               Text(
                 controller.getServiceCategory(service),
@@ -526,9 +541,9 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              
+
               const SizedBox(height: 8),
-              
+
               // 价格
               Text(
                 controller.getServicePrice(service),
@@ -538,9 +553,9 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
                   color: Colors.orange[600],
                 ),
               ),
-              
+
               const SizedBox(height: 8),
-              
+
               // 可用性开关
               Row(
                 children: [
@@ -549,20 +564,22 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
                       isAvailable ? '可预约' : '暂停',
                       style: TextStyle(
                         fontSize: 10,
-                        color: isAvailable ? Colors.green[600] : Colors.red[600],
+                        color:
+                            isAvailable ? Colors.green[600] : Colors.red[600],
                       ),
                     ),
                   ),
                   Switch(
                     value: isAvailable,
-                    onChanged: (value) => controller.toggleServiceAvailability(service['id'], value),
+                    onChanged: (value) => controller.toggleServiceAvailability(
+                        service['id'], value),
                     activeColor: Colors.green,
                   ),
                 ],
               ),
-              
+
               const Spacer(),
-              
+
               // 操作按钮
               Row(
                 children: [
@@ -577,7 +594,8 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
                     Expanded(
                       child: IconButton(
                         onPressed: () => _showDeleteServiceDialog(service),
-                        icon: Icon(Icons.delete, size: 16, color: Colors.red[600]),
+                        icon: Icon(Icons.delete,
+                            size: 16, color: Colors.red[600]),
                         tooltip: '删除',
                       ),
                     ),
@@ -594,7 +612,7 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
     final status = service['status'] as String;
     final statusColor = controller.getStatusColor(status);
     final isAvailable = controller.isServiceAvailable(service);
-    
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 2,
@@ -620,9 +638,9 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
                   size: 24,
                 ),
               ),
-              
+
               const SizedBox(width: 12),
-              
+
               // 服务信息
               Expanded(
                 child: Column(
@@ -667,12 +685,13 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
                   ],
                 ),
               ),
-              
+
               // 状态和操作
               Column(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: statusColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
@@ -689,7 +708,8 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
                   const SizedBox(height: 8),
                   Switch(
                     value: isAvailable,
-                    onChanged: (value) => controller.toggleServiceAvailability(service['id'], value),
+                    onChanged: (value) => controller.toggleServiceAvailability(
+                        service['id'], value),
                     activeColor: Colors.green,
                   ),
                 ],
@@ -747,7 +767,7 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
     String selectedDeliveryMethod = 'on_site';
     String selectedPricingType = 'fixed_price';
     String selectedDurationType = 'hours';
-    
+
     Get.dialog(
       AlertDialog(
         title: Row(
@@ -788,19 +808,24 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const CircularProgressIndicator();
                       }
-                      
+
                       final categories = snapshot.data ?? [];
-                      
+
                       return DropdownButtonFormField<String>(
-                        value: selectedCategory.isEmpty && categories.isNotEmpty ? categories.first['code_value'].toString() : selectedCategory,
+                        value: selectedCategory.isEmpty && categories.isNotEmpty
+                            ? categories.first['code_value'].toString()
+                            : selectedCategory,
                         decoration: const InputDecoration(
                           labelText: '服务分类',
                           border: OutlineInputBorder(),
                         ),
-                        items: categories.map((category) => DropdownMenuItem<String>(
-                          value: category['code_value'].toString(),
-                          child: Text(category['code_description'].toString()),
-                        )).toList(),
+                        items: categories
+                            .map((category) => DropdownMenuItem<String>(
+                                  value: category['code_value'].toString(),
+                                  child: Text(
+                                      category['code_description'].toString()),
+                                ))
+                            .toList(),
                         onChanged: (value) {
                           setState(() {
                             selectedCategory = value!;
@@ -849,10 +874,14 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
                             border: OutlineInputBorder(),
                           ),
                           items: const [
-                            DropdownMenuItem(value: 'fixed_price', child: Text('固定价格')),
-                            DropdownMenuItem(value: 'hourly', child: Text('按小时')),
-                            DropdownMenuItem(value: 'by_project', child: Text('按项目')),
-                            DropdownMenuItem(value: 'negotiable', child: Text('可协商')),
+                            DropdownMenuItem(
+                                value: 'fixed_price', child: Text('固定价格')),
+                            DropdownMenuItem(
+                                value: 'hourly', child: Text('按小时')),
+                            DropdownMenuItem(
+                                value: 'by_project', child: Text('按项目')),
+                            DropdownMenuItem(
+                                value: 'negotiable', child: Text('可协商')),
                           ],
                           onChanged: (value) {
                             setState(() {
@@ -871,7 +900,8 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
                           ),
                           items: const [
                             DropdownMenuItem(value: 'hours', child: Text('小时')),
-                            DropdownMenuItem(value: 'minutes', child: Text('分钟')),
+                            DropdownMenuItem(
+                                value: 'minutes', child: Text('分钟')),
                             DropdownMenuItem(value: 'days', child: Text('天')),
                             DropdownMenuItem(value: 'visits', child: Text('次')),
                           ],
@@ -933,8 +963,8 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
           ),
           ElevatedButton(
             onPressed: () {
-              if (nameController.text.isNotEmpty && 
-                  descriptionController.text.isNotEmpty && 
+              if (nameController.text.isNotEmpty &&
+                  descriptionController.text.isNotEmpty &&
                   priceController.text.isNotEmpty &&
                   durationController.text.isNotEmpty &&
                   selectedCategory.isNotEmpty) {
@@ -942,7 +972,8 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
                   'name': nameController.text,
                   'description': descriptionController.text,
                   'category_id': selectedCategory,
-                  'category_level2_id': selectedCategory, // Using same as level1 for now
+                  'category_level2_id':
+                      selectedCategory, // Using same as level1 for now
                   'status': selectedStatus,
                   'service_delivery_method': selectedDeliveryMethod,
                   'details': {
@@ -950,7 +981,8 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
                     'price': double.tryParse(priceController.text) ?? 0.0,
                     'currency': 'USD',
                     'duration_type': selectedDurationType,
-                    'duration': '${durationController.text} $selectedDurationType',
+                    'duration':
+                        '${durationController.text} $selectedDurationType',
                   },
                 });
                 Get.back();
@@ -968,16 +1000,19 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
   }
 
   void _showEditServiceDialog(Map<String, dynamic> service) {
-    final nameController = TextEditingController(text: controller.getServiceName(service));
-    final descriptionController = TextEditingController(text: controller.getServiceDescription(service));
+    final nameController =
+        TextEditingController(text: controller.getServiceName(service));
+    final descriptionController =
+        TextEditingController(text: controller.getServiceDescription(service));
     final priceController = TextEditingController();
     final durationController = TextEditingController();
     String selectedCategory = service['category_level1_id']?.toString() ?? '';
     String selectedStatus = service['status'] ?? 'draft';
-    String selectedDeliveryMethod = service['service_delivery_method'] ?? 'on_site';
+    String selectedDeliveryMethod =
+        service['service_delivery_method'] ?? 'on_site';
     String selectedPricingType = 'fixed_price';
     String selectedDurationType = 'hours';
-    
+
     // Extract price and duration from service_details
     final serviceDetails = service['service_details'] as List<dynamic>?;
     if (serviceDetails != null && serviceDetails.isNotEmpty) {
@@ -993,7 +1028,7 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
         }
       }
     }
-    
+
     Get.dialog(
       AlertDialog(
         title: Row(
@@ -1034,19 +1069,22 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const CircularProgressIndicator();
                       }
-                      
+
                       final categories = snapshot.data ?? [];
-                      
+
                       return DropdownButtonFormField<String>(
                         value: selectedCategory,
                         decoration: const InputDecoration(
                           labelText: '服务分类',
                           border: OutlineInputBorder(),
                         ),
-                        items: categories.map((category) => DropdownMenuItem<String>(
-                          value: category['code_value'].toString(),
-                          child: Text(category['code_description'].toString()),
-                        )).toList(),
+                        items: categories
+                            .map((category) => DropdownMenuItem<String>(
+                                  value: category['code_value'].toString(),
+                                  child: Text(
+                                      category['code_description'].toString()),
+                                ))
+                            .toList(),
                         onChanged: (value) {
                           setState(() {
                             selectedCategory = value!;
@@ -1095,10 +1133,14 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
                             border: OutlineInputBorder(),
                           ),
                           items: const [
-                            DropdownMenuItem(value: 'fixed_price', child: Text('固定价格')),
-                            DropdownMenuItem(value: 'hourly', child: Text('按小时')),
-                            DropdownMenuItem(value: 'by_project', child: Text('按项目')),
-                            DropdownMenuItem(value: 'negotiable', child: Text('可协商')),
+                            DropdownMenuItem(
+                                value: 'fixed_price', child: Text('固定价格')),
+                            DropdownMenuItem(
+                                value: 'hourly', child: Text('按小时')),
+                            DropdownMenuItem(
+                                value: 'by_project', child: Text('按项目')),
+                            DropdownMenuItem(
+                                value: 'negotiable', child: Text('可协商')),
                           ],
                           onChanged: (value) {
                             setState(() {
@@ -1117,7 +1159,8 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
                           ),
                           items: const [
                             DropdownMenuItem(value: 'hours', child: Text('小时')),
-                            DropdownMenuItem(value: 'minutes', child: Text('分钟')),
+                            DropdownMenuItem(
+                                value: 'minutes', child: Text('分钟')),
                             DropdownMenuItem(value: 'days', child: Text('天')),
                             DropdownMenuItem(value: 'visits', child: Text('次')),
                           ],
@@ -1179,8 +1222,8 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
           ),
           ElevatedButton(
             onPressed: () {
-              if (nameController.text.isNotEmpty && 
-                  descriptionController.text.isNotEmpty && 
+              if (nameController.text.isNotEmpty &&
+                  descriptionController.text.isNotEmpty &&
                   priceController.text.isNotEmpty &&
                   durationController.text.isNotEmpty &&
                   selectedCategory.isNotEmpty) {
@@ -1188,7 +1231,8 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
                   'name': nameController.text,
                   'description': descriptionController.text,
                   'category_id': selectedCategory,
-                  'category_level2_id': selectedCategory, // Using same as level1 for now
+                  'category_level2_id':
+                      selectedCategory, // Using same as level1 for now
                   'status': selectedStatus,
                   'service_delivery_method': selectedDeliveryMethod,
                   'details': {
@@ -1196,7 +1240,8 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
                     'price': double.tryParse(priceController.text) ?? 0.0,
                     'currency': 'USD',
                     'duration_type': selectedDurationType,
-                    'duration': '${durationController.text} $selectedDurationType',
+                    'duration':
+                        '${durationController.text} $selectedDurationType',
                   },
                 });
                 Get.back();
@@ -1262,9 +1307,12 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
               _buildDetailRow('价格', controller.getServicePrice(service)),
               _buildDetailRow('时长', controller.getServiceDuration(service)),
               _buildDetailRow('状态', _getStatusDisplayText(service['status'])),
-              _buildDetailRow('交付方式', _getDeliveryMethodText(service['service_delivery_method'])),
-              _buildDetailRow('创建时间', controller.formatDateTime(service['created_at'])),
-              _buildDetailRow('更新时间', controller.formatDateTime(service['updated_at'])),
+              _buildDetailRow('交付方式',
+                  _getDeliveryMethodText(service['service_delivery_method'])),
+              _buildDetailRow(
+                  '创建时间', controller.formatDateTime(service['created_at'])),
+              _buildDetailRow(
+                  '更新时间', controller.formatDateTime(service['updated_at'])),
             ],
           ),
         ),
@@ -1288,7 +1336,7 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
       ),
     );
   }
-  
+
   String _getDeliveryMethodText(String? deliveryMethod) {
     switch (deliveryMethod) {
       case 'on_site':
@@ -1324,4 +1372,4 @@ class _ServiceManagePageState extends State<ServiceManagePage> {
       ),
     );
   }
-} 
+}

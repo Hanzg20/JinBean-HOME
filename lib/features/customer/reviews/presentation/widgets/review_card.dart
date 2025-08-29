@@ -107,9 +107,9 @@ class ReviewCard extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             // 点评内容
             Text(
               review.getLocalizedContent('en'),
@@ -118,28 +118,32 @@ class ReviewCard extends StatelessWidget {
                 height: 1.4,
               ),
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             // 标签
             if (review.tags.isNotEmpty) ...[
               Wrap(
                 spacing: 8,
                 runSpacing: 4,
-                children: review.tags.map((tag) => Chip(
-                  label: Text(
-                    tag,
-                    style: const TextStyle(fontSize: 12),
-                  ),
-                  backgroundColor: Colors.blue[50],
-                  labelPadding: const EdgeInsets.symmetric(horizontal: 8),
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  visualDensity: VisualDensity.compact,
-                )).toList(),
+                children: review.tags
+                    .map((tag) => Chip(
+                          label: Text(
+                            tag,
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                          backgroundColor: Colors.blue[50],
+                          labelPadding:
+                              const EdgeInsets.symmetric(horizontal: 8),
+                          materialTapTargetSize:
+                              MaterialTapTargetSize.shrinkWrap,
+                          visualDensity: VisualDensity.compact,
+                        ))
+                    .toList(),
               ),
               const SizedBox(height: 12),
             ],
-            
+
             // 图片
             if (review.images.isNotEmpty) ...[
               SizedBox(
@@ -165,7 +169,7 @@ class ReviewCard extends StatelessWidget {
               ),
               const SizedBox(height: 12),
             ],
-            
+
             // 底部操作栏
             Row(
               children: [
@@ -189,9 +193,9 @@ class ReviewCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                
+
                 const Spacer(),
-                
+
                 // 时间
                 Text(
                   _formatDate(review.createdAt),
@@ -292,4 +296,4 @@ class ReviewCard extends StatelessWidget {
       return 'Just now';
     }
   }
-} 
+}

@@ -57,7 +57,6 @@ class CleaningScheduleTab extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            
             _buildScheduleOption(
               'One-time Cleaning',
               'Perfect for special occasions or deep cleaning needs',
@@ -88,7 +87,8 @@ class CleaningScheduleTab extends StatelessWidget {
     );
   }
 
-  Widget _buildScheduleOption(String title, String description, IconData icon, Color color) {
+  Widget _buildScheduleOption(
+      String title, String description, IconData icon, Color color) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
@@ -151,7 +151,6 @@ class CleaningScheduleTab extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -162,11 +161,13 @@ class CleaningScheduleTab extends StatelessWidget {
                 '3:00 PM - 5:00 PM',
                 '5:00 PM - 7:00 PM',
                 '7:00 PM - 9:00 PM',
-              ].map((timeSlot) => Chip(
-                label: Text(timeSlot),
-                backgroundColor: Colors.blue.withValues(alpha: 0.1),
-                labelStyle: const TextStyle(color: Colors.blue),
-              )).toList(),
+              ]
+                  .map((timeSlot) => Chip(
+                        label: Text(timeSlot),
+                        backgroundColor: Colors.blue.withValues(alpha: 0.1),
+                        labelStyle: const TextStyle(color: Colors.blue),
+                      ))
+                  .toList(),
             ),
           ],
         ),
@@ -196,7 +197,6 @@ class CleaningScheduleTab extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            
             _buildPricingRow('Studio/1BR', '\$80 - \$120'),
             _buildPricingRow('2BR Apartment', '\$120 - \$180'),
             _buildPricingRow('3BR House', '\$180 - \$250'),
@@ -284,7 +284,6 @@ class CleaningEquipmentTab extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            
             _buildEquipmentItem(
               'HEPA Vacuum Cleaner',
               'Advanced filtration for dust and allergens',
@@ -367,11 +366,12 @@ class CleaningEquipmentTab extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            
-            _buildSupplyItem('Plant-based Cleaners', 'Safe for children and pets'),
+            _buildSupplyItem(
+                'Plant-based Cleaners', 'Safe for children and pets'),
             _buildSupplyItem('Bamboo Brushes', 'Sustainable and durable'),
             _buildSupplyItem('Natural Sponges', 'Biodegradable cleaning tools'),
-            _buildSupplyItem('Essential Oil Blends', 'Pleasant, natural fragrances'),
+            _buildSupplyItem(
+                'Essential Oil Blends', 'Pleasant, natural fragrances'),
           ],
         ),
       ),
@@ -433,11 +433,14 @@ class CleaningEquipmentTab extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            
-            _buildSafetyItem('Bonded & Insured', 'Full coverage for your peace of mind'),
-            _buildSafetyItem('Background Checked', 'All staff thoroughly vetted'),
-            _buildSafetyItem('Safety Training', 'Certified cleaning professionals'),
-            _buildSafetyItem('Quality Guarantee', '100% satisfaction or re-clean free'),
+            _buildSafetyItem(
+                'Bonded & Insured', 'Full coverage for your peace of mind'),
+            _buildSafetyItem(
+                'Background Checked', 'All staff thoroughly vetted'),
+            _buildSafetyItem(
+                'Safety Training', 'Certified cleaning professionals'),
+            _buildSafetyItem(
+                'Quality Guarantee', '100% satisfaction or re-clean free'),
           ],
         ),
       ),

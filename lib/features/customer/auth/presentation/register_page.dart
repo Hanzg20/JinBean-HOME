@@ -13,9 +13,15 @@ class RegisterPage extends GetView<AuthController> {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor, // Use global background color
       appBar: AppBar(
-        title: Text(((AppLocalizations.of(context) ?? AppLocalizationsEn()) as AppLocalizations).registerPageTitle),
-        backgroundColor: Theme.of(context).colorScheme.primary, // Changed from AppColors.primaryColor
-        foregroundColor: Theme.of(context).colorScheme.onPrimary, // Changed from AppColors.cardColor
+        title: Text(((AppLocalizations.of(context) ?? AppLocalizationsEn())
+                as AppLocalizations)
+            .registerPageTitle),
+        backgroundColor: Theme.of(context)
+            .colorScheme
+            .primary, // Changed from AppColors.primaryColor
+        foregroundColor: Theme.of(context)
+            .colorScheme
+            .onPrimary, // Changed from AppColors.cardColor
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -25,26 +31,40 @@ class RegisterPage extends GetView<AuthController> {
             TextField(
               controller: controller.emailController,
               decoration: InputDecoration(
-                labelText: ((AppLocalizations.of(context) ?? AppLocalizationsEn()) as AppLocalizations).usernameHint,
+                labelText: ((AppLocalizations.of(context) ??
+                        AppLocalizationsEn()) as AppLocalizations)
+                    .usernameHint,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12), // Apply consistent border radius
+                  borderRadius: BorderRadius.circular(
+                      12), // Apply consistent border radius
                 ),
-                prefixIcon: Icon(Icons.email, color: Theme.of(context).colorScheme.primary), // Changed from AppColors.primaryColor
+                prefixIcon: Icon(Icons.email,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .primary), // Changed from AppColors.primaryColor
               ),
-              onChanged: (value) => controller.errorMessage.value = '', // 清除错误信息
+              onChanged: (value) =>
+                  controller.errorMessage.value = '', // 清除错误信息
             ),
             const SizedBox(height: 16),
             TextField(
               controller: controller.passwordController,
               obscureText: true,
               decoration: InputDecoration(
-                labelText: ((AppLocalizations.of(context) ?? AppLocalizationsEn()) as AppLocalizations).passwordHint,
+                labelText: ((AppLocalizations.of(context) ??
+                        AppLocalizationsEn()) as AppLocalizations)
+                    .passwordHint,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12), // Apply consistent border radius
+                  borderRadius: BorderRadius.circular(
+                      12), // Apply consistent border radius
                 ),
-                prefixIcon: Icon(Icons.lock, color: Theme.of(context).colorScheme.primary), // Changed from AppColors.primaryColor
+                prefixIcon: Icon(Icons.lock,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .primary), // Changed from AppColors.primaryColor
               ),
-              onChanged: (value) => controller.errorMessage.value = '', // 清除错误信息
+              onChanged: (value) =>
+                  controller.errorMessage.value = '', // 清除错误信息
             ),
             const SizedBox(height: 16),
             TextField(
@@ -53,16 +73,22 @@ class RegisterPage extends GetView<AuthController> {
               decoration: InputDecoration(
                 labelText: 'Confirm Password',
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12), // Apply consistent border radius
+                  borderRadius: BorderRadius.circular(
+                      12), // Apply consistent border radius
                 ),
-                prefixIcon: Icon(Icons.lock_reset, color: Theme.of(context).colorScheme.primary), // Changed from AppColors.primaryColor
+                prefixIcon: Icon(Icons.lock_reset,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .primary), // Changed from AppColors.primaryColor
               ),
-              onChanged: (value) => controller.errorMessage.value = '', // 清除错误信息
+              onChanged: (value) =>
+                  controller.errorMessage.value = '', // 清除错误信息
             ),
             const SizedBox(height: 16),
             Obx(() => Text(
                   controller.errorMessage.value,
-                  style: const TextStyle(color: AppColors.errorColor), // Use error color
+                  style: const TextStyle(
+                      color: AppColors.errorColor), // Use error color
                 )),
             const SizedBox(height: 16),
             Obx(() => ElevatedButton(
@@ -71,24 +97,37 @@ class RegisterPage extends GetView<AuthController> {
                       : () {
                           // 获取邮箱和密码，调用controller.register()
                           final password = controller.passwordController.text;
-                          final confirmPassword = controller.confirmPasswordController.text;
+                          final confirmPassword =
+                              controller.confirmPasswordController.text;
                           if (password != confirmPassword) {
-                            controller.errorMessage.value = 'Passwords do not match';
+                            controller.errorMessage.value =
+                                'Passwords do not match';
                             return;
                           }
                           controller.register();
                         },
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16), // Apply consistent padding
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 16), // Apply consistent padding
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12), // Apply consistent border radius
+                      borderRadius: BorderRadius.circular(
+                          12), // Apply consistent border radius
                     ),
-                    backgroundColor: Theme.of(context).colorScheme.primary, // Changed from AppColors.primaryColor
-                    foregroundColor: Theme.of(context).colorScheme.onPrimary, // Changed to onPrimary
+                    backgroundColor: Theme.of(context)
+                        .colorScheme
+                        .primary, // Changed from AppColors.primaryColor
+                    foregroundColor: Theme.of(context)
+                        .colorScheme
+                        .onPrimary, // Changed to onPrimary
                   ),
                   child: controller.isLoading.value
-                      ? CircularProgressIndicator(color: Theme.of(context).colorScheme.onPrimary) // Changed color to onPrimary
-                      : Text(((AppLocalizations.of(context) ?? AppLocalizationsEn()) as AppLocalizations).registerButton),
+                      ? CircularProgressIndicator(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onPrimary) // Changed color to onPrimary
+                      : Text(((AppLocalizations.of(context) ??
+                              AppLocalizationsEn()) as AppLocalizations)
+                          .registerButton),
                 )),
             const SizedBox(height: 16),
             TextButton(
@@ -97,8 +136,13 @@ class RegisterPage extends GetView<AuthController> {
                 Get.back();
               },
               child: Text(
-                ((AppLocalizations.of(context) ?? AppLocalizationsEn()) as AppLocalizations).alreadyHaveAccountPrompt,
-                style: TextStyle(color: Theme.of(context).colorScheme.primary), // Changed to primary
+                ((AppLocalizations.of(context) ?? AppLocalizationsEn())
+                        as AppLocalizations)
+                    .alreadyHaveAccountPrompt,
+                style: TextStyle(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .primary), // Changed to primary
               ),
             ),
           ],
@@ -106,4 +150,4 @@ class RegisterPage extends GetView<AuthController> {
       ),
     );
   }
-} 
+}

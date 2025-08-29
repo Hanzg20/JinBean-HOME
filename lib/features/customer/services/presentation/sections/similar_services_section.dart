@@ -63,9 +63,11 @@ class SimilarServicesSection extends StatelessWidget {
               }
 
               return Column(
-                children: similarServices.take(3).map((service) => 
-                  _buildSimilarServiceCard(context, service)
-                ).toList(),
+                children: similarServices
+                    .take(3)
+                    .map(
+                        (service) => _buildSimilarServiceCard(context, service))
+                    .toList(),
               );
             }),
           ],
@@ -74,7 +76,8 @@ class SimilarServicesSection extends StatelessWidget {
     );
   }
 
-  Widget _buildSimilarServiceCard(BuildContext context, SimilarService service) {
+  Widget _buildSimilarServiceCard(
+      BuildContext context, SimilarService service) {
     return InkWell(
       onTap: () => _navigateToService(service.id),
       child: Container(
@@ -90,29 +93,29 @@ class SimilarServicesSection extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: service.images != null && service.images!.isNotEmpty
-                ? Image.network(
-                    service.images!.first,
-                    width: 60,
-                    height: 60,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        width: 60,
-                        height: 60,
-                        color: Colors.grey[300],
-                        child: const Icon(Icons.image_not_supported),
-                      );
-                    },
-                  )
-                : Container(
-                    width: 60,
-                    height: 60,
-                    color: Colors.grey[300],
-                    child: const Icon(Icons.image),
-                  ),
+                  ? Image.network(
+                      service.images!.first,
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          width: 60,
+                          height: 60,
+                          color: Colors.grey[300],
+                          child: const Icon(Icons.image_not_supported),
+                        );
+                      },
+                    )
+                  : Container(
+                      width: 60,
+                      height: 60,
+                      color: Colors.grey[300],
+                      child: const Icon(Icons.image),
+                    ),
             ),
             const SizedBox(width: 12),
-            
+
             // 服务信息
             Expanded(
               child: Column(
@@ -140,11 +143,15 @@ class SimilarServicesSection extends StatelessWidget {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      ...List.generate(5, (index) => Icon(
-                        index < (service.rating ?? 0) ? Icons.star : Icons.star_border,
-                        color: Colors.amber,
-                        size: 14,
-                      )),
+                      ...List.generate(
+                          5,
+                          (index) => Icon(
+                                index < (service.rating ?? 0)
+                                    ? Icons.star
+                                    : Icons.star_border,
+                                color: Colors.amber,
+                                size: 14,
+                              )),
                       const SizedBox(width: 4),
                       Text(
                         '(${service.reviewCount ?? 0})',
@@ -156,7 +163,8 @@ class SimilarServicesSection extends StatelessWidget {
                       if (service.similarityScore != null) ...[
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
                             color: Colors.purple[100],
                             borderRadius: BorderRadius.circular(12),
@@ -176,7 +184,7 @@ class SimilarServicesSection extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             // 价格
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -224,29 +232,30 @@ class SimilarServicesSection extends StatelessWidget {
                 final service = similarServices[index];
                 return ListTile(
                   leading: service.images != null && service.images!.isNotEmpty
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
-                        child: Image.network(
-                          service.images!.first,
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: Image.network(
+                            service.images!.first,
+                            width: 40,
+                            height: 40,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                width: 40,
+                                height: 40,
+                                color: Colors.grey[300],
+                                child: const Icon(Icons.image_not_supported,
+                                    size: 20),
+                              );
+                            },
+                          ),
+                        )
+                      : Container(
                           width: 40,
                           height: 40,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              width: 40,
-                              height: 40,
-                              color: Colors.grey[300],
-                              child: const Icon(Icons.image_not_supported, size: 20),
-                            );
-                          },
+                          color: Colors.grey[300],
+                          child: const Icon(Icons.image, size: 20),
                         ),
-                      )
-                    : Container(
-                        width: 40,
-                        height: 40,
-                        color: Colors.grey[300],
-                        child: const Icon(Icons.image, size: 20),
-                      ),
                   title: Text(service.title),
                   subtitle: Text(
                     service.description,
@@ -278,4 +287,4 @@ class SimilarServicesSection extends StatelessWidget {
       ),
     );
   }
-} 
+}

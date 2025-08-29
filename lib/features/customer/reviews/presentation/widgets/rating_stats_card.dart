@@ -29,9 +29,9 @@ class RatingStatsCard extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             Row(
               children: [
                 // 左侧：平均评分
@@ -82,23 +82,55 @@ class RatingStatsCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                
+
                 // 右侧：评分分布
                 Expanded(
                   flex: 3,
                   child: Column(
                     children: [
-                      _buildRatingBar(5, stats.totalReviews > 0 ? (stats.positiveReviews / stats.totalReviews * 100) : 0),
-                      _buildRatingBar(4, stats.totalReviews > 0 ? (stats.positiveReviews / stats.totalReviews * 100) : 0),
-                      _buildRatingBar(3, stats.totalReviews > 0 ? (stats.totalReviews - stats.positiveReviews - stats.negativeReviews) / stats.totalReviews * 100 : 0),
-                      _buildRatingBar(2, stats.totalReviews > 0 ? (stats.negativeReviews / stats.totalReviews * 100) : 0),
-                      _buildRatingBar(1, stats.totalReviews > 0 ? (stats.negativeReviews / stats.totalReviews * 100) : 0),
+                      _buildRatingBar(
+                          5,
+                          stats.totalReviews > 0
+                              ? (stats.positiveReviews /
+                                  stats.totalReviews *
+                                  100)
+                              : 0),
+                      _buildRatingBar(
+                          4,
+                          stats.totalReviews > 0
+                              ? (stats.positiveReviews /
+                                  stats.totalReviews *
+                                  100)
+                              : 0),
+                      _buildRatingBar(
+                          3,
+                          stats.totalReviews > 0
+                              ? (stats.totalReviews -
+                                      stats.positiveReviews -
+                                      stats.negativeReviews) /
+                                  stats.totalReviews *
+                                  100
+                              : 0),
+                      _buildRatingBar(
+                          2,
+                          stats.totalReviews > 0
+                              ? (stats.negativeReviews /
+                                  stats.totalReviews *
+                                  100)
+                              : 0),
+                      _buildRatingBar(
+                          1,
+                          stats.totalReviews > 0
+                              ? (stats.negativeReviews /
+                                  stats.totalReviews *
+                                  100)
+                              : 0),
                     ],
                   ),
                 ),
               ],
             ),
-            
+
             // 详细评分维度
             if (_hasDetailedRatings()) ...[
               const SizedBox(height: 16),
@@ -113,8 +145,10 @@ class RatingStatsCard extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               _buildDetailedRatingRow('Quality', stats.avgQualityRating),
-              _buildDetailedRatingRow('Punctuality', stats.avgPunctualityRating),
-              _buildDetailedRatingRow('Communication', stats.avgCommunicationRating),
+              _buildDetailedRatingRow(
+                  'Punctuality', stats.avgPunctualityRating),
+              _buildDetailedRatingRow(
+                  'Communication', stats.avgCommunicationRating),
               _buildDetailedRatingRow('Value', stats.avgValueRating),
             ],
           ],
@@ -176,7 +210,7 @@ class RatingStatsCard extends StatelessWidget {
 
   Widget _buildDetailedRatingRow(String label, double? rating) {
     if (rating == null) return const SizedBox.shrink();
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -226,8 +260,8 @@ class RatingStatsCard extends StatelessWidget {
 
   bool _hasDetailedRatings() {
     return stats.avgQualityRating != null ||
-           stats.avgPunctualityRating != null ||
-           stats.avgCommunicationRating != null ||
-           stats.avgValueRating != null;
+        stats.avgPunctualityRating != null ||
+        stats.avgCommunicationRating != null ||
+        stats.avgValueRating != null;
   }
-} 
+}

@@ -24,21 +24,24 @@ class ServiceBasicInfoSection extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(Icons.info_outline, color: Theme.of(context).colorScheme.primary),
+                Icon(Icons.info_outline,
+                    color: Theme.of(context).colorScheme.primary),
                 const SizedBox(width: 8),
                 Text(
                   'Service Information',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
             _buildInfoRow('Category', _getCategoryName(service.categoryId)),
-            _buildInfoRow('Status', service.isActive == true ? 'Active' : 'Inactive'),
+            _buildInfoRow(
+                'Status', service.isActive == true ? 'Active' : 'Inactive'),
             _buildInfoRow('Description', service.description),
-            _buildInfoRow('Rating', ServiceDetailFormatters.formatRating(service.rating)),
+            _buildInfoRow(
+                'Rating', ServiceDetailFormatters.formatRating(service.rating)),
             _buildInfoRow('Reviews', '${service.reviewCount} reviews'),
           ],
         ),

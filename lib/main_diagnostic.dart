@@ -28,7 +28,7 @@ class DiagnosticHomePage extends StatefulWidget {
 class _DiagnosticHomePageState extends State<DiagnosticHomePage> {
   int _currentStep = 0;
   List<String> _testResults = [];
-  
+
   @override
   void initState() {
     super.initState();
@@ -49,11 +49,16 @@ class _DiagnosticHomePageState extends State<DiagnosticHomePage> {
 
   String _getStepName(int step) {
     switch (step) {
-      case 0: return 'Basic UI';
-      case 1: return 'GetX Framework';
-      case 2: return 'Service Detail';
-      case 3: return 'Complete App';
-      default: return 'Unknown';
+      case 0:
+        return 'Basic UI';
+      case 1:
+        return 'GetX Framework';
+      case 2:
+        return 'Service Detail';
+      case 3:
+        return 'Complete App';
+      default:
+        return 'Unknown';
     }
   }
 
@@ -169,12 +174,12 @@ class _DiagnosticHomePageState extends State<DiagnosticHomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
-            children: _testResults.map((result) => 
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 4),
-                child: Text('• $result'),
-              )
-            ).toList(),
+            children: _testResults
+                .map((result) => Padding(
+                      padding: EdgeInsets.symmetric(vertical: 4),
+                      child: Text('• $result'),
+                    ))
+                .toList(),
           ),
         ),
         actions: [
@@ -190,7 +195,7 @@ class _DiagnosticHomePageState extends State<DiagnosticHomePage> {
   void _launchMainApp() {
     // 这里可以切换到主应用
     Get.snackbar(
-      'Ready to Launch', 
+      'Ready to Launch',
       'Main app components verified successfully!',
       duration: Duration(seconds: 3),
     );

@@ -6,4 +6,4 @@ class AuthBinding implements Bindings {
   void dependencies() {
     Get.lazyPut<AuthController>(() => AuthController());
   }
-} 
+}

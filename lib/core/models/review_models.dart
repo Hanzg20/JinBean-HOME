@@ -12,40 +12,40 @@ class Review {
   final String userId;
   final String providerId;
   final String? orderId;
-  
+
   // 评分和内容
   final double overallRating;
   final Map<String, String> content; // 多语言内容
   final bool isAnonymous;
-  
+
   // 详细评分维度
   final double? qualityRating;
   final double? punctualityRating;
   final double? communicationRating;
   final double? valueRating;
-  
+
   // 标签和图片
   final List<String> tags;
   final List<String> images;
-  
+
   // 状态和统计
   final String status;
   final int helpfulCount;
   final int reportCount;
-  
+
   // 时间戳
   final DateTime createdAt;
   final DateTime updatedAt;
-  
+
   // 关联数据
   final String? serviceTitle;
   final String? providerName;
   final String? userEmail;
   final Map<String, dynamic>? userMetadata;
-  
+
   // 用户投票状态
   final bool? userVotedHelpful;
-  
+
   Review({
     required this.id,
     required this.serviceId,
@@ -84,10 +84,18 @@ class Review {
       overallRating: (json['overall_rating'] as num).toDouble(),
       content: Map<String, String>.from(json['content'] ?? {}),
       isAnonymous: json['is_anonymous'] ?? false,
-      qualityRating: json['quality_rating'] != null ? (json['quality_rating'] as num).toDouble() : null,
-      punctualityRating: json['punctuality_rating'] != null ? (json['punctuality_rating'] as num).toDouble() : null,
-      communicationRating: json['communication_rating'] != null ? (json['communication_rating'] as num).toDouble() : null,
-      valueRating: json['value_rating'] != null ? (json['value_rating'] as num).toDouble() : null,
+      qualityRating: json['quality_rating'] != null
+          ? (json['quality_rating'] as num).toDouble()
+          : null,
+      punctualityRating: json['punctuality_rating'] != null
+          ? (json['punctuality_rating'] as num).toDouble()
+          : null,
+      communicationRating: json['communication_rating'] != null
+          ? (json['communication_rating'] as num).toDouble()
+          : null,
+      valueRating: json['value_rating'] != null
+          ? (json['value_rating'] as num).toDouble()
+          : null,
       tags: List<String>.from(json['tags'] ?? []),
       images: List<String>.from(json['images'] ?? []),
       status: json['status'] ?? 'active',
@@ -95,7 +103,8 @@ class Review {
       reportCount: json['report_count'] ?? 0,
       createdAt: DateTime.parse(json['created_at']),
       updatedAt: DateTime.parse(json['updated_at']),
-      serviceTitle: json['service_title']?['en'] ?? json['service_title']?['zh'],
+      serviceTitle:
+          json['service_title']?['en'] ?? json['service_title']?['zh'],
       providerName: json['provider_name'],
       userEmail: json['user_email'],
       userMetadata: json['user_metadata'],
@@ -319,15 +328,24 @@ class ReviewTag {
 
   IconData getIconData() {
     switch (icon) {
-      case 'star': return Icons.star;
-      case 'schedule': return Icons.schedule;
-      case 'chat': return Icons.chat;
-      case 'attach_money': return Icons.attach_money;
-      case 'cleaning_services': return Icons.cleaning_services;
-      case 'sentiment_satisfied': return Icons.sentiment_satisfied;
-      case 'speed': return Icons.speed;
-      case 'payments': return Icons.payments;
-      default: return Icons.label;
+      case 'star':
+        return Icons.star;
+      case 'schedule':
+        return Icons.schedule;
+      case 'chat':
+        return Icons.chat;
+      case 'attach_money':
+        return Icons.attach_money;
+      case 'cleaning_services':
+        return Icons.cleaning_services;
+      case 'sentiment_satisfied':
+        return Icons.sentiment_satisfied;
+      case 'speed':
+        return Icons.speed;
+      case 'payments':
+        return Icons.payments;
+      default:
+        return Icons.label;
     }
   }
 
@@ -339,14 +357,19 @@ class ReviewTag {
         // 如果解析失败，返回默认颜色
       }
     }
-    
+
     // 根据分类返回默认颜色
     switch (category) {
-      case 'quality': return Colors.green;
-      case 'service': return Colors.blue;
-      case 'attitude': return Colors.orange;
-      case 'value': return Colors.purple;
-      default: return Colors.grey;
+      case 'quality':
+        return Colors.green;
+      case 'service':
+        return Colors.blue;
+      case 'attitude':
+        return Colors.orange;
+      case 'value':
+        return Colors.purple;
+      default:
+        return Colors.grey;
     }
   }
 }
@@ -503,10 +526,18 @@ class ServiceRatingStats {
       averageRating: (json['average_rating'] as num?)?.toDouble() ?? 0.0,
       positiveReviews: json['positive_reviews'] ?? 0,
       negativeReviews: json['negative_reviews'] ?? 0,
-      avgQualityRating: json['avg_quality_rating'] != null ? (json['avg_quality_rating'] as num).toDouble() : null,
-      avgPunctualityRating: json['avg_punctuality_rating'] != null ? (json['avg_punctuality_rating'] as num).toDouble() : null,
-      avgCommunicationRating: json['avg_communication_rating'] != null ? (json['avg_communication_rating'] as num).toDouble() : null,
-      avgValueRating: json['avg_value_rating'] != null ? (json['avg_value_rating'] as num).toDouble() : null,
+      avgQualityRating: json['avg_quality_rating'] != null
+          ? (json['avg_quality_rating'] as num).toDouble()
+          : null,
+      avgPunctualityRating: json['avg_punctuality_rating'] != null
+          ? (json['avg_punctuality_rating'] as num).toDouble()
+          : null,
+      avgCommunicationRating: json['avg_communication_rating'] != null
+          ? (json['avg_communication_rating'] as num).toDouble()
+          : null,
+      avgValueRating: json['avg_value_rating'] != null
+          ? (json['avg_value_rating'] as num).toDouble()
+          : null,
     );
   }
 
@@ -579,4 +610,4 @@ class ReviewFilterOptions {
       hasReplies: hasReplies ?? this.hasReplies,
     );
   }
-} 
+}

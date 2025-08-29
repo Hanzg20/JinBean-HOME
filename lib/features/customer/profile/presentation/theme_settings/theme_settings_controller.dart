@@ -17,8 +17,12 @@ class ThemeSettingsController extends GetxController {
     selectedMode.value = mode;
     Get.snackbar(
       'Appearance Updated',
-      mode == ThemeMode.system ? 'Follow system appearance' : mode == ThemeMode.light ? 'Light mode enabled' : 'Dark mode enabled',
+      mode == ThemeMode.system
+          ? 'Follow system appearance'
+          : mode == ThemeMode.light
+              ? 'Light mode enabled'
+              : 'Dark mode enabled',
       snackPosition: SnackPosition.BOTTOM,
     );
   }
-} 
+}

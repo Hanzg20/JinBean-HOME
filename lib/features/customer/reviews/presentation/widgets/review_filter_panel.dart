@@ -21,8 +21,14 @@ class ReviewFilterPanel extends StatefulWidget {
 class _ReviewFilterPanelState extends State<ReviewFilterPanel> {
   late ReviewFilterOptions _currentOptions;
   final List<String> _availableTags = [
-    'Professional', 'On Time', 'Good Communication', 'Good Value',
-    'Clean Work', 'Friendly', 'Responsive', 'Reasonable Price'
+    'Professional',
+    'On Time',
+    'Good Communication',
+    'Good Value',
+    'Clean Work',
+    'Friendly',
+    'Responsive',
+    'Reasonable Price'
   ];
 
   @override
@@ -75,7 +81,7 @@ class _ReviewFilterPanelState extends State<ReviewFilterPanel> {
               ],
             ),
           ),
-          
+
           // 筛选内容
           Expanded(
             child: SingleChildScrollView(
@@ -86,15 +92,15 @@ class _ReviewFilterPanelState extends State<ReviewFilterPanel> {
                   // 评分筛选
                   _buildRatingFilter(),
                   const SizedBox(height: 24),
-                  
+
                   // 排序方式
                   _buildSortFilter(),
                   const SizedBox(height: 24),
-                  
+
                   // 标签筛选
                   _buildTagFilter(),
                   const SizedBox(height: 24),
-                  
+
                   // 其他选项
                   _buildOtherOptions(),
                 ],
@@ -130,19 +136,26 @@ class _ReviewFilterPanelState extends State<ReviewFilterPanel> {
                     value: _currentOptions.minRating,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     ),
                     items: [
                       const DropdownMenuItem(value: null, child: Text('Any')),
-                      const DropdownMenuItem(value: 1.0, child: Text('1+ Stars')),
-                      const DropdownMenuItem(value: 2.0, child: Text('2+ Stars')),
-                      const DropdownMenuItem(value: 3.0, child: Text('3+ Stars')),
-                      const DropdownMenuItem(value: 4.0, child: Text('4+ Stars')),
-                      const DropdownMenuItem(value: 5.0, child: Text('5 Stars')),
+                      const DropdownMenuItem(
+                          value: 1.0, child: Text('1+ Stars')),
+                      const DropdownMenuItem(
+                          value: 2.0, child: Text('2+ Stars')),
+                      const DropdownMenuItem(
+                          value: 3.0, child: Text('3+ Stars')),
+                      const DropdownMenuItem(
+                          value: 4.0, child: Text('4+ Stars')),
+                      const DropdownMenuItem(
+                          value: 5.0, child: Text('5 Stars')),
                     ],
                     onChanged: (value) {
                       setState(() {
-                        _currentOptions = _currentOptions.copyWith(minRating: value);
+                        _currentOptions =
+                            _currentOptions.copyWith(minRating: value);
                       });
                     },
                   ),
@@ -160,19 +173,25 @@ class _ReviewFilterPanelState extends State<ReviewFilterPanel> {
                     value: _currentOptions.maxRating,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     ),
                     items: [
                       const DropdownMenuItem(value: null, child: Text('Any')),
                       const DropdownMenuItem(value: 1.0, child: Text('1 Star')),
-                      const DropdownMenuItem(value: 2.0, child: Text('2 Stars')),
-                      const DropdownMenuItem(value: 3.0, child: Text('3 Stars')),
-                      const DropdownMenuItem(value: 4.0, child: Text('4 Stars')),
-                      const DropdownMenuItem(value: 5.0, child: Text('5 Stars')),
+                      const DropdownMenuItem(
+                          value: 2.0, child: Text('2 Stars')),
+                      const DropdownMenuItem(
+                          value: 3.0, child: Text('3 Stars')),
+                      const DropdownMenuItem(
+                          value: 4.0, child: Text('4 Stars')),
+                      const DropdownMenuItem(
+                          value: 5.0, child: Text('5 Stars')),
                     ],
                     onChanged: (value) {
                       setState(() {
-                        _currentOptions = _currentOptions.copyWith(maxRating: value);
+                        _currentOptions =
+                            _currentOptions.copyWith(maxRating: value);
                       });
                     },
                   ),
@@ -294,4 +313,4 @@ class _ReviewFilterPanelState extends State<ReviewFilterPanel> {
       ],
     );
   }
-} 
+}

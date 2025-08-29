@@ -1,4 +1,5 @@
-import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:get/get.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
+import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'service_marker_model.dart';
 import '../../core/controllers/location_controller.dart';
@@ -34,15 +35,19 @@ class ServiceMapController extends GetxController {
   // 新增：路线导航相关属性
   final RxList<LatLng> routePoints = <LatLng>[].obs;
   final RxSet<Polyline> routePolylines = <Polyline>{}.obs;
-  final Rx<Map<String, dynamic>?> currentRoute = Rx<Map<String, dynamic>?>(null);
-  final RxList<Map<String, dynamic>> availableRoutes = <Map<String, dynamic>>[].obs;
+  final Rx<Map<String, dynamic>?> currentRoute =
+      Rx<Map<String, dynamic>?>(null);
+  final RxList<Map<String, dynamic>> availableRoutes =
+      <Map<String, dynamic>>[].obs;
   final RxBool isLoadingRoute = false.obs;
   final RxString routeError = ''.obs;
-  final RxString selectedTransportMode = 'car'.obs; // 'car', 'transit', 'walking', 'bicycle'
+  final RxString selectedTransportMode =
+      'car'.obs; // 'car', 'transit', 'walking', 'bicycle'
 
   // 新增：服务区域相关属性
   final RxSet<Circle> serviceAreaCircles = <Circle>{}.obs;
-  final Rx<Map<String, dynamic>?> serviceAreaInfo = Rx<Map<String, dynamic>?>(null);
+  final Rx<Map<String, dynamic>?> serviceAreaInfo =
+      Rx<Map<String, dynamic>?>(null);
 
   // 新增：性能优化相关属性
   final RxBool isMapInitialized = false.obs;
@@ -102,11 +107,11 @@ class ServiceMapController extends GetxController {
   Future<void> loadServiceAreaInfo() async {
     isLoadingMapData.value = true;
     mapError.value = '';
-    
+
     try {
       // 模拟API调用
       await Future.delayed(const Duration(milliseconds: 500));
-      
+
       serviceAreaInfo.value = {
         'radius': 5000.0, // 增加到5000公里
         'responseTime': '2-4 hours',
@@ -115,12 +120,12 @@ class ServiceMapController extends GetxController {
         'availability': 'Available 24/7',
         'serviceHours': 'Monday - Sunday: 8:00 AM - 10:00 PM',
       };
-      
+
       serviceRadiusKm.value = serviceAreaInfo.value!['radius'];
-      
     } catch (e) {
       mapError.value = 'Failed to load service area info: $e';
-      AppLogger.info('[ServiceMapController] Error loading service area info: $e');
+      AppLogger.info(
+          '[ServiceMapController] Error loading service area info: $e');
     } finally {
       isLoadingMapData.value = false;
     }
@@ -133,11 +138,13 @@ class ServiceMapController extends GetxController {
     String? routeId,
     bool useCache = true,
   }) async {
-    AppLogger.info('[ServiceMapController] Calculating route from ${start.latitude},${start.longitude} to ${end.latitude},${end.longitude}');
+    AppLogger.info(
+        '[ServiceMapController] Calculating route from ${start.latitude},${start.longitude} to ${end.latitude},${end.longitude}');
 
     // 检查缓存
     if (useCache) {
-      final cachedRoute = getCachedRoute(start, end, selectedTransportMode.value);
+      final cachedRoute =
+          getCachedRoute(start, end, selectedTransportMode.value);
       if (cachedRoute != null) {
         currentRoute.value = cachedRoute;
         _updateRoutePolyline(routeId);
@@ -155,7 +162,8 @@ class ServiceMapController extends GetxController {
 
       // 计算直线距离
       final directDistance = _calculateDistance(start, end);
-      AppLogger.info('[ServiceMapController] Direct distance: ${directDistance.toStringAsFixed(2)} km');
+      AppLogger.info(
+          '[ServiceMapController] Direct distance: ${directDistance.toStringAsFixed(2)} km');
 
       // 生成不同交通方式的路线
       final routes = [
@@ -202,19 +210,20 @@ class ServiceMapController extends GetxController {
       ];
 
       availableRoutes.value = routes;
-      AppLogger.info('[ServiceMapController] Generated ${routes.length} routes');
+      AppLogger.info(
+          '[ServiceMapController] Generated ${routes.length} routes');
 
       // 设置默认路线
       currentRoute.value = availableRoutes.first;
       _updateRoutePolyline(routeId);
-      AppLogger.info('[ServiceMapController] Set current route: ${currentRoute.value?['mode']}');
+      AppLogger.info(
+          '[ServiceMapController] Set current route: ${currentRoute.value?['mode']}');
 
       // 缓存所有路线
       for (final route in routes) {
         final mode = route['mode'] as String;
         _cacheRoute(start, end, mode, route);
       }
-
     } catch (e) {
       routeError.value = 'Failed to calculate route: $e';
       AppLogger.info('[ServiceMapController] Error calculating route: $e');
@@ -226,29 +235,31 @@ class ServiceMapController extends GetxController {
   // 新增：计算两点间距离
   double _calculateDistance(LatLng start, LatLng end) {
     return Geolocator.distanceBetween(
-      start.latitude,
-      start.longitude,
-      end.latitude,
-      end.longitude,
-    ) / 1000; // 转换为公里
+          start.latitude,
+          start.longitude,
+          end.latitude,
+          end.longitude,
+        ) /
+        1000; // 转换为公里
   }
 
   // 新增：生成路线点（模拟）
   List<LatLng> _generateRoutePoints(LatLng start, LatLng end) {
     final points = <LatLng>[start];
-    
+
     // 生成中间点（实际应用中应该使用Google Directions API）
     final steps = 10;
     for (int i = 1; i < steps; i++) {
       final progress = i / steps;
       final lat = start.latitude + (end.latitude - start.latitude) * progress;
-      final lng = start.longitude + (end.longitude - start.longitude) * progress;
-      
+      final lng =
+          start.longitude + (end.longitude - start.longitude) * progress;
+
       // 添加一些随机偏移来模拟真实路线
       final offset = 0.001 * (i % 3 - 1);
       points.add(LatLng(lat + offset, lng + offset));
     }
-    
+
     points.add(end);
     return points;
   }
@@ -256,18 +267,19 @@ class ServiceMapController extends GetxController {
   // 新增：生成公交路线点
   List<LatLng> _generateTransitRoutePoints(LatLng start, LatLng end) {
     final points = <LatLng>[start];
-    
+
     // 模拟公交路线（包含步行到车站、乘车、步行到目的地）
     final steps = 15;
     for (int i = 1; i < steps; i++) {
       final progress = i / steps;
       final lat = start.latitude + (end.latitude - start.latitude) * progress;
-      final lng = start.longitude + (end.longitude - start.longitude) * progress;
-      
+      final lng =
+          start.longitude + (end.longitude - start.longitude) * progress;
+
       // 公交路线通常更直接
       points.add(LatLng(lat, lng));
     }
-    
+
     points.add(end);
     return points;
   }
@@ -275,18 +287,19 @@ class ServiceMapController extends GetxController {
   // 新增：生成步行路线点
   List<LatLng> _generateWalkingRoutePoints(LatLng start, LatLng end) {
     final points = <LatLng>[start];
-    
+
     // 步行路线通常更直接，但可能避开某些区域
     final steps = 20;
     for (int i = 1; i < steps; i++) {
       final progress = i / steps;
       final lat = start.latitude + (end.latitude - start.latitude) * progress;
-      final lng = start.longitude + (end.longitude - start.longitude) * progress;
-      
+      final lng =
+          start.longitude + (end.longitude - start.longitude) * progress;
+
       // 步行路线更接近直线
       points.add(LatLng(lat, lng));
     }
-    
+
     points.add(end);
     return points;
   }
@@ -294,19 +307,20 @@ class ServiceMapController extends GetxController {
   // 新增：生成自行车路线点
   List<LatLng> _generateBicycleRoutePoints(LatLng start, LatLng end) {
     final points = <LatLng>[start];
-    
+
     // 自行车路线可能使用专用车道
     final steps = 12;
     for (int i = 1; i < steps; i++) {
       final progress = i / steps;
       final lat = start.latitude + (end.latitude - start.latitude) * progress;
-      final lng = start.longitude + (end.longitude - start.longitude) * progress;
-      
+      final lng =
+          start.longitude + (end.longitude - start.longitude) * progress;
+
       // 自行车路线可能有轻微偏移
       final offset = 0.0005 * (i % 2 == 0 ? 1 : -1);
       points.add(LatLng(lat + offset, lng + offset));
     }
-    
+
     points.add(end);
     return points;
   }
@@ -314,14 +328,16 @@ class ServiceMapController extends GetxController {
   // 新增：更新路线折线
   void _updateRoutePolyline(String? routeId) {
     routePolylines.clear();
-    
+
     if (currentRoute.value != null && currentRoute.value!['points'] != null) {
       final points = currentRoute.value!['points'] as List<LatLng>;
       final color = currentRoute.value!['color'] as Color;
-      final polylineId = routeId ?? 'route_${DateTime.now().millisecondsSinceEpoch}';
-      
-      AppLogger.info('[ServiceMapController] Updating route polyline with ${points.length} points');
-      
+      final polylineId =
+          routeId ?? 'route_${DateTime.now().millisecondsSinceEpoch}';
+
+      AppLogger.info(
+          '[ServiceMapController] Updating route polyline with ${points.length} points');
+
       routePolylines.add(Polyline(
         polylineId: PolylineId(polylineId),
         points: points,
@@ -329,17 +345,20 @@ class ServiceMapController extends GetxController {
         width: 4,
         geodesic: true,
       ));
-      
-      AppLogger.info('[ServiceMapController] Route polyline updated successfully');
+
+      AppLogger.info(
+          '[ServiceMapController] Route polyline updated successfully');
     } else {
-      AppLogger.info('[ServiceMapController] No route data available for polyline update');
+      AppLogger.info(
+          '[ServiceMapController] No route data available for polyline update');
     }
   }
 
   // 新增：选择交通方式
   void selectTransportMode(String mode) {
     selectedTransportMode.value = mode;
-    currentRoute.value = availableRoutes.firstWhereOrNull((route) => route['mode'] == mode);
+    currentRoute.value =
+        availableRoutes.firstWhereOrNull((route) => route['mode'] == mode);
     _updateRoutePolyline(null);
   }
 
@@ -366,8 +385,9 @@ class ServiceMapController extends GetxController {
     required double radiusKm,
     String? circleId,
   }) {
-    final id = circleId ?? 'service_area_${DateTime.now().millisecondsSinceEpoch}';
-    
+    final id =
+        circleId ?? 'service_area_${DateTime.now().millisecondsSinceEpoch}';
+
     serviceAreaCircles.add(Circle(
       circleId: CircleId(id),
       center: center,
@@ -496,7 +516,8 @@ class ServiceMapController extends GetxController {
           distanceInKm: distance,
         );
       }).toList();
-      AppLogger.info('[ServiceMapController] 原始 marker 数量: ${allMarkers.length}');
+      AppLogger.info(
+          '[ServiceMapController] 原始 marker 数量: ${allMarkers.length}');
       final filteredMarkers = allMarkers
           .where((m) =>
               m.distanceInKm == null ||
@@ -552,10 +573,12 @@ class ServiceMapController extends GetxController {
       // ===== end 聚合分组 =====
       AppLogger.info(
           '[ServiceMapController] 聚合前 marker 数量: ${gridMap.values.fold<int>(0, (p, e) => p + e.length)}');
-      AppLogger.info('[ServiceMapController] 聚合后 marker 数量: ${clusteredMarkers.length}');
+      AppLogger.info(
+          '[ServiceMapController] 聚合后 marker 数量: ${clusteredMarkers.length}');
       AppLogger.info('[ServiceMapController] 聚合分组数: ${gridMap.length}');
 
-      AppLogger.info('[ServiceMapController] 最终 marker 数量: ${markers.value.length}');
+      AppLogger.info(
+          '[ServiceMapController] 最终 marker 数量: ${markers.value.length}');
     } catch (e, stack) {
       AppLogger.info('[ServiceMapController] 加载服务点异常: $e');
       AppLogger.info(stack.toString());
@@ -567,14 +590,14 @@ class ServiceMapController extends GetxController {
   // 新增：地图初始化优化
   Future<void> initializeMap() async {
     if (isMapInitialized.value) return;
-    
+
     try {
       // 预加载服务区域信息
       await loadServiceAreaInfo();
-      
+
       // 预加载markers
       await fetchMarkers();
-      
+
       isMapInitialized.value = true;
     } catch (e) {
       AppLogger.info('[ServiceMapController] Error initializing map: $e');
@@ -593,7 +616,8 @@ class ServiceMapController extends GetxController {
   }
 
   // 新增：缓存路线
-  void _cacheRoute(LatLng start, LatLng end, String mode, Map<String, dynamic> routeData) {
+  void _cacheRoute(
+      LatLng start, LatLng end, String mode, Map<String, dynamic> routeData) {
     final cacheKey = _generateRouteCacheKey(start, end, mode);
     _routeCache[cacheKey] = routeData;
   }
@@ -625,7 +649,7 @@ class ServiceMapController extends GetxController {
   void _recordRenderPerformance() {
     _mapRenderCount.value++;
     _lastRenderTime.value = DateTime.now().millisecondsSinceEpoch.toDouble();
-    
+
     // 如果渲染次数过多，启用性能模式
     if (_mapRenderCount.value > 100 && !_isPerformanceMode.value) {
       enablePerformanceMode();
@@ -668,35 +692,37 @@ class ServiceMapController extends GetxController {
   // 新增：智能地图缩放和定位
   void autoFitMapToMarkers() {
     if (markers.isEmpty) return;
-    
+
     double minLat = double.infinity;
     double maxLat = -double.infinity;
     double minLng = double.infinity;
     double maxLng = -double.infinity;
-    
+
     for (final marker in markers) {
       minLat = min(minLat, marker.latitude);
       maxLat = max(maxLat, marker.latitude);
       minLng = min(minLng, marker.longitude);
       maxLng = max(maxLng, marker.longitude);
     }
-    
+
     // 计算中心点
     final centerLatValue = (minLat + maxLat) / 2;
     final centerLngValue = (minLng + maxLng) / 2;
-    
+
     // 计算合适的缩放级别
     final latDiff = maxLat - minLat;
     final lngDiff = maxLng - minLng;
     final maxDiff = max(latDiff, lngDiff);
-    
+
     double zoomLevel = 15.0;
     if (maxDiff > 10) {
       zoomLevel = 8.0;
-    } else if (maxDiff > 5) zoomLevel = 10.0;
-    else if (maxDiff > 1) zoomLevel = 12.0;
+    } else if (maxDiff > 5)
+      zoomLevel = 10.0;
+    else if (maxDiff > 1)
+      zoomLevel = 12.0;
     else if (maxDiff > 0.1) zoomLevel = 14.0;
-    
+
     // 更新地图中心点和缩放级别
     centerLat.value = centerLatValue;
     centerLng.value = centerLngValue;
@@ -709,15 +735,16 @@ class ServiceMapController extends GetxController {
       final position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
-      
+
       centerLat.value = position.latitude;
       centerLng.value = position.longitude;
       zoom.value = 15.0;
-      
+
       // 重新获取markers
       await fetchMarkers();
     } catch (e) {
-      AppLogger.info('[ServiceMapController] Error centering on user location: $e');
+      AppLogger.info(
+          '[ServiceMapController] Error centering on user location: $e');
     }
   }
 
@@ -727,22 +754,23 @@ class ServiceMapController extends GetxController {
       final position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
-      
+
       // 计算搜索范围
       final latRange = radiusKm / 111.0; // 大约1度纬度 = 111km
       final lngRange = radiusKm / (111.0 * cos(position.latitude * pi / 180));
-      
+
       await fetchMarkers(
         latMin: position.latitude - latRange,
         latMax: position.latitude + latRange,
         lngMin: position.longitude - lngRange,
         lngMax: position.longitude + lngRange,
       );
-      
+
       // 自动调整地图视图
       autoFitMapToMarkers();
     } catch (e) {
-      AppLogger.info('[ServiceMapController] Error searching nearby services: $e');
+      AppLogger.info(
+          '[ServiceMapController] Error searching nearby services: $e');
     }
   }
 }

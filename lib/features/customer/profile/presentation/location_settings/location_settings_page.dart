@@ -61,7 +61,8 @@ class LocationSettingsPage extends GetView<LocationSettingsController> {
                       margin: const EdgeInsets.symmetric(
                           horizontal: 16.0, vertical: 4.0),
                       child: ListTile(
-                        leading: const Icon(Icons.location_on, color: Colors.red),
+                        leading:
+                            const Icon(Icons.location_on, color: Colors.red),
                         title: Text(location),
                         trailing: IconButton(
                           icon: const Icon(Icons.delete_outline),
@@ -92,4 +93,4 @@ class LocationSettingsPage extends GetView<LocationSettingsController> {
       ),
     );
   }
-} 
+}

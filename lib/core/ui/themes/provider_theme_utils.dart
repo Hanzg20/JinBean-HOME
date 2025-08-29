@@ -7,7 +7,7 @@ class ProviderThemeUtils {
   static BoxDecoration getCardDecoration(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return BoxDecoration(
       color: colorScheme.surface,
       borderRadius: BorderRadius.circular(16),
@@ -29,7 +29,7 @@ class ProviderThemeUtils {
   static BoxDecoration getIconContainerDecoration(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return BoxDecoration(
       color: colorScheme.primary.withValues(alpha: 0.1),
       borderRadius: BorderRadius.circular(12),
@@ -40,7 +40,7 @@ class ProviderThemeUtils {
   static ButtonStyle getPrimaryButtonStyle(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return ElevatedButton.styleFrom(
       backgroundColor: colorScheme.primary,
       foregroundColor: colorScheme.onPrimary,
@@ -61,7 +61,7 @@ class ProviderThemeUtils {
   static ButtonStyle getSecondaryButtonStyle(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return OutlinedButton.styleFrom(
       foregroundColor: colorScheme.primary,
       side: BorderSide(color: colorScheme.primary, width: 1.5),
@@ -86,7 +86,7 @@ class ProviderThemeUtils {
   }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return InputDecoration(
       labelText: labelText,
       hintText: hintText,
@@ -126,7 +126,7 @@ class ProviderThemeUtils {
   static Widget getDivider(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Divider(
       color: colorScheme.outline.withValues(alpha: 0.2),
       height: 1,
@@ -138,7 +138,7 @@ class ProviderThemeUtils {
   static Widget getLoadingIndicator(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Center(
       child: CircularProgressIndicator(
         color: colorScheme.primary,
@@ -158,7 +158,7 @@ class ProviderThemeUtils {
   }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -219,7 +219,7 @@ class ProviderThemeUtils {
   }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -272,7 +272,7 @@ class ProviderThemeUtils {
   }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -318,7 +318,7 @@ class ProviderThemeUtils {
   }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -338,7 +338,7 @@ class ProviderThemeUtils {
   }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -350,4 +350,4 @@ class ProviderThemeUtils {
       ),
     );
   }
-} 
+}

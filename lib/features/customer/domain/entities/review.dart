@@ -35,12 +35,10 @@ class Review {
       userAvatar: json['userAvatar'],
       rating: (json['rating'] ?? 0).toDouble(),
       comment: json['comment'] ?? '',
-      createdAt: json['createdAt'] != null 
-          ? DateTime.parse(json['createdAt']) 
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'])
           : DateTime.now(),
-      images: json['images'] != null 
-          ? List<String>.from(json['images'])
-          : null,
+      images: json['images'] != null ? List<String>.from(json['images']) : null,
       isVerified: json['isVerified'] ?? false,
       metadata: json['metadata'],
     );
@@ -61,4 +59,4 @@ class Review {
       'metadata': metadata,
     };
   }
-} 
+}

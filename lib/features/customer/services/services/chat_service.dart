@@ -1,32 +1,34 @@
-
 /// 聊天服务接口
 abstract class ChatService {
   /// 获取聊天会话列表
   Future<List<ChatSession>> getChatSessions();
-  
+
   /// 获取指定会话的消息列表
-  Future<List<ChatMessage>> getMessages(String sessionId, {int? limit, int? offset});
-  
+  Future<List<ChatMessage>> getMessages(String sessionId,
+      {int? limit, int? offset});
+
   /// 发送消息
   Future<ChatMessage> sendMessage(String sessionId, MessageContent content);
-  
+
   /// 创建新的聊天会话
   Future<ChatSession> createChatSession(String providerId, String serviceId);
-  
+
   /// 获取未读消息数量
   Future<int> getUnreadCount(String sessionId);
-  
+
   /// 标记消息为已读
   Future<void> markAsRead(String sessionId, List<String> messageIds);
-  
+
   /// 发送语音消息
-  Future<ChatMessage> sendVoiceMessage(String sessionId, String audioUrl, int duration);
-  
+  Future<ChatMessage> sendVoiceMessage(
+      String sessionId, String audioUrl, int duration);
+
   /// 发送图片消息
   Future<ChatMessage> sendImageMessage(String sessionId, String imageUrl);
-  
+
   /// 发送文件消息
-  Future<ChatMessage> sendFileMessage(String sessionId, String fileUrl, String fileName);
+  Future<ChatMessage> sendFileMessage(
+      String sessionId, String fileUrl, String fileName);
 }
 
 /// 聊天会话模型
@@ -143,14 +145,14 @@ class MessageContent {
 class MsgNexusService implements ChatService {
   final String apiKey;
   final String baseUrl;
-  
+
   MsgNexusService(this.apiKey, {this.baseUrl = 'https://api.msgnexus.com/v1'});
 
   @override
   Future<List<ChatSession>> getChatSessions() async {
     // 模拟实现
     await Future.delayed(Duration(milliseconds: 300));
-    
+
     return [
       ChatSession(
         id: 'session_1',
@@ -168,10 +170,11 @@ class MsgNexusService implements ChatService {
   }
 
   @override
-  Future<List<ChatMessage>> getMessages(String sessionId, {int? limit, int? offset}) async {
+  Future<List<ChatMessage>> getMessages(String sessionId,
+      {int? limit, int? offset}) async {
     // 模拟实现
     await Future.delayed(Duration(milliseconds: 200));
-    
+
     return [
       ChatMessage(
         id: 'msg_1',
@@ -179,7 +182,9 @@ class MsgNexusService implements ChatService {
         senderId: 'provider_456',
         senderName: 'CleanPro Services',
         senderAvatar: 'https://picsum.photos/50/50?random=1',
-        content: MessageContent(type: 'text', content: 'Hi! I can help you with your cleaning needs.'),
+        content: MessageContent(
+            type: 'text',
+            content: 'Hi! I can help you with your cleaning needs.'),
         timestamp: DateTime.now().subtract(Duration(minutes: 5)),
         isRead: false,
         status: 'delivered',
@@ -189,7 +194,9 @@ class MsgNexusService implements ChatService {
         sessionId: sessionId,
         senderId: 'user_123',
         senderName: 'You',
-        content: MessageContent(type: 'text', content: 'Great! I need cleaning for my 2-bedroom apartment.'),
+        content: MessageContent(
+            type: 'text',
+            content: 'Great! I need cleaning for my 2-bedroom apartment.'),
         timestamp: DateTime.now().subtract(Duration(minutes: 3)),
         isRead: true,
         status: 'read',
@@ -198,10 +205,11 @@ class MsgNexusService implements ChatService {
   }
 
   @override
-  Future<ChatMessage> sendMessage(String sessionId, MessageContent content) async {
+  Future<ChatMessage> sendMessage(
+      String sessionId, MessageContent content) async {
     // 模拟实现
     await Future.delayed(Duration(milliseconds: 500));
-    
+
     return ChatMessage(
       id: 'msg_${DateTime.now().millisecondsSinceEpoch}',
       sessionId: sessionId,
@@ -215,10 +223,11 @@ class MsgNexusService implements ChatService {
   }
 
   @override
-  Future<ChatSession> createChatSession(String providerId, String serviceId) async {
+  Future<ChatSession> createChatSession(
+      String providerId, String serviceId) async {
     // 模拟实现
     await Future.delayed(Duration(milliseconds: 400));
-    
+
     return ChatSession(
       id: 'session_${DateTime.now().millisecondsSinceEpoch}',
       providerId: providerId,
@@ -245,28 +254,37 @@ class MsgNexusService implements ChatService {
   }
 
   @override
-  Future<ChatMessage> sendVoiceMessage(String sessionId, String audioUrl, int duration) async {
-    return sendMessage(sessionId, MessageContent(
-      type: 'voice',
-      content: audioUrl,
-      metadata: {'duration': duration},
-    ));
+  Future<ChatMessage> sendVoiceMessage(
+      String sessionId, String audioUrl, int duration) async {
+    return sendMessage(
+        sessionId,
+        MessageContent(
+          type: 'voice',
+          content: audioUrl,
+          metadata: {'duration': duration},
+        ));
   }
 
   @override
-  Future<ChatMessage> sendImageMessage(String sessionId, String imageUrl) async {
-    return sendMessage(sessionId, MessageContent(
-      type: 'image',
-      content: imageUrl,
-    ));
+  Future<ChatMessage> sendImageMessage(
+      String sessionId, String imageUrl) async {
+    return sendMessage(
+        sessionId,
+        MessageContent(
+          type: 'image',
+          content: imageUrl,
+        ));
   }
 
   @override
-  Future<ChatMessage> sendFileMessage(String sessionId, String fileUrl, String fileName) async {
-    return sendMessage(sessionId, MessageContent(
-      type: 'file',
-      content: fileUrl,
-      metadata: {'fileName': fileName},
-    ));
+  Future<ChatMessage> sendFileMessage(
+      String sessionId, String fileUrl, String fileName) async {
+    return sendMessage(
+        sessionId,
+        MessageContent(
+          type: 'file',
+          content: fileUrl,
+          metadata: {'fileName': fileName},
+        ));
   }
-} 
+}

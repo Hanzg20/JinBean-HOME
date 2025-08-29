@@ -20,11 +20,11 @@ class TestServiceDataPage extends StatelessWidget {
             // 服务状态显示
             _buildServiceStatusCard(),
             SizedBox(height: 20),
-            
+
             // 数据获取测试
             _buildDataTestCard(),
             SizedBox(height: 20),
-            
+
             // 结果显示
             _buildResultsCard(),
           ],
@@ -215,7 +215,7 @@ class TestServiceDataPage extends StatelessWidget {
   void _testGetRecommendedServices() async {
     try {
       print('=== 开始测试获取推荐服务 ===');
-      
+
       final serviceManager = ServiceManager.instance;
       if (!serviceManager.isInitialized) {
         print('❌ ServiceManager未初始化');
@@ -228,10 +228,11 @@ class TestServiceDataPage extends StatelessWidget {
         return;
       }
 
-      final services = await serviceManager.serviceQueryService.getRecommendedServices(limit: 5);
-      
+      final services = await serviceManager.serviceQueryService
+          .getRecommendedServices(limit: 5);
+
       print('✅ 成功获取 ${services.length} 个推荐服务');
-      
+
       for (int i = 0; i < services.length; i++) {
         final service = services[i];
         print('服务 ${i + 1}:');
@@ -253,7 +254,6 @@ class TestServiceDataPage extends StatelessWidget {
         backgroundColor: Colors.green,
         colorText: Colors.white,
       );
-      
     } catch (e) {
       print('❌ 测试获取推荐服务失败: $e');
       Get.snackbar(
@@ -269,7 +269,7 @@ class TestServiceDataPage extends StatelessWidget {
   void _testGetServiceStatistics() async {
     try {
       print('=== 开始测试获取服务统计信息 ===');
-      
+
       final serviceManager = ServiceManager.instance;
       if (!serviceManager.isInitialized) {
         print('❌ ServiceManager未初始化');
@@ -282,8 +282,9 @@ class TestServiceDataPage extends StatelessWidget {
         return;
       }
 
-      final stats = await serviceManager.serviceQueryService.getServiceStatistics();
-      
+      final stats =
+          await serviceManager.serviceQueryService.getServiceStatistics();
+
       print('✅ 成功获取服务统计信息');
       print('总服务数: ${stats['total_services']}');
       print('活跃服务数: ${stats['active_services']}');
@@ -297,7 +298,6 @@ class TestServiceDataPage extends StatelessWidget {
         backgroundColor: Colors.green,
         colorText: Colors.white,
       );
-      
     } catch (e) {
       print('❌ 测试获取统计信息失败: $e');
       Get.snackbar(
@@ -313,7 +313,7 @@ class TestServiceDataPage extends StatelessWidget {
   void _testSearchServices() async {
     try {
       print('=== 开始测试搜索服务 ===');
-      
+
       final serviceManager = ServiceManager.instance;
       if (!serviceManager.isInitialized) {
         print('❌ ServiceManager未初始化');
@@ -333,8 +333,9 @@ class TestServiceDataPage extends StatelessWidget {
         sortAscending: false,
       );
 
-      final result = await serviceManager.serviceQueryService.searchServices(params);
-      
+      final result =
+          await serviceManager.serviceQueryService.searchServices(params);
+
       print('✅ 搜索服务成功');
       print('找到 ${result.services.length} 个服务');
       print('总数: ${result.totalCount}');
@@ -357,7 +358,6 @@ class TestServiceDataPage extends StatelessWidget {
         backgroundColor: Colors.green,
         colorText: Colors.white,
       );
-      
     } catch (e) {
       print('❌ 测试搜索服务失败: $e');
       Get.snackbar(
@@ -373,7 +373,7 @@ class TestServiceDataPage extends StatelessWidget {
   void _testGetServicesByCategory() async {
     try {
       print('=== 开始测试按分类获取服务 ===');
-      
+
       final serviceManager = ServiceManager.instance;
       if (!serviceManager.isInitialized) {
         print('❌ ServiceManager未初始化');
@@ -388,8 +388,9 @@ class TestServiceDataPage extends StatelessWidget {
 
       // 使用一个可能存在的分类ID进行测试
       final categoryId = '1060000'; // 生活帮忙分类
-      final services = await serviceManager.serviceQueryService.getServicesByCategory(categoryId, limit: 3);
-      
+      final services = await serviceManager.serviceQueryService
+          .getServicesByCategory(categoryId, limit: 3);
+
       print('✅ 按分类获取服务成功');
       print('分类ID: $categoryId');
       print('找到 ${services.length} 个服务');
@@ -409,7 +410,6 @@ class TestServiceDataPage extends StatelessWidget {
         backgroundColor: Colors.green,
         colorText: Colors.white,
       );
-      
     } catch (e) {
       print('❌ 测试按分类获取服务失败: $e');
       Get.snackbar(

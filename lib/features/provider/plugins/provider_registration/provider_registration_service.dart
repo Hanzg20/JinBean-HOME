@@ -1,4 +1,5 @@
-import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'dart:async';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
+import 'dart:async';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'provider_registration_controller.dart';
 import 'address_service.dart';
@@ -7,7 +8,8 @@ class ProviderRegistrationService {
   final AddressService _addressService = AddressService();
 
   // 注册API，写入Supabase provider_profiles表
-  Future<bool> submitRegistration(ProviderRegistrationController controller) async {
+  Future<bool> submitRegistration(
+      ProviderRegistrationController controller) async {
     try {
       final user = Supabase.instance.client.auth.currentUser;
       if (user == null) {
@@ -17,10 +19,13 @@ class ProviderRegistrationService {
 
       // 1. 处理地址，获取 address_id
       String? addressId;
-      if (controller.addressInput != null && controller.addressInput!.isNotEmpty) {
-        addressId = await _addressService.getOrCreateAddress(controller.addressInput!);
+      if (controller.addressInput != null &&
+          controller.addressInput!.isNotEmpty) {
+        addressId =
+            await _addressService.getOrCreateAddress(controller.addressInput!);
         if (addressId == null) {
-          AppLogger.info('[ProviderRegistrationService] Failed to process address');
+          AppLogger.info(
+              '[ProviderRegistrationService] Failed to process address');
           return false;
         }
       }
@@ -34,7 +39,8 @@ class ProviderRegistrationService {
         'email': controller.email,
         'provider_type': controller.providerType.toString().split('.').last,
         'address_id': addressId,
-        'business_address': controller.addressInput, // 匹配 schema 中的 business_address
+        'business_address':
+            controller.addressInput, // 匹配 schema 中的 business_address
         'service_categories': controller.serviceCategories,
         'service_areas': controller.serviceAreas,
         'base_price': controller.basePrice,
@@ -48,28 +54,29 @@ class ProviderRegistrationService {
         'status': 'pending', // 匹配 schema 中的 status
       };
       AppLogger.info('[ProviderRegistrationService] Submitting data: $data');
-      final res = await Supabase.instance.client
-          .from('provider_profiles')
-          .insert(data);
+      final res =
+          await Supabase.instance.client.from('provider_profiles').insert(data);
 
       if (res.error == null) {
         // 成功注册为服务商，更新 user_profiles 表中的用户角色
         final updateResp = await Supabase.instance.client
             .from('user_profiles')
-            .update({'role': 'customer+provider'})
-            .eq('id', user.id);
+            .update({'role': 'customer+provider'}).eq('id', user.id);
 
         if (updateResp.error != null) {
-          AppLogger.info('[ProviderRegistrationService] Error updating user role: ${updateResp.error!.message}');
+          AppLogger.info(
+              '[ProviderRegistrationService] Error updating user role: ${updateResp.error!.message}');
         } else {
-          AppLogger.info('[ProviderRegistrationService] User role updated to customer+provider for ${user.id}');
+          AppLogger.info(
+              '[ProviderRegistrationService] User role updated to customer+provider for ${user.id}');
         }
       }
-      AppLogger.info('[ProviderRegistrationService] Supabase insert result: $res');
+      AppLogger.info(
+          '[ProviderRegistrationService] Supabase insert result: $res');
       return res.error == null;
     } catch (e, stack) {
       AppLogger.info('[ProviderRegistrationService] Exception: $e\n$stack');
       rethrow;
     }
   }
-} 
+}

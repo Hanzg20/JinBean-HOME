@@ -14,11 +14,11 @@ class _TestDynamicTabPageState extends State<TestDynamicTabPage>
     with TickerProviderStateMixin {
   late TabController _tabController;
   late DynamicTabConfigService _dynamicTabService;
-  
+
   // 模拟服务数据
   late Service _mockService;
   late List<ServiceDetail> _mockDetails;
-  
+
   List<Map<String, dynamic>> _tabConfig = [];
   bool _isLoading = false;
   String _errorMessage = '';
@@ -34,7 +34,10 @@ class _TestDynamicTabPageState extends State<TestDynamicTabPage>
     _mockService = Service(
       id: 'test-service-001',
       title: {'en': 'Test Service', 'zh': '测试服务'},
-      description: {'en': 'A test service for dynamic tab configuration', 'zh': '用于测试动态Tab配置的测试服务'},
+      description: {
+        'en': 'A test service for dynamic tab configuration',
+        'zh': '用于测试动态Tab配置的测试服务'
+      },
       price: 99.99,
       currency: 'USD',
       pricingType: 'fixed',
@@ -105,7 +108,10 @@ class _TestDynamicTabPageState extends State<TestDynamicTabPage>
         sortOrder: 2,
         currentStock: 30,
         maxStock: 60,
-        attributes: {'diet': 'vegetarian', 'allergens': ['nuts']},
+        attributes: {
+          'diet': 'vegetarian',
+          'allergens': ['nuts']
+        },
         businessRules: {'min_order': 1, 'max_order': 5},
         pricingType: 'fixed',
         price: 12.99,
@@ -179,19 +185,18 @@ class _TestDynamicTabPageState extends State<TestDynamicTabPage>
     try {
       _dynamicTabService = DynamicTabConfigService();
       _tabConfig = _dynamicTabService.getTabConfig(_mockService, _mockDetails);
-      
+
       // 初始化TabController
       _tabController = TabController(
         length: _tabConfig.length,
         vsync: this,
       );
-      
+
       setState(() {
         _isLoading = false;
       });
-      
+
       print('生成的Tab配置: $_tabConfig');
-      
     } catch (e) {
       setState(() {
         _isLoading = false;
@@ -253,7 +258,7 @@ class _TestDynamicTabPageState extends State<TestDynamicTabPage>
                         ],
                       ),
                     ),
-                    
+
                     // Tab栏
                     Container(
                       color: Colors.white,
@@ -271,7 +276,7 @@ class _TestDynamicTabPageState extends State<TestDynamicTabPage>
                         }).toList(),
                       ),
                     ),
-                    
+
                     // Tab内容
                     Expanded(
                       child: TabBarView(
@@ -279,7 +284,7 @@ class _TestDynamicTabPageState extends State<TestDynamicTabPage>
                         children: _tabConfig.asMap().entries.map((entry) {
                           final index = entry.key;
                           final tab = entry.value;
-                          
+
                           return _buildTabContent(tab, index);
                         }).toList(),
                       ),
@@ -296,10 +301,11 @@ class _TestDynamicTabPageState extends State<TestDynamicTabPage>
 
   Widget _buildTabContent(Map<String, dynamic> tab, int index) {
     final tabId = tab['id'] as String;
-    
+
     // 使用DynamicTabConfigService的内容构建器
-    final contentBuilder = _dynamicTabService.getTabContentBuilder(_mockService, _mockDetails);
-    
+    final contentBuilder =
+        _dynamicTabService.getTabContentBuilder(_mockService, _mockDetails);
+
     return contentBuilder(context, index);
   }
 }

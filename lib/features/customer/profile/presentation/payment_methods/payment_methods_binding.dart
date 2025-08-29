@@ -8,4 +8,4 @@ class PaymentMethodsBinding extends Bindings {
       () => PaymentMethodsController(),
     );
   }
-} 
+}

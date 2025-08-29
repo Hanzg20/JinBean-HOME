@@ -27,7 +27,8 @@ class _ServiceMapPageState extends State<ServiceMapPage> {
     if (userLocation == null) {
       return Scaffold(
         appBar: AppBar(title: Text(AppLocalizations.of(context)!.serviceMap)),
-        body: Center(child: Text(AppLocalizations.of(context)!.locationMissing)),
+        body:
+            Center(child: Text(AppLocalizations.of(context)!.locationMissing)),
       );
     }
     return Scaffold(
@@ -35,127 +36,143 @@ class _ServiceMapPageState extends State<ServiceMapPage> {
         title: const Text('服务地图'),
         actions: [
           Obx(() => PopupMenuButton<double>(
-            icon: const Icon(Icons.tune),
-            initialValue: controller.serviceRadiusKm.value,
-            onSelected: (value) {
-              controller.serviceRadiusKm.value = value;
-              controller.fetchMarkers();
-            },
-            itemBuilder: (context) => [
-              PopupMenuItem(value: 10.0, child: Text('10公里内')),
-              PopupMenuItem(value: 20.0, child: Text('20公里内')),
-              PopupMenuItem(value: 50.0, child: Text('50公里内')),
-              PopupMenuItem(value: 100.0, child: Text('100公里内')),
-              PopupMenuItem(value: 5000.0, child: Text('5000公里内')),
-            ],
-          )),
+                icon: const Icon(Icons.tune),
+                initialValue: controller.serviceRadiusKm.value,
+                onSelected: (value) {
+                  controller.serviceRadiusKm.value = value;
+                  controller.fetchMarkers();
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem(value: 10.0, child: Text('10公里内')),
+                  PopupMenuItem(value: 20.0, child: Text('20公里内')),
+                  PopupMenuItem(value: 50.0, child: Text('50公里内')),
+                  PopupMenuItem(value: 100.0, child: Text('100公里内')),
+                  PopupMenuItem(value: 5000.0, child: Text('5000公里内')),
+                ],
+              )),
         ],
       ),
       body: Obx(() => Stack(
-        children: [
-          GoogleMap(
-            initialCameraPosition: CameraPosition(
-              target: LatLng(controller.centerLat.value, controller.centerLng.value),
-              zoom: controller.zoom.value,
-            ),
-            myLocationEnabled: true,
-            markers: controller.markers.map((m) => Marker(
-              markerId: MarkerId(m.id),
-              position: LatLng(m.latitude, m.longitude),
-              icon: controller.customMarkerIcon.value ?? BitmapDescriptor.defaultMarker,
-              onTap: () {
-                setState(() {
-                  selectedMarker = m;
-                });
-              },
-            )).toSet(),
-            onTap: (_) {
-              setState(() {
-                selectedMarker = null;
-              });
-            },
-            onCameraIdle: () {
-              controller.fetchMarkers();
-            },
-            onCameraMove: (pos) {
-              controller.centerLat.value = pos.target.latitude;
-              controller.centerLng.value = pos.target.longitude;
-              controller.zoom.value = pos.zoom;
-            },
-            onMapCreated: (c) {
-              mapController = c;
-            },
-          ),
-          if (controller.isLoading.value)
-            const Center(child: CircularProgressIndicator()),
-          if (selectedMarker != null)
-            Positioned(
-              left: 16,
-              right: 16,
-              bottom: 32,
-              child: _buildServiceCard(context, selectedMarker!),
-            ),
-          // 右下角地图操作按钮
-          Positioned(
-            right: 16,
-            bottom: 120,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                FloatingActionButton(
-                  heroTag: 'zoom_in',
-                  mini: true,
-                  child: const Icon(Icons.add),
-                  onPressed: () async {
-                    if (mapController != null) {
-                      final newZoom = (controller.zoom.value + 1).clamp(1.0, 21.0);
-                      await mapController!.moveCamera(CameraUpdate.zoomTo(newZoom));
-                    }
-                  },
+            children: [
+              GoogleMap(
+                initialCameraPosition: CameraPosition(
+                  target: LatLng(
+                      controller.centerLat.value, controller.centerLng.value),
+                  zoom: controller.zoom.value,
                 ),
-                const SizedBox(height: 12),
-                FloatingActionButton(
-                  heroTag: 'zoom_out',
-                  mini: true,
-                  child: const Icon(Icons.remove),
-                  onPressed: () async {
-                    if (mapController != null) {
-                      final newZoom = (controller.zoom.value - 1).clamp(1.0, 21.0);
-                      await mapController!.moveCamera(CameraUpdate.zoomTo(newZoom));
-                    }
-                  },
+                myLocationEnabled: true,
+                markers: controller.markers
+                    .map((m) => Marker(
+                          markerId: MarkerId(m.id),
+                          position: LatLng(m.latitude, m.longitude),
+                          icon: controller.customMarkerIcon.value ??
+                              BitmapDescriptor.defaultMarker,
+                          onTap: () {
+                            setState(() {
+                              selectedMarker = m;
+                            });
+                          },
+                        ))
+                    .toSet(),
+                onTap: (_) {
+                  setState(() {
+                    selectedMarker = null;
+                  });
+                },
+                onCameraIdle: () {
+                  controller.fetchMarkers();
+                },
+                onCameraMove: (pos) {
+                  controller.centerLat.value = pos.target.latitude;
+                  controller.centerLng.value = pos.target.longitude;
+                  controller.zoom.value = pos.zoom;
+                },
+                onMapCreated: (c) {
+                  mapController = c;
+                },
+              ),
+              if (controller.isLoading.value)
+                const Center(child: CircularProgressIndicator()),
+              if (selectedMarker != null)
+                Positioned(
+                  left: 16,
+                  right: 16,
+                  bottom: 32,
+                  child: _buildServiceCard(context, selectedMarker!),
                 ),
-                const SizedBox(height: 12),
-                FloatingActionButton(
-                  heroTag: 'my_location',
-                  mini: true,
-                  child: const Icon(Icons.my_location),
-                  onPressed: () async {
-                    // 跳转到定位点
-                    final loc = LocationController.instance.selectedLocation.value;
-                    if (loc != null && mapController != null) {
-                      await mapController!.animateCamera(CameraUpdate.newLatLngZoom(
-                        LatLng(loc.latitude, loc.longitude),
-                        controller.zoom.value,
-                      ));
-                      controller.centerLat.value = loc.latitude;
-                      controller.centerLng.value = loc.longitude;
-                      controller.fetchMarkers();
-                    }
-                  },
+              // 右下角地图操作按钮
+              Positioned(
+                right: 16,
+                bottom: 120,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    FloatingActionButton(
+                      heroTag: 'zoom_in',
+                      mini: true,
+                      child: const Icon(Icons.add),
+                      onPressed: () async {
+                        if (mapController != null) {
+                          final newZoom =
+                              (controller.zoom.value + 1).clamp(1.0, 21.0);
+                          await mapController!
+                              .moveCamera(CameraUpdate.zoomTo(newZoom));
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    FloatingActionButton(
+                      heroTag: 'zoom_out',
+                      mini: true,
+                      child: const Icon(Icons.remove),
+                      onPressed: () async {
+                        if (mapController != null) {
+                          final newZoom =
+                              (controller.zoom.value - 1).clamp(1.0, 21.0);
+                          await mapController!
+                              .moveCamera(CameraUpdate.zoomTo(newZoom));
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    FloatingActionButton(
+                      heroTag: 'my_location',
+                      mini: true,
+                      child: const Icon(Icons.my_location),
+                      onPressed: () async {
+                        // 跳转到定位点
+                        final loc =
+                            LocationController.instance.selectedLocation.value;
+                        if (loc != null && mapController != null) {
+                          await mapController!
+                              .animateCamera(CameraUpdate.newLatLngZoom(
+                            LatLng(loc.latitude, loc.longitude),
+                            controller.zoom.value,
+                          ));
+                          controller.centerLat.value = loc.latitude;
+                          controller.centerLng.value = loc.longitude;
+                          controller.fetchMarkers();
+                        }
+                      },
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-        ],
-      )),
+              ),
+            ],
+          )),
     );
   }
 
   Widget _buildServiceCard(BuildContext context, ServiceMarkerModel marker) {
     final locale = Get.locale?.languageCode ?? 'zh';
-    String name = marker.titleMap?[locale] ?? marker.titleMap?['zh'] ?? marker.titleMap?['en'] ?? marker.name;
-    String desc = marker.descriptionMap?[locale] ?? marker.descriptionMap?['zh'] ?? marker.descriptionMap?['en'] ?? marker.description;
+    String name = marker.titleMap?[locale] ??
+        marker.titleMap?['zh'] ??
+        marker.titleMap?['en'] ??
+        marker.name;
+    String desc = marker.descriptionMap?[locale] ??
+        marker.descriptionMap?['zh'] ??
+        marker.descriptionMap?['en'] ??
+        marker.description;
     String distanceText = '';
     if (marker.distanceInKm != null) {
       if (marker.distanceInKm! < 1) {
@@ -192,7 +209,8 @@ class _ServiceMapPageState extends State<ServiceMapPage> {
                     width: 80,
                     height: 80,
                     color: Colors.grey[200],
-                    child: const Icon(Icons.broken_image, size: 40, color: Colors.grey),
+                    child: const Icon(Icons.broken_image,
+                        size: 40, color: Colors.grey),
                   ),
                 ),
               ),
@@ -201,20 +219,32 @@ class _ServiceMapPageState extends State<ServiceMapPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    Text(name,
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 4),
-                    Text(desc, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 13)),
+                    Text(desc,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 13)),
                     const SizedBox(height: 8),
                     Row(
                       children: [
                         Icon(Icons.star, color: Colors.amber, size: 16),
-                        Text(marker.rating.toStringAsFixed(1), style: const TextStyle(fontSize: 13)),
+                        Text(marker.rating.toStringAsFixed(1),
+                            style: const TextStyle(fontSize: 13)),
                         const SizedBox(width: 8),
-                        Text('(${marker.reviewCount})', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                        Text('(${marker.reviewCount})',
+                            style: const TextStyle(
+                                fontSize: 12, color: Colors.grey)),
                         if (distanceText.isNotEmpty) ...[
                           const SizedBox(width: 12),
-                          Icon(Icons.location_on, size: 15, color: theme.colorScheme.primary),
-                          Text(distanceText, style: TextStyle(fontSize: 12, color: theme.colorScheme.primary)),
+                          Icon(Icons.location_on,
+                              size: 15, color: theme.colorScheme.primary),
+                          Text(distanceText,
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  color: theme.colorScheme.primary)),
                         ]
                       ],
                     ),
@@ -224,7 +254,8 @@ class _ServiceMapPageState extends State<ServiceMapPage> {
               const SizedBox(width: 8),
               ElevatedButton(
                 onPressed: () {
-                  Get.toNamed('/service_booking', arguments: {'serviceId': marker.id});
+                  Get.toNamed('/service_booking',
+                      arguments: {'serviceId': marker.id});
                 },
                 child: const Text('预约'),
               ),
@@ -234,4 +265,4 @@ class _ServiceMapPageState extends State<ServiceMapPage> {
       ),
     );
   }
-} 
+}

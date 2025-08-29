@@ -18,7 +18,7 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   final controller = Get.put(ProviderProfileController());
-  
+
   // 平台组件状态管理
   final LoadingStateManager _loadingManager = LoadingStateManager();
 
@@ -26,7 +26,7 @@ class _SettingsPageState extends State<SettingsPage> {
   void initState() {
     super.initState();
     AppLogger.debug('[SettingsPage] initState called', tag: 'SettingsPage');
-    
+
     // 初始化网络状态为在线
     _loadingManager.setOnline();
     // 数据已经在controller中加载完成，直接设置为成功状态
@@ -43,10 +43,10 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> _loadSettingsData() async {
     try {
       _loadingManager.setLoading();
-      
+
       // 加载设置数据
       // 这里可以添加实际的设置数据加载逻辑
-      
+
       _loadingManager.setSuccess();
     } catch (e) {
       _loadingManager.setError('加载设置数据失败: $e');
@@ -57,7 +57,7 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -86,29 +86,29 @@ class _SettingsPageState extends State<SettingsPage> {
                 children: [
                   // 个人资料卡片
                   _buildProfileCard(context),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // 业务设置
                   _buildBusinessSection(context),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // 账户设置
                   _buildAccountSection(context),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // 应用设置
                   _buildAppSettingsSection(context),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // 安全设置
                   _buildSecuritySection(context),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // 退出登录
                   _buildLogoutSection(context),
                 ],
@@ -182,11 +182,11 @@ class _SettingsPageState extends State<SettingsPage> {
                     children: [
                       const Text(
                         '服务商',
-                              style: TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                          ),
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -394,20 +394,20 @@ class _SettingsPageState extends State<SettingsPage> {
       child: ListTile(
         leading: Container(
           padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
+          decoration: BoxDecoration(
             color: JinBeanColors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    icon,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            icon,
             color: JinBeanColors.primary,
             size: 24,
-                  ),
-                ),
+          ),
+        ),
         title: Text(
-                              title,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
+          title,
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
             color: Colors.black87,
           ),
         ),
@@ -416,35 +416,35 @@ class _SettingsPageState extends State<SettingsPage> {
           style: TextStyle(
             color: Colors.grey.shade600,
             fontSize: 12,
-                              ),
-                            ),
+          ),
+        ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-                          if (badge != null)
-                            Container(
+            if (badge != null)
+              Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: badgeColor ?? JinBeanColors.primary,
+                decoration: BoxDecoration(
+                  color: badgeColor ?? JinBeanColors.primary,
                   borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                badge,
-                                style: const TextStyle(
+                ),
+                child: Text(
+                  badge,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 10,
                     fontWeight: FontWeight.w500,
                   ),
-                        ),
-                      ),
+                ),
+              ),
             const SizedBox(width: 8),
             Icon(
-                  Icons.arrow_forward_ios,
+              Icons.arrow_forward_ios,
               color: Colors.grey.shade400,
               size: 16,
-                ),
-              ],
             ),
+          ],
+        ),
         onTap: onTap,
       ),
     );
@@ -485,4 +485,4 @@ class _SettingsPageState extends State<SettingsPage> {
       );
     }
   }
-} 
+}

@@ -1,75 +1,60 @@
-# JinBean 项目文档目录
+# JinBean 项目文档
 
-## 📋 **目录概述**
+## 📁 文档结构
 
-本目录包含JinBean项目的所有技术文档、设计文档和开发指南。
+### 🗄️ **数据库文档** (`docs/database/`)
+- `schema_master.sql` - 数据库表结构主入口文件 ⭐
+- `README_TABLE_STRUCTURES.md` - 表结构状态说明
+- `VERSION_MANAGEMENT.md` - 版本管理策略
+- `database design.md` - 数据库设计文档
+- `data_dictionary.md` - 数据字典
+- `ref_codes.sql` - 分类编码表结构
+- `database_setup_instructions.md` - 数据库设置说明
+- `ref_codes_rows .sql` - 分类数据
+- `migration_scripts/` - 数据库迁移脚本
 
-## �� **文档目录结构**
+### 🚀 **开发文档** (`docs/development/`)
+- `development_progress.md` - 开发进度记录
+- `customer_ui_rework_plan.md` - 客户UI重构计划
+- `dual_instance_development_guide.md` - 双实例开发指南
 
-### **🏗️ 公共组件和全局设计**
-- **[comm/](./comm/)** - 公共组件、全局设计、系统架构和开发规范
+### 🔌 **API文档** (`docs/api/`)
+- `api_rest_spec.md` - REST API规范
+- `api_websocket_spec.md` - WebSocket API规范
+- `api_examples.md` - API使用示例
 
-### **🎨 UI/UX 设计**
-- **[ServiceDetail/](./ServiceDetail/)** - 服务详情页面相关文档
+### 👥 **用户指南** (`docs/user-guide/`)
+- `user_manual.md` - 用户手册
+- `admin_guide.md` - 管理员指南
+- `faq.md` - 常见问题
 
-### **👥 用户角色**
-- **[customer/](./customer/)** - 客户端功能文档
-- **[provider/](./provider/)** - 服务提供商功能文档
+### 🚀 **部署文档** (`docs/deployment/`)
+- `deployment_guide.md` - 部署指南
+- `environment_config.md` - 环境配置
+- `ci_cd_pipeline.md` - CI/CD流水线
 
-### **🔧 开发相关**
-- **[development/](./development/)** - 开发指南、架构文档
-- **[testing/](./testing/)** - 测试策略、测试用例
-- **[deployment/](./deployment/)** - 部署指南、环境配置
+## 🎯 **重要提醒**
 
-### **🛠️ 工具和模拟器**
-- **[simulator/](./simulator/)** - 模拟器使用指南
+### **生产环境数据库部署**
+- ✅ **使用**: `docs/database/schema_master.sql`
+- ❌ **不要使用**: 单独的模块文件
 
-## 🎯 **快速导航**
+### **文档更新流程**
+1. 修改相应的文档文件
+2. 更新版本号（如适用）
+3. 提交Git变更
+4. 保持文档同步
 
-### **新开发者入门**
-1. 查看 **[comm/system_design.md](./comm/system_design.md)** 了解项目架构
-2. 阅读 **[comm/developer_guide.md](./comm/developer_guide.md)** 搭建开发环境
-3. 学习 **[comm/development_standards.md](./comm/development_standards.md)** 了解开发规范
-4. 参考 **[comm/UI_REFACTORING_PRINCIPLES.md](./comm/UI_REFACTORING_PRINCIPLES.md)** 了解UI设计规范
+## 🔗 **快速链接**
 
-### **功能开发**
-- **客户功能**: 参考 [customer/](./customer/)
-- **提供商功能**: 参考 [provider/](./provider/)
-- **服务详情页面**: 参考 [ServiceDetail/](./ServiceDetail/)
-- **公共组件**: 参考 [comm/](./comm/)
-
-### **UI开发**
-- 设计规范: [comm/](./comm/)
-- 组件库: [comm/](./comm/)
-
-### **系统架构**
-- 系统设计: [comm/system_design.md](./comm/system_design.md)
-- 平台级组件: [comm/PLATFORM_LEVEL_COMPONENTS_TECHNICAL_PLAN.md](./comm/PLATFORM_LEVEL_COMPONENTS_TECHNICAL_PLAN.md)
-- 系统优化: [comm/SYSTEM_OPTIMIZATION_ROADMAP.md](./comm/SYSTEM_OPTIMIZATION_ROADMAP.md)
-
-## 📝 **文档维护**
-
-### **更新原则**
-- 代码变更时同步更新相关文档
-- 新功能开发时创建对应文档
-- 定期审查文档的准确性和完整性
-- 公共组件和全局设计文档统一放在 [comm/](./comm/) 目录
-
-### **文档标准**
-- 使用Markdown格式
-- 包含版本信息和更新日期
-- 提供清晰的目录结构
-- 使用统一的命名规范
-
-## 🔗 **相关链接**
-
-- [项目主页](../README.md)
-- [公共组件和全局设计](./comm/README.md)
-- [代码仓库](https://github.com/jinbean/jinbean-app)
-- [API文档](https://api.jinbean.com)
-- [设计系统](https://design.jinbean.com)
+- [数据库表结构](./database/README_TABLE_STRUCTURES.md)
+- [版本管理策略](./database/VERSION_MANAGEMENT.md)
+- [开发进度](./development/development_progress.md)
+- [API规范](./api/api_rest_spec.md)
+- [部署指南](./deployment/deployment_guide.md)
 
 ---
 
-*最后更新: 2024-12-19*
-*维护者: Development Team* 
+**最后更新**: 2025-01-08  
+**文档状态**: ✅ 已整理完成  
+**维护人员**: AI Assistant 

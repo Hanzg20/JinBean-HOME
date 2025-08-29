@@ -1,4 +1,5 @@
-import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:flutter/material.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/features/customer/profile/presentation/profile_controller.dart';
 import 'package:jinbeanpod_83904710/features/provider/plugins/provider_identity/provider_identity_service.dart';
@@ -18,7 +19,7 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   // 平台组件状态管理
   final LoadingStateManager _loadingManager = LoadingStateManager();
-  
+
   @override
   void initState() {
     super.initState();
@@ -38,11 +39,11 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _loadProfileData() async {
     try {
       _loadingManager.setLoading();
-      
+
       // 加载用户资料
       final controller = Get.put(ProfileController());
       await controller.loadUserProfile();
-      
+
       _loadingManager.setSuccess();
     } catch (e) {
       _loadingManager.setError('加载用户资料失败: $e');
@@ -54,7 +55,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final controller = Get.put(ProfileController());
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     AppLogger.info('[ProfilePage] build method called.'); // Added log
 
     return Scaffold(
@@ -71,7 +72,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 children: [
                   // Profile Header
                   _buildProfileHeader(context, controller, theme, colorScheme),
-                  
+
                   // Profile Content
                   _buildProfileContent(context, controller, theme, colorScheme),
                 ],
@@ -83,7 +84,8 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildProfileHeader(BuildContext context, ProfileController controller, ThemeData theme, ColorScheme colorScheme) {
+  Widget _buildProfileHeader(BuildContext context, ProfileController controller,
+      ThemeData theme, ColorScheme colorScheme) {
     return Container(
       height: 200.0,
       decoration: BoxDecoration(
@@ -113,7 +115,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       height: 80,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(color: colorScheme.onPrimary, width: 3),
+                        border:
+                            Border.all(color: colorScheme.onPrimary, width: 3),
                         boxShadow: [
                           BoxShadow(
                             color: colorScheme.shadow.withValues(alpha: 0.2),
@@ -129,7 +132,8 @@ class _ProfilePageState extends State<ProfilePage> {
                             ? NetworkImage(controller.avatarUrl.value)
                             : null,
                         child: controller.avatarUrl.value.isEmpty
-                            ? Icon(Icons.person, size: 40, color: colorScheme.onSurfaceVariant)
+                            ? Icon(Icons.person,
+                                size: 40, color: colorScheme.onSurfaceVariant)
                             : null,
                       ),
                     ),
@@ -138,7 +142,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   // 用户信息
                   Expanded(
                     child: Obx(() {
-                      AppLogger.info('[ProfilePage] Obx 1 (header) rebuild.'); // Added log
+                      AppLogger.info(
+                          '[ProfilePage] Obx 1 (header) rebuild.'); // Added log
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -158,7 +163,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ? controller.userBio.value
                                 : 'No bio yet',
                             style: theme.textTheme.bodyMedium?.copyWith(
-                              color: colorScheme.onPrimary.withValues(alpha: 0.8),
+                              color:
+                                  colorScheme.onPrimary.withValues(alpha: 0.8),
                             ),
                           ),
                         ],
@@ -174,7 +180,8 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildProfileContent(BuildContext context, ProfileController controller, ThemeData theme, ColorScheme colorScheme) {
+  Widget _buildProfileContent(BuildContext context,
+      ProfileController controller, ThemeData theme, ColorScheme colorScheme) {
     return Column(
       children: [
         // 账户管理卡片组
@@ -221,7 +228,7 @@ class _ProfilePageState extends State<ProfilePage> {
       builder: (context) {
         final theme = Theme.of(context);
         final colorScheme = theme.colorScheme;
-        
+
         return Column(
           children: [
             Text(
@@ -248,7 +255,7 @@ class _ProfilePageState extends State<ProfilePage> {
       builder: (context) {
         final theme = Theme.of(context);
         final colorScheme = theme.colorScheme;
-        
+
         return Text(
           title,
           style: theme.textTheme.titleLarge?.copyWith(
@@ -265,7 +272,7 @@ class _ProfilePageState extends State<ProfilePage> {
       builder: (context) {
         final theme = Theme.of(context);
         final colorScheme = theme.colorScheme;
-        
+
         return CustomerCard(
           margin: EdgeInsets.zero, // 移除默认margin
           child: Column(
@@ -309,7 +316,7 @@ class _ProfilePageState extends State<ProfilePage> {
       builder: (context) {
         final theme = Theme.of(context);
         final colorScheme = theme.colorScheme;
-        
+
         return CustomerCard(
           margin: EdgeInsets.zero, // 移除默认margin
           child: Column(
@@ -346,7 +353,7 @@ class _ProfilePageState extends State<ProfilePage> {
       builder: (context) {
         final theme = Theme.of(context);
         final colorScheme = theme.colorScheme;
-        
+
         return CustomerCard(
           margin: EdgeInsets.zero, // 移除默认margin
           child: Column(
@@ -411,7 +418,7 @@ class _ProfilePageState extends State<ProfilePage> {
       builder: (context) {
         final theme = Theme.of(context);
         final colorScheme = theme.colorScheme;
-        
+
         return CustomerCard(
           margin: EdgeInsets.zero, // 移除默认margin
           child: Column(
@@ -455,7 +462,7 @@ class _ProfilePageState extends State<ProfilePage> {
       builder: (context) {
         final theme = Theme.of(context);
         final colorScheme = theme.colorScheme;
-        
+
         return CustomerCard(
           margin: EdgeInsets.zero, // 移除默认margin
           child: FutureBuilder<ProviderStatus>(
@@ -467,7 +474,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.business, color: colorScheme.primary, size: 24),
+                        Icon(Icons.business,
+                            color: colorScheme.primary, size: 24),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
@@ -499,7 +507,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.business, color: colorScheme.primary, size: 24),
+                        Icon(Icons.business,
+                            color: colorScheme.primary, size: 24),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
@@ -528,7 +537,8 @@ class _ProfilePageState extends State<ProfilePage> {
                     SizedBox(
                       width: double.infinity,
                       child: OutlinedButton.icon(
-                        icon: Icon(Icons.add_business, color: colorScheme.primary),
+                        icon: Icon(Icons.add_business,
+                            color: colorScheme.primary),
                         label: Text(
                           'Apply Now',
                           style: TextStyle(color: colorScheme.primary),
@@ -536,7 +546,8 @@ class _ProfilePageState extends State<ProfilePage> {
                         style: OutlinedButton.styleFrom(
                           foregroundColor: colorScheme.primary,
                           side: BorderSide(color: colorScheme.primary),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8)),
                           padding: const EdgeInsets.symmetric(vertical: 12),
                         ),
                         onPressed: () {
@@ -564,9 +575,10 @@ class _ProfilePageState extends State<ProfilePage> {
       builder: (context) {
         final theme = Theme.of(context);
         final colorScheme = theme.colorScheme;
-        
+
         return ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 减少内边距
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 减少内边距
           leading: Container(
             width: 36, // 减小图标容器大小
             height: 36,
@@ -579,23 +591,27 @@ class _ProfilePageState extends State<ProfilePage> {
                 bottomRight: Radius.circular(6),
               ),
             ),
-            child: Icon(icon, size: 18, color: colorScheme.onSurfaceVariant), // 减小图标大小
+            child: Icon(icon,
+                size: 18, color: colorScheme.onSurfaceVariant), // 减小图标大小
           ),
           title: Text(
             title,
-            style: theme.textTheme.titleSmall?.copyWith( // 使用更小的字体
+            style: theme.textTheme.titleSmall?.copyWith(
+              // 使用更小的字体
               fontWeight: FontWeight.w500,
               color: colorScheme.onSurface,
             ),
           ),
           subtitle: Text(
             subtitle,
-            style: theme.textTheme.bodySmall?.copyWith( // 使用更小的字体
+            style: theme.textTheme.bodySmall?.copyWith(
+              // 使用更小的字体
               color: colorScheme.onSurfaceVariant,
               fontSize: 12, // 明确指定字体大小
             ),
           ),
-          trailing: Icon(Icons.chevron_right, color: colorScheme.onSurfaceVariant, size: 16), // 减小图标大小
+          trailing: Icon(Icons.chevron_right,
+              color: colorScheme.onSurfaceVariant, size: 16), // 减小图标大小
           onTap: onTap,
         );
       },
@@ -606,7 +622,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return Builder(
       builder: (context) {
         final colorScheme = Theme.of(context).colorScheme;
-        
+
         return Divider(
           height: 1,
           indent: 72,
@@ -651,13 +667,13 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ],
         ),
-            ),
+      ),
     );
   }
 
   void _showLanguageDialog() {
     final currentLocale = Get.locale ?? const Locale('en');
-    
+
     Get.dialog(
       AlertDialog(
         title: const Text('Select Language / 选择语言'),
@@ -671,7 +687,7 @@ class _ProfilePageState extends State<ProfilePage> {
               groupValue: currentLocale,
               onChanged: (locale) {
                 if (locale != null) {
-                Get.back();
+                  Get.back();
                   _changeLanguage(locale);
                 }
               },
@@ -683,7 +699,7 @@ class _ProfilePageState extends State<ProfilePage> {
               groupValue: currentLocale,
               onChanged: (locale) {
                 if (locale != null) {
-                Get.back();
+                  Get.back();
                   _changeLanguage(locale);
                 }
               },
@@ -703,7 +719,7 @@ class _ProfilePageState extends State<ProfilePage> {
   // 切换语言的方法
   void _changeLanguage(Locale locale) {
     Get.updateLocale(locale);
-    
+
     // 显示切换成功的提示
     Get.snackbar(
       'Language Changed / 语言已切换',
@@ -711,7 +727,7 @@ class _ProfilePageState extends State<ProfilePage> {
       snackPosition: SnackPosition.BOTTOM,
       duration: const Duration(seconds: 2),
     );
-    
+
     // 使用GetX的方式刷新UI
     Get.forceAppUpdate();
   }

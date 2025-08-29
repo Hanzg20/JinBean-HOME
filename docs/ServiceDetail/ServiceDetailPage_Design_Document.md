@@ -576,6 +576,386 @@ ServiceMapController统一管理:
 
 ---
 
+## 🛒 **订单生成流程设计**
+
+### **核心设计理念**
+
+#### **差异化处理策略**
+根据服务类型的特点，采用不同的订单生成流程，以优化用户体验和业务转化率：
+
+1. **餐饮服务**: 强制购物车模式，支持多菜品组合
+2. **预约服务**: 提供双选项（直接预订/购物车）
+3. **即时服务**: 直接下单模式，快速响应
+
+#### **技术实现原则**
+- **统一数据模型**: 使用统一的购物车和订单数据结构
+- **模块化设计**: 不同流程独立实现，便于维护
+- **性能优化**: 减少不必要的数据库操作和页面跳转
+
+### **Fixed价格服务处理流程**
+
+#### **餐饮服务流程 (Category: 1010000)**
+```mermaid
+graph TD
+    A[进入餐厅详情页] --> B[显示Menu Tab]
+    B --> C[浏览菜品分类]
+    C --> D[选择具体菜品]
+    D --> E[配置菜品选项]
+    E --> F[添加到购物车]
+    F --> G{继续选择?}
+    G -->|是| C
+    G -->|否| H[查看购物车]
+    H --> I[调整数量/删除]
+    I --> J[确认订单信息]
+    J --> K[选择配送方式]
+    K --> L[创建餐饮订单]
+```
+
+**特点**:
+- ✅ 强制使用购物车
+- ✅ 支持多菜品选择和定制
+- ✅ 统一配送和支付流程
+- ✅ 提升平均客单价
+
+#### **预约服务流程 (Categories: 1020000, 1050000, 1060000)**
+```mermaid
+graph TD
+    A[查看服务详情] --> B[选择预订方式]
+    B --> C{预订选项}
+    
+    C -->|立即预订| D[直接下单流程]
+    C -->|加入购物车| E[购物车流程]
+    
+    D --> D1[填写预约信息]
+    D1 --> D2[确认并创建订单]
+    
+    E --> E1[选择服务时间]
+    E1 --> E2[添加到购物车]
+    E2 --> E3[继续浏览或结算]
+    E3 --> E4[批量创建订单]
+```
+
+**UI设计**:
+```dart
+Widget buildAppointmentActions() {
+  return Row(
+    children: [
+      Expanded(
+        flex: 3,
+        child: ElevatedButton.icon(
+          icon: Icon(Icons.event_available),
+          label: Text('立即预订'),
+          onPressed: _directBooking,
+        ),
+      ),
+      SizedBox(width: 12),
+      Expanded(
+        flex: 2,
+        child: OutlinedButton.icon(
+          icon: Icon(Icons.add_shopping_cart),
+          label: Text('购物车'),
+          onPressed: _addToCart,
+        ),
+      ),
+    ],
+  );
+}
+```
+
+#### **即时服务流程 (紧急/咨询服务)**
+```mermaid
+graph TD
+    A[查看服务详情] --> B[点击立即预订]
+    B --> C[填写紧急需求]
+    C --> D[确认服务地址]
+    D --> E[确认价格]
+    E --> F[创建订单]
+    F --> G[订单状态: PendingAcceptance]
+```
+
+**特点**:
+- ⚡ 最短路径下单
+- 🎯 单一服务目标
+- ⏱️ 时效性优先
+- 🔴 紧急标识
+
+### **非Fixed价格服务处理流程**
+
+#### **询价流程设计**
+```mermaid
+graph TD
+    A[用户查看服务详情] --> B{选择询价方式}
+    
+    B -->|快速报价| C[填写基本需求]
+    B -->|详细报价| D[填写详细表单]
+    B -->|先聊天| E[开始聊天]
+    
+    C --> F[提交询价请求]
+    D --> F
+    E --> F
+    
+    F --> G[服务商收到询价]
+    G --> H[服务商提供报价]
+    H --> I{用户响应}
+    
+    I -->|接受报价| J[确定最终价格]
+    I -->|反议价| K[继续协商]
+    I -->|拒绝报价| L[询价结束]
+    
+    K --> H
+    J --> M[创建订单]
+    M --> N[订单状态: PendingPayment]
+```
+
+#### **询价数据结构**
+```sql
+-- 扩展议价记录表
+CREATE TABLE public.negotiation_records (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    service_id uuid NOT NULL REFERENCES public.services(id),
+    user_id uuid NOT NULL REFERENCES auth.users(id),
+    provider_id uuid NOT NULL REFERENCES public.provider_profiles(id),
+    
+    -- 询价类型和状态
+    quote_type text NOT NULL, -- 'quick', 'detailed', 'chat'
+    status text NOT NULL DEFAULT 'pending',
+    
+    -- 价格协商
+    user_budget_range jsonb, -- {min: 100, max: 200}
+    provider_quote numeric,
+    final_agreed_price numeric,
+    
+    -- 需求描述
+    user_requirements text NOT NULL,
+    provider_response text,
+    
+    -- 时间相关
+    requested_service_time timestamptz,
+    quote_expires_at timestamptz,
+    created_at timestamptz DEFAULT now(),
+    updated_at timestamptz DEFAULT now()
+);
+```
+
+### **购物车系统架构**
+
+#### **统一购物车数据模型**
+```sql
+-- 统一购物车表
+CREATE TABLE public.unified_carts (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id uuid NOT NULL REFERENCES auth.users(id),
+    cart_type text NOT NULL, -- 'restaurant', 'appointment', 'mixed'
+    status text DEFAULT 'active',
+    expires_at timestamptz DEFAULT (now() + interval '24 hours'),
+    created_at timestamptz DEFAULT now(),
+    updated_at timestamptz DEFAULT now()
+);
+
+-- 购物车项目表
+CREATE TABLE public.cart_items (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    cart_id uuid NOT NULL REFERENCES public.unified_carts(id),
+    
+    -- 服务信息
+    service_id uuid NOT NULL REFERENCES public.services(id),
+    service_detail_id uuid REFERENCES public.service_details(id),
+    
+    -- 基础信息
+    item_type text NOT NULL, -- 'menu_item', 'appointment', 'package'
+    quantity integer NOT NULL DEFAULT 1,
+    unit_price numeric NOT NULL,
+    
+    -- 预约相关（仅预约类服务）
+    scheduled_start_time timestamptz,
+    scheduled_end_time timestamptz,
+    service_address_snapshot jsonb,
+    
+    -- 定制选项（主要用于餐饮）
+    customizations jsonb DEFAULT '{}',
+    special_instructions text,
+    
+    -- 快照信息
+    item_name_snapshot jsonb NOT NULL,
+    item_description_snapshot text,
+    
+    -- 计算字段
+    subtotal numeric GENERATED ALWAYS AS (quantity * unit_price) STORED,
+    
+    created_at timestamptz DEFAULT now(),
+    updated_at timestamptz DEFAULT now()
+);
+```
+
+#### **购物车控制器设计**
+```dart
+class UnifiedCartController extends GetxController {
+  final RxList<CartItem> cartItems = <CartItem>[].obs;
+  final RxDouble totalAmount = 0.0.obs;
+  final RxInt totalItems = 0.obs;
+  
+  // 添加服务到购物车
+  Future<void> addServiceToCart({
+    required String serviceId,
+    required String serviceDetailId,
+    int quantity = 1,
+    DateTime? scheduledTime,
+    Map<String, dynamic>? customizations,
+    String? specialInstructions,
+  }) async {
+    // 实现购物车添加逻辑
+  }
+  
+  // 服务类型判断
+  ServiceBookingType getBookingType(Service service) {
+    switch (service.categoryLevel1Id) {
+      case '1010000': // 餐饮
+        return ServiceBookingType.cartOnly;
+      case '1020000': // 家政
+      case '1050000': // 教育
+      case '1060000': // 生活帮忙
+        return ServiceBookingType.both;
+      default:
+        return ServiceBookingType.directOnly;
+    }
+  }
+  
+  // 批量创建订单
+  Future<List<Order>> createOrdersFromCart() async {
+    final groupedItems = _groupItemsByService();
+    final orders = <Order>[];
+    
+    for (final serviceGroup in groupedItems) {
+      final order = await _createOrderForService(serviceGroup);
+      orders.add(order);
+    }
+    
+    await _clearCart();
+    return orders;
+  }
+}
+
+enum ServiceBookingType {
+  directOnly,   // 只支持直接下单
+  cartOnly,     // 只支持购物车
+  both,         // 两者都支持
+}
+```
+
+### **价格计算系统**
+
+#### **餐饮服务价格计算**
+```dart
+class RestaurantPricingCalculator {
+  PricingResult calculate(List<CartItem> items) {
+    double itemsTotal = items.fold(0, (sum, item) => sum + item.subtotal);
+    
+    // 配送费计算
+    final deliveryFee = _calculateDeliveryFee(items);
+    
+    // 平台服务费 (5%)
+    final serviceFee = itemsTotal * 0.05;
+    
+    // 税费 (13% HST)
+    final taxAmount = (itemsTotal + deliveryFee + serviceFee) * 0.13;
+    
+    final total = itemsTotal + deliveryFee + serviceFee + taxAmount;
+    
+    return PricingResult(
+      itemsTotal: itemsTotal,
+      deliveryFee: deliveryFee,
+      serviceFee: serviceFee,
+      taxAmount: taxAmount,
+      total: total,
+    );
+  }
+}
+```
+
+#### **预约服务价格计算**
+```dart
+class AppointmentPricingCalculator {
+  PricingResult calculate(Service service, AppointmentDetails details) {
+    double basePrice = service.basePrice ?? 0;
+    
+    // 时间段调整 (高峰期 +20%)
+    final timeMultiplier = _getTimeMultiplier(details.scheduledTime);
+    basePrice *= timeMultiplier;
+    
+    // 距离费用
+    final distanceFee = _calculateDistanceFee(details);
+    
+    // 紧急服务费 (+20%)
+    final urgencyFee = details.isUrgent ? basePrice * 0.2 : 0;
+    
+    // 平台服务费 (10%)
+    final serviceFee = (basePrice + distanceFee + urgencyFee) * 0.1;
+    
+    final subtotal = basePrice + distanceFee + urgencyFee + serviceFee;
+    final taxAmount = subtotal * 0.13; // HST
+    final total = subtotal + taxAmount;
+    
+    return PricingResult(
+      basePrice: basePrice,
+      distanceFee: distanceFee,
+      urgencyFee: urgencyFee,
+      serviceFee: serviceFee,
+      taxAmount: taxAmount,
+      total: total,
+    );
+  }
+}
+```
+
+### **订单状态管理**
+
+#### **订单生命周期**
+```mermaid
+graph TD
+    A[用户下单] --> B{订单来源}
+    
+    B -->|直接下单| C[PendingAcceptance]
+    B -->|购物车| D[PendingPayment]
+    B -->|询价确认| E[PendingPayment]
+    
+    C --> F[服务商接单]
+    D --> G[用户支付]
+    E --> G
+    
+    F --> H[Accepted]
+    G --> I[Paid] 
+    I --> H
+    
+    H --> J[InProgress]
+    J --> K[Completed]
+    
+    C --> L[Cancelled]
+    H --> L
+    J --> L
+```
+
+#### **状态转换规则**
+```dart
+class OrderStatusManager {
+  static final Map<String, List<String>> validTransitions = {
+    'PendingAcceptance': ['Accepted', 'Cancelled', 'Expired'],
+    'PendingPayment': ['Paid', 'Cancelled', 'Expired'],
+    'Paid': ['Accepted', 'Refunded'],
+    'Accepted': ['InProgress', 'Cancelled'],
+    'InProgress': ['Completed', 'Cancelled'],
+    'Completed': ['Refunded'],
+    'Cancelled': [],
+    'Refunded': [],
+  };
+  
+  static bool canTransition(String from, String to) {
+    return validTransitions[from]?.contains(to) ?? false;
+  }
+}
+```
+
+---
+
 ## 📈 **成功指标**
 
 ### **用户体验指标**

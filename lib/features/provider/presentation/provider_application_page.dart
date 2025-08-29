@@ -7,7 +7,8 @@ class ProviderApplicationPage extends StatefulWidget {
   const ProviderApplicationPage({super.key});
 
   @override
-  State<ProviderApplicationPage> createState() => _ProviderApplicationPageState();
+  State<ProviderApplicationPage> createState() =>
+      _ProviderApplicationPageState();
 }
 
 class _ProviderApplicationPageState extends State<ProviderApplicationPage> {
@@ -16,10 +17,10 @@ class _ProviderApplicationPageState extends State<ProviderApplicationPage> {
   final _descriptionController = TextEditingController();
   final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
-  
+
   final RxBool _isLoading = false.obs;
   final RxString _selectedCategory = 'General Services'.obs;
-  
+
   final List<String> _categories = [
     'General Services',
     'Home Services',
@@ -45,7 +46,7 @@ class _ProviderApplicationPageState extends State<ProviderApplicationPage> {
 
     try {
       _isLoading.value = true;
-      
+
       final user = Supabase.instance.client.auth.currentUser;
       if (user == null) {
         Get.snackbar('Error', 'User not authenticated');
@@ -53,20 +54,21 @@ class _ProviderApplicationPageState extends State<ProviderApplicationPage> {
       }
 
       // 提交申请到数据库
-      final response = await Supabase.instance.client
-          .from('provider_applications')
-          .insert({
-            'user_id': user.id,
-            'business_name': _businessNameController.text.trim(),
-            'description': _descriptionController.text.trim(),
-            'phone': _phoneController.text.trim(),
-            'address': _addressController.text.trim(),
-            'category': _selectedCategory.value,
-            'status': 'pending',
-            'created_at': DateTime.now().toIso8601String(),
-          });
+      final response =
+          await Supabase.instance.client.from('provider_applications').insert({
+        'user_id': user.id,
+        'business_name': _businessNameController.text.trim(),
+        'description': _descriptionController.text.trim(),
+        'phone': _phoneController.text.trim(),
+        'address': _addressController.text.trim(),
+        'category': _selectedCategory.value,
+        'status': 'pending',
+        'created_at': DateTime.now().toIso8601String(),
+      });
 
-      AppLogger.info('[ProviderApplicationPage] Application submitted successfully', tag: 'ProviderApplication');
+      AppLogger.info(
+          '[ProviderApplicationPage] Application submitted successfully',
+          tag: 'ProviderApplication');
 
       Get.snackbar(
         'Success',
@@ -78,9 +80,10 @@ class _ProviderApplicationPageState extends State<ProviderApplicationPage> {
 
       // 返回上一页
       Get.back();
-
     } catch (e) {
-      AppLogger.error('[ProviderApplicationPage] Error submitting application: $e', tag: 'ProviderApplication');
+      AppLogger.error(
+          '[ProviderApplicationPage] Error submitting application: $e',
+          tag: 'ProviderApplication');
       Get.snackbar(
         'Error',
         'Failed to submit application. Please try again.',
@@ -140,7 +143,8 @@ class _ProviderApplicationPageState extends State<ProviderApplicationPage> {
                           Text(
                             'Fill out the form below to start offering your services',
                             style: theme.textTheme.bodyMedium?.copyWith(
-                              color: colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
+                              color: colorScheme.onPrimaryContainer
+                                  .withValues(alpha: 0.8),
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -154,8 +158,10 @@ class _ProviderApplicationPageState extends State<ProviderApplicationPage> {
                       controller: _businessNameController,
                       decoration: InputDecoration(
                         labelText: 'Business Name',
-                        prefixIcon: Icon(Icons.business, color: colorScheme.primary),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                        prefixIcon:
+                            Icon(Icons.business, color: colorScheme.primary),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8)),
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
@@ -171,8 +177,10 @@ class _ProviderApplicationPageState extends State<ProviderApplicationPage> {
                       value: _selectedCategory.value,
                       decoration: InputDecoration(
                         labelText: 'Service Category',
-                        prefixIcon: Icon(Icons.category, color: colorScheme.primary),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                        prefixIcon:
+                            Icon(Icons.category, color: colorScheme.primary),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8)),
                       ),
                       items: _categories.map((category) {
                         return DropdownMenuItem(
@@ -194,8 +202,10 @@ class _ProviderApplicationPageState extends State<ProviderApplicationPage> {
                       maxLines: 4,
                       decoration: InputDecoration(
                         labelText: 'Service Description',
-                        prefixIcon: Icon(Icons.description, color: colorScheme.primary),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                        prefixIcon:
+                            Icon(Icons.description, color: colorScheme.primary),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8)),
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
@@ -215,8 +225,10 @@ class _ProviderApplicationPageState extends State<ProviderApplicationPage> {
                       keyboardType: TextInputType.phone,
                       decoration: InputDecoration(
                         labelText: 'Phone Number',
-                        prefixIcon: Icon(Icons.phone, color: colorScheme.primary),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                        prefixIcon:
+                            Icon(Icons.phone, color: colorScheme.primary),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8)),
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
@@ -233,8 +245,10 @@ class _ProviderApplicationPageState extends State<ProviderApplicationPage> {
                       maxLines: 2,
                       decoration: InputDecoration(
                         labelText: 'Business Address',
-                        prefixIcon: Icon(Icons.location_on, color: colorScheme.primary),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                        prefixIcon:
+                            Icon(Icons.location_on, color: colorScheme.primary),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8)),
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
@@ -252,11 +266,13 @@ class _ProviderApplicationPageState extends State<ProviderApplicationPage> {
                         backgroundColor: colorScheme.primary,
                         foregroundColor: colorScheme.onPrimary,
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8)),
                       ),
                       child: const Text(
                         'Submit Application',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w600),
                       ),
                     ),
                   ],
@@ -265,4 +281,4 @@ class _ProviderApplicationPageState extends State<ProviderApplicationPage> {
             )),
     );
   }
-} 
+}

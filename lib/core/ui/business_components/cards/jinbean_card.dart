@@ -28,7 +28,7 @@ class JinBeanCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     Widget card = Card(
       margin: margin ?? JinBeanSpacing.cardMargin,
       elevation: elevation ?? theme.cardTheme.elevation,
@@ -133,16 +133,16 @@ class JinBeanInfoCard extends StatelessWidget {
                 Text(
                   title,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+                        fontWeight: FontWeight.w600,
+                      ),
                 ),
                 if (subtitle != null) ...[
                   SizedBox(height: JinBeanSpacing.sm),
                   Text(
                     subtitle!,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: JinBeanColors.textSecondary,
-                    ),
+                          color: JinBeanColors.textSecondary,
+                        ),
                   ),
                 ],
               ],
@@ -179,7 +179,7 @@ class JinBeanStatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cardColor = color ?? theme.colorScheme.primary;
-    
+
     return JinBeanCard(
       onTap: onTap,
       backgroundColor: cardColor.withValues(alpha: 0.1),
@@ -220,4 +220,4 @@ class JinBeanStatCard extends StatelessWidget {
       ),
     );
   }
-} 
+}

@@ -26,7 +26,7 @@ class _MessageCenterPageState extends State<MessageCenterPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -55,12 +55,14 @@ class _MessageCenterPageState extends State<MessageCenterPage> {
                     ),
                     backgroundColor: colorScheme.error,
                     child: IconButton(
-                      icon: Icon(Icons.notifications, color: colorScheme.onSurface),
+                      icon: Icon(Icons.notifications,
+                          color: colorScheme.onSurface),
                       onPressed: () => _showUnreadNotifications(),
                     ),
                   )
                 : IconButton(
-                    icon: Icon(Icons.notifications, color: colorScheme.onSurface),
+                    icon:
+                        Icon(Icons.notifications, color: colorScheme.onSurface),
                     onPressed: () => _showUnreadNotifications(),
                   )),
             IconButton(
@@ -107,7 +109,8 @@ class _MessageCenterPageState extends State<MessageCenterPage> {
             labelColor: colorScheme.primary,
             unselectedLabelColor: colorScheme.onSurfaceVariant,
             indicatorColor: colorScheme.primary,
-            labelStyle: theme.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w600),
+            labelStyle: theme.textTheme.labelMedium
+                ?.copyWith(fontWeight: FontWeight.w600),
             unselectedLabelStyle: theme.textTheme.labelMedium,
             tabs: const [
               Tab(text: '通知'),
@@ -128,12 +131,12 @@ class _MessageCenterPageState extends State<MessageCenterPage> {
   Widget _buildNotificationsTab() {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Obx(() {
       if (controller.isLoading.value) {
         return const ProviderLoadingState(message: '加载通知数据...');
       }
-      
+
       if (controller.notifications.isEmpty) {
         return const ProviderEmptyState(
           icon: Icons.notifications_none,
@@ -141,7 +144,7 @@ class _MessageCenterPageState extends State<MessageCenterPage> {
           subtitle: '新的通知将显示在这里',
         );
       }
-      
+
       return ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: controller.notifications.length,
@@ -180,7 +183,8 @@ class _MessageCenterPageState extends State<MessageCenterPage> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      controller.formatNotificationTime(notification['created_at']),
+                      controller
+                          .formatNotificationTime(notification['created_at']),
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                         fontSize: 12,
@@ -209,7 +213,7 @@ class _MessageCenterPageState extends State<MessageCenterPage> {
   Widget _buildMessagesTab() {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return const ProviderEmptyState(
       icon: Icons.message,
       title: '暂无消息',
@@ -227,7 +231,7 @@ class _MessageCenterPageState extends State<MessageCenterPage> {
       );
       return;
     }
-    
+
     Get.dialog(
       AlertDialog(
         title: const Text('未读通知'),
@@ -262,12 +266,12 @@ class _MessageCenterPageState extends State<MessageCenterPage> {
   void _showNotificationDetail(Map<String, dynamic> notification) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     // 标记为已读
     if (!notification['is_read']) {
       controller.markAsRead(notification['id']);
     }
-    
+
     Get.dialog(
       AlertDialog(
         shape: RoundedRectangleBorder(
@@ -337,4 +341,4 @@ class _MessageCenterPageState extends State<MessageCenterPage> {
         return Icons.notifications;
     }
   }
-} 
+}

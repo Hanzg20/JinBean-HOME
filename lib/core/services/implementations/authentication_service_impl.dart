@@ -14,19 +14,19 @@ class AuthenticationService implements IAuthenticationService {
       // 验证Supabase连接
       await _supabase.auth.getUser();
       _isInitialized = true;
-      
+
       // 设置认证状态监听
       _supabase.auth.onAuthStateChange.listen((data) {
         _handleAuthStateChange(data);
       });
-      
+
       // 获取当前用户
       final supabaseUser = _supabase.auth.currentUser;
       if (supabaseUser != null) {
         _currentUser = _convertSupabaseUser(supabaseUser);
         _updateAuthState();
       }
-      
+
       print('AuthenticationService: 初始化完成 ✅');
     } catch (e) {
       print('AuthenticationService: 初始化失败 ❌ - $e');
@@ -42,7 +42,7 @@ class AuthenticationService implements IAuthenticationService {
 
     try {
       print('AuthenticationService: 用户登录 - $email');
-      
+
       final response = await _supabase.auth.signInWithPassword(
         email: email,
         password: password,
@@ -71,7 +71,7 @@ class AuthenticationService implements IAuthenticationService {
 
     try {
       print('AuthenticationService: 用户注册 - $email');
-      
+
       final response = await _supabase.auth.signUp(
         email: email,
         password: password,
@@ -101,11 +101,11 @@ class AuthenticationService implements IAuthenticationService {
 
     try {
       print('AuthenticationService: 用户登出');
-      
+
       await _supabase.auth.signOut();
       _currentUser = null;
       _updateAuthState();
-      
+
       print('AuthenticationService: 用户登出成功 ✅');
     } catch (e) {
       print('AuthenticationService: 用户登出失败 ❌ - $e');
@@ -136,7 +136,7 @@ class AuthenticationService implements IAuthenticationService {
 
     try {
       print('AuthenticationService: 刷新用户信息');
-      
+
       final response = await _supabase.auth.refreshSession();
       if (response.user != null) {
         _currentUser = _convertSupabaseUser(response.user!);
@@ -157,7 +157,7 @@ class AuthenticationService implements IAuthenticationService {
 
     try {
       print('AuthenticationService: 重置密码 - $email');
-      
+
       await _supabase.auth.resetPasswordForEmail(email);
       print('AuthenticationService: 密码重置邮件发送成功 ✅');
       return true;
@@ -175,7 +175,7 @@ class AuthenticationService implements IAuthenticationService {
 
     try {
       print('AuthenticationService: 更新用户信息');
-      
+
       final response = await _supabase.auth.updateUser(
         UserAttributes(
           data: {
@@ -203,7 +203,7 @@ class AuthenticationService implements IAuthenticationService {
   // 处理认证状态变化
   void _handleAuthStateChange(dynamic data) {
     print('AuthenticationService: 认证状态变化 - $data');
-    
+
     // 简化处理，直接更新状态
     final supabaseUser = _supabase.auth.currentUser;
     if (supabaseUser != null) {
@@ -211,7 +211,7 @@ class AuthenticationService implements IAuthenticationService {
     } else {
       _currentUser = null;
     }
-    
+
     _updateAuthState();
   }
 
@@ -222,7 +222,7 @@ class AuthenticationService implements IAuthenticationService {
     } else {
       _authState = AuthState.unauthenticated;
     }
-    
+
     print('AuthenticationService: 认证状态更新 - $_authState');
   }
 

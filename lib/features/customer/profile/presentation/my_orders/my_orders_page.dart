@@ -25,7 +25,8 @@ class MyOrdersPage extends GetView<MyOrdersController> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.shopping_bag_outlined, size: 64, color: Colors.grey[400]),
+                Icon(Icons.shopping_bag_outlined,
+                    size: 64, color: Colors.grey[400]),
                 const SizedBox(height: 16),
                 Text(
                   'No Orders Yet',
@@ -123,7 +124,8 @@ class MyOrdersPage extends GetView<MyOrdersController> {
                       const SizedBox(height: 8),
                       Row(
                         children: [
-                          Icon(Icons.touch_app, size: 16, color: Colors.blue[600]),
+                          Icon(Icons.touch_app,
+                              size: 16, color: Colors.blue[600]),
                           const SizedBox(width: 4),
                           Text(
                             'Tap to view service details',
@@ -157,4 +159,4 @@ class MyOrdersPage extends GetView<MyOrdersController> {
         return Colors.grey;
     }
   }
-} 
+}

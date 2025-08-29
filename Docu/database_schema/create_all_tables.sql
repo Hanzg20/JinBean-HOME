@@ -99,25 +99,86 @@ CREATE POLICY "Users can insert their own profile"
 -- 3. 创建 provider_profiles 表
 -- ========================================
 CREATE TABLE IF NOT EXISTS public.provider_profiles (
-    id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id uuid UNIQUE NOT NULL REFERENCES auth.users(id),
-    company_name text,
-    contact_phone text NOT NULL,
-    contact_email text NOT NULL,
-    business_address text,
-    license_number text,
-    description text,
-    ratings_avg numeric DEFAULT 0.0,
-    review_count integer DEFAULT 0,
-    status text NOT NULL DEFAULT 'pending',
-    created_at timestamptz NOT NULL DEFAULT now(),
-    updated_at timestamptz NOT NULL DEFAULT now(),
-    provider_type text DEFAULT 'individual',
-    has_gst_hst boolean DEFAULT FALSE,
-    bn_number text,
-    annual_income_estimate numeric DEFAULT 0,
-    tax_status_notice_shown boolean DEFAULT FALSE,
-    tax_report_available boolean DEFAULT FALSE
+    -- 基本标识字段
+    id uuid NOT NULL,
+    user_id uuid NULL DEFAULT auth.uid(),
+    
+    -- 业务基本信息
+    business_address text NULL,
+    service_areas text[] NULL,
+    service_categories text[] NULL,
+    status text NOT NULL DEFAULT 'pending'::text,
+    documents text[] NULL,
+    license_number text NULL,
+    review_count integer NULL DEFAULT 0,
+    provider_type text NULL DEFAULT 'individual'::text,
+    
+    -- 税务和法务信息
+    has_gst_hst boolean NULL DEFAULT false,
+    bn_number text NULL,
+    annual_income_estimate numeric NULL DEFAULT 0,
+    tax_status_notice_shown boolean NULL DEFAULT false,
+    tax_report_available boolean NULL DEFAULT false,
+    
+    -- 地址和位置信息
+    address_id uuid NULL,
+    
+    -- 认证和资质信息  
+    certification_files jsonb NULL,
+    certification_status text NULL DEFAULT 'pending'::text,
+    is_certified boolean NULL DEFAULT false,
+    experience_years integer NULL,
+    
+    -- 服务范围和定价
+    service_radius_km numeric NULL,
+    base_price numeric NULL,
+    pricing_type text NULL,
+    
+    -- 工作安排和团队
+    work_schedule jsonb NULL,
+    team_members jsonb NULL,
+    payment_methods jsonb NULL,
+    
+    -- 状态管理
+    is_active boolean NULL DEFAULT true,
+    vacation_mode boolean NULL DEFAULT false,
+    notification_settings jsonb NULL,
+    
+    -- 个人信息和展示（国际化支持）
+    display_name jsonb NULL,          -- 多语言显示名称
+    bio jsonb NULL,                   -- 多语言个人简介
+    avatar_url text NULL,             -- 头像URL
+    phone text NULL,                  -- 联系电话
+    email text NULL,                  -- 联系邮箱
+    
+    -- 评价和统计
+    rating numeric NULL,              -- 平均评分
+    
+    -- 标签和社交
+    tags text[] NULL,                 -- 服务标签
+    social_links jsonb NULL,          -- 社交媒体链接
+    custom_fields jsonb NULL,         -- 自定义字段
+    
+    -- 时间戳
+    created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+    updated_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+    
+    -- 约束
+    CONSTRAINT provider_profiles_pkey PRIMARY KEY (id),
+    CONSTRAINT provider_profiles_address_id_fkey FOREIGN KEY (address_id) REFERENCES addresses (id),
+    CONSTRAINT provider_profiles_provider_type_check CHECK (
+        (provider_type = ANY (ARRAY['individual'::text, 'corporate'::text]))
+    ),
+    CONSTRAINT provider_profiles_status_check CHECK (
+        (status = ANY (
+            ARRAY[
+                'pending'::text,
+                'active'::text,
+                'suspended'::text,
+                'rejected'::text
+            ]
+        ))
+    )
 );
 
 -- 添加索引
@@ -125,6 +186,12 @@ CREATE INDEX IF NOT EXISTS idx_provider_profiles_user_id ON public.provider_prof
 CREATE INDEX IF NOT EXISTS idx_provider_profiles_status ON public.provider_profiles (status);
 CREATE INDEX IF NOT EXISTS idx_provider_profiles_provider_type ON public.provider_profiles (provider_type);
 CREATE INDEX IF NOT EXISTS idx_provider_profiles_has_gst_hst ON public.provider_profiles (has_gst_hst);
+CREATE INDEX IF NOT EXISTS idx_provider_profiles_address_id ON public.provider_profiles (address_id);
+CREATE INDEX IF NOT EXISTS idx_provider_profiles_certification_status ON public.provider_profiles (certification_status);
+CREATE INDEX IF NOT EXISTS idx_provider_profiles_experience_years ON public.provider_profiles (experience_years);
+CREATE INDEX IF NOT EXISTS idx_provider_profiles_is_certified ON public.provider_profiles (is_certified);
+CREATE INDEX IF NOT EXISTS idx_provider_profiles_service_categories ON public.provider_profiles USING gin (service_categories);
+CREATE INDEX IF NOT EXISTS idx_provider_profiles_tags ON public.provider_profiles USING gin (tags);
 
 -- ========================================
 -- 4. 创建 services 表
@@ -158,7 +225,8 @@ CREATE INDEX IF NOT EXISTS idx_services_delivery_method ON public.services (serv
 -- 5. 创建 service_details 表
 -- ========================================
 CREATE TABLE IF NOT EXISTS public.service_details (
-    service_id uuid PRIMARY KEY REFERENCES public.services(id) ON DELETE CASCADE,
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    service_id uuid NOT NULL REFERENCES public.services(id) ON DELETE CASCADE,
     pricing_type text NOT NULL DEFAULT 'fixed_price',
     price numeric,
     currency text,
@@ -181,7 +249,16 @@ CREATE TABLE IF NOT EXISTS public.service_details (
     verification_status text NOT NULL DEFAULT 'pending',
     verification_documents text[] DEFAULT '{}',
     created_at timestamptz NOT NULL DEFAULT now(),
-    updated_at timestamptz NOT NULL DEFAULT now()
+    updated_at timestamptz NOT NULL DEFAULT now(),
+    category text DEFAULT 'main',
+    name jsonb,
+    sub_category text,
+    is_available boolean DEFAULT true,
+    sort_order integer DEFAULT 0,
+    current_stock integer,
+    max_stock integer,
+    attributes jsonb DEFAULT '{}',
+    business_rules jsonb DEFAULT '{}'
 );
 
 -- 添加索引
@@ -189,6 +266,12 @@ CREATE INDEX IF NOT EXISTS idx_service_details_pricing_type ON public.service_de
 CREATE INDEX IF NOT EXISTS idx_service_details_duration_type ON public.service_details (duration_type);
 CREATE INDEX IF NOT EXISTS idx_service_details_tags ON public.service_details USING GIN (tags);
 CREATE INDEX IF NOT EXISTS idx_service_details_service_area_codes ON public.service_details USING GIN (service_area_codes);
+CREATE INDEX IF NOT EXISTS idx_service_details_category ON public.service_details (category);
+CREATE INDEX IF NOT EXISTS idx_service_details_available ON public.service_details (is_available);
+CREATE INDEX IF NOT EXISTS idx_service_details_sort_order ON public.service_details (sort_order);
+CREATE INDEX IF NOT EXISTS idx_service_details_name ON public.service_details USING GIN (name);
+CREATE INDEX IF NOT EXISTS idx_service_details_attributes ON public.service_details USING GIN (attributes);
+CREATE INDEX IF NOT EXISTS idx_service_details_business_rules ON public.service_details USING GIN (business_rules);
 
 -- ========================================
 -- 6. 创建 orders 表

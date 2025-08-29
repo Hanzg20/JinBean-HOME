@@ -10,7 +10,7 @@ class NotificationPage extends GetView<NotificationController> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: AppBar(
@@ -39,7 +39,7 @@ class NotificationPage extends GetView<NotificationController> {
         children: [
           // 统计区域
           _buildStatisticsSection(context),
-          
+
           // 通知列表
           Expanded(
             child: _buildNotificationsList(context),
@@ -53,52 +53,52 @@ class NotificationPage extends GetView<NotificationController> {
     return Container(
       padding: const EdgeInsets.all(16),
       child: Obx(() => Column(
-        children: [
-          Row(
             children: [
-              Expanded(
-                child: ProviderStatCard(
-                  title: '总通知数',
-                  value: controller.notifications.length.toString(),
-                  icon: Icons.notifications,
-                  iconColor: Theme.of(context).colorScheme.primary,
-                ),
+              Row(
+                children: [
+                  Expanded(
+                    child: ProviderStatCard(
+                      title: '总通知数',
+                      value: controller.notifications.length.toString(),
+                      icon: Icons.notifications,
+                      iconColor: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ProviderStatCard(
+                      title: '未读通知',
+                      value: controller.unreadNotifications.length.toString(),
+                      icon: Icons.mark_email_unread,
+                      iconColor: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: ProviderStatCard(
-                  title: '未读通知',
-                  value: controller.unreadNotifications.length.toString(),
-                  icon: Icons.mark_email_unread,
-                  iconColor: Theme.of(context).colorScheme.error,
-                ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: ProviderStatCard(
+                      title: '今日通知',
+                      value: _getTodayNotificationsCount().toString(),
+                      icon: Icons.today,
+                      iconColor: Theme.of(context).colorScheme.secondary,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ProviderStatCard(
+                      title: '本周通知',
+                      value: _getWeekNotificationsCount().toString(),
+                      icon: Icons.date_range,
+                      iconColor: Theme.of(context).colorScheme.tertiary,
+                    ),
+                  ),
+                ],
               ),
             ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: ProviderStatCard(
-                  title: '今日通知',
-                  value: _getTodayNotificationsCount().toString(),
-                  icon: Icons.today,
-                  iconColor: Theme.of(context).colorScheme.secondary,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: ProviderStatCard(
-                  title: '本周通知',
-                  value: _getWeekNotificationsCount().toString(),
-                  icon: Icons.date_range,
-                  iconColor: Theme.of(context).colorScheme.tertiary,
-                ),
-              ),
-            ],
-          ),
-        ],
-      )),
+          )),
     );
   }
 
@@ -107,7 +107,7 @@ class NotificationPage extends GetView<NotificationController> {
       if (controller.isLoading.value) {
         return const ProviderLoadingState(message: '加载通知数据...');
       }
-      
+
       if (controller.notifications.isEmpty) {
         return const ProviderEmptyState(
           icon: Icons.notifications_none,
@@ -115,7 +115,7 @@ class NotificationPage extends GetView<NotificationController> {
           subtitle: '新的通知将显示在这里',
         );
       }
-      
+
       return ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: controller.notifications.length,
@@ -129,9 +129,11 @@ class NotificationPage extends GetView<NotificationController> {
                 children: [
                   // 通知图标
                   ProviderIconContainer(
-                    icon: _getNotificationIcon(notification['notification_type']),
+                    icon:
+                        _getNotificationIcon(notification['notification_type']),
                     size: 40,
-                    iconColor: _getNotificationColor(context, notification['notification_type']),
+                    iconColor: _getNotificationColor(
+                        context, notification['notification_type']),
                   ),
                   const SizedBox(width: 12),
                   // 通知信息
@@ -144,10 +146,15 @@ class NotificationPage extends GetView<NotificationController> {
                             Expanded(
                               child: Text(
                                 notification['title'] ?? '未知通知',
-                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  color: Theme.of(context).colorScheme.onSurface,
-                                ),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface,
+                                    ),
                               ),
                             ),
                             if (!notification['is_read'])
@@ -164,9 +171,12 @@ class NotificationPage extends GetView<NotificationController> {
                         const SizedBox(height: 4),
                         Text(
                           notification['message'] ?? '无内容',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                  ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -174,16 +184,24 @@ class NotificationPage extends GetView<NotificationController> {
                         Row(
                           children: [
                             Text(
-                              controller.formatNotificationTime(notification['created_at']),
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                fontSize: 12,
-                              ),
+                              controller.formatNotificationTime(
+                                  notification['created_at']),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                    fontSize: 12,
+                                  ),
                             ),
                             const SizedBox(width: 16),
                             ProviderBadge(
-                              text: _getTypeText(notification['notification_type']),
-                              type: _getTypeBadgeType(notification['notification_type']),
+                              text: _getTypeText(
+                                  notification['notification_type']),
+                              type: _getTypeBadgeType(
+                                  notification['notification_type']),
                             ),
                           ],
                         ),
@@ -195,7 +213,9 @@ class NotificationPage extends GetView<NotificationController> {
                     children: [
                       IconButton(
                         icon: Icon(
-                          notification['is_read'] ? Icons.mark_email_read : Icons.mark_email_unread,
+                          notification['is_read']
+                              ? Icons.mark_email_read
+                              : Icons.mark_email_unread,
                           size: 18,
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
@@ -223,7 +243,7 @@ class NotificationPage extends GetView<NotificationController> {
   void _showClearAllDialog(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     Get.dialog(
       AlertDialog(
         shape: RoundedRectangleBorder(
@@ -273,15 +293,16 @@ class NotificationPage extends GetView<NotificationController> {
     );
   }
 
-  void _showNotificationDetail(BuildContext context, Map<String, dynamic> notification) {
+  void _showNotificationDetail(
+      BuildContext context, Map<String, dynamic> notification) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     // 标记为已读
     if (!notification['is_read']) {
       controller.markAsRead(notification['id']);
     }
-    
+
     Get.dialog(
       AlertDialog(
         shape: RoundedRectangleBorder(
@@ -310,10 +331,13 @@ class NotificationPage extends GetView<NotificationController> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildDetailRow(context, '类型', _getTypeText(notification['notification_type'])),
+            _buildDetailRow(
+                context, '类型', _getTypeText(notification['notification_type'])),
             _buildDetailRow(context, '内容', notification['message'] ?? '无内容'),
-            _buildDetailRow(context, '状态', notification['is_read'] ? '已读' : '未读'),
-            _buildDetailRow(context, '时间', controller.formatNotificationTime(notification['created_at'])),
+            _buildDetailRow(
+                context, '状态', notification['is_read'] ? '已读' : '未读'),
+            _buildDetailRow(context, '时间',
+                controller.formatNotificationTime(notification['created_at'])),
             if (notification['data'] != null)
               _buildDetailRow(context, '数据', notification['data'].toString()),
           ],
@@ -332,7 +356,7 @@ class NotificationPage extends GetView<NotificationController> {
   Widget _buildDetailRow(BuildContext context, String label, String value) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -379,11 +403,12 @@ class NotificationPage extends GetView<NotificationController> {
   int _getTodayNotificationsCount() {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    
+
     return controller.notifications.where((notification) {
       final createdAt = DateTime.tryParse(notification['created_at'] ?? '');
       if (createdAt == null) return false;
-      final notificationDate = DateTime(createdAt.year, createdAt.month, createdAt.day);
+      final notificationDate =
+          DateTime(createdAt.year, createdAt.month, createdAt.day);
       return notificationDate.isAtSameMomentAs(today);
     }).length;
   }
@@ -392,12 +417,14 @@ class NotificationPage extends GetView<NotificationController> {
   int _getWeekNotificationsCount() {
     final now = DateTime.now();
     final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-    final startOfWeekDate = DateTime(startOfWeek.year, startOfWeek.month, startOfWeek.day);
-    
+    final startOfWeekDate =
+        DateTime(startOfWeek.year, startOfWeek.month, startOfWeek.day);
+
     return controller.notifications.where((notification) {
       final createdAt = DateTime.tryParse(notification['created_at'] ?? '');
       if (createdAt == null) return false;
-      return createdAt.isAfter(startOfWeekDate) || createdAt.isAtSameMomentAs(startOfWeekDate);
+      return createdAt.isAfter(startOfWeekDate) ||
+          createdAt.isAtSameMomentAs(startOfWeekDate);
     }).length;
   }
 
@@ -469,4 +496,4 @@ class NotificationPage extends GetView<NotificationController> {
         return ProviderBadgeType.secondary;
     }
   }
-} 
+}

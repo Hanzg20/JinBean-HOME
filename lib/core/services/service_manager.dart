@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter/material.dart';
 import 'interfaces/i_authentication_service.dart';
 import 'interfaces/i_service_query_service.dart';
 import 'interfaces/i_service_detail_service.dart';
@@ -21,14 +22,14 @@ class ServiceManager {
   late final IServiceQueryService serviceQueryService;
   late final IServiceDetailService serviceDetailService;
   late final IProviderService providerService;
-  
+
   // 动态Tab配置服务
   late final DynamicTabConfigService dynamicTabConfigService;
-  
+
   // 状态管理
   bool _isInitialized = false;
   bool _isInitializing = false;
-  
+
   // 错误处理
   String? _lastError;
   DateTime? _lastErrorTime;
@@ -38,13 +39,13 @@ class ServiceManager {
 
   // 检查是否已初始化
   bool get isInitialized => _isInitialized;
-  
+
   // 检查是否正在初始化
   bool get isInitializing => _isInitializing;
-  
+
   // 获取最后错误
   String? get lastError => _lastError;
-  
+
   // 获取最后错误时间
   DateTime? get lastErrorTime => _lastErrorTime;
 
@@ -74,24 +75,24 @@ class ServiceManager {
 
       _isInitialized = true;
       _isInitializing = false;
-      
+
       print('ServiceManager: 所有服务初始化完成 ✅');
-      
+
       // 触发初始化完成事件
       Get.find<ServiceManagerState>().updateInitializationStatus(true);
-      
     } catch (e, stackTrace) {
       _isInitializing = false;
       _lastError = e.toString();
       _lastErrorTime = DateTime.now();
-      
+
       print('ServiceManager: 服务初始化失败 ❌');
       print('错误: $e');
       print('堆栈: $stackTrace');
-      
+
       // 触发初始化失败事件
-      Get.find<ServiceManagerState>().updateInitializationStatus(false, error: e.toString());
-      
+      Get.find<ServiceManagerState>()
+          .updateInitializationStatus(false, error: e.toString());
+
       rethrow;
     }
   }
@@ -111,6 +112,12 @@ class ServiceManager {
   /// 初始化认证服务
   Future<void> _initializeAuthenticationService() async {
     try {
+      // 检查是否已经初始化，避免重复初始化
+      if (authService != null) {
+        print('ServiceManager: 认证服务已经初始化，跳过 ✅');
+        return;
+      }
+
       authService = AuthenticationService();
       await authService.initialize();
       print('ServiceManager: 认证服务初始化完成 ✅');
@@ -122,6 +129,12 @@ class ServiceManager {
   /// 初始化服务查询服务
   Future<void> _initializeServiceQueryService() async {
     try {
+      // 检查是否已经初始化，避免重复初始化
+      if (serviceQueryService != null) {
+        print('ServiceManager: 服务查询服务已经初始化，跳过 ✅');
+        return;
+      }
+
       serviceQueryService = ServiceQueryService();
       await serviceQueryService.initialize();
       print('ServiceManager: 服务查询服务初始化完成 ✅');
@@ -133,10 +146,19 @@ class ServiceManager {
   /// 初始化服务详情服务
   Future<void> _initializeServiceDetailService() async {
     try {
+      print('ServiceManager: 开始初始化服务详情服务...');
+
+      // 检查是否已经初始化，避免重复初始化
+      if (serviceDetailService != null) {
+        print('ServiceManager: 服务详情服务已经初始化，跳过 ✅');
+        return;
+      }
+
       serviceDetailService = ServiceDetailService();
       await serviceDetailService.initialize();
       print('ServiceManager: 服务详情服务初始化完成 ✅');
     } catch (e) {
+      print('ServiceManager: 服务详情服务初始化失败 ❌ - $e');
       throw Exception('服务详情服务初始化失败: $e');
     }
   }
@@ -144,6 +166,12 @@ class ServiceManager {
   /// 初始化服务商服务
   Future<void> _initializeProviderService() async {
     try {
+      // 检查是否已经初始化，避免重复初始化
+      if (providerService != null) {
+        print('ServiceManager: 服务商服务已经初始化，跳过 ✅');
+        return;
+      }
+
       providerService = ProviderService();
       await providerService.initialize();
       print('ServiceManager: 服务商服务初始化完成 ✅');
@@ -174,7 +202,7 @@ class ServiceManager {
     _isInitializing = false;
     _lastError = null;
     _lastErrorTime = null;
-    
+
     await initializeServices();
   }
 
@@ -198,7 +226,7 @@ class ServiceManager {
   /// 健康检查
   Future<bool> healthCheck() async {
     if (!_isInitialized) return false;
-    
+
     try {
       // 这里可以添加具体的健康检查逻辑
       // 例如检查数据库连接、API响应等
@@ -218,10 +246,10 @@ class ServiceManager {
       // await serviceQueryService.dispose();
       // await serviceDetailService.dispose();
       // await providerService.dispose();
-      
+
       _isInitialized = false;
       _isInitializing = false;
-      
+
       print('ServiceManager: 资源清理完成 ✅');
     } catch (e) {
       print('ServiceManager: 资源清理失败: $e');
@@ -244,7 +272,7 @@ class ServiceManagerState extends GetxController {
   void updateInitializationStatus(bool isInitialized, {String? error}) {
     _isInitialized.value = isInitialized;
     _isInitializing.value = false;
-    
+
     if (error != null) {
       _lastError.value = error;
       _lastErrorTime.value = DateTime.now();
@@ -262,8 +290,11 @@ class ServiceManagerState extends GetxController {
   void onInit() {
     super.onInit();
     // 自动初始化服务管理器
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   ServiceManager.instance.initializeServices();
-    // });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ServiceManager.instance.initializeServices().catchError((error) {
+        print('ServiceManagerState: 自动初始化失败 - $error');
+        updateInitializationStatus(false, error: error.toString());
+      });
+    });
   }
 }

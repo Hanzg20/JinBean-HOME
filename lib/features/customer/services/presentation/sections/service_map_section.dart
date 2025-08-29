@@ -48,10 +48,12 @@ class _ServiceMapSectionState extends State<ServiceMapSection> {
 
   void _updateMapMarkers() {
     final service = widget.controller.service.value;
-    if (service == null || service.latitude == null || service.longitude == null) return;
+    if (service == null ||
+        service.latitude == null ||
+        service.longitude == null) return;
 
     markers.clear();
-    
+
     // 添加起点标记（绿色水滴形标记）
     final startMarker = Marker(
       markerId: const MarkerId('start_point'),
@@ -60,13 +62,14 @@ class _ServiceMapSectionState extends State<ServiceMapSection> {
         title: '起点',
         snippet: '您的位置',
       ),
-      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen), // 绿色水滴形标记
+      icon: BitmapDescriptor.defaultMarkerWithHue(
+          BitmapDescriptor.hueGreen), // 绿色水滴形标记
       flat: false, // 保持3D效果
       rotation: 0.0,
       anchor: const Offset(0.5, 1.0), // 标记底部中心
     );
     markers.add(startMarker);
-    
+
     // 添加终点标记（红色气球标志）
     final endMarker = Marker(
       markerId: const MarkerId('end_point'),
@@ -75,7 +78,8 @@ class _ServiceMapSectionState extends State<ServiceMapSection> {
         title: '终点',
         snippet: service.title,
       ),
-      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed), // 红色气球标志
+      icon: BitmapDescriptor.defaultMarkerWithHue(
+          BitmapDescriptor.hueRed), // 红色气球标志
       flat: false, // 保持3D效果
       rotation: 0.0,
       anchor: const Offset(0.5, 1.0), // 标记底部中心
@@ -87,8 +91,10 @@ class _ServiceMapSectionState extends State<ServiceMapSection> {
 
   void _calculateRoute() {
     final service = widget.controller.service.value;
-    
-    if (service == null || service.latitude == null || service.longitude == null) return;
+
+    if (service == null ||
+        service.latitude == null ||
+        service.longitude == null) return;
 
     // 生成路线点
     final routePoints = _generateRoutePoints(
@@ -97,7 +103,7 @@ class _ServiceMapSectionState extends State<ServiceMapSection> {
     );
 
     polylines.clear();
-    
+
     // 根据交通方式设置不同的路线颜色
     Color routeColor;
     switch (selectedTransportMode) {
@@ -116,7 +122,7 @@ class _ServiceMapSectionState extends State<ServiceMapSection> {
       default:
         routeColor = Colors.blue;
     }
-    
+
     polylines.add(Polyline(
       polylineId: const PolylineId('route'),
       points: routePoints,
@@ -131,10 +137,10 @@ class _ServiceMapSectionState extends State<ServiceMapSection> {
   List<LatLng> _generateRoutePoints(LatLng start, LatLng end) {
     // 生成更真实的路线点，模拟实际道路路径
     final points = <LatLng>[start];
-    
+
     // 计算距离
     final distance = _calculateDistance(start, end);
-    
+
     // 根据距离生成不同数量的中间点
     int numPoints;
     if (distance < 1.0) {
@@ -144,20 +150,23 @@ class _ServiceMapSectionState extends State<ServiceMapSection> {
     } else {
       numPoints = 6; // 较远距离，6个中间点
     }
-    
+
     // 生成贝塞尔曲线风格的路径点
     for (int i = 1; i <= numPoints; i++) {
       final t = i / (numPoints + 1);
-      
+
       // 添加一些随机偏移来模拟真实道路的弯曲
       final randomOffset = 0.001 * (i % 2 == 0 ? 1 : -1);
-      
-      final lat = start.latitude + (end.latitude - start.latitude) * t + randomOffset;
-      final lng = start.longitude + (end.longitude - start.longitude) * t + randomOffset;
-      
+
+      final lat =
+          start.latitude + (end.latitude - start.latitude) * t + randomOffset;
+      final lng = start.longitude +
+          (end.longitude - start.longitude) * t +
+          randomOffset;
+
       points.add(LatLng(lat, lng));
     }
-    
+
     points.add(end);
     return points;
   }
@@ -171,7 +180,9 @@ class _ServiceMapSectionState extends State<ServiceMapSection> {
 
   void _updateMapCamera() {
     final service = widget.controller.service.value;
-    if (service == null || service.latitude == null || service.longitude == null) return;
+    if (service == null ||
+        service.latitude == null ||
+        service.longitude == null) return;
 
     // 计算包含两个点的边界
     final bounds = _calculateBounds(
@@ -190,7 +201,7 @@ class _ServiceMapSectionState extends State<ServiceMapSection> {
     final maxLat = max(point1.latitude, point2.latitude);
     final minLng = min(point1.longitude, point2.longitude);
     final maxLng = max(point1.longitude, point2.longitude);
-    
+
     return LatLngBounds(
       southwest: LatLng(minLat, minLng),
       northeast: LatLng(maxLat, maxLng),
@@ -205,27 +216,31 @@ class _ServiceMapSectionState extends State<ServiceMapSection> {
         children: [
           Row(
             children: [
-              Icon(Icons.location_on, color: Theme.of(context).colorScheme.primary, size: 20),
+              Icon(Icons.location_on,
+                  color: Theme.of(context).colorScheme.primary, size: 20),
               const SizedBox(width: 8),
               Text(
                 '位置和路线',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                      fontWeight: FontWeight.w600,
+                    ),
               ),
               const Spacer(),
               IconButton(
                 onPressed: () => _toggleMapFullscreen(),
-                icon: Icon(isMapFullscreen ? Icons.fullscreen_exit : Icons.fullscreen),
+                icon: Icon(
+                    isMapFullscreen ? Icons.fullscreen_exit : Icons.fullscreen),
                 tooltip: isMapFullscreen ? '退出全屏' : '全屏地图',
               ),
             ],
           ),
           const SizedBox(height: 16),
-          
+
           // 地图容器
           Container(
-            height: isMapFullscreen ? MediaQuery.of(context).size.height * 0.6 : 250,
+            height: isMapFullscreen
+                ? MediaQuery.of(context).size.height * 0.6
+                : 250,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: Colors.grey[300]!),
@@ -250,7 +265,7 @@ class _ServiceMapSectionState extends State<ServiceMapSection> {
                     myLocationButtonEnabled: false,
                     zoomControlsEnabled: false,
                   ),
-                  
+
                   // 地图控制按钮
                   Positioned(
                     right: 16,
@@ -286,10 +301,13 @@ class _ServiceMapSectionState extends State<ServiceMapSection> {
                         const SizedBox(height: 8),
                         // 拖动模式切换
                         _buildMapControlButton(
-                          icon: isPanModeEnabled ? Icons.pan_tool : Icons.pan_tool_alt,
+                          icon: isPanModeEnabled
+                              ? Icons.pan_tool
+                              : Icons.pan_tool_alt,
                           onPressed: _togglePanMode,
                           tooltip: isPanModeEnabled ? '禁用拖动模式' : '启用拖动模式',
-                          backgroundColor: isPanModeEnabled ? Colors.blue : Colors.grey,
+                          backgroundColor:
+                              isPanModeEnabled ? Colors.blue : Colors.grey,
                         ),
                         const SizedBox(height: 8),
                         // 重置视图
@@ -301,14 +319,14 @@ class _ServiceMapSectionState extends State<ServiceMapSection> {
                       ],
                     ),
                   ),
-                  
+
                   // 路线信息面板
                   Positioned(
                     left: 16,
                     top: 16,
                     child: _buildRouteInfoPanel(),
                   ),
-                  
+
                   // 地图操作提示面板
                   Positioned(
                     left: 16,
@@ -332,7 +350,8 @@ class _ServiceMapSectionState extends State<ServiceMapSection> {
                         children: [
                           Row(
                             children: [
-                              Icon(Icons.info_outline, size: 16, color: Colors.blue),
+                              Icon(Icons.info_outline,
+                                  size: 16, color: Colors.blue),
                               const SizedBox(width: 4),
                               Text(
                                 '地图操作',
@@ -347,20 +366,26 @@ class _ServiceMapSectionState extends State<ServiceMapSection> {
                           const SizedBox(height: 4),
                           Text(
                             '• 双指缩放地图',
-                            style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+                            style: TextStyle(
+                                fontSize: 10, color: Colors.grey[600]),
                           ),
                           Text(
                             '• 单指拖动地图',
-                            style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+                            style: TextStyle(
+                                fontSize: 10, color: Colors.grey[600]),
                           ),
                           Text(
                             '• 点击标记查看详情',
-                            style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+                            style: TextStyle(
+                                fontSize: 10, color: Colors.grey[600]),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             '标记数量: ${markers.length}',
-                            style: TextStyle(fontSize: 10, color: Colors.green[600], fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                                fontSize: 10,
+                                color: Colors.green[600],
+                                fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
@@ -370,14 +395,14 @@ class _ServiceMapSectionState extends State<ServiceMapSection> {
               ),
             ),
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // 路线详情
           _buildRouteDetails(),
-          
+
           const SizedBox(height: 12),
-          
+
           // 操作按钮
           _buildActionButtons(),
         ],
@@ -522,7 +547,8 @@ class _ServiceMapSectionState extends State<ServiceMapSection> {
         children: [
           Row(
             children: [
-              Icon(Icons.route, color: Theme.of(context).colorScheme.primary, size: 20),
+              Icon(Icons.route,
+                  color: Theme.of(context).colorScheme.primary, size: 20),
               const SizedBox(width: 8),
               Expanded(
                 child: Column(
@@ -531,23 +557,23 @@ class _ServiceMapSectionState extends State<ServiceMapSection> {
                     Text(
                       '${_getRouteDuration()} • ${_getRouteDistance()}',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w500,
-                      ),
+                            fontWeight: FontWeight.w500,
+                          ),
                     ),
                     Text(
                       '预计费用: ${_getRouteCost()}',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[600],
-                      ),
+                            color: Colors.grey[600],
+                          ),
                     ),
                   ],
                 ),
               ),
             ],
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           // 交通方式选择
           Row(
             children: [
@@ -558,13 +584,17 @@ class _ServiceMapSectionState extends State<ServiceMapSection> {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      _buildTransportModeButton('car', '驾车', Icons.directions_car),
+                      _buildTransportModeButton(
+                          'car', '驾车', Icons.directions_car),
                       const SizedBox(width: 8),
-                      _buildTransportModeButton('transit', '公交', Icons.directions_bus),
+                      _buildTransportModeButton(
+                          'transit', '公交', Icons.directions_bus),
                       const SizedBox(width: 8),
-                      _buildTransportModeButton('walking', '步行', Icons.directions_walk),
+                      _buildTransportModeButton(
+                          'walking', '步行', Icons.directions_walk),
                       const SizedBox(width: 8),
-                      _buildTransportModeButton('bicycle', '骑行', Icons.directions_bike),
+                      _buildTransportModeButton(
+                          'bicycle', '骑行', Icons.directions_bike),
                     ],
                   ),
                 ),
@@ -578,16 +608,20 @@ class _ServiceMapSectionState extends State<ServiceMapSection> {
 
   Widget _buildTransportModeButton(String mode, String label, IconData icon) {
     final isSelected = selectedTransportMode == mode;
-    
+
     return GestureDetector(
       onTap: () => _selectTransportMode(mode),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? Theme.of(context).colorScheme.primary : Colors.grey[100],
+          color: isSelected
+              ? Theme.of(context).colorScheme.primary
+              : Colors.grey[100],
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? Theme.of(context).colorScheme.primary : Colors.grey[300]!,
+            color: isSelected
+                ? Theme.of(context).colorScheme.primary
+                : Colors.grey[300]!,
           ),
         ),
         child: Row(
@@ -645,10 +679,12 @@ class _ServiceMapSectionState extends State<ServiceMapSection> {
 
   LatLng _getInitialPosition() {
     final service = widget.controller.service.value;
-    if (service != null && service.latitude != null && service.longitude != null) {
+    if (service != null &&
+        service.latitude != null &&
+        service.longitude != null) {
       return LatLng(service.latitude!, service.longitude!);
     }
-    
+
     return _defaultUserLocation;
   }
 
@@ -748,13 +784,15 @@ class _ServiceMapSectionState extends State<ServiceMapSection> {
     setState(() {
       isPanModeEnabled = !isPanModeEnabled;
     });
-    
+
     Get.snackbar(
       '拖动模式',
       isPanModeEnabled ? '地图拖动已启用' : '地图拖动已禁用',
       snackPosition: SnackPosition.BOTTOM,
       duration: const Duration(seconds: 2),
-      backgroundColor: isPanModeEnabled ? Colors.green.withValues(alpha: 0.8) : Colors.orange.withValues(alpha: 0.8),
+      backgroundColor: isPanModeEnabled
+          ? Colors.green.withValues(alpha: 0.8)
+          : Colors.orange.withValues(alpha: 0.8),
       colorText: Colors.white,
     );
   }

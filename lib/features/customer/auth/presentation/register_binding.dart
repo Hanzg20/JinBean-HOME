@@ -6,4 +6,4 @@ class RegisterBinding extends Bindings {
   void dependencies() {
     Get.lazyPut<AuthController>(() => AuthController());
   }
-} 
+}

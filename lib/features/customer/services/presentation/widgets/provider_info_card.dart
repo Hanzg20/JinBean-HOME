@@ -39,13 +39,17 @@ class ProviderInfoCard extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 30,
-          backgroundImage: provider.avatar != null && provider.avatar!.isNotEmpty
-              ? NetworkImage(provider.avatar!)
-              : null,
+          backgroundImage:
+              provider.avatar != null && provider.avatar!.isNotEmpty
+                  ? NetworkImage(provider.avatar!)
+                  : null,
           child: provider.avatar == null || provider.avatar!.isEmpty
               ? Text(
-                  provider.name.isNotEmpty ? provider.name[0].toUpperCase() : 'P',
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  provider.name.isNotEmpty
+                      ? provider.name[0].toUpperCase()
+                      : 'P',
+                  style: const TextStyle(
+                      fontSize: 24, fontWeight: FontWeight.bold),
                 )
               : null,
         ),
@@ -67,7 +71,8 @@ class ProviderInfoCard extends StatelessWidget {
                   ),
                   if (provider.isVerified)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: Colors.blue,
                         borderRadius: BorderRadius.circular(12),
@@ -110,7 +115,8 @@ class ProviderInfoCard extends StatelessWidget {
                   ],
                 ),
               const SizedBox(height: 4),
-              if (provider.description != null && provider.description!.isNotEmpty)
+              if (provider.description != null &&
+                  provider.description!.isNotEmpty)
                 Text(
                   provider.description!,
                   style: TextStyle(

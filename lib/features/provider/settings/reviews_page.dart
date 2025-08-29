@@ -26,7 +26,7 @@ class _ReviewsPageState extends State<ReviewsPage> {
     isLoading.value = true;
     // 模拟加载数据
     await Future.delayed(const Duration(seconds: 1));
-    
+
     // 模拟评价数据
     reviews.value = [
       {
@@ -106,13 +106,13 @@ class _ReviewsPageState extends State<ReviewsPage> {
             children: [
               // 评价统计卡片
               _buildReviewStatistics(),
-              
+
               // 筛选器
               _buildFilterSection(),
-              
+
               // 评价列表
               _buildReviewsList(),
-              
+
               const SizedBox(height: 20),
             ],
           ),
@@ -137,23 +137,23 @@ class _ReviewsPageState extends State<ReviewsPage> {
                     child: Column(
                       children: [
                         Obx(() => Text(
-                          averageRating.value.toStringAsFixed(1),
-                          style: const TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.orange,
-                          ),
-                        )),
+                              averageRating.value.toStringAsFixed(1),
+                              style: const TextStyle(
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.orange,
+                              ),
+                            )),
                         const SizedBox(height: 8),
                         _buildStarRating(averageRating.value),
                         const SizedBox(height: 8),
                         Obx(() => Text(
-                          '${totalReviews.value} 条评价',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[600],
-                          ),
-                        )),
+                              '${totalReviews.value} 条评价',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[600],
+                              ),
+                            )),
                       ],
                     ),
                   ),
@@ -171,15 +171,18 @@ class _ReviewsPageState extends State<ReviewsPage> {
               Row(
                 children: [
                   Expanded(
-                    child: _buildStatCard('回复率', '85%', Colors.green, Icons.reply),
+                    child:
+                        _buildStatCard('回复率', '85%', Colors.green, Icons.reply),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: _buildStatCard('好评率', '92%', Colors.blue, Icons.thumb_up),
+                    child: _buildStatCard(
+                        '好评率', '92%', Colors.blue, Icons.thumb_up),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: _buildStatCard('认证评价', '78%', Colors.purple, Icons.verified),
+                    child: _buildStatCard(
+                        '认证评价', '78%', Colors.purple, Icons.verified),
                   ),
                 ],
               ),
@@ -209,12 +212,12 @@ class _ReviewsPageState extends State<ReviewsPage> {
     final ratings = [5, 4, 3, 2, 1];
     final counts = [45, 32, 15, 3, 1]; // 模拟数据
     final total = counts.reduce((a, b) => a + b);
-    
+
     return Column(
       children: ratings.map((rating) {
         final count = counts[rating - 1];
         final percentage = total > 0 ? (count / total * 100).round() : 0;
-        
+
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 2),
           child: Row(
@@ -230,7 +233,11 @@ class _ReviewsPageState extends State<ReviewsPage> {
                   value: total > 0 ? count / total : 0,
                   backgroundColor: Colors.grey[200],
                   valueColor: AlwaysStoppedAnimation<Color>(
-                    rating >= 4 ? Colors.green : rating >= 3 ? Colors.orange : Colors.red,
+                    rating >= 4
+                        ? Colors.green
+                        : rating >= 3
+                            ? Colors.orange
+                            : Colors.red,
                   ),
                 ),
               ),
@@ -246,7 +253,8 @@ class _ReviewsPageState extends State<ReviewsPage> {
     );
   }
 
-  Widget _buildStatCard(String title, String value, Color color, IconData icon) {
+  Widget _buildStatCard(
+      String title, String value, Color color, IconData icon) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -300,39 +308,44 @@ class _ReviewsPageState extends State<ReviewsPage> {
               ),
               const SizedBox(height: 12),
               Obx(() => Row(
-                children: [
-                  'all',
-                  '5',
-                  '4',
-                  '3',
-                  '2',
-                  '1',
-                ].map((filter) {
-                  final isSelected = selectedFilter.value == filter;
-                  return Expanded(
-                    child: GestureDetector(
-                      onTap: () => selectedFilter.value = filter,
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        decoration: BoxDecoration(
-                          color: isSelected ? Colors.blue : Colors.grey[100],
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          _getFilterText(filter),
-                          style: TextStyle(
-                            color: isSelected ? Colors.white : Colors.grey[700],
-                            fontSize: 12,
-                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                    children: [
+                      'all',
+                      '5',
+                      '4',
+                      '3',
+                      '2',
+                      '1',
+                    ].map((filter) {
+                      final isSelected = selectedFilter.value == filter;
+                      return Expanded(
+                        child: GestureDetector(
+                          onTap: () => selectedFilter.value = filter,
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            decoration: BoxDecoration(
+                              color:
+                                  isSelected ? Colors.blue : Colors.grey[100],
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              _getFilterText(filter),
+                              style: TextStyle(
+                                color: isSelected
+                                    ? Colors.white
+                                    : Colors.grey[700],
+                                fontSize: 12,
+                                fontWeight: isSelected
+                                    ? FontWeight.w600
+                                    : FontWeight.normal,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
                           ),
-                          textAlign: TextAlign.center,
                         ),
-                      ),
-                    ),
-                  );
-                }).toList(),
-              )),
+                      );
+                    }).toList(),
+                  )),
             ],
           ),
         ),
@@ -382,7 +395,7 @@ class _ReviewsPageState extends State<ReviewsPage> {
                 ),
               );
             }
-            
+
             if (reviews.isEmpty) {
               return Center(
                 child: Column(
@@ -412,7 +425,7 @@ class _ReviewsPageState extends State<ReviewsPage> {
                 ),
               );
             }
-            
+
             return ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -436,7 +449,7 @@ class _ReviewsPageState extends State<ReviewsPage> {
     final createdAt = review['created_at'] as DateTime;
     final isVerified = review['is_verified'] as bool;
     final response = review['response'] as String?;
-    
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 1,
@@ -450,7 +463,7 @@ class _ReviewsPageState extends State<ReviewsPage> {
               children: [
                 CircleAvatar(
                   backgroundColor: Colors.blue[100],
-        child: Text(
+                  child: Text(
                     customerName.substring(0, 1),
                     style: TextStyle(
                       color: Colors.blue[700],
@@ -486,9 +499,11 @@ class _ReviewsPageState extends State<ReviewsPage> {
                         children: [
                           ...List.generate(5, (index) {
                             if (index < rating) {
-                              return const Icon(Icons.star, color: Colors.orange, size: 16);
+                              return const Icon(Icons.star,
+                                  color: Colors.orange, size: 16);
                             } else {
-                              return Icon(Icons.star_border, color: Colors.grey[400], size: 16);
+                              return Icon(Icons.star_border,
+                                  color: Colors.grey[400], size: 16);
                             }
                           }),
                           const SizedBox(width: 8),
@@ -581,7 +596,7 @@ class _ReviewsPageState extends State<ReviewsPage> {
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);
-    
+
     if (difference.inDays == 0) {
       return '今天';
     } else if (difference.inDays == 1) {
@@ -595,7 +610,7 @@ class _ReviewsPageState extends State<ReviewsPage> {
 
   void _showReplyDialog(Map<String, dynamic> review) {
     final TextEditingController replyController = TextEditingController();
-    
+
     Get.dialog(
       AlertDialog(
         title: Text('回复 ${review['customer_name']}'),
@@ -687,4 +702,4 @@ class _ReviewsPageState extends State<ReviewsPage> {
       ),
     );
   }
-} 
+}

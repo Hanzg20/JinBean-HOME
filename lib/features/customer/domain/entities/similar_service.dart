@@ -40,9 +40,7 @@ class SimilarService {
       pricingType: json['pricingType'],
       categoryId: json['categoryId'],
       providerId: json['providerId'],
-      images: json['images'] != null 
-          ? List<String>.from(json['images'])
-          : null,
+      images: json['images'] != null ? List<String>.from(json['images']) : null,
       rating: json['rating']?.toDouble(),
       reviewCount: json['reviewCount'],
       similarityScore: json['similarityScore']?.toDouble(),
@@ -67,4 +65,4 @@ class SimilarService {
       'metadata': metadata,
     };
   }
-} 
+}

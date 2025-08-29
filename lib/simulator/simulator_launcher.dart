@@ -33,15 +33,15 @@ class SimulatorLauncher extends StatelessWidget {
               // 标题区域
               _buildHeader(),
               const SizedBox(height: 32),
-              
+
               // 模拟器选择区域
               _buildSimulatorSelection(),
               const SizedBox(height: 32),
-              
+
               // 快速操作区域
               _buildQuickActions(),
               const SizedBox(height: 32),
-              
+
               // 状态信息区域
               _buildStatusInfo(),
             ],
@@ -136,7 +136,7 @@ class SimulatorLauncher extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        
+
         // Provider端模拟器卡片
         _buildSimulatorCard(
           title: 'Provider端模拟器',
@@ -146,9 +146,9 @@ class SimulatorLauncher extends StatelessWidget {
           color: Colors.blue,
           onTap: () => _launchProviderSimulator(),
         ),
-        
+
         const SizedBox(height: 16),
-        
+
         // 未来可以添加其他模拟器
         _buildComingSoonCard(),
       ],
@@ -326,7 +326,6 @@ class SimulatorLauncher extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        
         Row(
           children: [
             Expanded(
@@ -350,9 +349,7 @@ class SimulatorLauncher extends StatelessWidget {
             ),
           ],
         ),
-        
         const SizedBox(height: 12),
-        
         Row(
           children: [
             Expanded(
@@ -454,7 +451,6 @@ class SimulatorLauncher extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          
           _buildStatusRow('模拟器版本', '1.0.0', Icons.tag),
           _buildStatusRow('Flutter版本', '3.16.0', Icons.flutter_dash),
           _buildStatusRow('数据库连接', '正常', Icons.storage, isOnline: true),
@@ -466,7 +462,8 @@ class SimulatorLauncher extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusRow(String label, String value, IconData icon, {bool isOnline = false}) {
+  Widget _buildStatusRow(String label, String value, IconData icon,
+      {bool isOnline = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -584,4 +581,4 @@ class SimulatorLauncher extends StatelessWidget {
       ),
     );
   }
-} 
+}

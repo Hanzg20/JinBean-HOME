@@ -4,6 +4,7 @@ import 'theme_settings_controller.dart';
 class ProviderThemeSettingsBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<ProviderThemeSettingsController>(() => ProviderThemeSettingsController());
+    Get.lazyPut<ProviderThemeSettingsController>(
+        () => ProviderThemeSettingsController());
   }
-} 
+}

@@ -1,4 +1,5 @@
-import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:flutter/material.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/core/plugin_management/app_plugin.dart';
 import 'package:jinbeanpod_83904710/features/customer/auth/presentation/auth_controller.dart';
@@ -40,7 +41,7 @@ class ProviderProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Provider Profile'),
@@ -61,7 +62,8 @@ class ProviderProfilePage extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.logout, color: colorScheme.primary, size: 24),
+                        Icon(Icons.logout,
+                            color: colorScheme.primary, size: 24),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
@@ -98,7 +100,8 @@ class ProviderProfilePage extends StatelessWidget {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: colorScheme.primary,
                           foregroundColor: colorScheme.onPrimary,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8)),
                           padding: const EdgeInsets.symmetric(vertical: 12),
                         ),
                         onPressed: () async {
@@ -106,7 +109,8 @@ class ProviderProfilePage extends StatelessWidget {
                             // 登出
                             await Get.find<AuthController>().logout();
                           } catch (e) {
-                            AppLogger.info('[ProviderProfilePage] Error signing out: $e');
+                            AppLogger.info(
+                                '[ProviderProfilePage] Error signing out: $e');
                             Get.snackbar(
                               'Error',
                               'Failed to sign out. Please try again.',
@@ -137,7 +141,8 @@ class ProviderProfilePage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    const Text('Provider profile content will be implemented here.'),
+                    const Text(
+                        'Provider profile content will be implemented here.'),
                   ],
                 ),
               ),

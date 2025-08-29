@@ -8,10 +8,12 @@ class JinBeanBottomNavigationExample extends StatefulWidget {
   const JinBeanBottomNavigationExample({super.key});
 
   @override
-  State<JinBeanBottomNavigationExample> createState() => _JinBeanBottomNavigationExampleState();
+  State<JinBeanBottomNavigationExample> createState() =>
+      _JinBeanBottomNavigationExampleState();
 }
 
-class _JinBeanBottomNavigationExampleState extends State<JinBeanBottomNavigationExample> {
+class _JinBeanBottomNavigationExampleState
+    extends State<JinBeanBottomNavigationExample> {
   int _currentIndex = 0;
   bool _useFloatingAction = false;
 
@@ -203,4 +205,4 @@ class JinBeanBottomNavigationDemo extends StatelessWidget {
   Widget build(BuildContext context) {
     return const JinBeanBottomNavigationExample();
   }
-} 
+}

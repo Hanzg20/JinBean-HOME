@@ -15,7 +15,7 @@ class ServiceQuoteDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Dialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
@@ -60,9 +60,9 @@ class ServiceQuoteDialog extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 20),
-            
+
             // 快速选项
             Text(
               '您希望如何继续？',
@@ -71,7 +71,7 @@ class ServiceQuoteDialog extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            
+
             // 选项按钮
             Column(
               children: [
@@ -92,7 +92,7 @@ class ServiceQuoteDialog extends StatelessWidget {
                     _showQuickQuoteForm(context);
                   },
                 ),
-                
+
                 // 详细报价
                 ListTile(
                   leading: Container(
@@ -101,7 +101,8 @@ class ServiceQuoteDialog extends StatelessWidget {
                       color: colorScheme.secondary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Icon(Icons.description, color: colorScheme.secondary),
+                    child:
+                        Icon(Icons.description, color: colorScheme.secondary),
                   ),
                   title: const Text('详细报价'),
                   subtitle: const Text('提供详细需求获取准确定价'),
@@ -110,7 +111,7 @@ class ServiceQuoteDialog extends StatelessWidget {
                     _showDetailedQuoteForm(context);
                   },
                 ),
-                
+
                 // 先聊天
                 ListTile(
                   leading: Container(
@@ -130,9 +131,9 @@ class ServiceQuoteDialog extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 20),
-            
+
             // 说明
             Container(
               padding: const EdgeInsets.all(12),
@@ -166,7 +167,7 @@ class ServiceQuoteDialog extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final requirementsController = TextEditingController();
-    
+
     Get.dialog(
       Dialog(
         shape: RoundedRectangleBorder(
@@ -189,7 +190,6 @@ class ServiceQuoteDialog extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              
               TextField(
                 controller: requirementsController,
                 maxLines: 3,
@@ -207,7 +207,6 @@ class ServiceQuoteDialog extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              
               Row(
                 children: [
                   Expanded(
@@ -221,7 +220,8 @@ class ServiceQuoteDialog extends StatelessWidget {
                     child: ElevatedButton(
                       onPressed: () {
                         if (requirementsController.text.trim().isNotEmpty) {
-                          controller.updateQuoteDetails('requirements', requirementsController.text.trim());
+                          controller.updateQuoteDetails('requirements',
+                              requirementsController.text.trim());
                           Get.back();
                           _submitQuickQuote();
                         } else {
@@ -249,7 +249,7 @@ class ServiceQuoteDialog extends StatelessWidget {
   void _showDetailedQuoteForm(BuildContext context) {
     // 导航到Overview tab并显示完整的报价表单
     Get.back(); // 关闭对话框
-    
+
     // 显示详细报价表单
     Get.dialog(
       _DetailedQuoteForm(controller: controller),
@@ -279,11 +279,11 @@ class ServiceQuoteDialog extends StatelessWidget {
         ),
       ),
     );
-    
+
     // 提交快速报价
     controller.submitQuoteRequest().then((_) {
       Get.back(); // 关闭加载对话框
-      
+
       if (controller.quoteError.value.isEmpty) {
         Get.snackbar(
           '快速报价已提交',
@@ -329,7 +329,7 @@ class _DetailedQuoteFormState extends State<_DetailedQuoteForm> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Dialog(
       child: Container(
         width: double.maxFinite,
@@ -356,9 +356,9 @@ class _DetailedQuoteFormState extends State<_DetailedQuoteForm> {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 20),
-            
+
             // 表单
             Expanded(
               child: Form(
@@ -383,9 +383,9 @@ class _DetailedQuoteFormState extends State<_DetailedQuoteForm> {
                           return null;
                         },
                       ),
-                      
+
                       const SizedBox(height: 16),
-                      
+
                       // 预算范围
                       TextFormField(
                         controller: _budgetController,
@@ -396,29 +396,31 @@ class _DetailedQuoteFormState extends State<_DetailedQuoteForm> {
                           border: OutlineInputBorder(),
                         ),
                       ),
-                      
+
                       const SizedBox(height: 16),
-                      
+
                       // 服务日期
                       ListTile(
                         title: const Text('服务日期'),
-                        subtitle: Text(_selectedDate?.toString().split(' ')[0] ?? '请选择日期'),
+                        subtitle: Text(
+                            _selectedDate?.toString().split(' ')[0] ?? '请选择日期'),
                         trailing: const Icon(Icons.calendar_today),
                         onTap: () => _selectDate(context),
                       ),
-                      
+
                       const SizedBox(height: 16),
-                      
+
                       // 服务时间
                       ListTile(
                         title: const Text('服务时间'),
-                        subtitle: Text(_selectedTime?.format(context) ?? '请选择时间'),
+                        subtitle:
+                            Text(_selectedTime?.format(context) ?? '请选择时间'),
                         trailing: const Icon(Icons.access_time),
                         onTap: () => _selectTime(context),
                       ),
-                      
+
                       const SizedBox(height: 16),
-                      
+
                       // 紧急程度
                       DropdownButtonFormField<String>(
                         value: _urgencyLevel,
@@ -442,9 +444,9 @@ class _DetailedQuoteFormState extends State<_DetailedQuoteForm> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 20),
-            
+
             // 按钮
             Row(
               children: [
@@ -498,14 +500,17 @@ class _DetailedQuoteFormState extends State<_DetailedQuoteForm> {
   void _submitDetailedQuote() {
     if (_formKey.currentState?.validate() ?? false) {
       // 更新控制器中的报价详情
-      widget.controller.updateQuoteDetails('requirements', _requirementsController.text);
+      widget.controller
+          .updateQuoteDetails('requirements', _requirementsController.text);
       widget.controller.updateQuoteDetails('budget', _budgetController.text);
-      widget.controller.updateQuoteDetails('serviceDate', _selectedDate?.toIso8601String());
-      widget.controller.updateQuoteDetails('serviceTime', _selectedTime?.format(context));
+      widget.controller
+          .updateQuoteDetails('serviceDate', _selectedDate?.toIso8601String());
+      widget.controller
+          .updateQuoteDetails('serviceTime', _selectedTime?.format(context));
       widget.controller.updateQuoteDetails('urgencyLevel', _urgencyLevel);
-      
+
       Get.back(); // 关闭表单
-      
+
       // 提交详细报价
       widget.controller.submitQuoteRequest().then((_) {
         if (widget.controller.quoteError.value.isEmpty) {
@@ -529,4 +534,4 @@ class _DetailedQuoteFormState extends State<_DetailedQuoteForm> {
       });
     }
   }
-} 
+}

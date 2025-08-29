@@ -1,17 +1,17 @@
-import 'package:get/get.dart';
+// import 'package:get/get.dart'; // 未使用的导入
 
 // 服务详情模型
 class ServiceDetail {
   final String id;
   final String serviceId;
   final String category;
-  final Map<String, String> name;           // jsonb: 国际化名称
+  final Map<String, String> name; // jsonb: 国际化名称
   final String? subCategory;
   final bool isAvailable;
   final int sortOrder;
   final int? currentStock;
   final int? maxStock;
-  final Map<String, dynamic> attributes;    // jsonb: 自定义属性
+  final Map<String, dynamic> attributes; // jsonb: 自定义属性
   final Map<String, dynamic> businessRules; // jsonb: 业务规则
   final String? pricingType;
   final double? price;
@@ -80,9 +80,15 @@ class ServiceDetail {
       name: Map<String, String>.from(json['name'] ?? {}),
       subCategory: json['sub_category'],
       isAvailable: json['is_available'] ?? true,
-      sortOrder: json['sort_order'] ?? 0,
-      currentStock: json['current_stock'],
-      maxStock: json['max_stock'],
+      sortOrder: json['sort_order'] is String
+          ? int.tryParse(json['sort_order']) ?? 0
+          : json['sort_order'] ?? 0,
+      currentStock: json['current_stock'] is String
+          ? int.tryParse(json['current_stock'])
+          : json['current_stock'],
+      maxStock: json['max_stock'] is String
+          ? int.tryParse(json['max_stock'])
+          : json['max_stock'],
       attributes: Map<String, dynamic>.from(json['attributes'] ?? {}),
       businessRules: Map<String, dynamic>.from(json['business_rules'] ?? {}),
       pricingType: json['pricing_type'],
@@ -93,20 +99,38 @@ class ServiceDetail {
       images: json['images'] != null ? List<String>.from(json['images']) : null,
       videos: json['videos'] != null ? List<String>.from(json['videos']) : null,
       tags: json['tags'] != null ? List<String>.from(json['tags']) : null,
-      serviceAreaCodes: json['service_area_codes'] != null ? List<String>.from(json['service_area_codes']) : null,
+      serviceAreaCodes: json['service_area_codes'] != null
+          ? List<String>.from(json['service_area_codes'])
+          : null,
       platformServiceFeeRate: json['platform_service_fee_rate']?.toDouble(),
       minPlatformServiceFee: json['min_platform_service_fee']?.toDouble(),
-      extraData: json['extra_data'] != null ? Map<String, dynamic>.from(json['extra_data']) : null,
-      promotionStart: json['promotion_start'] != null ? DateTime.parse(json['promotion_start']) : null,
-      promotionEnd: json['promotion_end'] != null ? DateTime.parse(json['promotion_end']) : null,
-      viewCount: json['view_count'],
-      favoriteCount: json['favorite_count'],
-      orderCount: json['order_count'],
+      extraData: json['extra_data'] != null
+          ? Map<String, dynamic>.from(json['extra_data'])
+          : null,
+      promotionStart: json['promotion_start'] != null
+          ? DateTime.parse(json['promotion_start'])
+          : null,
+      promotionEnd: json['promotion_end'] != null
+          ? DateTime.parse(json['promotion_end'])
+          : null,
+      viewCount: json['view_count'] is String
+          ? int.tryParse(json['view_count'])
+          : json['view_count'],
+      favoriteCount: json['favorite_count'] is String
+          ? int.tryParse(json['favorite_count'])
+          : json['favorite_count'],
+      orderCount: json['order_count'] is String
+          ? int.tryParse(json['order_count'])
+          : json['order_count'],
       verificationStatus: json['verification_status'],
-      documents: json['documents'] != null ? List<String>.from(json['documents']) : null,
+      documents: json['documents'] != null
+          ? List<String>.from(json['documents'])
+          : null,
       type: json['type'],
-      createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
-      updatedAt: DateTime.parse(json['updated_at'] ?? DateTime.now().toIso8601String()),
+      createdAt: DateTime.parse(
+          json['created_at'] ?? DateTime.now().toIso8601String()),
+      updatedAt: DateTime.parse(
+          json['updated_at'] ?? DateTime.now().toIso8601String()),
     );
   }
 
@@ -150,7 +174,10 @@ class ServiceDetail {
 
   // 获取本地化名称
   String getLocalizedName(String languageCode) {
-    return name[languageCode] ?? name['en'] ?? name.values.firstOrNull ?? 'Unknown';
+    return name[languageCode] ??
+        name['en'] ??
+        name.values.firstOrNull ??
+        'Unknown';
   }
 
   // 获取主要图片
@@ -259,8 +286,10 @@ class ServiceDetail {
       videos: videos ?? this.videos,
       tags: tags ?? this.tags,
       serviceAreaCodes: serviceAreaCodes ?? this.serviceAreaCodes,
-      platformServiceFeeRate: platformServiceFeeRate ?? this.platformServiceFeeRate,
-      minPlatformServiceFee: minPlatformServiceFee ?? this.minPlatformServiceFee,
+      platformServiceFeeRate:
+          platformServiceFeeRate ?? this.platformServiceFeeRate,
+      minPlatformServiceFee:
+          minPlatformServiceFee ?? this.minPlatformServiceFee,
       extraData: extraData ?? this.extraData,
       promotionStart: promotionStart ?? this.promotionStart,
       promotionEnd: promotionEnd ?? this.promotionEnd,

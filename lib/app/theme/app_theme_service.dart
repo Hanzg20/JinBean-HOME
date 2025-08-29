@@ -37,7 +37,8 @@ class AppThemeService extends GetxService {
 
   // Load saved theme preference
   void loadTheme() {
-    final savedThemeName = _box.read(_themeKey) ?? 'dark_teal'; // Default to dark_teal
+    final savedThemeName =
+        _box.read(_themeKey) ?? 'dark_teal'; // Default to dark_teal
     setThemeByName(savedThemeName);
   }
 
@@ -153,13 +154,13 @@ class AppThemeService extends GetxService {
   ThemeData get goldenTheme {
     const colorScheme = ColorScheme(
       primary: Color(0xFFFFA000), // 更深金色
-      onPrimary: Colors.black,    // 文字更黑
+      onPrimary: Colors.black, // 文字更黑
       secondary: Color(0xFFFFB300),
       onSecondary: Colors.black,
       error: AppColors.errorColor,
       onError: Colors.black,
       surface: Color(0xFFFFFDE7), // 更浅背景
-      onSurface: Colors.black,    // 文字更黑
+      onSurface: Colors.black, // 文字更黑
       brightness: Brightness.light,
     );
 
@@ -244,7 +245,7 @@ class AppThemeService extends GetxService {
   void setThemeForRole(String role, String themeName) {
     final key = '${_roleThemeKey}_$role';
     _box.write(key, themeName);
-    
+
     // 如果当前用户是该角色，立即应用主题
     final currentRole = Get.find<PluginManager>().currentRole.value;
     if (currentRole == role) {
@@ -287,7 +288,7 @@ class AppThemeService extends GetxService {
   // 新增：根据角色和主题模式获取主题
   ThemeData getThemeForRoleAndMode(String role, ThemeMode mode) {
     final themeName = getThemeForRole(role) ?? 'dark_teal';
-    
+
     if (mode == ThemeMode.dark) {
       switch (role) {
         case 'provider':
@@ -298,7 +299,7 @@ class AppThemeService extends GetxService {
           return JinBeanTheme.darkTheme;
       }
     }
-    
+
     return getThemeByName(themeName);
   }
 
@@ -309,7 +310,7 @@ class AppThemeService extends GetxService {
     if (mode == ThemeMode.dark) modeStr = 'dark';
     _box.write(_themeModeKey, modeStr);
     Get.changeThemeMode(mode);
-    
+
     // 重新应用当前角色的主题
     final currentRole = Get.find<PluginManager>().currentRole.value;
     final themeName = getThemeForRole(currentRole) ?? 'dark_teal';
@@ -334,4 +335,4 @@ class AppThemeService extends GetxService {
     final themeName = getThemeForRole(currentRole) ?? 'dark_teal';
     setThemeByName(themeName);
   }
-} 
+}

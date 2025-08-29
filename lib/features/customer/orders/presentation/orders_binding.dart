@@ -8,4 +8,4 @@ class OrdersBinding extends Bindings {
     Get.lazyPut<OrdersController>(() => OrdersController());
     Get.lazyPut<CreateOrderController>(() => CreateOrderController());
   }
-} 
+}

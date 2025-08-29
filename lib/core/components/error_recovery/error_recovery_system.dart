@@ -36,9 +36,9 @@ class PlatformErrorRecovery {
 
 /// 错误恢复类型
 enum ErrorRecoveryType {
-  automatic,   // 自动恢复
-  manual,      // 手动恢复
-  hybrid,      // 混合恢复
+  automatic, // 自动恢复
+  manual, // 手动恢复
+  hybrid, // 混合恢复
   intelligent, // 智能恢复
 }
 
@@ -49,7 +49,7 @@ class ErrorRecoveryConfig {
   final bool exponentialBackoff;
   final bool enableAutoRecovery;
   final Duration recoveryTimeout;
-  
+
   const ErrorRecoveryConfig({
     required this.maxRetries,
     required this.retryDelay,
@@ -105,7 +105,8 @@ class _ErrorRecoveryWidgetState extends State<ErrorRecoveryWidget> {
 
   void _startAutoRecovery() {
     _recoveryTimer = Timer.periodic(widget.config.recoveryTimeout, (timer) {
-      if (_errorState == ErrorState.error && _retryCount < widget.config.maxRetries) {
+      if (_errorState == ErrorState.error &&
+          _retryCount < widget.config.maxRetries) {
         _attemptRecovery();
       } else {
         timer.cancel();
@@ -115,20 +116,20 @@ class _ErrorRecoveryWidgetState extends State<ErrorRecoveryWidget> {
 
   Future<void> _attemptRecovery() async {
     if (_errorState == ErrorState.recovering) return;
-    
+
     setState(() {
       _errorState = ErrorState.recovering;
     });
 
     try {
       await widget.recoveryFunction();
-      
+
       setState(() {
         _errorState = ErrorState.normal;
         _errorMessage = null;
         _retryCount = 0;
       });
-      
+
       AppLogger.info('错误恢复成功');
     } catch (e) {
       _handleRecoveryError(e);
@@ -138,7 +139,7 @@ class _ErrorRecoveryWidgetState extends State<ErrorRecoveryWidget> {
   void _handleRecoveryError(dynamic error) {
     _retryCount++;
     AppLogger.error('错误恢复失败: $error');
-    
+
     if (_retryCount >= widget.config.maxRetries) {
       setState(() {
         _errorState = ErrorState.error;
@@ -148,7 +149,7 @@ class _ErrorRecoveryWidgetState extends State<ErrorRecoveryWidget> {
       final delay = widget.config.exponentialBackoff
           ? widget.config.retryDelay * pow(2, _retryCount - 1)
           : widget.config.retryDelay;
-      
+
       AppLogger.info('将在 ${delay.inSeconds} 秒后重试');
       Future.delayed(delay, _attemptRecovery);
     }
@@ -159,14 +160,12 @@ class _ErrorRecoveryWidgetState extends State<ErrorRecoveryWidget> {
     switch (_errorState) {
       case ErrorState.normal:
         return widget.contentBuilder(context);
-      
+
       case ErrorState.recovering:
-        return widget.recoveryWidget ?? 
-               _buildRecoveryWidget();
-      
+        return widget.recoveryWidget ?? _buildRecoveryWidget();
+
       case ErrorState.error:
-        return widget.errorWidget ?? 
-               _buildErrorWidget();
+        return widget.errorWidget ?? _buildErrorWidget();
     }
   }
 
@@ -179,7 +178,8 @@ class _ErrorRecoveryWidgetState extends State<ErrorRecoveryWidget> {
           const SizedBox(height: 16),
           Text('Recovering...', style: TextStyle(fontSize: 16)), // 英文默认
           const SizedBox(height: 8),
-          Text('Please wait, system is trying to recover', style: TextStyle(fontSize: 14)), // 英文默认
+          Text('Please wait, system is trying to recover',
+              style: TextStyle(fontSize: 14)), // 英文默认
         ],
       ),
     );
@@ -194,7 +194,8 @@ class _ErrorRecoveryWidgetState extends State<ErrorRecoveryWidget> {
           const SizedBox(height: 16),
           Text('Error occurred', style: TextStyle(fontSize: 16)), // 英文默认
           const SizedBox(height: 8),
-          Text(_errorMessage ?? 'Unknown error', style: TextStyle(fontSize: 14)), // 英文默认
+          Text(_errorMessage ?? 'Unknown error',
+              style: TextStyle(fontSize: 14)), // 英文默认
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () {
@@ -230,27 +231,27 @@ class _ErrorRecoveryWidgetState extends State<ErrorRecoveryWidget> {
 class ErrorRecoveryManager {
   static final Map<String, ErrorRecoveryWidget> _errorWidgets = {};
   static final List<String> _errorHistory = [];
-  
+
   /// 注册错误恢复组件
   static void register(String key, ErrorRecoveryWidget widget) {
     _errorWidgets[key] = widget;
   }
-  
+
   /// 获取错误恢复组件
   static ErrorRecoveryWidget? get(String key) {
     return _errorWidgets[key];
   }
-  
+
   /// 移除错误恢复组件
   static void remove(String key) {
     _errorWidgets.remove(key);
   }
-  
+
   /// 清理所有错误恢复组件
   static void clear() {
     _errorWidgets.clear();
   }
-  
+
   /// 记录错误
   static void recordError(String error) {
     _errorHistory.add(error);
@@ -258,12 +259,12 @@ class ErrorRecoveryManager {
       _errorHistory.removeAt(0);
     }
   }
-  
+
   /// 获取错误历史
   static List<String> get errorHistory => List.unmodifiable(_errorHistory);
-  
+
   /// 清理错误历史
   static void clearErrorHistory() {
     _errorHistory.clear();
   }
-} 
+}

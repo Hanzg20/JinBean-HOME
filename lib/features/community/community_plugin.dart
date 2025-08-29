@@ -1,4 +1,5 @@
-import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:flutter/material.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/core/plugin_management/app_plugin.dart';
 import 'package:jinbeanpod_83904710/features/community/presentation/community_binding.dart';
@@ -11,7 +12,8 @@ class CommunityPlugin extends AppPlugin {
         nameKey: 'community_name',
         icon: Icons.groups,
         enabled: true,
-        order: 3, // Assuming order 3 for Community, after Home (1) and Service Booking (2)
+        order:
+            3, // Assuming order 3 for Community, after Home (1) and Service Booking (2)
         type: PluginType.bottomTab,
         routeName: '/community',
         role: 'customer',
@@ -45,4 +47,4 @@ class CommunityPlugin extends AppPlugin {
   void dispose() {
     AppLogger.info('CommunityPlugin disposed');
   }
-} 
+}

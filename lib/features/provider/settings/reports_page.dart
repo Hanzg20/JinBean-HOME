@@ -60,13 +60,13 @@ class _ReportsPageState extends State<ReportsPage> {
             children: [
               // 时间段选择器
               _buildPeriodSelector(),
-              
+
               // 报表类型选择器
               _buildReportTypeSelector(),
-              
+
               // 报表内容
               _buildReportContent(),
-              
+
               const SizedBox(height: 20),
             ],
           ),
@@ -95,37 +95,42 @@ class _ReportsPageState extends State<ReportsPage> {
               ),
               const SizedBox(height: 12),
               Obx(() => Row(
-                children: [
-                  'week',
-                  'month',
-                  'quarter',
-                  'year',
-                ].map((period) {
-                  final isSelected = selectedPeriod.value == period;
-                  return Expanded(
-                    child: GestureDetector(
-                      onTap: () => selectedPeriod.value = period,
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        decoration: BoxDecoration(
-                          color: isSelected ? Colors.blue : Colors.grey[100],
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          _getPeriodText(period),
-                          style: TextStyle(
-                            color: isSelected ? Colors.white : Colors.grey[700],
-                            fontSize: 12,
-                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                    children: [
+                      'week',
+                      'month',
+                      'quarter',
+                      'year',
+                    ].map((period) {
+                      final isSelected = selectedPeriod.value == period;
+                      return Expanded(
+                        child: GestureDetector(
+                          onTap: () => selectedPeriod.value = period,
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            decoration: BoxDecoration(
+                              color:
+                                  isSelected ? Colors.blue : Colors.grey[100],
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              _getPeriodText(period),
+                              style: TextStyle(
+                                color: isSelected
+                                    ? Colors.white
+                                    : Colors.grey[700],
+                                fontSize: 12,
+                                fontWeight: isSelected
+                                    ? FontWeight.w600
+                                    : FontWeight.normal,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
                           ),
-                          textAlign: TextAlign.center,
                         ),
-                      ),
-                    ),
-                  );
-                }).toList(),
-              )),
+                      );
+                    }).toList(),
+                  )),
             ],
           ),
         ),
@@ -153,40 +158,45 @@ class _ReportsPageState extends State<ReportsPage> {
               ),
               const SizedBox(height: 12),
               Obx(() => Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  'overview',
-                  'revenue',
-                  'orders',
-                  'customers',
-                  'services',
-                  'performance',
-                ].map((type) {
-                  final isSelected = selectedReportType.value == type;
-                  return GestureDetector(
-                    onTap: () => selectedReportType.value = type,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: isSelected ? Colors.blue : Colors.grey[100],
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: isSelected ? Colors.blue : Colors.grey[300]!,
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      'overview',
+                      'revenue',
+                      'orders',
+                      'customers',
+                      'services',
+                      'performance',
+                    ].map((type) {
+                      final isSelected = selectedReportType.value == type;
+                      return GestureDetector(
+                        onTap: () => selectedReportType.value = type,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: isSelected ? Colors.blue : Colors.grey[100],
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color:
+                                  isSelected ? Colors.blue : Colors.grey[300]!,
+                            ),
+                          ),
+                          child: Text(
+                            _getReportTypeText(type),
+                            style: TextStyle(
+                              color:
+                                  isSelected ? Colors.white : Colors.grey[700],
+                              fontSize: 12,
+                              fontWeight: isSelected
+                                  ? FontWeight.w600
+                                  : FontWeight.normal,
+                            ),
+                          ),
                         ),
-                      ),
-                      child: Text(
-                        _getReportTypeText(type),
-                        style: TextStyle(
-                          color: isSelected ? Colors.white : Colors.grey[700],
-                          fontSize: 12,
-                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
-              )),
+                      );
+                    }).toList(),
+                  )),
             ],
           ),
         ),
@@ -231,13 +241,13 @@ class _ReportsPageState extends State<ReportsPage> {
         children: [
           // 关键指标卡片
           _buildKeyMetricsCard(),
-          
+
           // 趋势图表
           _buildTrendChart(),
-          
+
           // 服务分布
           _buildServiceDistribution(),
-          
+
           // 客户分析
           _buildCustomerAnalysis(),
         ],
@@ -265,11 +275,13 @@ class _ReportsPageState extends State<ReportsPage> {
             Row(
               children: [
                 Expanded(
-                  child: _buildMetricItem('总收入', '\$12,450', '+15%', Colors.green, Icons.attach_money),
+                  child: _buildMetricItem('总收入', '\$12,450', '+15%',
+                      Colors.green, Icons.attach_money),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: _buildMetricItem('订单数', '156', '+8%', Colors.blue, Icons.shopping_cart),
+                  child: _buildMetricItem(
+                      '订单数', '156', '+8%', Colors.blue, Icons.shopping_cart),
                 ),
               ],
             ),
@@ -277,11 +289,13 @@ class _ReportsPageState extends State<ReportsPage> {
             Row(
               children: [
                 Expanded(
-                  child: _buildMetricItem('新客户', '23', '+12%', Colors.orange, Icons.person_add),
+                  child: _buildMetricItem(
+                      '新客户', '23', '+12%', Colors.orange, Icons.person_add),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: _buildMetricItem('平均评分', '4.2', '+0.3', Colors.purple, Icons.star),
+                  child: _buildMetricItem(
+                      '平均评分', '4.2', '+0.3', Colors.purple, Icons.star),
                 ),
               ],
             ),
@@ -291,9 +305,10 @@ class _ReportsPageState extends State<ReportsPage> {
     );
   }
 
-  Widget _buildMetricItem(String title, String value, String change, Color color, IconData icon) {
+  Widget _buildMetricItem(
+      String title, String value, String change, Color color, IconData icon) {
     final isPositive = change.startsWith('+');
-    
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -527,7 +542,8 @@ class _ReportsPageState extends State<ReportsPage> {
         children: [
           Card(
             elevation: 2,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -555,7 +571,8 @@ class _ReportsPageState extends State<ReportsPage> {
     );
   }
 
-  Widget _buildRevenueItem(String label, String amount, String change, {bool isTotal = false}) {
+  Widget _buildRevenueItem(String label, String amount, String change,
+      {bool isTotal = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -618,7 +635,8 @@ class _ReportsPageState extends State<ReportsPage> {
               ),
               const SizedBox(height: 16),
               _buildOrderStat('总订单数', '156', Icons.shopping_cart),
-              _buildOrderStat('已完成', '142', Icons.check_circle, color: Colors.green),
+              _buildOrderStat('已完成', '142', Icons.check_circle,
+                  color: Colors.green),
               _buildOrderStat('进行中', '8', Icons.pending, color: Colors.orange),
               _buildOrderStat('已取消', '6', Icons.cancel, color: Colors.red),
             ],
@@ -628,7 +646,8 @@ class _ReportsPageState extends State<ReportsPage> {
     );
   }
 
-  Widget _buildOrderStat(String label, String value, IconData icon, {Color? color}) {
+  Widget _buildOrderStat(String label, String value, IconData icon,
+      {Color? color}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -674,9 +693,12 @@ class _ReportsPageState extends State<ReportsPage> {
               ),
               const SizedBox(height: 16),
               _buildCustomerStatItem('总客户数', '124', Icons.people),
-              _buildCustomerStatItem('活跃客户', '89', Icons.person, color: Colors.green),
-              _buildCustomerStatItem('新客户', '23', Icons.person_add, color: Colors.blue),
-              _buildCustomerStatItem('流失客户', '12', Icons.person_remove, color: Colors.red),
+              _buildCustomerStatItem('活跃客户', '89', Icons.person,
+                  color: Colors.green),
+              _buildCustomerStatItem('新客户', '23', Icons.person_add,
+                  color: Colors.blue),
+              _buildCustomerStatItem('流失客户', '12', Icons.person_remove,
+                  color: Colors.red),
             ],
           ),
         ),
@@ -684,7 +706,8 @@ class _ReportsPageState extends State<ReportsPage> {
     );
   }
 
-  Widget _buildCustomerStatItem(String label, String value, IconData icon, {Color? color}) {
+  Widget _buildCustomerStatItem(String label, String value, IconData icon,
+      {Color? color}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -746,7 +769,7 @@ class _ReportsPageState extends State<ReportsPage> {
       child: Row(
         children: [
           Expanded(
-        child: Text(
+            child: Text(
               service,
               style: const TextStyle(fontSize: 14),
             ),
@@ -875,4 +898,4 @@ class _ReportsPageState extends State<ReportsPage> {
       snackPosition: SnackPosition.BOTTOM,
     );
   }
-} 
+}

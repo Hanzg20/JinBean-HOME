@@ -52,7 +52,7 @@ class _ProviderSimulatorState extends State<ProviderSimulator> {
         children: [
           // 模拟器状态栏
           _buildStatusBar(),
-          
+
           // 主内容区域
           Expanded(
             child: PageView(
@@ -108,7 +108,7 @@ class _ProviderSimulatorState extends State<ProviderSimulator> {
 
   Widget _buildOrderSimulator() {
     final orderController = Get.find<OrderManageController>();
-    
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -117,12 +117,12 @@ class _ProviderSimulatorState extends State<ProviderSimulator> {
           Text(
             '📦 订单管理模拟器',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: Colors.blue[700],
-            ),
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue[700],
+                ),
           ),
           const SizedBox(height: 16),
-          
+
           // 模拟数据生成
           _buildSimulatorCard(
             title: '生成模拟订单',
@@ -148,20 +148,23 @@ class _ProviderSimulatorState extends State<ProviderSimulator> {
               ],
             ),
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // 订单统计
           _buildSimulatorCard(
             title: '订单统计',
             content: Obx(() => Column(
-              children: [
-                _buildStatRow('总订单数', '${orderController.orders.length}'),
-                _buildStatRow('待处理', '${orderController.orders.where((o) => o['status'] == 'pending').length}'),
-                _buildStatRow('进行中', '${orderController.orders.where((o) => o['status'] == 'in_progress').length}'),
-                _buildStatRow('已完成', '${orderController.orders.where((o) => o['status'] == 'completed').length}'),
-              ],
-            )),
+                  children: [
+                    _buildStatRow('总订单数', '${orderController.orders.length}'),
+                    _buildStatRow('待处理',
+                        '${orderController.orders.where((o) => o['status'] == 'pending').length}'),
+                    _buildStatRow('进行中',
+                        '${orderController.orders.where((o) => o['status'] == 'in_progress').length}'),
+                    _buildStatRow('已完成',
+                        '${orderController.orders.where((o) => o['status'] == 'completed').length}'),
+                  ],
+                )),
           ),
         ],
       ),
@@ -170,7 +173,7 @@ class _ProviderSimulatorState extends State<ProviderSimulator> {
 
   Widget _buildClientSimulator() {
     final clientController = Get.find<ClientController>();
-    
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -179,12 +182,12 @@ class _ProviderSimulatorState extends State<ProviderSimulator> {
           Text(
             '👥 客户管理模拟器',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: Colors.green[700],
-            ),
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green[700],
+                ),
           ),
           const SizedBox(height: 16),
-          
+
           // 模拟客户生成
           _buildSimulatorCard(
             title: '生成模拟客户',
@@ -210,20 +213,23 @@ class _ProviderSimulatorState extends State<ProviderSimulator> {
               ],
             ),
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // 客户统计
           _buildSimulatorCard(
             title: '客户统计',
             content: Obx(() => Column(
-              children: [
-                _buildStatRow('总客户数', '${clientController.clients.length}'),
-                _buildStatRow('已服务', '${clientController.clients.where((c) => c['category'] == 'served').length}'),
-                _buildStatRow('洽谈中', '${clientController.clients.where((c) => c['category'] == 'negotiating').length}'),
-                _buildStatRow('潜在', '${clientController.clients.where((c) => c['category'] == 'potential').length}'),
-              ],
-            )),
+                  children: [
+                    _buildStatRow('总客户数', '${clientController.clients.length}'),
+                    _buildStatRow('已服务',
+                        '${clientController.clients.where((c) => c['category'] == 'served').length}'),
+                    _buildStatRow('洽谈中',
+                        '${clientController.clients.where((c) => c['category'] == 'negotiating').length}'),
+                    _buildStatRow('潜在',
+                        '${clientController.clients.where((c) => c['category'] == 'potential').length}'),
+                  ],
+                )),
           ),
         ],
       ),
@@ -232,7 +238,7 @@ class _ProviderSimulatorState extends State<ProviderSimulator> {
 
   Widget _buildServiceSimulator() {
     final serviceController = Get.find<ServiceManageController>();
-    
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -241,12 +247,12 @@ class _ProviderSimulatorState extends State<ProviderSimulator> {
           Text(
             '🛠️ 服务管理模拟器',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: Colors.purple[700],
-            ),
+                  fontWeight: FontWeight.bold,
+                  color: Colors.purple[700],
+                ),
           ),
           const SizedBox(height: 16),
-          
+
           // 模拟服务生成
           _buildSimulatorCard(
             title: '生成模拟服务',
@@ -272,20 +278,24 @@ class _ProviderSimulatorState extends State<ProviderSimulator> {
               ],
             ),
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // 服务统计
           _buildSimulatorCard(
             title: '服务统计',
             content: Obx(() => Column(
-              children: [
-                _buildStatRow('总服务数', '${serviceController.services.length}'),
-                _buildStatRow('活跃', '${serviceController.services.where((s) => s['status'] == 'active').length}'),
-                _buildStatRow('暂停', '${serviceController.services.where((s) => s['status'] == 'paused').length}'),
-                _buildStatRow('下架', '${serviceController.services.where((s) => s['status'] == 'inactive').length}'),
-              ],
-            )),
+                  children: [
+                    _buildStatRow(
+                        '总服务数', '${serviceController.services.length}'),
+                    _buildStatRow('活跃',
+                        '${serviceController.services.where((s) => s['status'] == 'active').length}'),
+                    _buildStatRow('暂停',
+                        '${serviceController.services.where((s) => s['status'] == 'paused').length}'),
+                    _buildStatRow('下架',
+                        '${serviceController.services.where((s) => s['status'] == 'inactive').length}'),
+                  ],
+                )),
           ),
         ],
       ),
@@ -294,7 +304,7 @@ class _ProviderSimulatorState extends State<ProviderSimulator> {
 
   Widget _buildIncomeSimulator() {
     final incomeController = Get.find<IncomeController>();
-    
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -303,12 +313,12 @@ class _ProviderSimulatorState extends State<ProviderSimulator> {
           Text(
             '💰 收入管理模拟器',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: Colors.amber[700],
-            ),
+                  fontWeight: FontWeight.bold,
+                  color: Colors.amber[700],
+                ),
           ),
           const SizedBox(height: 16),
-          
+
           // 模拟收入生成
           _buildSimulatorCard(
             title: '生成模拟收入',
@@ -334,20 +344,24 @@ class _ProviderSimulatorState extends State<ProviderSimulator> {
               ],
             ),
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // 收入统计
           _buildSimulatorCard(
             title: '收入统计',
             content: Obx(() => Column(
-              children: [
-                _buildStatRow('总收入', '\$${_calculateTotalIncome(incomeController)}'),
-                _buildStatRow('今日收入', '\$${_calculateTodayIncome(incomeController)}'),
-                _buildStatRow('本周收入', '\$${_calculateWeekIncome(incomeController)}'),
-                _buildStatRow('本月收入', '\$${_calculateMonthIncome(incomeController)}'),
-              ],
-            )),
+                  children: [
+                    _buildStatRow(
+                        '总收入', '\$${_calculateTotalIncome(incomeController)}'),
+                    _buildStatRow(
+                        '今日收入', '\$${_calculateTodayIncome(incomeController)}'),
+                    _buildStatRow(
+                        '本周收入', '\$${_calculateWeekIncome(incomeController)}'),
+                    _buildStatRow(
+                        '本月收入', '\$${_calculateMonthIncome(incomeController)}'),
+                  ],
+                )),
           ),
         ],
       ),
@@ -356,7 +370,7 @@ class _ProviderSimulatorState extends State<ProviderSimulator> {
 
   Widget _buildNotificationSimulator() {
     final notificationController = Get.find<NotificationController>();
-    
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -365,12 +379,12 @@ class _ProviderSimulatorState extends State<ProviderSimulator> {
           Text(
             '🔔 通知系统模拟器',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: Colors.red[700],
-            ),
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red[700],
+                ),
           ),
           const SizedBox(height: 16),
-          
+
           // 模拟通知生成
           _buildSimulatorCard(
             title: '生成模拟通知',
@@ -378,37 +392,43 @@ class _ProviderSimulatorState extends State<ProviderSimulator> {
               children: [
                 _buildSimulatorButton(
                   '生成订单通知',
-                  () => _generateMockNotifications(notificationController, 'order'),
+                  () => _generateMockNotifications(
+                      notificationController, 'order'),
                   Colors.blue,
                 ),
                 const SizedBox(height: 8),
                 _buildSimulatorButton(
                   '生成支付通知',
-                  () => _generateMockNotifications(notificationController, 'payment'),
+                  () => _generateMockNotifications(
+                      notificationController, 'payment'),
                   Colors.green,
                 ),
                 const SizedBox(height: 8),
                 _buildSimulatorButton(
                   '生成系统通知',
-                  () => _generateMockNotifications(notificationController, 'system'),
+                  () => _generateMockNotifications(
+                      notificationController, 'system'),
                   Colors.orange,
                 ),
               ],
             ),
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // 通知统计
           _buildSimulatorCard(
             title: '通知统计',
             content: Obx(() => Column(
-              children: [
-                _buildStatRow('总通知数', '${notificationController.notifications.length}'),
-                _buildStatRow('未读通知', '${notificationController.notifications.where((n) => n['is_read'] == false).length}'),
-                _buildStatRow('已读通知', '${notificationController.notifications.where((n) => n['is_read'] == true).length}'),
-              ],
-            )),
+                  children: [
+                    _buildStatRow('总通知数',
+                        '${notificationController.notifications.length}'),
+                    _buildStatRow('未读通知',
+                        '${notificationController.notifications.where((n) => n['is_read'] == false).length}'),
+                    _buildStatRow('已读通知',
+                        '${notificationController.notifications.where((n) => n['is_read'] == true).length}'),
+                  ],
+                )),
           ),
         ],
       ),
@@ -438,7 +458,8 @@ class _ProviderSimulatorState extends State<ProviderSimulator> {
     );
   }
 
-  Widget _buildSimulatorButton(String text, VoidCallback onPressed, Color color) {
+  Widget _buildSimulatorButton(
+      String text, VoidCallback onPressed, Color color) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
@@ -564,7 +585,8 @@ class _ProviderSimulatorState extends State<ProviderSimulator> {
         'status': status,
         'amount': 150.0,
         'created_at': DateTime.now().toString(),
-        'scheduled_time': DateTime.now().add(const Duration(hours: 2)).toString(),
+        'scheduled_time':
+            DateTime.now().add(const Duration(hours: 2)).toString(),
       },
       {
         'id': 'ORD${DateTime.now().millisecondsSinceEpoch + 1}',
@@ -573,7 +595,8 @@ class _ProviderSimulatorState extends State<ProviderSimulator> {
         'status': status,
         'amount': 200.0,
         'created_at': DateTime.now().toString(),
-        'scheduled_time': DateTime.now().add(const Duration(hours: 3)).toString(),
+        'scheduled_time':
+            DateTime.now().add(const Duration(hours: 3)).toString(),
       },
     ];
 
@@ -617,7 +640,8 @@ class _ProviderSimulatorState extends State<ProviderSimulator> {
     );
   }
 
-  void _generateMockServices(ServiceManageController controller, String status) {
+  void _generateMockServices(
+      ServiceManageController controller, String status) {
     final mockServices = [
       {
         'id': 'SRV${DateTime.now().millisecondsSinceEpoch}',
@@ -677,7 +701,8 @@ class _ProviderSimulatorState extends State<ProviderSimulator> {
     );
   }
 
-  void _generateMockNotifications(NotificationController controller, String type) {
+  void _generateMockNotifications(
+      NotificationController controller, String type) {
     final mockNotifications = [
       {
         'id': 'NOT${DateTime.now().millisecondsSinceEpoch}',
@@ -709,58 +734,85 @@ class _ProviderSimulatorState extends State<ProviderSimulator> {
   // 辅助方法
   String _getStatusText(String status) {
     switch (status) {
-      case 'pending': return '待处理';
-      case 'in_progress': return '进行中';
-      case 'completed': return '已完成';
-      case 'active': return '活跃';
-      case 'paused': return '暂停';
-      case 'inactive': return '下架';
-      default: return status;
+      case 'pending':
+        return '待处理';
+      case 'in_progress':
+        return '进行中';
+      case 'completed':
+        return '已完成';
+      case 'active':
+        return '活跃';
+      case 'paused':
+        return '暂停';
+      case 'inactive':
+        return '下架';
+      default:
+        return status;
     }
   }
 
   String _getCategoryText(String category) {
     switch (category) {
-      case 'served': return '已服务';
-      case 'negotiating': return '洽谈中';
-      case 'potential': return '潜在';
-      default: return category;
+      case 'served':
+        return '已服务';
+      case 'negotiating':
+        return '洽谈中';
+      case 'potential':
+        return '潜在';
+      default:
+        return category;
     }
   }
 
   String _getPeriodText(String period) {
     switch (period) {
-      case 'today': return '今日';
-      case 'week': return '本周';
-      case 'month': return '本月';
-      default: return period;
+      case 'today':
+        return '今日';
+      case 'week':
+        return '本周';
+      case 'month':
+        return '本月';
+      default:
+        return period;
     }
   }
 
   String _getTypeText(String type) {
     switch (type) {
-      case 'order': return '订单';
-      case 'payment': return '支付';
-      case 'system': return '系统';
-      default: return type;
+      case 'order':
+        return '订单';
+      case 'payment':
+        return '支付';
+      case 'system':
+        return '系统';
+      default:
+        return type;
     }
   }
 
   String _getNotificationTitle(String type) {
     switch (type) {
-      case 'order': return '新订单通知';
-      case 'payment': return '支付成功通知';
-      case 'system': return '系统维护通知';
-      default: return '通知';
+      case 'order':
+        return '新订单通知';
+      case 'payment':
+        return '支付成功通知';
+      case 'system':
+        return '系统维护通知';
+      default:
+        return '通知';
     }
   }
 
   String _getNotificationMessage(String type) {
     switch (type) {
-      case 'order': return '您有一个新的订单，请及时处理。';
-      case 'payment': return '您的收入已到账，请查收。';
-      case 'system': return '系统将在今晚进行维护，请提前做好准备。';
-      default: return '您有一条新消息。';
+      case 'order':
+        return '您有一个新的订单，请及时处理。';
+      case 'payment':
+        return '您的收入已到账，请查收。';
+      case 'system':
+        return '系统将在今晚进行维护，请提前做好准备。';
+      default:
+        return '您有一条新消息。';
     }
   }
 
@@ -778,8 +830,8 @@ class _ProviderSimulatorState extends State<ProviderSimulator> {
     final today = DateTime.now();
     for (var record in controller.incomeRecords) {
       final recordDate = DateTime.parse(record['created_at']);
-      if (recordDate.day == today.day && 
-          recordDate.month == today.month && 
+      if (recordDate.day == today.day &&
+          recordDate.month == today.month &&
           recordDate.year == today.year) {
         total += record['amount'] ?? 0;
       }
@@ -877,4 +929,4 @@ class _ProviderSimulatorState extends State<ProviderSimulator> {
     _pageController.dispose();
     super.dispose();
   }
-} 
+}

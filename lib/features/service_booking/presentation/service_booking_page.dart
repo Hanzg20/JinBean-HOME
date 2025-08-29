@@ -1,4 +1,5 @@
-import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:flutter/material.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/features/service_booking/presentation/service_booking_controller.dart';
@@ -13,21 +14,36 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
   // Helper function to map string icon names to IconData
   IconData _getIconData(String iconName) {
     switch (iconName) {
-      case 'home_outlined': return Icons.home_outlined;
-      case 'restaurant': return Icons.restaurant;
-      case 'directions_car': return Icons.directions_car;
-      case 'share': return Icons.share;
-      case 'school': return Icons.school;
-      case 'work': return Icons.work;
-      case 'cleaning_services': return Icons.cleaning_services;
-      case 'plumbing': return Icons.plumbing;
-      case 'electrical_services': return Icons.electrical_services;
-      case 'ramen_dining': return Icons.ramen_dining;
-      case 'cake': return Icons.cake;
-      case 'newspaper': return Icons.newspaper;
-      case 'card_giftcard': return Icons.card_giftcard;
-      case 'miscellaneous_services': return Icons.miscellaneous_services; // General service icon
-      default: return Icons.category; // Default icon
+      case 'home_outlined':
+        return Icons.home_outlined;
+      case 'restaurant':
+        return Icons.restaurant;
+      case 'directions_car':
+        return Icons.directions_car;
+      case 'share':
+        return Icons.share;
+      case 'school':
+        return Icons.school;
+      case 'work':
+        return Icons.work;
+      case 'cleaning_services':
+        return Icons.cleaning_services;
+      case 'plumbing':
+        return Icons.plumbing;
+      case 'electrical_services':
+        return Icons.electrical_services;
+      case 'ramen_dining':
+        return Icons.ramen_dining;
+      case 'cake':
+        return Icons.cake;
+      case 'newspaper':
+        return Icons.newspaper;
+      case 'card_giftcard':
+        return Icons.card_giftcard;
+      case 'miscellaneous_services':
+        return Icons.miscellaneous_services; // General service icon
+      default:
+        return Icons.category; // Default icon
     }
   }
 
@@ -36,7 +52,7 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
     final locationController = Get.find<LocationController>();
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: _buildAppBar(context, locationController),
@@ -51,16 +67,16 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
             children: [
               // 搜索栏
               _buildSearchBar(),
-              
+
               // 一级分类选择
               _buildLevel1Categories(),
-              
+
               // 二级分类网格
               _buildLevel2Categories(),
-              
+
               // 推荐服务
               _buildRecommendedServices(),
-              
+
               const SizedBox(height: 20),
             ],
           ),
@@ -69,10 +85,11 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
     );
   }
 
-  PreferredSizeWidget _buildAppBar(BuildContext context, LocationController locationController) {
+  PreferredSizeWidget _buildAppBar(
+      BuildContext context, LocationController locationController) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return AppBar(
       elevation: 0,
       backgroundColor: colorScheme.surface,
@@ -125,28 +142,29 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
                     ),
                     const SizedBox(height: 4),
                     Obx(() => Text(
-                      locationController.effectiveLocation.address,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    )),
+                          locationController.effectiveLocation.address,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        )),
                   ],
                 ),
               ),
               Obx(() => locationController.isLoading.value
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : IconButton(
-                    icon: Icon(Icons.refresh, color: Colors.grey[600], size: 20),
-                    onPressed: () => locationController.getCurrentLocation(),
-                  )),
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : IconButton(
+                      icon: Icon(Icons.refresh,
+                          color: Colors.grey[600], size: 20),
+                      onPressed: () => locationController.getCurrentLocation(),
+                    )),
             ],
           ),
         ),
@@ -172,7 +190,7 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
       builder: (context) {
         final theme = Theme.of(context);
         final colorScheme = theme.colorScheme;
-        
+
         return Container(
           height: 56, // 减少高度，参考Yelp
           margin: const EdgeInsets.symmetric(vertical: 4), // 减少垂直间距
@@ -180,11 +198,11 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
             if (controller.isLoadingLevel1.value) {
               return const Center(child: CircularProgressIndicator());
             }
-            
+
             // 强制刷新UI
             final selectedId = controller.selectedLevel1CategoryId.value;
             AppLogger.info('=== Obx Rebuild === Selected ID: $selectedId');
-            
+
             return ListView.builder(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -192,13 +210,13 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
               itemBuilder: (context, index) {
                 final category = controller.level1Categories[index];
                 final isSelected = selectedId == category.id;
-                
-                // 添加调试信息
-                AppLogger.info('=== UI Debug ===');
-                AppLogger.info('Category: ${category.displayName()}, ID: ${category.id}');
-                AppLogger.info('Selected ID: $selectedId');
-                AppLogger.info('Is Selected: $isSelected');
-                
+
+                // 关闭UI调试日志以减少输出
+                // AppLogger.info('=== UI Debug ===');
+                // AppLogger.info('Category: ${category.displayName()}, ID: ${category.id}');
+                // AppLogger.info('Selected ID: $selectedId');
+                // AppLogger.info('Is Selected: $isSelected');
+
                 return Container(
                   margin: const EdgeInsets.only(right: 8), // 减少间距
                   child: Material(
@@ -207,36 +225,48 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
                       onTap: () {
                         // 添加触觉反馈
                         HapticFeedback.lightImpact();
-                        AppLogger.info('=== Tapping Category: ${category.displayName()} (ID: ${category.id}) ===');
+                        AppLogger.info(
+                            '=== Tapping Category: ${category.displayName()} (ID: ${category.id}) ===');
                         controller.selectLevel1Category(category.id);
                       },
                       borderRadius: BorderRadius.circular(20), // 减少圆角
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200), // 减少动画时间
                         curve: Curves.easeInOut,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 减少内边距
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8), // 减少内边距
                         decoration: BoxDecoration(
-                          color: isSelected ? colorScheme.primary : colorScheme.surfaceContainerHighest,
+                          color: isSelected
+                              ? colorScheme.primary
+                              : colorScheme.surfaceContainerHighest,
                           borderRadius: BorderRadius.circular(20),
-                          border: isSelected 
-                            ? Border.all(color: colorScheme.primary, width: 1)
-                            : null,
+                          border: isSelected
+                              ? Border.all(color: colorScheme.primary, width: 1)
+                              : null,
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
-                              ServiceBookingController.iconFromString(category.extraData['icon']),
+                              ServiceBookingController.iconFromString(
+                                  category.extraData['icon']),
                               size: 18, // 减小图标
-                              color: isSelected ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
+                              color: isSelected
+                                  ? colorScheme.onPrimary
+                                  : colorScheme.onSurfaceVariant,
                             ),
                             const SizedBox(width: 8), // 减少间距
                             Text(
-                              controller.getSafeLocalizedText(category.displayName()),
+                              controller
+                                  .getSafeLocalizedText(category.displayName()),
                               style: TextStyle(
                                 fontSize: 14, // 减小字体
-                                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                                color: isSelected ? colorScheme.onPrimary : colorScheme.onSurface,
+                                fontWeight: isSelected
+                                    ? FontWeight.w600
+                                    : FontWeight.w500,
+                                color: isSelected
+                                    ? colorScheme.onPrimary
+                                    : colorScheme.onSurface,
                               ),
                             ),
                           ],
@@ -258,12 +288,12 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
       builder: (context) {
         final theme = Theme.of(context);
         final colorScheme = theme.colorScheme;
-        
+
         return Obx(() {
           if (controller.selectedLevel1CategoryId.value == null) {
             return const SizedBox.shrink();
           }
-          
+
           if (controller.isLoadingLevel2.value) {
             return Container(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -285,7 +315,7 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
               ),
             );
           }
-          
+
           if (controller.level2Categories.isEmpty) {
             return Container(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -293,7 +323,8 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
               decoration: BoxDecoration(
                 color: colorScheme.surface,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
+                border: Border.all(
+                    color: colorScheme.outline.withValues(alpha: 0.2)),
               ),
               child: Column(
                 children: [
@@ -321,7 +352,8 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
             children: [
               // 更紧凑的header
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2), // 进一步减少垂直间距
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 2), // 进一步减少垂直间距
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -339,7 +371,8 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
                         controller.clearFilters();
                       },
                       style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), // 减少内边距
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2), // 减少内边距
                         minimumSize: Size.zero,
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
@@ -380,14 +413,13 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
     );
   }
 
-
-  
   // 紧凑分类卡片 - 优化水平滑动
   Widget _buildCompactCategoryCard(dynamic category, ColorScheme colorScheme) {
     return InkWell(
       onTap: () {
         HapticFeedback.lightImpact();
-        AppLogger.info('选择二级分类: ${category.displayName()} (ID: ${category.id})');
+        AppLogger.info(
+            '选择二级分类: ${category.displayName()} (ID: ${category.id})');
         controller.selectLevel2Category(category.id);
       },
       borderRadius: BorderRadius.circular(10),
@@ -412,7 +444,8 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Icon(
-                ServiceBookingController.iconFromString(category.extraData['icon']),
+                ServiceBookingController.iconFromString(
+                    category.extraData['icon']),
                 color: colorScheme.primary,
                 size: 16,
               ),
@@ -436,15 +469,13 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
       ),
     );
   }
-  
-
 
   Widget _buildRecommendedServices() {
     return Builder(
       builder: (context) {
         final theme = Theme.of(context);
         final colorScheme = theme.colorScheme;
-        
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -467,9 +498,10 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
             const SizedBox(height: 8), // 减少间距，平衡布局
             Obx(() {
               if (controller.isLoadingSearch.value) {
-                return const CustomerLoadingState(message: 'Loading services...');
+                return const CustomerLoadingState(
+                    message: 'Loading services...');
               }
-              
+
               if (controller.services.isNotEmpty) {
                 return ListView.builder(
                   shrinkWrap: true,
@@ -494,7 +526,8 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
                     final service = controller.recommendedServices[index];
                     return Container(
                       margin: const EdgeInsets.only(bottom: 12),
-                      child: _buildVerticalRecommendedServiceCard(service, colorScheme),
+                      child: _buildVerticalRecommendedServiceCard(
+                          service, colorScheme),
                     );
                   },
                 );
@@ -502,7 +535,8 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
                 return const CustomerEmptyState(
                   icon: Icons.search_off,
                   title: 'No Services Found',
-                  subtitle: 'Try adjusting your search or browse our categories',
+                  subtitle:
+                      'Try adjusting your search or browse our categories',
                   actionText: 'Browse Categories',
                   onAction: null, // TODO: Implement action
                 );
@@ -514,7 +548,8 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
     );
   }
 
-  Widget _buildEnhancedServiceCard(ServiceItem service, ColorScheme colorScheme) {
+  Widget _buildEnhancedServiceCard(
+      ServiceItem service, ColorScheme colorScheme) {
     return Container(
       width: 200,
       margin: const EdgeInsets.only(right: 12),
@@ -523,7 +558,8 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: InkWell(
           onTap: () {
-            Get.toNamed('/service_detail', parameters: {'serviceId': service.id});
+            Get.toNamed('/service_detail',
+                parameters: {'serviceId': service.id});
           },
           borderRadius: BorderRadius.circular(12),
           child: Column(
@@ -531,7 +567,8 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
             children: [
               // Service Image
               ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(12)),
                 child: SizedBox(
                   height: 120,
                   width: double.infinity,
@@ -568,7 +605,7 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
-                      
+
                       // Service Description
                       Text(
                         controller.getSafeLocalizedText(service.description),
@@ -580,7 +617,7 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
                         overflow: TextOverflow.ellipsis,
                       ),
                       const Spacer(),
-                      
+
                       // Rating and Reviews
                       Row(
                         children: [
@@ -604,7 +641,7 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
                         ],
                       ),
                       const SizedBox(height: 6),
-                      
+
                       // Price and Action
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -635,7 +672,8 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
     );
   }
 
-  Widget _buildEnhancedRecommendedServiceCard(RecommendedService service, ColorScheme colorScheme) {
+  Widget _buildEnhancedRecommendedServiceCard(
+      RecommendedService service, ColorScheme colorScheme) {
     return Container(
       width: 200,
       margin: const EdgeInsets.only(right: 12),
@@ -644,7 +682,8 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: InkWell(
           onTap: () {
-            Get.toNamed('/service_detail', parameters: {'serviceId': service.id});
+            Get.toNamed('/service_detail',
+                parameters: {'serviceId': service.id});
           },
           borderRadius: BorderRadius.circular(12),
           child: Column(
@@ -654,7 +693,8 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
               Stack(
                 children: [
                   ClipRRect(
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(12)),
                     child: SizedBox(
                       height: 120,
                       width: double.infinity,
@@ -678,7 +718,8 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
                     top: 8,
                     right: 8,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
                         color: Colors.orange,
                         borderRadius: BorderRadius.circular(8),
@@ -712,7 +753,7 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
-                      
+
                       // Recommendation Reason
                       Text(
                         service.recommendationReason,
@@ -725,7 +766,7 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
                         overflow: TextOverflow.ellipsis,
                       ),
                       const Spacer(),
-                      
+
                       // Rating and Reviews
                       Row(
                         children: [
@@ -749,7 +790,7 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
                         ],
                       ),
                       const SizedBox(height: 6),
-                      
+
                       // Price and Action
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -780,12 +821,14 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
     );
   }
 
-  void _showLocationDialog(BuildContext context, LocationController locationController) {
+  void _showLocationDialog(
+      BuildContext context, LocationController locationController) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Select Location'),
-        content: const Text('Location selection dialog will be implemented here.'),
+        content:
+            const Text('Location selection dialog will be implemented here.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -799,9 +842,10 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
       ),
     );
   }
-  
+
   // 新增：垂直服务卡片组件 - 现代化设计
-  Widget _buildVerticalServiceCard(ServiceItem service, ColorScheme colorScheme) {
+  Widget _buildVerticalServiceCard(
+      ServiceItem service, ColorScheme colorScheme) {
     return Card(
       elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -872,7 +916,8 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
                     Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
                             color: colorScheme.primary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
@@ -888,7 +933,8 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
                         ),
                         const Spacer(),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
                             color: Colors.amber.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
@@ -932,9 +978,10 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
       ),
     );
   }
-  
+
   // 新增：垂直推荐服务卡片组件 - 现代化设计
-  Widget _buildVerticalRecommendedServiceCard(RecommendedService service, ColorScheme colorScheme) {
+  Widget _buildVerticalRecommendedServiceCard(
+      RecommendedService service, ColorScheme colorScheme) {
     return Card(
       elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -978,7 +1025,8 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
                     top: 6,
                     right: 6,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [Colors.orange[400]!, Colors.orange[600]!],
@@ -1038,7 +1086,8 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
                     Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
                             color: colorScheme.primary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
@@ -1054,7 +1103,8 @@ class ServiceBookingPage extends GetView<ServiceBookingController> {
                         ),
                         const Spacer(),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
                             color: Colors.amber.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),

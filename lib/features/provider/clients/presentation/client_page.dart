@@ -16,7 +16,7 @@ class ClientPage extends StatefulWidget {
 
 class _ClientPageState extends State<ClientPage> {
   late ClientController controller;
-  
+
   // 平台组件状态管理
   final LoadingStateManager _loadingManager = LoadingStateManager();
 
@@ -24,16 +24,16 @@ class _ClientPageState extends State<ClientPage> {
   void initState() {
     super.initState();
     AppLogger.debug('[ClientPage] initState called', tag: 'ClientPage');
-    
+
     // 初始化网络状态为在线
     _loadingManager.setOnline();
-    
+
     // 确保Controller被注册
     if (!Get.isRegistered<ClientController>()) {
       Get.put(ClientController());
     }
     controller = Get.find<ClientController>();
-    
+
     // 数据已经在controller中加载完成，直接设置为成功状态
     _loadingManager.setSuccess();
   }
@@ -48,10 +48,10 @@ class _ClientPageState extends State<ClientPage> {
   Future<void> _loadClientsData() async {
     try {
       _loadingManager.setLoading();
-      
+
       // 加载客户数据
       await controller.loadClients();
-      
+
       _loadingManager.setSuccess();
       AppLogger.info('Clients data loaded successfully', tag: 'ClientPage');
     } catch (e) {
@@ -93,14 +93,14 @@ class _ClientPageState extends State<ClientPage> {
               children: [
                 // 搜索筛选区域
                 _buildSearchAndFilterSection(),
-                
+
                 const SizedBox(height: 16),
-                
+
                 // 统计概览区域
                 _buildStatisticsSection(),
-                
+
                 const SizedBox(height: 16),
-                
+
                 // 客户列表区域
                 Expanded(
                   child: _buildClientsList(),
@@ -144,7 +144,8 @@ class _ClientPageState extends State<ClientPage> {
               ),
               filled: true,
               fillColor: Colors.grey.shade50,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
           ),
           const SizedBox(height: 12),
@@ -156,21 +157,22 @@ class _ClientPageState extends State<ClientPage> {
                 return Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: Obx(() => FilterChip(
-                    label: Text(controller.getCategoryDisplayText(category)),
-                    selected: controller.selectedCategory.value == category,
-                    onSelected: (selected) {
-                      if (selected) {
-                        controller.filterByCategory(category);
-                      }
-                    },
-                    backgroundColor: Colors.grey.shade100,
-                    selectedColor: Colors.blue.shade100,
-                    labelStyle: TextStyle(
-                      color: controller.selectedCategory.value == category 
-                          ? Colors.blue 
-                          : Colors.grey.shade700,
-                    ),
-                  )),
+                        label:
+                            Text(controller.getCategoryDisplayText(category)),
+                        selected: controller.selectedCategory.value == category,
+                        onSelected: (selected) {
+                          if (selected) {
+                            controller.filterByCategory(category);
+                          }
+                        },
+                        backgroundColor: Colors.grey.shade100,
+                        selectedColor: Colors.blue.shade100,
+                        labelStyle: TextStyle(
+                          color: controller.selectedCategory.value == category
+                              ? Colors.blue
+                              : Colors.grey.shade700,
+                        ),
+                      )),
                 );
               }).toList(),
             ),
@@ -184,56 +186,67 @@ class _ClientPageState extends State<ClientPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       child: Obx(() => Column(
-        children: [
-          Row(
             children: [
-              Expanded(
-                child: _buildStatCard(
-                  '总客户数',
-                  controller.clients.length.toString(),
-                  Icons.people,
-                  Colors.blue,
-                ),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildStatCard(
+                      '总客户数',
+                      controller.clients.length.toString(),
+                      Icons.people,
+                      Colors.blue,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildStatCard(
+                      '已服务',
+                      controller.clients
+                          .where((c) => c['relationship_type'] == 'served')
+                          .length
+                          .toString(),
+                      Icons.person_add,
+                      Colors.green,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildStatCard(
-                  '已服务',
-                  controller.clients.where((c) => c['relationship_type'] == 'served').length.toString(),
-                  Icons.person_add,
-                  Colors.green,
-                ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildStatCard(
+                      '谈判中',
+                      controller.clients
+                          .where(
+                              (c) => c['relationship_type'] == 'in_negotiation')
+                          .length
+                          .toString(),
+                      Icons.person_add_alt,
+                      Colors.orange,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildStatCard(
+                      '潜在客户',
+                      controller.clients
+                          .where((c) => c['relationship_type'] == 'potential')
+                          .length
+                          .toString(),
+                      Icons.star,
+                      Colors.purple,
+                    ),
+                  ),
+                ],
               ),
             ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _buildStatCard(
-                  '谈判中',
-                  controller.clients.where((c) => c['relationship_type'] == 'in_negotiation').length.toString(),
-                  Icons.person_add_alt,
-                  Colors.orange,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildStatCard(
-                  '潜在客户',
-                  controller.clients.where((c) => c['relationship_type'] == 'potential').length.toString(),
-                  Icons.star,
-                  Colors.purple,
-                ),
-              ),
-            ],
-          ),
-        ],
-      )),
+          )),
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+  Widget _buildStatCard(
+      String title, String value, IconData icon, Color color) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -278,7 +291,7 @@ class _ClientPageState extends State<ClientPage> {
       if (controller.isLoading.value) {
         return const Center(child: CircularProgressIndicator());
       }
-      
+
       if (controller.clients.isEmpty) {
         return Center(
           child: Column(
@@ -309,41 +322,42 @@ class _ClientPageState extends State<ClientPage> {
           ),
         );
       }
-      
+
       return RefreshIndicator(
         onRefresh: () => controller.loadClients(refresh: true),
         child: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: controller.clients.length + (controller.hasMoreData.value ? 1 : 0),
-        itemBuilder: (context, index) {
-          if (index == controller.clients.length) {
-            // Load more indicator
-            if (controller.hasMoreData.value) {
-              controller.loadClients();
-              return const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(16),
-                  child: CircularProgressIndicator(),
-                ),
-              );
+          padding: const EdgeInsets.all(16),
+          itemCount: controller.clients.length +
+              (controller.hasMoreData.value ? 1 : 0),
+          itemBuilder: (context, index) {
+            if (index == controller.clients.length) {
+              // Load more indicator
+              if (controller.hasMoreData.value) {
+                controller.loadClients();
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
             }
-            return const SizedBox.shrink();
-          }
-          
-          final client = controller.clients[index];
+
+            final client = controller.clients[index];
             return Card(
               margin: const EdgeInsets.only(bottom: 8),
               child: ListTile(
                 leading: CircleAvatar(
                   backgroundColor: Colors.blue.shade100,
-                    child: Text(
-                      controller.getClientName(client)[0].toUpperCase(),
+                  child: Text(
+                    controller.getClientName(client)[0].toUpperCase(),
                     style: const TextStyle(
                       color: Colors.blue,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
+                ),
                 title: Text(
                   controller.getClientName(client),
                   style: const TextStyle(fontWeight: FontWeight.w600),
@@ -352,36 +366,38 @@ class _ClientPageState extends State<ClientPage> {
                 trailing: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
+                  children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: _getStatusColor(client['relationship_type']),
                         borderRadius: BorderRadius.circular(12),
-                        ),
+                      ),
                       child: Text(
-                        controller.getCategoryDisplayText(client['relationship_type']),
+                        controller.getCategoryDisplayText(
+                            client['relationship_type']),
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
                         ),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                            Text(
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
                       '${controller.getTotalOrders(client)} 订单',
                       style: TextStyle(
-                                fontSize: 12,
+                        fontSize: 12,
                         color: Colors.grey.shade600,
                       ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
+                ),
                 onTap: () => _showClientDetail(client),
-            ),
-          );
-        },
+              ),
+            );
+          },
         ),
       );
     });
@@ -404,7 +420,7 @@ class _ClientPageState extends State<ClientPage> {
     final clientIdController = TextEditingController();
     final notesController = TextEditingController();
     String selectedCategory = 'potential';
-    
+
     Get.dialog(
       AlertDialog(
         title: const Text('添加客户'),
@@ -414,39 +430,40 @@ class _ClientPageState extends State<ClientPage> {
             TextField(
               controller: clientIdController,
               decoration: const InputDecoration(
-                    labelText: '客户ID',
+                labelText: '客户ID',
                 hintText: '输入客户用户ID',
-                  ),
-                ),
-                const SizedBox(height: 16),
-                DropdownButtonFormField<String>(
-                  value: selectedCategory,
+              ),
+            ),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<String>(
+              value: selectedCategory,
               decoration: const InputDecoration(
-                    labelText: '关系类型',
-                  ),
-                  items: controller.categories
+                labelText: '关系类型',
+              ),
+              items: controller.categories
                   .where((c) => c != 'all')
-                      .map((category) => DropdownMenuItem(
+                  .map((category) => DropdownMenuItem(
                         value: category,
-                        child: Text(controller.getCategoryDisplayText(category)),
+                        child:
+                            Text(controller.getCategoryDisplayText(category)),
                       ))
-                      .toList(),
-                  onChanged: (value) {
+                  .toList(),
+              onChanged: (value) {
                 if (value != null) {
                   selectedCategory = value;
                 }
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: notesController,
+              },
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: notesController,
               decoration: const InputDecoration(
-                    labelText: '备注',
-                    hintText: '添加关于此客户的任何备注',
-                  ),
-                  maxLines: 3,
-                ),
-              ],
+                labelText: '备注',
+                hintText: '添加关于此客户的任何备注',
+              ),
+              maxLines: 3,
+            ),
+          ],
         ),
         actions: [
           TextButton(
@@ -482,10 +499,14 @@ class _ClientPageState extends State<ClientPage> {
             _buildDetailRow('姓名', controller.getClientName(client)),
             _buildDetailRow('邮箱', controller.getClientEmail(client)),
             _buildDetailRow('电话', controller.getClientPhone(client)),
-            _buildDetailRow('关系', controller.getCategoryDisplayText(client['relationship_type'])),
-            _buildDetailRow('总订单', controller.getTotalOrders(client).toString()),
-            _buildDetailRow('总金额', controller.formatPrice(controller.getTotalAmount(client))),
-            _buildDetailRow('最后联系', controller.formatDateTime(client['last_contact_date'])),
+            _buildDetailRow('关系',
+                controller.getCategoryDisplayText(client['relationship_type'])),
+            _buildDetailRow(
+                '总订单', controller.getTotalOrders(client).toString()),
+            _buildDetailRow('总金额',
+                controller.formatPrice(controller.getTotalAmount(client))),
+            _buildDetailRow(
+                '最后联系', controller.formatDateTime(client['last_contact_date'])),
             if (client['notes'] != null && client['notes'].isNotEmpty)
               _buildDetailRow('备注', client['notes']),
           ],
@@ -520,4 +541,4 @@ class _ClientPageState extends State<ClientPage> {
       ),
     );
   }
-} 
+}

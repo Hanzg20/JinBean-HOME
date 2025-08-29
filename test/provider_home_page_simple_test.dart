@@ -5,7 +5,8 @@ import 'package:jinbeanpod_83904710/features/provider/provider_home_page.dart';
 
 void main() {
   group('ProviderHomePage Simple Test', () {
-    testWidgets('ProviderHomePage should display basic content', (WidgetTester tester) async {
+    testWidgets('ProviderHomePage should display basic content',
+        (WidgetTester tester) async {
       // Arrange
       await tester.pumpWidget(
         MaterialApp(
@@ -25,7 +26,8 @@ void main() {
       expect(find.text('最新动态'), findsOneWidget);
     });
 
-    testWidgets('ProviderHomePage should show online status', (WidgetTester tester) async {
+    testWidgets('ProviderHomePage should show online status',
+        (WidgetTester tester) async {
       // Arrange
       await tester.pumpWidget(
         MaterialApp(
@@ -42,7 +44,8 @@ void main() {
       expect(find.text('Online'), findsOneWidget);
     });
 
-    testWidgets('ProviderHomePage should show today overview data', (WidgetTester tester) async {
+    testWidgets('ProviderHomePage should show today overview data',
+        (WidgetTester tester) async {
       // Arrange
       await tester.pumpWidget(
         MaterialApp(
@@ -61,7 +64,8 @@ void main() {
       expect(find.text('4.8'), findsOneWidget);
     });
 
-    testWidgets('ProviderHomePage should have scrollable content', (WidgetTester tester) async {
+    testWidgets('ProviderHomePage should have scrollable content',
+        (WidgetTester tester) async {
       // Arrange
       await tester.pumpWidget(
         MaterialApp(
@@ -78,4 +82,4 @@ void main() {
       expect(find.byType(SingleChildScrollView), findsOneWidget);
     });
   });
-} 
+}

@@ -13,36 +13,36 @@ class FinanceSettingsPage extends StatefulWidget {
 
 class _FinanceSettingsPageState extends State<FinanceSettingsPage> {
   final _supabase = Supabase.instance.client;
-  
+
   bool _isLoading = true;
   Map<String, dynamic>? _financeData;
   List<Map<String, dynamic>> _paymentMethods = [];
-  
+
   @override
   void initState() {
     super.initState();
     _loadFinanceData();
   }
-  
+
   Future<void> _loadFinanceData() async {
     try {
       setState(() {
         _isLoading = true;
       });
-      
+
       final userId = _supabase.auth.currentUser?.id;
       if (userId == null) {
         AppLogger.warning('[FinanceSettingsPage] No user ID available');
         return;
       }
-      
+
       // 获取财务设置
       final financeResponse = await _supabase
           .from('provider_settings')
           .select('*')
           .eq('provider_id', userId)
           .inFilter('setting_key', ['finance_settings', 'payment_methods']);
-      
+
       // 获取支付方式
       final paymentResponse = await _supabase
           .from('payment_methods')
@@ -50,13 +50,12 @@ class _FinanceSettingsPageState extends State<FinanceSettingsPage> {
           .eq('provider_id', userId)
           .eq('is_active', true)
           .order('created_at');
-      
+
       setState(() {
         _financeData = _parseFinanceData(financeResponse);
         _paymentMethods = List<Map<String, dynamic>>.from(paymentResponse);
         _isLoading = false;
       });
-      
     } catch (e) {
       AppLogger.error('[FinanceSettingsPage] Error loading finance data: $e');
       setState(() {
@@ -69,7 +68,7 @@ class _FinanceSettingsPageState extends State<FinanceSettingsPage> {
       );
     }
   }
-  
+
   Map<String, dynamic> _parseFinanceData(List<dynamic> response) {
     final Map<String, dynamic> data = {};
     for (final item in response) {
@@ -77,13 +76,14 @@ class _FinanceSettingsPageState extends State<FinanceSettingsPage> {
     }
     return data;
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: JinBeanColors.background,
       appBar: AppBar(
-        title: const Text('收入与财务管理', style: TextStyle(color: JinBeanColors.textPrimary)),
+        title: const Text('收入与财务管理',
+            style: TextStyle(color: JinBeanColors.textPrimary)),
         backgroundColor: JinBeanColors.background,
         elevation: 0,
         iconTheme: const IconThemeData(color: JinBeanColors.textPrimary),
@@ -97,19 +97,15 @@ class _FinanceSettingsPageState extends State<FinanceSettingsPage> {
                 children: [
                   _buildSectionHeader('财务概览'),
                   _buildFinanceOverviewCard(),
-                  
                   const SizedBox(height: 24),
                   _buildSectionHeader('支付方式'),
                   _buildPaymentMethodsCard(),
-                  
                   const SizedBox(height: 24),
                   _buildSectionHeader('结算设置'),
                   _buildSettlementSettingsCard(),
-                  
                   const SizedBox(height: 24),
                   _buildSectionHeader('税务信息'),
                   _buildTaxInfoCard(),
-                  
                   const SizedBox(height: 24),
                   _buildSectionHeader('财务报告'),
                   _buildFinancialReportsCard(),
@@ -118,7 +114,7 @@ class _FinanceSettingsPageState extends State<FinanceSettingsPage> {
             ),
     );
   }
-  
+
   Widget _buildSectionHeader(String title) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -132,12 +128,15 @@ class _FinanceSettingsPageState extends State<FinanceSettingsPage> {
       ),
     );
   }
-  
+
   Widget _buildFinanceOverviewCard() {
-    final totalEarnings = _financeData?['finance_settings']?['total_earnings'] ?? 0.0;
-    final pendingAmount = _financeData?['finance_settings']?['pending_amount'] ?? 0.0;
-    final thisMonthEarnings = _financeData?['finance_settings']?['this_month_earnings'] ?? 0.0;
-    
+    final totalEarnings =
+        _financeData?['finance_settings']?['total_earnings'] ?? 0.0;
+    final pendingAmount =
+        _financeData?['finance_settings']?['pending_amount'] ?? 0.0;
+    final thisMonthEarnings =
+        _financeData?['finance_settings']?['this_month_earnings'] ?? 0.0;
+
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -193,8 +192,9 @@ class _FinanceSettingsPageState extends State<FinanceSettingsPage> {
       ),
     );
   }
-  
-  Widget _buildFinanceStat(String title, String value, Color color, IconData icon) {
+
+  Widget _buildFinanceStat(
+      String title, String value, Color color, IconData icon) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -227,7 +227,7 @@ class _FinanceSettingsPageState extends State<FinanceSettingsPage> {
       ),
     );
   }
-  
+
   Widget _buildPaymentMethodsCard() {
     return Card(
       elevation: 2,
@@ -254,7 +254,8 @@ class _FinanceSettingsPageState extends State<FinanceSettingsPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: JinBeanColors.primary,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   ),
                 ),
               ],
@@ -290,19 +291,21 @@ class _FinanceSettingsPageState extends State<FinanceSettingsPage> {
               )
             else
               Column(
-                children: _paymentMethods.map((method) => _buildPaymentMethodItem(method)).toList(),
+                children: _paymentMethods
+                    .map((method) => _buildPaymentMethodItem(method))
+                    .toList(),
               ),
           ],
         ),
       ),
     );
   }
-  
+
   Widget _buildPaymentMethodItem(Map<String, dynamic> method) {
     final type = method['method_type'] as String? ?? '';
     final accountName = method['account_name'] as String? ?? '';
     final isDefault = method['is_default'] ?? false;
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
@@ -400,12 +403,15 @@ class _FinanceSettingsPageState extends State<FinanceSettingsPage> {
       ),
     );
   }
-  
+
   Widget _buildSettlementSettingsCard() {
-    final autoSettlement = _financeData?['finance_settings']?['auto_settlement'] ?? false;
-    final settlementThreshold = _financeData?['finance_settings']?['settlement_threshold'] ?? 100.0;
-    final settlementFrequency = _financeData?['finance_settings']?['settlement_frequency'] ?? 'weekly';
-    
+    final autoSettlement =
+        _financeData?['finance_settings']?['auto_settlement'] ?? false;
+    final settlementThreshold =
+        _financeData?['finance_settings']?['settlement_threshold'] ?? 100.0;
+    final settlementFrequency =
+        _financeData?['finance_settings']?['settlement_frequency'] ?? 'weekly';
+
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -422,18 +428,19 @@ class _FinanceSettingsPageState extends State<FinanceSettingsPage> {
               ),
             ),
             const SizedBox(height: 16),
-            
+
             // 自动结算开关
             SwitchListTile(
               title: const Text('自动结算'),
               subtitle: const Text('达到阈值时自动申请结算'),
               value: autoSettlement,
-              onChanged: (value) => _updateSettlementSetting('auto_settlement', value),
+              onChanged: (value) =>
+                  _updateSettlementSetting('auto_settlement', value),
               activeColor: JinBeanColors.primary,
             ),
-            
+
             const Divider(),
-            
+
             // 结算阈值
             ListTile(
               title: const Text('结算阈值'),
@@ -441,9 +448,9 @@ class _FinanceSettingsPageState extends State<FinanceSettingsPage> {
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: () => _showSettlementThresholdDialog(settlementThreshold),
             ),
-            
+
             const Divider(),
-            
+
             // 结算频率
             ListTile(
               title: const Text('结算频率'),
@@ -456,7 +463,7 @@ class _FinanceSettingsPageState extends State<FinanceSettingsPage> {
       ),
     );
   }
-  
+
   Widget _buildTaxInfoCard() {
     return Card(
       elevation: 2,
@@ -474,7 +481,6 @@ class _FinanceSettingsPageState extends State<FinanceSettingsPage> {
               ),
             ),
             const SizedBox(height: 16),
-            
             ListTile(
               leading: const Icon(Icons.receipt, color: Colors.orange),
               title: const Text('税务识别号'),
@@ -482,9 +488,7 @@ class _FinanceSettingsPageState extends State<FinanceSettingsPage> {
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: () => _showTaxInfoDialog(),
             ),
-            
             const Divider(),
-            
             ListTile(
               leading: const Icon(Icons.business, color: Colors.blue),
               title: const Text('公司信息'),
@@ -497,7 +501,7 @@ class _FinanceSettingsPageState extends State<FinanceSettingsPage> {
       ),
     );
   }
-  
+
   Widget _buildFinancialReportsCard() {
     return Card(
       elevation: 2,
@@ -515,25 +519,20 @@ class _FinanceSettingsPageState extends State<FinanceSettingsPage> {
               ),
             ),
             const SizedBox(height: 16),
-            
             _buildReportItem(
               icon: Icons.assessment,
               title: '收入报告',
               subtitle: '查看详细的收入分析',
               onTap: () => _showReportDialog('income'),
             ),
-            
             const Divider(),
-            
             _buildReportItem(
               icon: Icons.pie_chart,
               title: '服务分析',
               subtitle: '分析各服务的收入情况',
               onTap: () => _showReportDialog('service'),
             ),
-            
             const Divider(),
-            
             _buildReportItem(
               icon: Icons.calendar_today,
               title: '月度报表',
@@ -545,7 +544,7 @@ class _FinanceSettingsPageState extends State<FinanceSettingsPage> {
       ),
     );
   }
-  
+
   Widget _buildReportItem({
     required IconData icon,
     required String title,
@@ -560,7 +559,7 @@ class _FinanceSettingsPageState extends State<FinanceSettingsPage> {
       onTap: onTap,
     );
   }
-  
+
   IconData _getPaymentMethodIcon(String type) {
     switch (type) {
       case 'bank_transfer':
@@ -577,7 +576,7 @@ class _FinanceSettingsPageState extends State<FinanceSettingsPage> {
         return Icons.payment;
     }
   }
-  
+
   String _getPaymentMethodDisplayName(String type) {
     switch (type) {
       case 'bank_transfer':
@@ -594,7 +593,7 @@ class _FinanceSettingsPageState extends State<FinanceSettingsPage> {
         return type;
     }
   }
-  
+
   String _getSettlementFrequencyText(String frequency) {
     switch (frequency) {
       case 'daily':
@@ -607,7 +606,7 @@ class _FinanceSettingsPageState extends State<FinanceSettingsPage> {
         return '每周';
     }
   }
-  
+
   void _showAddPaymentMethodDialog() {
     Get.dialog(
       AlertDialog(
@@ -622,7 +621,7 @@ class _FinanceSettingsPageState extends State<FinanceSettingsPage> {
       ),
     );
   }
-  
+
   void _handlePaymentMethodAction(String action, Map<String, dynamic> method) {
     switch (action) {
       case 'edit':
@@ -636,7 +635,7 @@ class _FinanceSettingsPageState extends State<FinanceSettingsPage> {
         break;
     }
   }
-  
+
   void _showEditPaymentMethodDialog(Map<String, dynamic> method) {
     Get.dialog(
       AlertDialog(
@@ -651,7 +650,7 @@ class _FinanceSettingsPageState extends State<FinanceSettingsPage> {
       ),
     );
   }
-  
+
   void _showDeletePaymentMethodDialog(Map<String, dynamic> method) {
     Get.dialog(
       AlertDialog(
@@ -673,7 +672,7 @@ class _FinanceSettingsPageState extends State<FinanceSettingsPage> {
       ),
     );
   }
-  
+
   void _setDefaultPaymentMethod(String methodId) {
     // 设置默认支付方式的逻辑
     Get.snackbar(
@@ -682,31 +681,29 @@ class _FinanceSettingsPageState extends State<FinanceSettingsPage> {
       snackPosition: SnackPosition.BOTTOM,
     );
   }
-  
+
   Future<void> _updateSettlementSetting(String key, dynamic value) async {
     try {
       final userId = _supabase.auth.currentUser?.id;
       if (userId == null) return;
-      
-      await _supabase
-          .from('provider_settings')
-          .upsert({
-            'provider_id': userId,
-            'setting_key': 'finance_settings',
-            'setting_value': {
-              ..._financeData?['finance_settings'] ?? {},
-              key: value,
-            },
-            'updated_at': DateTime.now().toIso8601String(),
-          });
-      
+
+      await _supabase.from('provider_settings').upsert({
+        'provider_id': userId,
+        'setting_key': 'finance_settings',
+        'setting_value': {
+          ..._financeData?['finance_settings'] ?? {},
+          key: value,
+        },
+        'updated_at': DateTime.now().toIso8601String(),
+      });
+
       await _loadFinanceData();
-      
     } catch (e) {
-      AppLogger.error('[FinanceSettingsPage] Error updating settlement setting: $e');
+      AppLogger.error(
+          '[FinanceSettingsPage] Error updating settlement setting: $e');
     }
   }
-  
+
   void _showSettlementThresholdDialog(double currentThreshold) {
     Get.dialog(
       AlertDialog(
@@ -721,7 +718,7 @@ class _FinanceSettingsPageState extends State<FinanceSettingsPage> {
       ),
     );
   }
-  
+
   void _showSettlementFrequencyDialog(String currentFrequency) {
     Get.dialog(
       AlertDialog(
@@ -736,7 +733,7 @@ class _FinanceSettingsPageState extends State<FinanceSettingsPage> {
       ),
     );
   }
-  
+
   void _showTaxInfoDialog() {
     Get.dialog(
       AlertDialog(
@@ -751,7 +748,7 @@ class _FinanceSettingsPageState extends State<FinanceSettingsPage> {
       ),
     );
   }
-  
+
   void _showCompanyInfoDialog() {
     Get.dialog(
       AlertDialog(
@@ -766,7 +763,7 @@ class _FinanceSettingsPageState extends State<FinanceSettingsPage> {
       ),
     );
   }
-  
+
   void _showReportDialog(String reportType) {
     Get.dialog(
       AlertDialog(
@@ -781,7 +778,7 @@ class _FinanceSettingsPageState extends State<FinanceSettingsPage> {
       ),
     );
   }
-  
+
   String _getReportTypeName(String type) {
     switch (type) {
       case 'income':
@@ -794,4 +791,4 @@ class _FinanceSettingsPageState extends State<FinanceSettingsPage> {
         return '财务';
     }
   }
-} 
+}

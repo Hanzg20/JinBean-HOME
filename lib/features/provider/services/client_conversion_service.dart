@@ -9,7 +9,8 @@ class ClientConversionService {
     try {
       final providerUserId = _supabase.auth.currentUser?.id;
       if (providerUserId == null) {
-        AppLogger.warning('[ClientConversionService] No provider user ID available');
+        AppLogger.warning(
+            '[ClientConversionService] No provider user ID available');
         return false;
       }
 
@@ -22,24 +23,28 @@ class ClientConversionService {
 
       return response != null;
     } catch (e) {
-      AppLogger.error('[ClientConversionService] Error checking if user is client: $e');
+      AppLogger.error(
+          '[ClientConversionService] Error checking if user is client: $e');
       return false;
     }
   }
 
   /// 将订单用户转换为客户
-  Future<bool> convertOrderUserToClient(String orderId, String customerUserId, String customerName, String? customerPhone, String? customerEmail) async {
+  Future<bool> convertOrderUserToClient(String orderId, String customerUserId,
+      String customerName, String? customerPhone, String? customerEmail) async {
     try {
       final providerUserId = _supabase.auth.currentUser?.id;
       if (providerUserId == null) {
-        AppLogger.warning('[ClientConversionService] No provider user ID available');
+        AppLogger.warning(
+            '[ClientConversionService] No provider user ID available');
         return false;
       }
 
       // 检查是否已经是客户
       final isAlreadyClient = await isUserAlreadyClient(customerUserId);
       if (isAlreadyClient) {
-        AppLogger.info('[ClientConversionService] User $customerUserId is already a client');
+        AppLogger.info(
+            '[ClientConversionService] User $customerUserId is already a client');
         return true;
       }
 
@@ -51,39 +56,41 @@ class ClientConversionService {
           .single();
 
       // 创建客户关系
-      await _supabase
-          .from('client_relationships')
-          .insert({
-            'provider_id': providerUserId,
-            'client_user_id': customerUserId,
-            'display_name': customerName,
-            'phone': customerPhone,
-            'email': customerEmail,
-            'status': 'active',
-            'total_orders': 1,
-            'total_spent': orderResponse['amount'] ?? 0,
-            'first_order_date': orderResponse['created_at'],
-            'last_order_date': orderResponse['created_at'],
-            'last_contact_date': DateTime.now().toIso8601String(),
-            'notes': 'Converted from order $orderId',
-            'created_at': DateTime.now().toIso8601String(),
-            'updated_at': DateTime.now().toIso8601String(),
-          });
+      await _supabase.from('client_relationships').insert({
+        'provider_id': providerUserId,
+        'client_user_id': customerUserId,
+        'display_name': customerName,
+        'phone': customerPhone,
+        'email': customerEmail,
+        'status': 'active',
+        'total_orders': 1,
+        'total_spent': orderResponse['amount'] ?? 0,
+        'first_order_date': orderResponse['created_at'],
+        'last_order_date': orderResponse['created_at'],
+        'last_contact_date': DateTime.now().toIso8601String(),
+        'notes': 'Converted from order $orderId',
+        'created_at': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
+      });
 
-      AppLogger.info('[ClientConversionService] Successfully converted user $customerUserId to client');
+      AppLogger.info(
+          '[ClientConversionService] Successfully converted user $customerUserId to client');
       return true;
     } catch (e) {
-      AppLogger.error('[ClientConversionService] Error converting user to client: $e');
+      AppLogger.error(
+          '[ClientConversionService] Error converting user to client: $e');
       return false;
     }
   }
 
   /// 更新客户统计信息
-  Future<bool> updateClientStats(String customerUserId, String orderId, double orderAmount) async {
+  Future<bool> updateClientStats(
+      String customerUserId, String orderId, double orderAmount) async {
     try {
       final providerUserId = _supabase.auth.currentUser?.id;
       if (providerUserId == null) {
-        AppLogger.warning('[ClientConversionService] No provider user ID available');
+        AppLogger.warning(
+            '[ClientConversionService] No provider user ID available');
         return false;
       }
 
@@ -108,10 +115,12 @@ class ClientConversionService {
           .eq('provider_id', providerUserId)
           .eq('client_user_id', customerUserId);
 
-      AppLogger.info('[ClientConversionService] Updated client stats for user $customerUserId');
+      AppLogger.info(
+          '[ClientConversionService] Updated client stats for user $customerUserId');
       return true;
     } catch (e) {
-      AppLogger.error('[ClientConversionService] Error updating client stats: $e');
+      AppLogger.error(
+          '[ClientConversionService] Error updating client stats: $e');
       return false;
     }
   }
@@ -121,7 +130,8 @@ class ClientConversionService {
     try {
       final providerUserId = _supabase.auth.currentUser?.id;
       if (providerUserId == null) {
-        AppLogger.warning('[ClientConversionService] No provider user ID available');
+        AppLogger.warning(
+            '[ClientConversionService] No provider user ID available');
         return null;
       }
 
@@ -134,8 +144,9 @@ class ClientConversionService {
 
       return response;
     } catch (e) {
-      AppLogger.error('[ClientConversionService] Error getting client info: $e');
+      AppLogger.error(
+          '[ClientConversionService] Error getting client info: $e');
       return null;
     }
   }
-} 
+}

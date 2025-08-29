@@ -14,22 +14,22 @@ class ProfileSettingsPage extends StatefulWidget {
 class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
   final _supabase = Supabase.instance.client;
   final _formKey = GlobalKey<FormState>();
-  
+
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _emailController = TextEditingController();
   final _bioController = TextEditingController();
-  
+
   bool _isLoading = true;
   bool _isSaving = false;
   Map<String, dynamic>? _profileData;
-  
+
   @override
   void initState() {
     super.initState();
     _loadProfileData();
   }
-  
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -38,42 +38,41 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
     _bioController.dispose();
     super.dispose();
   }
-  
+
   Future<void> _loadProfileData() async {
     try {
       setState(() {
         _isLoading = true;
       });
-      
+
       final userId = _supabase.auth.currentUser?.id;
       if (userId == null) {
         AppLogger.warning('[ProfileSettingsPage] No user ID available');
         return;
       }
-      
+
       // 获取用户基本信息
       final userResponse = await _supabase.auth.getUser();
       final user = userResponse.user;
-      
+
       // 获取Provider档案信息
       final profileResponse = await _supabase
           .from('provider_profiles')
           .select('*')
           .eq('user_id', userId)
           .maybeSingle();
-      
+
       setState(() {
         _profileData = profileResponse;
-        
+
         // 填充表单数据
         _nameController.text = user?.userMetadata?['full_name'] ?? '';
         _phoneController.text = user?.phone ?? '';
         _emailController.text = user?.email ?? '';
         _bioController.text = profileResponse?['bio'] ?? '';
-        
+
         _isLoading = false;
       });
-      
     } catch (e) {
       AppLogger.error('[ProfileSettingsPage] Error loading profile data: $e');
       setState(() {
@@ -86,23 +85,23 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
       );
     }
   }
-  
+
   Future<void> _saveProfile() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
-    
+
     try {
       setState(() {
         _isSaving = true;
       });
-      
+
       final userId = _supabase.auth.currentUser?.id;
       if (userId == null) {
         AppLogger.warning('[ProfileSettingsPage] No user ID available');
         return;
       }
-      
+
       // 更新用户元数据
       await _supabase.auth.updateUser(
         UserAttributes(
@@ -111,16 +110,14 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
           },
         ),
       );
-      
+
       // 更新Provider档案
-      await _supabase
-          .from('provider_profiles')
-          .upsert({
-            'user_id': userId,
-            'bio': _bioController.text,
-            'updated_at': DateTime.now().toIso8601String(),
-          });
-      
+      await _supabase.from('provider_profiles').upsert({
+        'user_id': userId,
+        'bio': _bioController.text,
+        'updated_at': DateTime.now().toIso8601String(),
+      });
+
       Get.snackbar(
         'Success',
         'Profile updated successfully',
@@ -128,10 +125,9 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
         backgroundColor: JinBeanColors.success.withValues(alpha: 0.1),
         colorText: JinBeanColors.success,
       );
-      
+
       // 重新加载数据
       await _loadProfileData();
-      
     } catch (e) {
       AppLogger.error('[ProfileSettingsPage] Error saving profile: $e');
       Get.snackbar(
@@ -145,13 +141,14 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
       });
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: JinBeanColors.background,
       appBar: AppBar(
-        title: const Text('个人资料设置', style: TextStyle(color: JinBeanColors.textPrimary)),
+        title: const Text('个人资料设置',
+            style: TextStyle(color: JinBeanColors.textPrimary)),
         backgroundColor: JinBeanColors.background,
         elevation: 0,
         iconTheme: const IconThemeData(color: JinBeanColors.textPrimary),
@@ -165,7 +162,8 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                       height: 16,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('保存', style: TextStyle(color: JinBeanColors.primary)),
+                  : const Text('保存',
+                      style: TextStyle(color: JinBeanColors.primary)),
             ),
         ],
       ),
@@ -180,15 +178,12 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                   children: [
                     _buildSectionHeader('基本信息'),
                     _buildProfileCard(),
-                    
                     const SizedBox(height: 24),
                     _buildSectionHeader('联系信息'),
                     _buildContactInfoCard(),
-                    
                     const SizedBox(height: 24),
                     _buildSectionHeader('认证状态'),
                     _buildVerificationCard(),
-                    
                     const SizedBox(height: 24),
                     _buildSectionHeader('账户安全'),
                     _buildSecurityCard(),
@@ -198,7 +193,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
             ),
     );
   }
-  
+
   Widget _buildSectionHeader(String title) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -212,7 +207,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
       ),
     );
   }
-  
+
   Widget _buildProfileCard() {
     return Card(
       elevation: 2,
@@ -232,7 +227,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
               ),
             ),
             const SizedBox(height: 16),
-            
+
             // 姓名
             TextFormField(
               controller: _nameController,
@@ -249,7 +244,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
               },
             ),
             const SizedBox(height: 16),
-            
+
             // 个人简介
             TextFormField(
               controller: _bioController,
@@ -265,7 +260,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
       ),
     );
   }
-  
+
   Widget _buildContactInfoCard() {
     return Card(
       elevation: 2,
@@ -298,11 +293,12 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
       ),
     );
   }
-  
+
   Widget _buildVerificationCard() {
     final isVerified = _profileData?['is_verified'] ?? false;
-    final verificationStatus = _profileData?['verification_status'] ?? 'pending';
-    
+    final verificationStatus =
+        _profileData?['verification_status'] ?? 'pending';
+
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -357,7 +353,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
       ),
     );
   }
-  
+
   Widget _buildSecurityCard() {
     return Card(
       elevation: 2,
@@ -391,7 +387,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
       ),
     );
   }
-  
+
   Widget _buildSecurityItem({
     required IconData icon,
     required String title,
@@ -406,7 +402,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
       onTap: onTap,
     );
   }
-  
+
   String _getVerificationStatusText(String status) {
     switch (status) {
       case 'verified':
@@ -419,7 +415,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
         return '请完成认证申请';
     }
   }
-  
+
   void _showVerificationDialog() {
     Get.dialog(
       AlertDialog(
@@ -434,7 +430,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
       ),
     );
   }
-  
+
   void _showChangePasswordDialog() {
     Get.dialog(
       AlertDialog(
@@ -449,7 +445,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
       ),
     );
   }
-  
+
   void _showTwoFactorDialog() {
     Get.dialog(
       AlertDialog(
@@ -464,7 +460,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
       ),
     );
   }
-  
+
   void _showDeviceManagementDialog() {
     Get.dialog(
       AlertDialog(
@@ -479,4 +475,4 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
       ),
     );
   }
-} 
+}

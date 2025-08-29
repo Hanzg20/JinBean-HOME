@@ -16,7 +16,9 @@ class LanguageSettingsController extends GetxController {
     // TODO: Save preferred language to persistent storage
     Get.snackbar(
       AppLocalizations.of(Get.context!)?.languageChanged ?? '',
-      AppLocalizations.of(Get.context!)?.languageChangedTo(locale.languageCode) ?? '',
+      AppLocalizations.of(Get.context!)
+              ?.languageChangedTo(locale.languageCode) ??
+          '',
       snackPosition: SnackPosition.BOTTOM,
     );
     // 切换语言后自动重启App，立即生效
@@ -27,4 +29,4 @@ class LanguageSettingsController extends GetxController {
       }
     });
   }
-} 
+}

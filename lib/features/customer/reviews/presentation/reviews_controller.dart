@@ -18,10 +18,10 @@ class ReviewsController extends GetxController {
   final RxList<Review> reviews = <Review>[].obs;
   final RxList<ReviewReply> replies = <ReviewReply>[].obs;
   final RxList<ReviewTag> tags = <ReviewTag>[].obs;
-  
+
   // 评分统计
   final Rx<ServiceRatingStats?> ratingStats = Rx<ServiceRatingStats?>(null);
-  
+
   // 加载状态
   final RxBool isLoadingReviews = false.obs;
   final RxBool isLoadingReplies = false.obs;
@@ -29,40 +29,41 @@ class ReviewsController extends GetxController {
   final RxBool isLoadingStats = false.obs;
   final RxBool isSubmittingReview = false.obs;
   final RxBool isSubmittingReply = false.obs;
-  
+
   // 分页状态
   final RxInt currentPage = 1.obs;
   final RxBool hasMoreReviews = true.obs;
   final RxInt totalReviews = 0.obs;
-  
+
   // 筛选选项
   final Rx<ReviewFilterOptions> filterOptions = ReviewFilterOptions().obs;
-  
+
   // 当前服务ID
   final RxString currentServiceId = ''.obs;
-  
+
   // 表单控制器
   final TextEditingController reviewContentController = TextEditingController();
   final TextEditingController replyContentController = TextEditingController();
-  
+
   // 评分状态
   final RxDouble overallRating = 0.0.obs;
   final RxDouble qualityRating = 0.0.obs;
   final RxDouble punctualityRating = 0.0.obs;
   final RxDouble communicationRating = 0.0.obs;
   final RxDouble valueRating = 0.0.obs;
-  
+
   // 选中的标签
   final RxList<String> selectedTags = <String>[].obs;
-  
+
   // 匿名状态
   final RxBool isAnonymous = false.obs;
-  
+
   // 图片列表
   final RxList<String> reviewImages = <String>[].obs;
 
   // 可评价订单列表
-  final RxList<Map<String, dynamic>> reviewableOrders = <Map<String, dynamic>>[].obs;
+  final RxList<Map<String, dynamic>> reviewableOrders =
+      <Map<String, dynamic>>[].obs;
 
   // ========================================
   // 初始化
@@ -154,14 +155,16 @@ class ReviewsController extends GetxController {
   /// 加载标签
   Future<void> loadTags() async {
     if (isLoadingTags.value) return;
-    
+
     isLoadingTags.value = true;
     try {
       final tags = await _reviewService.getReviewTags();
       this.tags.value = tags;
-      AppLogger.info('ReviewsController: Tags loaded successfully', tag: 'ReviewsController');
+      AppLogger.info('ReviewsController: Tags loaded successfully',
+          tag: 'ReviewsController');
     } catch (e, stack) {
-      AppLogger.error('ReviewsController: Failed to load tags', error: e, stackTrace: stack, tag: 'ReviewsController');
+      AppLogger.error('ReviewsController: Failed to load tags',
+          error: e, stackTrace: stack, tag: 'ReviewsController');
     } finally {
       isLoadingTags.value = false;
     }
@@ -187,9 +190,11 @@ class ReviewsController extends GetxController {
           'status': 'completed',
         },
       ];
-      AppLogger.info('ReviewsController: Reviewable orders loaded successfully', tag: 'ReviewsController');
+      AppLogger.info('ReviewsController: Reviewable orders loaded successfully',
+          tag: 'ReviewsController');
     } catch (e, stack) {
-      AppLogger.error('ReviewsController: Failed to load reviewable orders', error: e, stackTrace: stack, tag: 'ReviewsController');
+      AppLogger.error('ReviewsController: Failed to load reviewable orders',
+          error: e, stackTrace: stack, tag: 'ReviewsController');
     }
   }
 
@@ -226,8 +231,10 @@ class ReviewsController extends GetxController {
         },
         isAnonymous: isAnonymous.value,
         qualityRating: qualityRating.value > 0 ? qualityRating.value : null,
-        punctualityRating: punctualityRating.value > 0 ? punctualityRating.value : null,
-        communicationRating: communicationRating.value > 0 ? communicationRating.value : null,
+        punctualityRating:
+            punctualityRating.value > 0 ? punctualityRating.value : null,
+        communicationRating:
+            communicationRating.value > 0 ? communicationRating.value : null,
         valueRating: valueRating.value > 0 ? valueRating.value : null,
         tags: selectedTags.toList(),
         images: reviewImages.toList(),
@@ -235,13 +242,13 @@ class ReviewsController extends GetxController {
 
       final newReview = await _reviewService.createReview(request);
       reviews.insert(0, newReview);
-      
+
       // 更新评分统计
       await loadRatingStats(currentServiceId.value);
-      
+
       // 重置表单
       _resetReviewForm();
-      
+
       Get.snackbar(
         'Success',
         'Review submitted successfully!',
@@ -249,7 +256,7 @@ class ReviewsController extends GetxController {
         backgroundColor: Colors.green[100],
         colorText: Colors.green[800],
       );
-      
+
       return true;
     } catch (e) {
       AppLogger.info('Error submitting review: $e');
@@ -293,10 +300,10 @@ class ReviewsController extends GetxController {
 
       final newReply = await _reviewService.createReviewReply(request);
       replies.add(newReply);
-      
+
       // 重置回复表单
       replyContentController.clear();
-      
+
       Get.snackbar(
         'Success',
         'Reply submitted successfully!',
@@ -304,7 +311,7 @@ class ReviewsController extends GetxController {
         backgroundColor: Colors.green[100],
         colorText: Colors.green[800],
       );
-      
+
       return true;
     } catch (e) {
       AppLogger.info('Error submitting reply: $e');
@@ -332,15 +339,14 @@ class ReviewsController extends GetxController {
         reviewId: reviewId,
         isHelpful: isHelpful,
       ));
-      
+
       // 更新本地点评数据
       final reviewIndex = reviews.indexWhere((r) => r.id == reviewId);
       if (reviewIndex != -1) {
         final review = reviews[reviewIndex];
-        final newHelpfulCount = isHelpful 
-            ? review.helpfulCount + 1 
-            : review.helpfulCount - 1;
-        
+        final newHelpfulCount =
+            isHelpful ? review.helpfulCount + 1 : review.helpfulCount - 1;
+
         reviews[reviewIndex] = review.copyWith(
           helpfulCount: newHelpfulCount,
           userVotedHelpful: isHelpful,
@@ -359,14 +365,15 @@ class ReviewsController extends GetxController {
   }
 
   /// 举报点评
-  Future<void> reportReview(String reviewId, String reason, String? description) async {
+  Future<void> reportReview(
+      String reviewId, String reason, String? description) async {
     try {
       await _reviewService.reportReview(ReviewReportRequest(
         reviewId: reviewId,
         reason: reason,
         description: description,
       ));
-      
+
       Get.snackbar(
         'Success',
         'Review reported successfully.',
@@ -580,4 +587,4 @@ class ReviewsController extends GetxController {
       return [];
     }
   }
-} 
+}

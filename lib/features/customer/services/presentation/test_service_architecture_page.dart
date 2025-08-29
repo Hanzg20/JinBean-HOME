@@ -20,15 +20,15 @@ class TestServiceArchitecturePage extends StatelessWidget {
             // 服务状态显示
             _buildServiceStatusCard(),
             SizedBox(height: 20),
-            
+
             // 服务初始化控制
             _buildServiceControlCard(),
             SizedBox(height: 20),
-            
+
             // 数据模型测试
             _buildDataModelTestCard(),
             SizedBox(height: 20),
-            
+
             // 接口测试
             _buildInterfaceTestCard(),
           ],
@@ -119,7 +119,8 @@ class TestServiceArchitecturePage extends StatelessWidget {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () async {
-                      final status = await ServiceManager.instance.healthCheck();
+                      final status =
+                          await ServiceManager.instance.healthCheck();
                       Get.snackbar(
                         '健康检查',
                         status ? '服务正常' : '服务异常',

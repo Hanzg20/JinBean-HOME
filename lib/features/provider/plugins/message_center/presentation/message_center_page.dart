@@ -21,8 +21,10 @@ class MessageCenterPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              (AppLocalizations.of(context) ?? AppLocalizationsEn()).messageCenterDescription,
-              style: theme.textTheme.titleLarge?.copyWith(color: Colors.grey.shade600),
+              (AppLocalizations.of(context) ?? AppLocalizationsEn())
+                  .messageCenterDescription,
+              style: theme.textTheme.titleLarge
+                  ?.copyWith(color: Colors.grey.shade600),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
@@ -32,4 +34,4 @@ class MessageCenterPage extends StatelessWidget {
       ),
     );
   }
-} 
+}

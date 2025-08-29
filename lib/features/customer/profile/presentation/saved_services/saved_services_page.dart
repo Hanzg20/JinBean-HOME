@@ -43,11 +43,11 @@ class SavedServicesPage extends GetView<SavedServicesController> {
           if (controller.isLoading.value) {
             return const Center(child: CircularProgressIndicator());
           }
-          
+
           if (controller.savedServices.isEmpty) {
             return _buildEmptyState();
           }
-          
+
           return ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: controller.savedServices.length,
@@ -104,7 +104,8 @@ class SavedServicesPage extends GetView<SavedServicesController> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blue[600],
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
             onPressed: () => Get.toNamed('/service_booking'),
@@ -120,7 +121,8 @@ class SavedServicesPage extends GetView<SavedServicesController> {
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
-        onTap: () => Get.toNamed('/service_detail', parameters: {'serviceId': service.id}),
+        onTap: () => Get.toNamed('/service_detail',
+            parameters: {'serviceId': service.id}),
         borderRadius: BorderRadius.circular(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -130,24 +132,28 @@ class SavedServicesPage extends GetView<SavedServicesController> {
               height: 160,
               width: double.infinity,
               decoration: BoxDecoration(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(12)),
                 color: Colors.grey[300],
               ),
               child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(12)),
                 child: Image.network(
-                  service.imageUrl ?? 'https://picsum.photos/seed/saved${service.id}/300/160',
+                  service.imageUrl ??
+                      'https://picsum.photos/seed/saved${service.id}/300/160',
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     return Container(
                       color: Colors.grey[300],
-                      child: const Icon(Icons.image, size: 60, color: Colors.grey),
+                      child:
+                          const Icon(Icons.image, size: 60, color: Colors.grey),
                     );
                   },
                 ),
               ),
             ),
-            
+
             // Service Details
             Padding(
               padding: const EdgeInsets.all(16),
@@ -178,9 +184,9 @@ class SavedServicesPage extends GetView<SavedServicesController> {
                       ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 8),
-                  
+
                   Text(
                     service.description ?? 'Service description',
                     style: TextStyle(
@@ -190,16 +196,17 @@ class SavedServicesPage extends GetView<SavedServicesController> {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  
+
                   const SizedBox(height: 12),
-                  
+
                   // Provider Info
                   Row(
                     children: [
                       CircleAvatar(
                         radius: 16,
                         backgroundColor: Colors.grey[300],
-                        child: const Icon(Icons.person, size: 16, color: Colors.grey),
+                        child: const Icon(Icons.person,
+                            size: 16, color: Colors.grey),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
@@ -214,9 +221,9 @@ class SavedServicesPage extends GetView<SavedServicesController> {
                       ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 12),
-                  
+
                   // Rating and Price
                   Row(
                     children: [
@@ -248,9 +255,9 @@ class SavedServicesPage extends GetView<SavedServicesController> {
                       ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 12),
-                  
+
                   // Action Buttons
                   Row(
                     children: [
@@ -259,7 +266,8 @@ class SavedServicesPage extends GetView<SavedServicesController> {
                           icon: const Icon(Icons.message, size: 16),
                           label: const Text('Message'),
                           style: OutlinedButton.styleFrom(
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8)),
                             padding: const EdgeInsets.symmetric(vertical: 12),
                           ),
                           onPressed: () => _messageProvider(service),
@@ -274,7 +282,8 @@ class SavedServicesPage extends GetView<SavedServicesController> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blue[600],
                             foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8)),
                             padding: const EdgeInsets.symmetric(vertical: 12),
                           ),
                           onPressed: () => _bookService(service),
@@ -304,7 +313,8 @@ class SavedServicesPage extends GetView<SavedServicesController> {
               onTap: () {
                 Get.back();
                 // TODO: Implement sort by name
-                Get.snackbar('Sort', 'Sorting by name...', snackPosition: SnackPosition.BOTTOM);
+                Get.snackbar('Sort', 'Sorting by name...',
+                    snackPosition: SnackPosition.BOTTOM);
               },
             ),
             ListTile(
@@ -313,7 +323,8 @@ class SavedServicesPage extends GetView<SavedServicesController> {
               onTap: () {
                 Get.back();
                 // TODO: Implement sort by rating
-                Get.snackbar('Sort', 'Sorting by rating...', snackPosition: SnackPosition.BOTTOM);
+                Get.snackbar('Sort', 'Sorting by rating...',
+                    snackPosition: SnackPosition.BOTTOM);
               },
             ),
             ListTile(
@@ -322,7 +333,8 @@ class SavedServicesPage extends GetView<SavedServicesController> {
               onTap: () {
                 Get.back();
                 // TODO: Implement sort by price
-                Get.snackbar('Sort', 'Sorting by price...', snackPosition: SnackPosition.BOTTOM);
+                Get.snackbar('Sort', 'Sorting by price...',
+                    snackPosition: SnackPosition.BOTTOM);
               },
             ),
             ListTile(
@@ -331,7 +343,8 @@ class SavedServicesPage extends GetView<SavedServicesController> {
               onTap: () {
                 Get.back();
                 // TODO: Implement sort by date
-                Get.snackbar('Sort', 'Sorting by date...', snackPosition: SnackPosition.BOTTOM);
+                Get.snackbar('Sort', 'Sorting by date...',
+                    snackPosition: SnackPosition.BOTTOM);
               },
             ),
           ],
@@ -357,4 +370,4 @@ class SavedServicesPage extends GetView<SavedServicesController> {
   void _bookService(dynamic service) {
     Get.toNamed('/service_detail', parameters: {'serviceId': service.id});
   }
-} 
+}

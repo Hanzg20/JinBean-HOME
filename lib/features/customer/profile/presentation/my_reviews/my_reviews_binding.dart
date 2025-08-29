@@ -8,4 +8,4 @@ class MyReviewsBinding extends Bindings {
       () => MyReviewsController(),
     );
   }
-} 
+}

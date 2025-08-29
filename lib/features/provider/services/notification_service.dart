@@ -32,13 +32,14 @@ class NotificationService {
     try {
       await _supabase
           .from('notifications')
-          .update({'is_read': true})
-          .eq('id', notificationId);
+          .update({'is_read': true}).eq('id', notificationId);
 
-      AppLogger.info('[NotificationService] Notification $notificationId marked as read');
+      AppLogger.info(
+          '[NotificationService] Notification $notificationId marked as read');
       return true;
     } catch (e) {
-      AppLogger.error('[NotificationService] Error marking notification as read: $e');
+      AppLogger.error(
+          '[NotificationService] Error marking notification as read: $e');
       return false;
     }
   }
@@ -61,7 +62,8 @@ class NotificationService {
       AppLogger.info('[NotificationService] All notifications marked as read');
       return true;
     } catch (e) {
-      AppLogger.error('[NotificationService] Error marking all notifications as read: $e');
+      AppLogger.error(
+          '[NotificationService] Error marking all notifications as read: $e');
       return false;
     }
   }
@@ -69,12 +71,10 @@ class NotificationService {
   /// 删除通知
   Future<bool> deleteNotification(String notificationId) async {
     try {
-      await _supabase
-          .from('notifications')
-          .delete()
-          .eq('id', notificationId);
+      await _supabase.from('notifications').delete().eq('id', notificationId);
 
-      AppLogger.info('[NotificationService] Notification $notificationId deleted');
+      AppLogger.info(
+          '[NotificationService] Notification $notificationId deleted');
       return true;
     } catch (e) {
       AppLogger.error('[NotificationService] Error deleting notification: $e');
@@ -105,21 +105,22 @@ class NotificationService {
   }
 
   /// 创建通知
-  Future<bool> createNotification(String recipientId, String notificationType, String title, String message, {String? relatedId}) async {
+  Future<bool> createNotification(
+      String recipientId, String notificationType, String title, String message,
+      {String? relatedId}) async {
     try {
-      await _supabase
-          .from('notifications')
-          .insert({
-            'recipient_id': recipientId,
-            'notification_type': notificationType,
-            'title': title,
-            'message': message,
-            'related_id': relatedId,
-            'is_read': false,
-            'created_at': DateTime.now().toIso8601String(),
-          });
+      await _supabase.from('notifications').insert({
+        'recipient_id': recipientId,
+        'notification_type': notificationType,
+        'title': title,
+        'message': message,
+        'related_id': relatedId,
+        'is_read': false,
+        'created_at': DateTime.now().toIso8601String(),
+      });
 
-      AppLogger.info('[NotificationService] Notification created for user $recipientId');
+      AppLogger.info(
+          '[NotificationService] Notification created for user $recipientId');
       return true;
     } catch (e) {
       AppLogger.error('[NotificationService] Error creating notification: $e');
@@ -149,7 +150,8 @@ class NotificationService {
 
       return typeStats;
     } catch (e) {
-      AppLogger.error('[NotificationService] Error getting notification type stats: $e');
+      AppLogger.error(
+          '[NotificationService] Error getting notification type stats: $e');
       return {};
     }
   }
@@ -211,12 +213,12 @@ class NotificationService {
   /// 格式化通知时间
   String formatNotificationTime(String? dateString) {
     if (dateString == null) return 'Unknown';
-    
+
     try {
       final DateTime date = DateTime.parse(dateString);
       final DateTime now = DateTime.now();
       final Duration difference = now.difference(date);
-      
+
       if (difference.inDays > 0) {
         return '${difference.inDays}d ago';
       } else if (difference.inHours > 0) {
@@ -230,4 +232,4 @@ class NotificationService {
       return 'Invalid date';
     }
   }
-} 
+}

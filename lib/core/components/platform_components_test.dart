@@ -22,7 +22,7 @@ class PlatformComponentsTestPage extends StatelessWidget {
               type: SkeletonType.list,
             ),
             const SizedBox(height: 24),
-            
+
             // 渐进式加载测试
             _buildSectionTitle('Progressive Loading Test'),
             PlatformCore.createProgressiveLoading(
@@ -30,10 +30,11 @@ class PlatformComponentsTestPage extends StatelessWidget {
               loadFunction: () async {
                 await Future.delayed(Duration(seconds: 2));
               },
-              contentBuilder: (context) => _buildTestContent('Progressive Loading Content'),
+              contentBuilder: (context) =>
+                  _buildTestContent('Progressive Loading Content'),
             ),
             const SizedBox(height: 24),
-            
+
             // 离线支持测试
             _buildSectionTitle('Offline Support Test'),
             PlatformCore.createOfflineSupport(
@@ -42,7 +43,7 @@ class PlatformComponentsTestPage extends StatelessWidget {
               offlineBuilder: (context) => _buildTestContent('Offline Content'),
             ),
             const SizedBox(height: 24),
-            
+
             // 错误恢复测试
             _buildSectionTitle('Error Recovery Test'),
             PlatformCore.createErrorRecovery(
@@ -86,4 +87,4 @@ class PlatformComponentsTestPage extends StatelessWidget {
       ),
     );
   }
-} 
+}

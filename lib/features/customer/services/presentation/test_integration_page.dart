@@ -13,15 +13,15 @@ class TestIntegrationPage extends StatefulWidget {
 class _TestIntegrationPageState extends State<TestIntegrationPage> {
   late ServiceManager _serviceManager;
   late DynamicTabConfigService _dynamicTabService;
-  
+
   bool _isInitialized = false;
   bool _isLoading = false;
   String _errorMessage = '';
-  
+
   // 测试数据
   List<Service> _testServices = [];
   List<ServiceDetail> _testServiceDetails = [];
-  
+
   // 测试结果
   Map<String, dynamic> _testResults = {};
 
@@ -40,25 +40,24 @@ class _TestIntegrationPageState extends State<TestIntegrationPage> {
     try {
       _serviceManager = ServiceManager.instance;
       _dynamicTabService = DynamicTabConfigService();
-      
+
       // 初始化服务管理器
       if (!_serviceManager.isInitialized) {
         await _serviceManager.initializeServices();
       }
-      
+
       // 创建测试数据
       await _createTestData();
-      
+
       // 运行测试
       await _runIntegrationTests();
-      
+
       setState(() {
         _isInitialized = true;
         _isLoading = false;
       });
-      
+
       print('服务架构集成测试完成 ✅');
-      
     } catch (e) {
       setState(() {
         _isLoading = false;
@@ -100,7 +99,10 @@ class _TestIntegrationPageState extends State<TestIntegrationPage> {
       Service(
         id: 'test-service-002',
         title: {'en': 'Professional Cleaning', 'zh': '专业清洁'},
-        description: {'en': 'Professional home cleaning service', 'zh': '专业家居清洁服务'},
+        description: {
+          'en': 'Professional home cleaning service',
+          'zh': '专业家居清洁服务'
+        },
         price: 150.00,
         currency: 'USD',
         pricingType: 'hourly',
@@ -172,7 +174,10 @@ class _TestIntegrationPageState extends State<TestIntegrationPage> {
         sortOrder: 2,
         currentStock: 30,
         maxStock: 60,
-        attributes: {'diet': 'vegetarian', 'allergens': ['nuts']},
+        attributes: {
+          'diet': 'vegetarian',
+          'allergens': ['nuts']
+        },
         businessRules: {'min_order': 1, 'max_order': 5},
         pricingType: 'fixed',
         price: 12.99,
@@ -237,7 +242,7 @@ class _TestIntegrationPageState extends State<TestIntegrationPage> {
 
   Future<void> _runIntegrationTests() async {
     _testResults.clear();
-    
+
     try {
       // 测试1: 服务管理器初始化
       _testResults['service_manager'] = {
@@ -249,10 +254,13 @@ class _TestIntegrationPageState extends State<TestIntegrationPage> {
       // 测试2: 动态Tab配置服务
       if (_testServices.isNotEmpty && _testServiceDetails.isNotEmpty) {
         final testService = _testServices[0];
-        final testDetails = _testServiceDetails.where((d) => d.serviceId == testService.id).toList();
-        
-        final tabConfig = _dynamicTabService.getTabConfig(testService, testDetails);
-        
+        final testDetails = _testServiceDetails
+            .where((d) => d.serviceId == testService.id)
+            .toList();
+
+        final tabConfig =
+            _dynamicTabService.getTabConfig(testService, testDetails);
+
         _testResults['dynamic_tab_config'] = {
           'status': 'success',
           'message': '动态Tab配置生成成功',
@@ -268,13 +276,17 @@ class _TestIntegrationPageState extends State<TestIntegrationPage> {
       // 测试3: 服务查询服务
       if (_serviceManager.serviceQueryService != null) {
         try {
-          final services = await _serviceManager.serviceQueryService!.getRecommendedServices();
+          final services = await _serviceManager.serviceQueryService!
+              .getRecommendedServices();
           _testResults['service_query'] = {
             'status': 'success',
             'message': '服务查询成功',
             'details': {
               'recommended_count': services.length,
-              'services': services.take(3).map((s) => s.getLocalizedTitle('en')).toList(),
+              'services': services
+                  .take(3)
+                  .map((s) => s.getLocalizedTitle('en'))
+                  .toList(),
             },
           };
         } catch (e) {
@@ -289,7 +301,8 @@ class _TestIntegrationPageState extends State<TestIntegrationPage> {
       // 测试4: 服务详情服务
       if (_serviceManager.serviceDetailService != null) {
         try {
-          final details = await _serviceManager.serviceDetailService!.getServiceDetails('test-service-001');
+          final details = await _serviceManager.serviceDetailService!
+              .getServiceDetails('test-service-001');
           _testResults['service_detail'] = {
             'status': 'success',
             'message': '服务详情查询成功',
@@ -310,7 +323,8 @@ class _TestIntegrationPageState extends State<TestIntegrationPage> {
       // 测试5: 认证服务
       if (_serviceManager.authService != null) {
         try {
-          final isAuthenticated = await _serviceManager.authService!.isAuthenticated();
+          final isAuthenticated =
+              await _serviceManager.authService!.isAuthenticated();
           _testResults['authentication'] = {
             'status': 'success',
             'message': '认证服务可用',
@@ -330,15 +344,17 @@ class _TestIntegrationPageState extends State<TestIntegrationPage> {
       // 测试6: 服务商服务
       if (_serviceManager.providerService != null) {
         try {
-          final providers = await _serviceManager.providerService!.getProviders(
-            core_services.ProviderQueryParams(limit: 5)
-          );
+          final providers = await _serviceManager.providerService!
+              .getProviders(core_services.ProviderQueryParams(limit: 5));
           _testResults['provider'] = {
             'status': 'success',
             'message': '服务商服务可用',
             'details': {
               'providers_count': providers.length,
-              'sample_providers': providers.take(3).map((p) => p.displayName['en'] ?? 'Unknown').toList(),
+              'sample_providers': providers
+                  .take(3)
+                  .map((p) => p.displayName['en'] ?? 'Unknown')
+                  .toList(),
             },
           };
         } catch (e) {
@@ -349,7 +365,6 @@ class _TestIntegrationPageState extends State<TestIntegrationPage> {
           };
         }
       }
-
     } catch (e) {
       _testResults['integration_test'] = {
         'status': 'failed',
@@ -393,11 +408,11 @@ class _TestIntegrationPageState extends State<TestIntegrationPage> {
                       // 测试状态概览
                       _buildTestOverview(),
                       SizedBox(height: 24),
-                      
+
                       // 详细测试结果
                       _buildDetailedResults(),
                       SizedBox(height: 24),
-                      
+
                       // 测试数据展示
                       _buildTestDataDisplay(),
                     ],
@@ -412,9 +427,11 @@ class _TestIntegrationPageState extends State<TestIntegrationPage> {
   }
 
   Widget _buildTestOverview() {
-    final successCount = _testResults.values.where((r) => r['status'] == 'success').length;
+    final successCount =
+        _testResults.values.where((r) => r['status'] == 'success').length;
     final totalCount = _testResults.length;
-    final successRate = totalCount > 0 ? (successCount / totalCount * 100).round() : 0;
+    final successRate =
+        totalCount > 0 ? (successCount / totalCount * 100).round() : 0;
 
     return Card(
       child: Padding(
@@ -430,10 +447,16 @@ class _TestIntegrationPageState extends State<TestIntegrationPage> {
             Row(
               children: [
                 Icon(
-                  successRate >= 80 ? Icons.check_circle : 
-                  successRate >= 60 ? Icons.warning : Icons.error,
-                  color: successRate >= 80 ? Colors.green : 
-                         successRate >= 60 ? Colors.orange : Colors.red,
+                  successRate >= 80
+                      ? Icons.check_circle
+                      : successRate >= 60
+                          ? Icons.warning
+                          : Icons.error,
+                  color: successRate >= 80
+                      ? Colors.green
+                      : successRate >= 60
+                          ? Colors.orange
+                          : Colors.red,
                   size: 32,
                 ),
                 SizedBox(width: 16),
@@ -473,7 +496,7 @@ class _TestIntegrationPageState extends State<TestIntegrationPage> {
               final testName = entry.key;
               final result = entry.value;
               final isSuccess = result['status'] == 'success';
-              
+
               return Container(
                 margin: EdgeInsets.only(bottom: 12),
                 padding: EdgeInsets.all(12),
@@ -533,7 +556,7 @@ class _TestIntegrationPageState extends State<TestIntegrationPage> {
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             SizedBox(height: 16),
-            
+
             // 测试服务
             Text(
               '测试服务 (${_testServices.length})',
@@ -541,13 +564,13 @@ class _TestIntegrationPageState extends State<TestIntegrationPage> {
             ),
             SizedBox(height: 8),
             ..._testServices.map((service) => ListTile(
-              title: Text(service.getLocalizedTitle('en')),
-              subtitle: Text('分类: ${service.categoryId}'),
-              trailing: Text('\$${service.price}'),
-            )),
-            
+                  title: Text(service.getLocalizedTitle('en')),
+                  subtitle: Text('分类: ${service.categoryId}'),
+                  trailing: Text('\$${service.price}'),
+                )),
+
             SizedBox(height: 16),
-            
+
             // 测试服务详情
             Text(
               '测试服务详情 (${_testServiceDetails.length})',
@@ -555,10 +578,10 @@ class _TestIntegrationPageState extends State<TestIntegrationPage> {
             ),
             SizedBox(height: 8),
             ..._testServiceDetails.map((detail) => ListTile(
-              title: Text(detail.getLocalizedName('en')),
-              subtitle: Text('分类: ${detail.category}'),
-              trailing: Text('\$${detail.price}'),
-            )),
+                  title: Text(detail.getLocalizedName('en')),
+                  subtitle: Text('分类: ${detail.category}'),
+                  trailing: Text('\$${detail.price}'),
+                )),
           ],
         ),
       ),

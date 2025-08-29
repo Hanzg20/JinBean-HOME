@@ -1,4 +1,5 @@
-import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:flutter/material.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/core/plugin_management/plugin_manager.dart';
 import 'package:jinbeanpod_83904710/features/provider/plugins/provider_identity/provider_identity_service.dart';
@@ -52,7 +53,8 @@ class _ProfilePageState extends State<ProfilePage> {
                 AppLogger.info('[ProfilePage] 显示"等待审核中"按钮');
                 return ElevatedButton(
                   onPressed: null,
-                  child: Text(l10n?.waitingForApproval ?? 'Waiting for Approval'),
+                  child:
+                      Text(l10n?.waitingForApproval ?? 'Waiting for Approval'),
                 );
               } else {
                 AppLogger.info('[ProfilePage] 显示"注册服务商"按钮');
@@ -61,7 +63,8 @@ class _ProfilePageState extends State<ProfilePage> {
                     AppLogger.info('[ProfilePage] 用户点击"注册服务商"');
                     Get.toNamed('/provider_registration');
                   },
-                  child: Text(l10n?.registerAsProvider ?? 'Register as Provider'),
+                  child:
+                      Text(l10n?.registerAsProvider ?? 'Register as Provider'),
                 );
               }
             },

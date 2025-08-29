@@ -12,7 +12,8 @@ class StepBasicInfo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(l10n?.selectProviderType ?? 'Select Provider Type', style: TextStyle(fontWeight: FontWeight.bold)),
+        Text(l10n?.selectProviderType ?? 'Select Provider Type',
+            style: TextStyle(fontWeight: FontWeight.bold)),
         Row(
           children: ProviderType.values
               .map((type) => Expanded(
@@ -30,11 +31,13 @@ class StepBasicInfo extends StatelessWidget {
               .toList(),
         ),
         TextField(
-          decoration: InputDecoration(labelText: l10n?.providerName ?? 'Provider Name'),
+          decoration:
+              InputDecoration(labelText: l10n?.providerName ?? 'Provider Name'),
           onChanged: (v) => controller.displayName = v,
         ),
         TextField(
-          decoration: InputDecoration(labelText: l10n?.phoneNumber ?? 'Phone Number'),
+          decoration:
+              InputDecoration(labelText: l10n?.phoneNumber ?? 'Phone Number'),
           keyboardType: TextInputType.phone,
           onChanged: (v) => controller.phone = v,
         ),
@@ -44,7 +47,8 @@ class StepBasicInfo extends StatelessWidget {
           onChanged: (v) => controller.email = v,
         ),
         TextField(
-          decoration: InputDecoration(labelText: l10n?.setPassword ?? 'Set Password'),
+          decoration:
+              InputDecoration(labelText: l10n?.setPassword ?? 'Set Password'),
           obscureText: true,
           onChanged: (v) => controller.password = v,
         ),

@@ -28,30 +28,32 @@ class RatingSelector extends StatelessWidget {
       children: List.generate(5, (index) {
         final starValue = index + 1.0;
         final isActive = rating >= starValue;
-        final isHalfActive = allowHalfRating && 
-            rating >= (starValue - 0.5) && 
+        final isHalfActive = allowHalfRating &&
+            rating >= (starValue - 0.5) &&
             rating < starValue;
 
         return GestureDetector(
           onTap: () => onRatingChanged(starValue),
-          onTapDown: allowHalfRating ? (details) {
-            final box = context.findRenderObject() as RenderBox;
-            final localPosition = details.localPosition;
-            final halfWidth = box.size.width / 2;
-            
-            if (localPosition.dx < halfWidth) {
-              onRatingChanged(starValue - 0.5);
-            } else {
-              onRatingChanged(starValue);
-            }
-          } : null,
+          onTapDown: allowHalfRating
+              ? (details) {
+                  final box = context.findRenderObject() as RenderBox;
+                  final localPosition = details.localPosition;
+                  final halfWidth = box.size.width / 2;
+
+                  if (localPosition.dx < halfWidth) {
+                    onRatingChanged(starValue - 0.5);
+                  } else {
+                    onRatingChanged(starValue);
+                  }
+                }
+              : null,
           child: Container(
             padding: const EdgeInsets.all(2),
             child: Icon(
-              isActive 
-                  ? Icons.star 
-                  : isHalfActive 
-                      ? Icons.star_half 
+              isActive
+                  ? Icons.star
+                  : isHalfActive
+                      ? Icons.star_half
                       : Icons.star_border,
               size: size,
               color: isActive || isHalfActive
@@ -63,4 +65,4 @@ class RatingSelector extends StatelessWidget {
       }),
     );
   }
-} 
+}

@@ -23,10 +23,10 @@ class ProviderHomePage extends StatefulWidget {
 
 class _ProviderHomePageState extends State<ProviderHomePage> {
   final _supabase = Supabase.instance.client;
-  
+
   // 平台组件状态管理
   final LoadingStateManager _loadingManager = LoadingStateManager();
-  
+
   // 响应式状态变量
   final RxBool isOnline = true.obs;
   final RxInt todayEarnings = 320.obs;
@@ -35,17 +35,19 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
   final RxInt pendingOrders = 3.obs;
   final RxInt totalClients = 45.obs;
   final RxInt thisMonthEarnings = 2840.obs;
-  
+
   // 数据状态
-  final RxList<Map<String, dynamic>> recentOrders = <Map<String, dynamic>>[].obs;
+  final RxList<Map<String, dynamic>> recentOrders =
+      <Map<String, dynamic>>[].obs;
   final RxList<Map<String, dynamic>> topServices = <Map<String, dynamic>>[].obs;
   final RxMap<String, dynamic> weeklyStats = <String, dynamic>{}.obs;
-  
+
   @override
   void initState() {
     super.initState();
-    AppLogger.debug('[ProviderHomePage] initState called', tag: 'ProviderHomePage');
-    
+    AppLogger.debug('[ProviderHomePage] initState called',
+        tag: 'ProviderHomePage');
+
     // 初始化网络状态为在线
     _loadingManager.setOnline();
     // 数据已经在controller中加载完成，直接设置为成功状态
@@ -57,12 +59,12 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
     _loadingManager.dispose();
     super.dispose();
   }
-  
+
   /// 加载仪表板数据
   Future<void> _loadDashboardData() async {
     try {
       _loadingManager.setLoading();
-      
+
       final user = _supabase.auth.currentUser;
       if (user != null) {
         await Future.wait([
@@ -71,16 +73,19 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
           _loadWeeklyStats(user.id),
         ]);
         _loadingManager.setSuccess();
-        AppLogger.info('Dashboard data loaded successfully', tag: 'ProviderHomePage');
+        AppLogger.info('Dashboard data loaded successfully',
+            tag: 'ProviderHomePage');
       } else {
         throw Exception('User not authenticated');
       }
     } catch (e) {
-      AppLogger.error('Error loading dashboard data: $e', tag: 'ProviderHomePage');
-      _loadingManager.setError('Failed to load dashboard data: ${e.toString()}');
+      AppLogger.error('Error loading dashboard data: $e',
+          tag: 'ProviderHomePage');
+      _loadingManager
+          .setError('Failed to load dashboard data: ${e.toString()}');
     }
   }
-  
+
   /// 加载最近订单
   Future<void> _loadRecentOrders(String userId) async {
     try {
@@ -106,11 +111,12 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
         },
       ];
     } catch (e) {
-      AppLogger.error('Error loading recent orders: $e', tag: 'ProviderHomePage');
+      AppLogger.error('Error loading recent orders: $e',
+          tag: 'ProviderHomePage');
       rethrow;
     }
   }
-  
+
   /// 加载热门服务
   Future<void> _loadTopServices(String userId) async {
     try {
@@ -132,11 +138,12 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
         },
       ];
     } catch (e) {
-      AppLogger.error('Error loading top services: $e', tag: 'ProviderHomePage');
+      AppLogger.error('Error loading top services: $e',
+          tag: 'ProviderHomePage');
       rethrow;
     }
   }
-  
+
   /// 加载周统计数据
   Future<void> _loadWeeklyStats(String userId) async {
     try {
@@ -149,7 +156,8 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
         'average_rating': 4.7,
       };
     } catch (e) {
-      AppLogger.error('Error loading weekly stats: $e', tag: 'ProviderHomePage');
+      AppLogger.error('Error loading weekly stats: $e',
+          tag: 'ProviderHomePage');
       rethrow;
     }
   }
@@ -180,29 +188,29 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
         children: [
           // 头部区域
           _buildHeaderSection(),
-          
+
           const SizedBox(height: 24),
-          
+
           // 概览卡片
           _buildOverviewCards(),
-          
+
           const SizedBox(height: 24),
-          
+
           // 快速操作
           _buildQuickActionsSection(),
-          
+
           const SizedBox(height: 24),
-          
+
           // 最近订单
           _buildRecentOrdersSection(),
-          
+
           const SizedBox(height: 24),
-          
+
           // 热门服务
           _buildTopServicesSection(),
-          
+
           const SizedBox(height: 24),
-          
+
           // 周统计
           _buildWeeklyStatsSection(),
         ],
@@ -319,7 +327,8 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.calendar_today, size: 16, color: JinBeanColors.primary),
+              Icon(Icons.calendar_today,
+                  size: 16, color: JinBeanColors.primary),
               const SizedBox(width: 6),
               Text(
                 'Today',
@@ -386,13 +395,13 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
                       ),
                       const SizedBox(height: 4),
                       Obx(() => Text(
-                        '\$${todayEarnings.value}',
-                        style: TextStyle(
-                          color: JinBeanColors.success,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      )),
+                            '\$${todayEarnings.value}',
+                            style: TextStyle(
+                              color: JinBeanColors.success,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          )),
                     ],
                   ),
                 ),
@@ -422,13 +431,13 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
                       ),
                       const SizedBox(height: 4),
                       Obx(() => Text(
-                        '${completedOrders.value}',
-                        style: TextStyle(
-                          color: JinBeanColors.warning,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      )),
+                            '${completedOrders.value}',
+                            style: TextStyle(
+                              color: JinBeanColors.warning,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          )),
                     ],
                   ),
                 ),
@@ -440,21 +449,23 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
                       CircularProgressIndicator(
                         value: 0.7,
                         strokeWidth: 8,
-                        backgroundColor: JinBeanColors.primary.withValues(alpha: 0.2),
-                        valueColor: AlwaysStoppedAnimation<Color>(JinBeanColors.primary),
+                        backgroundColor:
+                            JinBeanColors.primary.withValues(alpha: 0.2),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                            JinBeanColors.primary),
                       ),
                       Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Obx(() => Text(
-                              '${rating.value}',
-                              style: TextStyle(
-                                color: JinBeanColors.primary,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            )),
+                                  '${rating.value}',
+                                  style: TextStyle(
+                                    color: JinBeanColors.primary,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                )),
                             Text(
                               '评分',
                               style: TextStyle(
@@ -474,15 +485,18 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
             Row(
               children: [
                 Expanded(
-                  child: _buildStatItem('待处理订单', '${pendingOrders.value}', Icons.pending, JinBeanColors.warning),
+                  child: _buildStatItem('待处理订单', '${pendingOrders.value}',
+                      Icons.pending, JinBeanColors.warning),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: _buildStatItem('总客户数', '${totalClients.value}', Icons.people, JinBeanColors.primary),
+                  child: _buildStatItem('总客户数', '${totalClients.value}',
+                      Icons.people, JinBeanColors.primary),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: _buildStatItem('本月收入', '\$${thisMonthEarnings.value}', Icons.trending_up, JinBeanColors.success),
+                  child: _buildStatItem('本月收入', '\$${thisMonthEarnings.value}',
+                      Icons.trending_up, JinBeanColors.success),
                 ),
               ],
             ),
@@ -498,7 +512,8 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+  Widget _buildStatCard(
+      String title, String value, IconData icon, Color color) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -539,8 +554,9 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
       ),
     );
   }
-  
-  Widget _buildStatItem(String label, String value, IconData icon, Color color) {
+
+  Widget _buildStatItem(
+      String label, String value, IconData icon, Color color) {
     return Column(
       children: [
         Container(
@@ -650,27 +666,33 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
           scrollDirection: Axis.horizontal,
           child: Row(
             children: [
-              _buildActionCard('接单', Icons.shopping_cart, '查看新订单', '5', JinBeanColors.primary, () {
+              _buildActionCard('接单', Icons.shopping_cart, '查看新订单', '5',
+                  JinBeanColors.primary, () {
                 // 跳转到订单管理页面
                 Get.toNamed('/provider/orders');
               }),
               const SizedBox(width: 12),
-              _buildActionCard('服务管理', Icons.build, '管理服务项目', '+', JinBeanColors.primary, () {
+              _buildActionCard(
+                  '服务管理', Icons.build, '管理服务项目', '+', JinBeanColors.primary,
+                  () {
                 _showComingSoon('服务管理');
               }),
               const SizedBox(width: 12),
-              _buildActionCard('查看收入', Icons.account_balance_wallet, '收入统计', '\$${thisMonthEarnings.value}', JinBeanColors.warning, () {
+              _buildActionCard('查看收入', Icons.account_balance_wallet, '收入统计',
+                  '\$${thisMonthEarnings.value}', JinBeanColors.warning, () {
                 _showComingSoon('查看收入');
               }),
               const SizedBox(width: 12),
-              _buildActionCard('通知', Icons.notifications, '消息中心', '3', JinBeanColors.error, () {
+              _buildActionCard(
+                  '通知', Icons.notifications, '消息中心', '3', JinBeanColors.error,
+                  () {
                 _showComingSoon('通知');
               }),
             ],
           ),
         ),
         const SizedBox(height: 20),
-        
+
         // 第二行功能入口
         Text(
           '业务管理',
@@ -685,19 +707,23 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
           scrollDirection: Axis.horizontal,
           child: Row(
             children: [
-              _buildActionCard('日常安排', Icons.calendar_today, '日程管理', '5', Colors.blue, () {
+              _buildActionCard(
+                  '日常安排', Icons.calendar_today, '日程管理', '5', Colors.blue, () {
                 _showComingSoon('日常安排');
               }),
               const SizedBox(width: 12),
-              _buildActionCard('评价管理', Icons.star, '客户评价', '4.8', Colors.amber, () {
+              _buildActionCard('评价管理', Icons.star, '客户评价', '4.8', Colors.amber,
+                  () {
                 _showComingSoon('评价管理');
               }),
               const SizedBox(width: 12),
-              _buildActionCard('推广', Icons.campaign, '广告推广', '2', Colors.purple, () {
+              _buildActionCard('推广', Icons.campaign, '广告推广', '2', Colors.purple,
+                  () {
                 _showComingSoon('推广');
               }),
               const SizedBox(width: 12),
-              _buildActionCard('报表', Icons.assessment, '数据报表', '+', Colors.teal, () {
+              _buildActionCard('报表', Icons.assessment, '数据报表', '+', Colors.teal,
+                  () {
                 _showComingSoon('报表');
               }),
             ],
@@ -707,7 +733,8 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
     );
   }
 
-  Widget _buildActionCard(String title, IconData icon, String description, String value, Color color, VoidCallback onTap) {
+  Widget _buildActionCard(String title, IconData icon, String description,
+      String value, Color color, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -800,7 +827,7 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
       ),
     );
   }
-  
+
   Widget _buildRecentOrdersSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -859,19 +886,21 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
           )
         else
           Column(
-            children: recentOrders.map((order) => _buildOrderCard(order)).toList(),
+            children:
+                recentOrders.map((order) => _buildOrderCard(order)).toList(),
           ),
       ],
     );
   }
-  
+
   Widget _buildOrderCard(Map<String, dynamic> order) {
     final status = order['status'] as String? ?? 'pending';
-    final customerName = order['customer_name'] as String? ?? 'Unknown Customer';
+    final customerName =
+        order['customer_name'] as String? ?? 'Unknown Customer';
     final serviceName = order['service_name'] as String? ?? 'Unknown Service';
     final amount = order['amount'] as num? ?? 0;
     final createdAt = order['created_at'];
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(16),
@@ -953,7 +982,7 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
       ),
     );
   }
-  
+
   Widget _buildWeeklyEarningsChart() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -979,31 +1008,38 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
               Row(
                 children: [
                   Expanded(
-                    child: _buildChartBar('Mon', weeklyStats['monday'] ?? 0, 300),
+                    child:
+                        _buildChartBar('Mon', weeklyStats['monday'] ?? 0, 300),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: _buildChartBar('Tue', weeklyStats['tuesday'] ?? 0, 300),
+                    child:
+                        _buildChartBar('Tue', weeklyStats['tuesday'] ?? 0, 300),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: _buildChartBar('Wed', weeklyStats['wednesday'] ?? 0, 300),
+                    child: _buildChartBar(
+                        'Wed', weeklyStats['wednesday'] ?? 0, 300),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: _buildChartBar('Thu', weeklyStats['thursday'] ?? 0, 300),
+                    child: _buildChartBar(
+                        'Thu', weeklyStats['thursday'] ?? 0, 300),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: _buildChartBar('Fri', weeklyStats['friday'] ?? 0, 300),
+                    child:
+                        _buildChartBar('Fri', weeklyStats['friday'] ?? 0, 300),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: _buildChartBar('Sat', weeklyStats['saturday'] ?? 0, 300),
+                    child: _buildChartBar(
+                        'Sat', weeklyStats['saturday'] ?? 0, 300),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: _buildChartBar('Sun', weeklyStats['sunday'] ?? 0, 300),
+                    child:
+                        _buildChartBar('Sun', weeklyStats['sunday'] ?? 0, 300),
                   ),
                 ],
               ),
@@ -1034,7 +1070,7 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
       ],
     );
   }
-  
+
   Widget _buildChartBar(String label, int value, int maxValue) {
     final height = (value / maxValue) * 100;
     return Column(
@@ -1079,7 +1115,7 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
       ],
     );
   }
-  
+
   Widget _buildTopServicesSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1122,18 +1158,20 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
           )
         else
           Column(
-            children: topServices.map((service) => _buildServiceCard(service)).toList(),
+            children: topServices
+                .map((service) => _buildServiceCard(service))
+                .toList(),
           ),
       ],
     );
   }
-  
+
   Widget _buildServiceCard(Map<String, dynamic> service) {
     final name = service['name'] as String? ?? 'Unknown Service';
     final price = service['price'] as num? ?? 0;
     final rating = service['rating'] as num? ?? 0;
     final reviewCount = service['review_count'] as num? ?? 0;
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(16),
@@ -1203,7 +1241,7 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
       ),
     );
   }
-  
+
   Widget _buildPerformanceMetrics() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1267,8 +1305,9 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
       ],
     );
   }
-  
-  Widget _buildMetricCard(String title, String value, IconData icon, Color color, String subtitle) {
+
+  Widget _buildMetricCard(
+      String title, String value, IconData icon, Color color, String subtitle) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -1317,7 +1356,7 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
       ),
     );
   }
-  
+
   // Helper methods
   Color _getStatusColor(String status) {
     switch (status) {
@@ -1333,7 +1372,7 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
         return JinBeanColors.textSecondary;
     }
   }
-  
+
   IconData _getStatusIcon(String status) {
     switch (status) {
       case 'completed':
@@ -1348,7 +1387,7 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
         return Icons.receipt;
     }
   }
-  
+
   String _getStatusText(String status) {
     switch (status) {
       case 'completed':
@@ -1363,13 +1402,13 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
         return '未知状态';
     }
   }
-  
+
   String _formatDate(dynamic dateValue) {
     if (dateValue == null) return 'N/A';
-    
+
     try {
       DateTime date;
-      
+
       if (dateValue is DateTime) {
         date = dateValue;
       } else if (dateValue is String) {
@@ -1377,13 +1416,13 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
       } else {
         return 'N/A';
       }
-      
+
       return '${date.month}/${date.day}';
     } catch (e) {
       return 'N/A';
     }
   }
-  
+
   String _calculateWeeklyTotal() {
     int total = 0;
     weeklyStats.forEach((key, value) {
@@ -1404,4 +1443,4 @@ class _ProviderHomePageState extends State<ProviderHomePage> {
       duration: const Duration(seconds: 3),
     );
   }
-} 
+}

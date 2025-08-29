@@ -5,7 +5,6 @@ class PrivacySettingsController extends GetxController {
   final dataSharingEnabled = true.obs;
   final personalizedAdsEnabled = true.obs;
 
-
   void setProfileVisibility(String? visibility) {
     if (visibility != null) {
       profileVisibility.value = visibility;
@@ -37,4 +36,4 @@ class PrivacySettingsController extends GetxController {
       snackPosition: SnackPosition.BOTTOM,
     );
   }
-} 
+}

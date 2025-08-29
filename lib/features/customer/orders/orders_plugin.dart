@@ -1,4 +1,5 @@
-import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';import 'package:flutter/material.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/core/plugin_management/app_plugin.dart';
 import 'package:jinbeanpod_83904710/features/customer/orders/presentation/orders_binding.dart';
@@ -9,15 +10,15 @@ import 'package:jinbeanpod_83904710/features/customer/orders/presentation/create
 class OrdersPlugin extends AppPlugin {
   @override
   PluginMetadata get metadata => PluginMetadata(
-    id: 'orders',
-    nameKey: 'orders',
-    icon: Icons.shopping_bag,
-    enabled: true,
-    order: 5,
-    type: PluginType.standalonePage,
-    routeName: '/orders',
-    role: 'customer',
-  );
+        id: 'orders',
+        nameKey: 'orders',
+        icon: Icons.shopping_bag,
+        enabled: true,
+        order: 5,
+        type: PluginType.standalonePage,
+        routeName: '/orders',
+        role: 'customer',
+      );
 
   @override
   Widget buildEntryWidget() {
@@ -26,22 +27,22 @@ class OrdersPlugin extends AppPlugin {
 
   @override
   List<GetPage> getRoutes() => [
-    GetPage(
-      name: '/orders',
-      page: () => const OrdersPage(),
-      binding: OrdersBinding(),
-    ),
-    GetPage(
-      name: '/order_detail',
-      page: () => const OrderDetailPage(),
-      binding: OrdersBinding(),
-    ),
-    GetPage(
-      name: '/create_order',
-      page: () => const CreateOrderPage(),
-      binding: OrdersBinding(),
-    ),
-  ];
+        GetPage(
+          name: '/orders',
+          page: () => const OrdersPage(),
+          binding: OrdersBinding(),
+        ),
+        GetPage(
+          name: '/order_detail',
+          page: () => const OrderDetailPage(),
+          binding: OrdersBinding(),
+        ),
+        GetPage(
+          name: '/create_order',
+          page: () => const CreateOrderPage(),
+          binding: OrdersBinding(),
+        ),
+      ];
 
   @override
   void init() {
@@ -55,4 +56,4 @@ class OrdersPlugin extends AppPlugin {
 
   @override
   Bindings? get bindings => OrdersBinding();
-} 
+}

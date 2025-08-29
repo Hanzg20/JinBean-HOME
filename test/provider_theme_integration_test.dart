@@ -6,7 +6,8 @@ import 'package:jinbeanpod_83904710/core/ui/themes/jinbean_theme.dart';
 
 void main() {
   group('ProviderTheme Integration Tests', () {
-    testWidgets('ProviderTheme should apply professional styling', (WidgetTester tester) async {
+    testWidgets('ProviderTheme should apply professional styling',
+        (WidgetTester tester) async {
       // 使用ProviderTheme构建一个简单的应用
       await tester.pumpWidget(
         MaterialApp(
@@ -35,18 +36,21 @@ void main() {
 
       // 验证AppBar使用了ProviderTheme的颜色
       final appBar = tester.widget<AppBar>(find.byType(AppBar));
-      expect(appBar.backgroundColor, JinBeanProviderTheme.lightTheme.colorScheme.primary);
+      expect(appBar.backgroundColor,
+          JinBeanProviderTheme.lightTheme.colorScheme.primary);
 
       // 验证Card使用了ProviderTheme的样式
       final card = tester.widget<Card>(find.byType(Card));
       expect(card.elevation, 2); // ProviderTheme使用2的阴影
-      
+
       // 验证按钮使用了ProviderTheme的样式
       final button = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
-      expect(button.style?.backgroundColor?.resolve({}), JinBeanProviderTheme.lightTheme.colorScheme.primary);
+      expect(button.style?.backgroundColor?.resolve({}),
+          JinBeanProviderTheme.lightTheme.colorScheme.primary);
     });
 
-    testWidgets('ProviderTheme vs CustomerTheme should have different styling', (WidgetTester tester) async {
+    testWidgets('ProviderTheme vs CustomerTheme should have different styling',
+        (WidgetTester tester) async {
       // 测试ProviderTheme
       await tester.pumpWidget(
         MaterialApp(
@@ -91,7 +95,8 @@ void main() {
       expect(providerElevation ?? 0, lessThan(customerElevation ?? 0));
     });
 
-    testWidgets('ProviderTheme should have compact layout', (WidgetTester tester) async {
+    testWidgets('ProviderTheme should have compact layout',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           theme: JinBeanProviderTheme.lightTheme,
@@ -125,7 +130,8 @@ void main() {
       expect(textField.decoration, isNotNull);
     });
 
-    testWidgets('ProviderTheme should support dark mode', (WidgetTester tester) async {
+    testWidgets('ProviderTheme should support dark mode',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           theme: JinBeanProviderTheme.darkTheme,
@@ -140,7 +146,8 @@ void main() {
 
       // 验证深色主题使用了正确的颜色
       final appBar = tester.widget<AppBar>(find.byType(AppBar));
-      expect(appBar.backgroundColor, JinBeanProviderTheme.darkTheme.colorScheme.primary);
+      expect(appBar.backgroundColor,
+          JinBeanProviderTheme.darkTheme.colorScheme.primary);
     });
   });
-} 
+}

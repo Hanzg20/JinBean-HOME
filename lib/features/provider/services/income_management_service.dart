@@ -26,11 +26,11 @@ class IncomeManagementService {
       }
 
       // 获取总收入
-      final totalIncomeResponse = await _supabase
-          .rpc('get_provider_income_stats', params: {
-            'provider_user_id': userId,
-            'date_filter': dateFilter,
-          });
+      final totalIncomeResponse =
+          await _supabase.rpc('get_provider_income_stats', params: {
+        'provider_user_id': userId,
+        'date_filter': dateFilter,
+      });
 
       // 获取收入记录
       final incomeRecordsResponse = await _supabase
@@ -48,13 +48,15 @@ class IncomeManagementService {
         'income_records': incomeRecordsResponse,
       };
     } catch (e) {
-      AppLogger.error('[IncomeManagementService] Error getting income statistics: $e');
+      AppLogger.error(
+          '[IncomeManagementService] Error getting income statistics: $e');
       return {};
     }
   }
 
   /// 创建收入记录
-  Future<bool> createIncomeRecord(String orderId, double amount, String incomeType, String notes) async {
+  Future<bool> createIncomeRecord(
+      String orderId, double amount, String incomeType, String notes) async {
     try {
       final userId = _supabase.auth.currentUser?.id;
       if (userId == null) {
@@ -62,23 +64,23 @@ class IncomeManagementService {
         return false;
       }
 
-      await _supabase
-          .from('income_records')
-          .insert({
-            'provider_id': userId,
-            'order_id': orderId,
-            'amount': amount,
-            'income_type': incomeType,
-            'status': 'pending',
-            'notes': notes,
-            'created_at': DateTime.now().toIso8601String(),
-            'updated_at': DateTime.now().toIso8601String(),
-          });
+      await _supabase.from('income_records').insert({
+        'provider_id': userId,
+        'order_id': orderId,
+        'amount': amount,
+        'income_type': incomeType,
+        'status': 'pending',
+        'notes': notes,
+        'created_at': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
+      });
 
-      AppLogger.info('[IncomeManagementService] Income record created for order $orderId');
+      AppLogger.info(
+          '[IncomeManagementService] Income record created for order $orderId');
       return true;
     } catch (e) {
-      AppLogger.error('[IncomeManagementService] Error creating income record: $e');
+      AppLogger.error(
+          '[IncomeManagementService] Error creating income record: $e');
       return false;
     }
   }
@@ -86,25 +88,26 @@ class IncomeManagementService {
   /// 更新收入记录状态
   Future<bool> updateIncomeRecordStatus(String recordId, String status) async {
     try {
-      await _supabase
-          .from('income_records')
-          .update({
-            'status': status,
-            'settlement_date': status == 'settled' ? DateTime.now().toIso8601String() : null,
-            'updated_at': DateTime.now().toIso8601String(),
-          })
-          .eq('id', recordId);
+      await _supabase.from('income_records').update({
+        'status': status,
+        'settlement_date':
+            status == 'settled' ? DateTime.now().toIso8601String() : null,
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('id', recordId);
 
-      AppLogger.info('[IncomeManagementService] Income record $recordId status updated to $status');
+      AppLogger.info(
+          '[IncomeManagementService] Income record $recordId status updated to $status');
       return true;
     } catch (e) {
-      AppLogger.error('[IncomeManagementService] Error updating income record status: $e');
+      AppLogger.error(
+          '[IncomeManagementService] Error updating income record status: $e');
       return false;
     }
   }
 
   /// 获取收入趋势数据
-  Future<List<Map<String, dynamic>>> getIncomeTrend({String period = 'month'}) async {
+  Future<List<Map<String, dynamic>>> getIncomeTrend(
+      {String period = 'month'}) async {
     try {
       final userId = _supabase.auth.currentUser?.id;
       if (userId == null) {
@@ -112,15 +115,16 @@ class IncomeManagementService {
         return [];
       }
 
-      final response = await _supabase
-          .rpc('get_provider_income_trend', params: {
-            'provider_user_id': userId,
-            'period': period,
-          });
+      final response =
+          await _supabase.rpc('get_provider_income_trend', params: {
+        'provider_user_id': userId,
+        'period': period,
+      });
 
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {
-      AppLogger.error('[IncomeManagementService] Error getting income trend: $e');
+      AppLogger.error(
+          '[IncomeManagementService] Error getting income trend: $e');
       return [];
     }
   }
@@ -148,7 +152,8 @@ class IncomeManagementService {
 
       return typeStats;
     } catch (e) {
-      AppLogger.error('[IncomeManagementService] Error getting income type statistics: $e');
+      AppLogger.error(
+          '[IncomeManagementService] Error getting income type statistics: $e');
       return {};
     }
   }
@@ -165,27 +170,28 @@ class IncomeManagementService {
       // 检查是否有足够的待结算金额
       final pendingAmount = await _getPendingAmount();
       if (pendingAmount < amount) {
-        AppLogger.warning('[IncomeManagementService] Insufficient pending amount');
+        AppLogger.warning(
+            '[IncomeManagementService] Insufficient pending amount');
         return false;
       }
 
       // 创建结算记录
-      await _supabase
-          .from('income_records')
-          .insert({
-            'provider_id': userId,
-            'amount': amount,
-            'income_type': 'settlement',
-            'status': 'pending',
-            'notes': notes,
-            'created_at': DateTime.now().toIso8601String(),
-            'updated_at': DateTime.now().toIso8601String(),
-          });
+      await _supabase.from('income_records').insert({
+        'provider_id': userId,
+        'amount': amount,
+        'income_type': 'settlement',
+        'status': 'pending',
+        'notes': notes,
+        'created_at': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
+      });
 
-      AppLogger.info('[IncomeManagementService] Settlement request created for amount $amount');
+      AppLogger.info(
+          '[IncomeManagementService] Settlement request created for amount $amount');
       return true;
     } catch (e) {
-      AppLogger.error('[IncomeManagementService] Error requesting settlement: $e');
+      AppLogger.error(
+          '[IncomeManagementService] Error requesting settlement: $e');
       return false;
     }
   }
@@ -210,8 +216,9 @@ class IncomeManagementService {
 
       return total;
     } catch (e) {
-      AppLogger.error('[IncomeManagementService] Error getting pending amount: $e');
+      AppLogger.error(
+          '[IncomeManagementService] Error getting pending amount: $e');
       return 0;
     }
   }
-} 
+}

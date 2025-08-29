@@ -6,23 +6,23 @@ import 'presentation/rob_order_hall_page.dart';
 class RobOrderHallPlugin extends AppPlugin {
   @override
   PluginMetadata get metadata => PluginMetadata(
-    id: 'rob_order_hall',
-    nameKey: 'rob_order_hall',
-    icon: Icons.campaign,
-    enabled: true,
-    order: 4,
-    type: PluginType.bottomTab,
-    routeName: '/provider/rob_order_hall',
-    role: 'provider',
-  );
+        id: 'rob_order_hall',
+        nameKey: 'rob_order_hall',
+        icon: Icons.campaign,
+        enabled: true,
+        order: 4,
+        type: PluginType.bottomTab,
+        routeName: '/provider/rob_order_hall',
+        role: 'provider',
+      );
 
   @override
   List<GetPage> getRoutes() => [
-    GetPage(
-      name: '/provider/rob_order_hall',
-      page: () => const RobOrderHallPage(),
-    ),
-  ];
+        GetPage(
+          name: '/provider/rob_order_hall',
+          page: () => const RobOrderHallPage(),
+        ),
+      ];
 
   @override
   Widget buildEntryWidget() => const RobOrderHallPage();
@@ -31,4 +31,4 @@ class RobOrderHallPlugin extends AppPlugin {
   void init() {}
   @override
   void dispose() {}
-} 
+}

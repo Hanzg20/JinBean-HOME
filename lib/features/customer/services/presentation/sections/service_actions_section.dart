@@ -28,8 +28,8 @@ class ServiceActionsSection extends StatelessWidget {
               Text(
                 '服务操作',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
             ],
           ),

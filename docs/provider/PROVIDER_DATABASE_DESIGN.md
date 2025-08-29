@@ -167,35 +167,99 @@ CREATE INDEX idx_user_settings_language ON user_settings(language);
 #### 3.2.1 provider_profiles
 ```sql
 CREATE TABLE public.provider_profiles (
-    id UUID PRIMARY KEY REFERENCES public.users(id) ON DELETE CASCADE,
-    business_name TEXT NOT NULL,
-    business_description TEXT,
-    business_phone TEXT,
-    business_email TEXT,
-    business_address TEXT,
-    business_website TEXT,
-    service_areas TEXT[] DEFAULT '{}',
-    service_categories TEXT[] DEFAULT '{}',
-    certification_status TEXT DEFAULT 'pending' CHECK (certification_status IN ('pending', 'verified', 'rejected')),
-    verification_documents TEXT[] DEFAULT '{}',
-    is_active BOOLEAN DEFAULT TRUE,
-    rating DECIMAL(3,2) DEFAULT 0.00,
-    review_count INTEGER DEFAULT 0,
-    total_orders INTEGER DEFAULT 0,
-    total_earnings DECIMAL(10,2) DEFAULT 0.00,
-    bank_account_info JSONB,
-    tax_info JSONB,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW()
-);
+    -- 基本标识字段
+    id uuid NOT NULL,
+    user_id uuid NULL DEFAULT auth.uid(),
+    
+    -- 业务基本信息
+    business_address text NULL,
+    service_areas text[] NULL,
+    service_categories text[] NULL,
+    status text NOT NULL DEFAULT 'pending'::text,
+    documents text[] NULL,
+    license_number text NULL,
+    review_count integer NULL DEFAULT 0,
+    provider_type text NULL DEFAULT 'individual'::text,
+    
+    -- 税务和法务信息
+    has_gst_hst boolean NULL DEFAULT false,
+    bn_number text NULL,
+    annual_income_estimate numeric NULL DEFAULT 0,
+    tax_status_notice_shown boolean NULL DEFAULT false,
+    tax_report_available boolean NULL DEFAULT false,
+    
+    -- 地址和位置信息
+    address_id uuid NULL,
+    
+    -- 认证和资质信息  
+    certification_files jsonb NULL,
+    certification_status text NULL DEFAULT 'pending'::text,
+    is_certified boolean NULL DEFAULT false,
+    experience_years integer NULL,
+    
+    -- 服务范围和定价
+    service_radius_km numeric NULL,
+    base_price numeric NULL,
+    pricing_type text NULL,
+    
+    -- 工作安排和团队
+    work_schedule jsonb NULL,
+    team_members jsonb NULL,
+    payment_methods jsonb NULL,
+    
+    -- 状态管理
+    is_active boolean NULL DEFAULT true,
+    vacation_mode boolean NULL DEFAULT false,
+    notification_settings jsonb NULL,
+    
+    -- 个人信息和展示（国际化支持）
+    display_name jsonb NULL,          -- 多语言显示名称
+    bio jsonb NULL,                   -- 多语言个人简介
+    avatar_url text NULL,             -- 头像URL
+    phone text NULL,                  -- 联系电话
+    email text NULL,                  -- 联系邮箱
+    
+    -- 评价和统计
+    rating numeric NULL,              -- 平均评分
+    
+    -- 标签和社交
+    tags text[] NULL,                 -- 服务标签
+    social_links jsonb NULL,          -- 社交媒体链接
+    custom_fields jsonb NULL,         -- 自定义字段
+    
+    -- 时间戳
+    created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+    updated_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+    
+    -- 约束
+    CONSTRAINT provider_profiles_pkey PRIMARY KEY (id),
+    CONSTRAINT provider_profiles_address_id_fkey FOREIGN KEY (address_id) REFERENCES addresses (id),
+    CONSTRAINT provider_profiles_provider_type_check CHECK (
+        (provider_type = ANY (ARRAY['individual'::text, 'corporate'::text]))
+    ),
+    CONSTRAINT provider_profiles_status_check CHECK (
+        (status = ANY (
+            ARRAY[
+                'pending'::text,
+                'active'::text,
+                'suspended'::text,
+                'rejected'::text
+            ]
+        ))
+    )
+) TABLESPACE pg_default;
 
 -- Indexes
-CREATE INDEX idx_provider_profiles_business_name ON provider_profiles(business_name);
-CREATE INDEX idx_provider_profiles_certification_status ON provider_profiles(certification_status);
-CREATE INDEX idx_provider_profiles_is_active ON provider_profiles(is_active);
-CREATE INDEX idx_provider_profiles_rating ON provider_profiles(rating);
-CREATE INDEX idx_provider_profiles_service_areas ON provider_profiles USING GIN(service_areas);
-CREATE INDEX idx_provider_profiles_service_categories ON provider_profiles USING GIN(service_categories);
+CREATE INDEX IF NOT EXISTS idx_provider_profiles_address_id ON public.provider_profiles USING btree (address_id);
+CREATE INDEX IF NOT EXISTS idx_provider_profiles_certification_status ON public.provider_profiles USING btree (certification_status);
+CREATE INDEX IF NOT EXISTS idx_provider_profiles_experience_years ON public.provider_profiles USING btree (experience_years);
+CREATE INDEX IF NOT EXISTS idx_provider_profiles_has_gst_hst ON public.provider_profiles USING btree (has_gst_hst);
+CREATE INDEX IF NOT EXISTS idx_provider_profiles_is_certified ON public.provider_profiles USING btree (is_certified);
+CREATE INDEX IF NOT EXISTS idx_provider_profiles_provider_type ON public.provider_profiles USING btree (provider_type);
+CREATE INDEX IF NOT EXISTS idx_provider_profiles_service_categories ON public.provider_profiles USING gin (service_categories);
+CREATE INDEX IF NOT EXISTS idx_provider_profiles_status ON public.provider_profiles USING btree (status);
+CREATE INDEX IF NOT EXISTS idx_provider_profiles_tags ON public.provider_profiles USING gin (tags);
+CREATE INDEX IF NOT EXISTS idx_provider_profiles_user_id ON public.provider_profiles USING btree (user_id);
 ```
 
 #### 3.2.2 provider_services

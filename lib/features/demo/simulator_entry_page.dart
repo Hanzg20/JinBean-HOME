@@ -70,9 +70,9 @@ class SimulatorEntryPage extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               const SizedBox(height: 40),
-              
+
               // 启动按钮
               SizedBox(
                 width: 200,
@@ -103,9 +103,9 @@ class SimulatorEntryPage extends StatelessWidget {
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // 功能说明
               Container(
                 padding: const EdgeInsets.all(20),
@@ -126,7 +126,6 @@ class SimulatorEntryPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    
                     _buildFeatureItem('📦 订单管理', '测试订单生命周期管理'),
                     _buildFeatureItem('👥 客户管理', '测试客户关系管理'),
                     _buildFeatureItem('🛠️ 服务管理', '测试服务配置管理'),
@@ -177,4 +176,4 @@ class SimulatorEntryPage extends StatelessWidget {
       ),
     );
   }
-} 
+}

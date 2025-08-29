@@ -4,11 +4,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 
-enum LocationSource {
-  gps,
-  manual,
-  defaultLocation
-}
+enum LocationSource { gps, manual, defaultLocation }
 
 class UserLocation {
   final double latitude;
@@ -59,21 +55,23 @@ class UserLocation {
   // 计算到另一个位置的距离（公里）
   double distanceTo(UserLocation other) {
     return Geolocator.distanceBetween(
-      latitude,
-      longitude,
-      other.latitude,
-      other.longitude,
-    ) / 1000; // 转换为公里
+          latitude,
+          longitude,
+          other.latitude,
+          other.longitude,
+        ) /
+        1000; // 转换为公里
   }
 
   // 计算到指定坐标的距离（公里）
   double distanceToCoordinates(double lat, double lng) {
     return Geolocator.distanceBetween(
-      latitude,
-      longitude,
-      lat,
-      lng,
-    ) / 1000; // 转换为公里
+          latitude,
+          longitude,
+          lat,
+          lng,
+        ) /
+        1000; // 转换为公里
   }
 }
 
@@ -114,7 +112,7 @@ class LocationController extends GetxController {
     try {
       final isEnabled = await Geolocator.isLocationServiceEnabled();
       isLocationServiceEnabled.value = isEnabled;
-      
+
       if (isEnabled) {
         await _checkLocationPermission();
       }
@@ -128,7 +126,7 @@ class LocationController extends GetxController {
     try {
       final permission = await Geolocator.checkPermission();
       locationPermission.value = permission;
-      
+
       if (permission == LocationPermission.denied) {
         final requestedPermission = await Geolocator.requestPermission();
         locationPermission.value = requestedPermission;
@@ -267,7 +265,7 @@ class LocationController extends GetxController {
   // 格式化地址
   String _formatAddress(Placemark placemark) {
     final parts = <String>[];
-    
+
     if (placemark.street?.isNotEmpty == true) {
       parts.add(placemark.street!);
     }
@@ -280,7 +278,7 @@ class LocationController extends GetxController {
     if (placemark.administrativeArea?.isNotEmpty == true) {
       parts.add(placemark.administrativeArea!);
     }
-    
+
     return parts.join(', ');
   }
 
@@ -320,7 +318,8 @@ class LocationController extends GetxController {
         return false;
       }
 
-      final distance = userLocation.distanceToCoordinates(serviceLat, serviceLng);
+      final distance =
+          userLocation.distanceToCoordinates(serviceLat, serviceLng);
       return distance <= radius;
     } catch (e) {
       debugPrint('Error checking service area: $e');
@@ -338,4 +337,4 @@ class LocationController extends GetxController {
     selectedLocation.value = _defaultLocation;
     _saveLocation(_defaultLocation);
   }
-} 
+}

@@ -21,4 +21,4 @@ export 'themes/provider_theme.dart';
 
 // 示例
 export 'examples/jinbean_bottom_navigation_example.dart';
-export 'examples/jinbean_bottom_navigation_demo_page.dart'; 
+export 'examples/jinbean_bottom_navigation_demo_page.dart';

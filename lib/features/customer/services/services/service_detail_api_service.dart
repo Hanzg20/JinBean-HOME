@@ -11,25 +11,24 @@ class ServiceDetailApiService {
   /// 获取服务数据
   static Future<Service> getService(String serviceId) async {
     try {
-      final response = await _supabase
-          .from('services')
-          .select('''
+      AppLogger.info('Fetching service with ID: $serviceId');
+
+      final response = await _supabase.from('services').select('''
             *,
             service_details(*),
-            provider_profiles!services_provider_id_fkey(*),
-            addresses!services_address_id_fkey(*)
-          ''')
-          .eq('id', serviceId)
-          .single();
+            provider_profiles!services_provider_id_fkey(*)
+          ''').eq('id', serviceId).single();
 
+      AppLogger.info('Service data fetched successfully: ${response.keys}');
       return Service.fromJson(response);
     } catch (e) {
-      AppLogger.info('Error fetching service: $e');
+      AppLogger.error('Error fetching service: $e');
       // 返回Mock数据
       return Service(
         id: serviceId,
         title: 'Professional Home Cleaning Service',
-        description: 'Comprehensive home cleaning service including kitchen, bathroom, living areas, and bedrooms.',
+        description:
+            'Comprehensive home cleaning service including kitchen, bathroom, living areas, and bedrooms.',
         rating: 4.8,
         reviewCount: 127,
         providerId: 'provider_456',
@@ -42,18 +41,23 @@ class ServiceDetailApiService {
     }
   }
 
-  /// 获取服务详情数据
+  /// 获取服务详情数据（单个）
   static Future<ServiceDetail> getServiceDetail(String serviceId) async {
     try {
+      AppLogger.info('Fetching service detail for service ID: $serviceId');
+
       final response = await _supabase
           .from('service_details')
           .select('*')
           .eq('service_id', serviceId)
+          .limit(1)
           .single();
 
+      AppLogger.info(
+          'Service detail data fetched successfully: ${response.keys}');
       return ServiceDetail.fromJson(response);
     } catch (e) {
-      AppLogger.info('Error fetching service detail: $e');
+      AppLogger.error('Error fetching service detail: $e');
       // 返回Mock数据
       return ServiceDetail(
         id: 'detail_$serviceId',
@@ -63,7 +67,8 @@ class ServiceDetailApiService {
         pricingType: 'hourly',
         price: 45.0,
         currency: 'USD',
-        negotiationDetails: 'Price may vary based on home size and specific requirements',
+        negotiationDetails:
+            'Price may vary based on home size and specific requirements',
         durationType: 'fixed',
         duration: 3,
         images: [
@@ -76,23 +81,98 @@ class ServiceDetailApiService {
         serviceDetailsJson: {
           'equipment': ['vacuum', 'mop', 'cleaning supplies'],
           'materials': ['eco-friendly', 'non-toxic'],
-          'included_services': ['dusting', 'vacuuming', 'mopping', 'bathroom cleaning'],
+          'included_services': [
+            'dusting',
+            'vacuuming',
+            'mopping',
+            'bathroom cleaning'
+          ],
         },
       );
+    }
+  }
+
+  /// 获取所有服务详情数据（多个）
+  static Future<List<ServiceDetail>> getAllServiceDetails(
+      String serviceId) async {
+    try {
+      AppLogger.info('🔄 开始从API获取服务详情数据，serviceId: $serviceId');
+
+      final response = await _supabase
+          .from('service_details')
+          .select('''
+            id,
+            service_id,
+            pricing_type,
+            price,
+            currency,
+            negotiation_details,
+            duration_type,
+            duration,
+            images_url,
+            videos_url,
+            tags,
+            service_area_codes,
+            platform_service_fee_rate,
+            min_platform_service_fee,
+            service_details_json,
+            extra_data,
+            promotion_start,
+            promotion_end,
+            view_count,
+            favorite_count,
+            order_count,
+            verification_status,
+            verification_documents,
+            created_at,
+            updated_at,
+            category,
+            name,
+            sub_category,
+            is_available,
+            sort_order,
+            current_stock,
+            max_stock,
+            attributes,
+            business_rules
+          ''')
+          .eq('service_id', serviceId)
+          .eq('is_available', true)
+          .order('sort_order', ascending: true)
+          .order('category', ascending: true);
+
+      AppLogger.info('✅ 成功从API获取到 ${response.length} 个服务详情数据');
+
+      if (response.isEmpty) {
+        AppLogger.warning('⚠️ API没有返回数据，serviceId: $serviceId');
+        return [];
+      }
+
+      // 记录获取到的数据详情
+      for (var item in response.take(3)) {
+        // 只记录前3个，避免日志过长
+        AppLogger.info(
+            '📋 服务详情: ${item['name']} - ${item['price']} ${item['currency']} - 分类: ${item['category']}');
+      }
+      if (response.length > 3) {
+        AppLogger.info('... 还有 ${response.length - 3} 个服务详情');
+      }
+
+      return response.map((json) => ServiceDetail.fromJson(json)).toList();
+    } catch (e) {
+      AppLogger.error('❌ 从API获取服务详情数据失败: $e');
+      // 返回空列表而不是Mock数据，让UI显示"暂无数据"
+      return [];
     }
   }
 
   /// 获取提供商资料
   static Future<ProviderProfile> getProviderProfile(String providerId) async {
     try {
-      final response = await _supabase
-          .from('provider_profiles')
-          .select('''
+      final response = await _supabase.from('provider_profiles').select('''
             *,
             addresses!provider_profiles_address_id_fkey(*)
-          ''')
-          .eq('id', providerId)
-          .single();
+          ''').eq('id', providerId).single();
 
       return ProviderProfile.fromJson(response);
     } catch (e) {
@@ -100,273 +180,162 @@ class ServiceDetailApiService {
       // 返回Mock数据
       return ProviderProfile(
         id: providerId,
-        name: 'CleanPro Services',
-        phone: '+1 (555) 123-4567',
-        email: 'contact@cleanproservices.com',
-        description: 'Leading professional cleaning service with over 10 years of experience.',
-        rating: 4.9,
-        reviewCount: 156,
-        completedOrders: 342,
+        name: 'Professional Service Provider',
+        description:
+            'Experienced and reliable service provider with excellent customer reviews.',
+        avatar: 'https://picsum.photos/200/200?random=1',
+        phone: '+1-555-0123',
+        email: 'provider@example.com',
+        rating: 4.8,
+        reviewCount: 127,
         businessLicense: 'CA123456789',
         isVerified: true,
         createdAt: DateTime.now(),
         metadata: {
-          'insurance': 'Fully insured and bonded',
-          'serviceCategories': ['cleaning', 'maintenance', 'deep-cleaning'],
+          'providerType': 'individual',
+          'isCertified': true,
+          'experienceYears': 5,
+          'tags': ['professional', 'reliable', 'experienced'],
         },
       );
     }
   }
 
   /// 获取服务评价
-  static Future<List<Review>> getServiceReviews(String serviceId, {int limit = 10}) async {
+  static Future<List<Review>> getServiceReviews(String serviceId) async {
     try {
       final response = await _supabase
           .from('reviews')
           .select('''
             *,
             user_profiles!reviews_user_id_fkey(
+              id,
               display_name,
               avatar_url
             )
           ''')
           .eq('service_id', serviceId)
           .order('created_at', ascending: false)
-          .limit(limit);
+          .limit(10);
 
       return response.map((json) => Review.fromJson(json)).toList();
     } catch (e) {
       AppLogger.info('Error fetching service reviews: $e');
-      // 返回Mock评价数据
+      // 返回Mock数据
       return [
         Review(
           id: 'review_1',
           serviceId: serviceId,
           userId: 'user_1',
-          userName: 'John D.',
-          userAvatar: 'https://picsum.photos/50/50?random=5',
-          rating: 5,
-          comment: 'Excellent service! The team was professional and thorough.',
-          createdAt: DateTime.now().subtract(Duration(days: 2)),
-          images: [],
-          metadata: {},
+          userName: 'John Doe',
+          userAvatar: 'https://picsum.photos/50/50?random=1',
+          rating: 5.0,
+          comment: 'Excellent service! Very professional and thorough.',
+          createdAt: DateTime.now().subtract(const Duration(days: 2)),
+          isVerified: true,
         ),
         Review(
           id: 'review_2',
           serviceId: serviceId,
           userId: 'user_2',
-          userName: 'Sarah M.',
-          userAvatar: 'https://picsum.photos/50/50?random=6',
-          rating: 4,
-          comment: 'Very satisfied with the cleaning quality. Will book again!',
-          createdAt: DateTime.now().subtract(Duration(days: 5)),
-          images: [],
-          metadata: {},
+          userName: 'Jane Smith',
+          userAvatar: 'https://picsum.photos/50/50?random=2',
+          rating: 4.0,
+          comment: 'Good service, would recommend to others.',
+          createdAt: DateTime.now().subtract(const Duration(days: 5)),
+          isVerified: true,
         ),
       ];
     }
   }
 
-  /// 获取服务可用性
-  static Future<Map<String, dynamic>> getServiceAvailability(String serviceId) async {
-    try {
-      final response = await _supabase
-          .from('service_availability')
-          .select('*')
-          .eq('service_id', serviceId)
-          .single();
-
-      return response;
-    } catch (e) {
-      AppLogger.info('Error fetching service availability: $e');
-      return {
-        'available_24_7': true,
-        'response_time_hours': 2,
-        'booking_advance_days': 1,
-        'cancellation_hours': 24,
-      };
-    }
-  }
-
-  /// 获取服务位置信息
-  static Future<Map<String, dynamic>> getServiceLocation(String serviceId) async {
-    try {
-      final response = await _supabase
-          .from('services')
-          .select('latitude, longitude')
-          .eq('id', serviceId)
-          .single();
-
-      return {
-        'latitude': response['latitude'] ?? 40.7128,
-        'longitude': response['longitude'] ?? -74.0060,
-        'address': 'New York, NY 10001',
-        'service_radius_km': 10.0,
-      };
-    } catch (e) {
-      AppLogger.info('Error fetching service location: $e');
-      return {
-        'latitude': 40.7128,
-        'longitude': -74.0060,
-        'address': 'New York, NY 10001',
-        'service_radius_km': 10.0,
-      };
-    }
-  }
-
-  /// 获取信任和安全信息
-  static Future<Map<String, dynamic>> getTrustAndSecurityInfo(String providerId) async {
-    try {
-      final response = await _supabase
-          .from('provider_profiles')
-          .select('business_license, insurance_info, certification_files')
-          .eq('id', providerId)
-          .single();
-
-      return {
-        'verified': true,
-        'licensed': response['business_license'] != null,
-        'insured': response['insurance_info'] != null,
-        'certified': response['certification_files'] != null,
-        'background_checked': true,
-      };
-    } catch (e) {
-      AppLogger.info('Error fetching trust and security info: $e');
-      return {
-        'verified': true,
-        'licensed': true,
-        'insured': true,
-        'certified': true,
-        'background_checked': true,
-      };
-    }
-  }
-
-  /// 获取提供商作品集
-  static Future<List<Map<String, dynamic>>> getProviderPortfolio(String providerId) async {
-    try {
-      final response = await _supabase
-          .from('services')
-          .select('id, title, images_url')
-          .eq('provider_id', providerId)
-          .limit(6);
-
-      return response.map((service) => {
-        'id': service['id'],
-        'title': service['title'],
-        'images_url': service['images_url'] ?? [],
-      }).toList();
-    } catch (e) {
-      AppLogger.info('Error fetching provider portfolio: $e');
-      return [
-        {
-          'id': 'portfolio_1',
-          'title': 'Kitchen Deep Cleaning',
-          'images_url': ['https://picsum.photos/200/200?random=7'],
-        },
-        {
-          'id': 'portfolio_2',
-          'title': 'Bathroom Sanitization',
-          'images_url': ['https://picsum.photos/200/200?random=8'],
-        },
-        {
-          'id': 'portfolio_3',
-          'title': 'Living Room Refresh',
-          'images_url': ['https://picsum.photos/200/200?random=9'],
-        },
-      ];
-    }
-  }
-
-  /// 记录服务查看
-  static Future<void> logServiceView(String serviceId, String userId) async {
-    try {
-      await _supabase
-          .from('service_views')
-          .insert({
-            'service_id': serviceId,
-            'user_id': userId,
-            'viewed_at': DateTime.now().toIso8601String(),
-          });
-    } catch (e) {
-      AppLogger.info('Error logging service view: $e');
-    }
-  }
-
-  /// 更新收藏状态
-  static Future<void> toggleFavorite(String serviceId, String userId, bool isFavorite) async {
-    try {
-      if (isFavorite) {
-        await _supabase
-            .from('user_favorites')
-            .insert({
-              'user_id': userId,
-              'service_id': serviceId,
-              'created_at': DateTime.now().toIso8601String(),
-            });
-      } else {
-        await _supabase
-            .from('user_favorites')
-            .delete()
-            .eq('user_id', userId)
-            .eq('service_id', serviceId);
-      }
-    } catch (e) {
-      AppLogger.info('Error toggling favorite: $e');
-    }
-  }
-
-  /// 检查收藏状态
-  static Future<bool> checkFavoriteStatus(String serviceId, String userId) async {
-    try {
-      final response = await _supabase
-          .from('user_favorites')
-          .select('id')
-          .eq('user_id', userId)
-          .eq('service_id', serviceId)
-          .maybeSingle();
-
-      return response != null;
-    } catch (e) {
-      AppLogger.info('Error checking favorite status: $e');
-      return false;
-    }
-  }
-
   /// 获取相似服务
-  static Future<List<dynamic>> getSimilarServices(String serviceId, {int limit = 5}) async {
+  static Future<List<Service>> getSimilarServices(
+      String serviceId, String categoryId) async {
     try {
-      // 获取当前服务的类别信息
-      final serviceResponse = await _supabase
-          .from('services')
-          .select('category_level1_id, category_level2_id, provider_id')
-          .eq('id', serviceId)
-          .single();
-
-      final categoryLevel1Id = serviceResponse['category_level1_id'];
-      final categoryLevel2Id = serviceResponse['category_level2_id'];
-      final providerId = serviceResponse['provider_id'];
-
-      // 查询相似服务（同类别、同提供商或高评分）
       final response = await _supabase
           .from('services')
           .select('''
             *,
-            service_details(*),
-            provider_profiles!services_provider_id_fkey(*)
+            provider_profiles!services_provider_id_fkey(
+              id,
+              display_name,
+              avatar_url,
+              rating,
+              review_count
+            )
           ''')
+          .eq('category_level1_id', categoryId)
           .neq('id', serviceId)
-          .or('category_level1_id.eq.$categoryLevel1Id,category_level2_id.eq.$categoryLevel2Id,provider_id.eq.$providerId')
+          .eq('status', 'active')
           .order('average_rating', ascending: false)
-          .limit(limit);
+          .limit(6);
 
-      return response;
+      return response.map((json) => Service.fromJson(json)).toList();
     } catch (e) {
       AppLogger.info('Error fetching similar services: $e');
-      // 返回空列表
       return [];
+    }
+  }
+
+  /// 获取服务统计数据
+  static Future<Map<String, dynamic>> getServiceStats(String serviceId) async {
+    try {
+      // 获取服务详情统计
+      final detailsResponse = await _supabase
+          .from('service_details')
+          .select('id, category, is_available')
+          .eq('service_id', serviceId);
+
+      // 获取评价统计
+      final reviewsResponse = await _supabase
+          .from('reviews')
+          .select('rating')
+          .eq('service_id', serviceId);
+
+      // 计算统计数据
+      final totalDetails = detailsResponse.length;
+      final availableDetails =
+          detailsResponse.where((d) => d['is_available'] == true).length;
+      final totalReviews = reviewsResponse.length;
+
+      double averageRating = 0.0;
+      if (reviewsResponse.isNotEmpty) {
+        final totalRating = reviewsResponse.fold<double>(
+            0.0, (sum, review) => sum + (review['rating'] as num));
+        averageRating = totalRating / totalReviews;
+      }
+
+      return {
+        'totalDetails': totalDetails,
+        'availableDetails': availableDetails,
+        'totalReviews': totalReviews,
+        'averageRating': averageRating,
+        'categories':
+            detailsResponse.map((d) => d['category']).toSet().toList(),
+      };
+    } catch (e) {
+      AppLogger.error('Error fetching service stats: $e');
+      return {
+        'totalDetails': 0,
+        'availableDetails': 0,
+        'totalReviews': 0,
+        'averageRating': 0.0,
+        'categories': [],
+      };
     }
   }
 }
 
- 
+// 用户资料模型（用于评价）
+class UserProfile {
+  final String id;
+  final String displayName;
+  final String? avatarUrl;
+
+  UserProfile({
+    required this.id,
+    required this.displayName,
+    this.avatarUrl,
+  });
+}

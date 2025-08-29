@@ -8,4 +8,4 @@ class MyAddressesBinding extends Bindings {
       () => MyAddressesController(),
     );
   }
-} 
+}

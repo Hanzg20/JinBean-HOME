@@ -6,23 +6,23 @@ import 'message_center_page.dart';
 class MessageCenterPlugin extends AppPlugin {
   @override
   PluginMetadata get metadata => PluginMetadata(
-    id: 'message_center',
-    nameKey: 'message_center',
-    icon: Icons.message,
-    enabled: true,
-    order: 5,
-    type: PluginType.bottomTab,
-    routeName: '/provider/message_center',
-    role: 'provider',
-  );
+        id: 'message_center',
+        nameKey: 'message_center',
+        icon: Icons.message,
+        enabled: true,
+        order: 5,
+        type: PluginType.bottomTab,
+        routeName: '/provider/message_center',
+        role: 'provider',
+      );
 
   @override
   List<GetPage> getRoutes() => [
-    GetPage(
-      name: '/provider/message_center',
-      page: () => const MessageCenterPage(),
-    ),
-  ];
+        GetPage(
+          name: '/provider/message_center',
+          page: () => const MessageCenterPage(),
+        ),
+      ];
 
   @override
   Widget buildEntryWidget() => const MessageCenterPage();
@@ -31,4 +31,4 @@ class MessageCenterPlugin extends AppPlugin {
   void init() {}
   @override
   void dispose() {}
-} 
+}

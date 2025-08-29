@@ -63,7 +63,8 @@ class TagSelector extends StatelessWidget {
                   tag,
                   style: TextStyle(
                     fontSize: 14,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                    fontWeight:
+                        isSelected ? FontWeight.w600 : FontWeight.normal,
                     color: isSelected
                         ? (selectedColor ?? Colors.blue[700])
                         : Colors.grey[700],
@@ -76,4 +77,4 @@ class TagSelector extends StatelessWidget {
       }).toList(),
     );
   }
-} 
+}
