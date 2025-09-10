@@ -3,7 +3,9 @@ import 'package:get/get.dart';
 import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
 
 import '../../../../core/services/services.dart' as core_services;
+import '../../../../core/utils/app_logger.dart';
 import '../../../../core/controllers/unified_cart_controller.dart';
+import '../../../../core/models/cart_models.dart';
 import '../../../../core/services/service_booking_type_resolver.dart';
 // import '../../../../core/services/pricing_calculators.dart'; // Will be used for pricing calculations
 // Removed unused imports
@@ -119,6 +121,9 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
 
   Future<void> _loadServiceDetail(String serviceId) async {
     try {
+      // 预加载服务数据 - 新增
+      await _preloadServiceData(serviceId);
+      
       await controller.loadServiceDetail(serviceId);
 
       // Load service details if new service is initialized
@@ -127,6 +132,29 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
       }
     } catch (e) {
       // debugPrint('Error loading service detail: $e');
+    }
+  }
+
+  /// 预加载服务数据 - 新增
+  Future<void> _preloadServiceData(String serviceId) async {
+    try {
+      AppLogger.info('[ServiceDetailPage] 🚀 开始预加载服务数据: $serviceId');
+      
+      // 获取服务详情列表
+      final serviceDetails = await api.ServiceDetailApiService.getAllServiceDetails(serviceId);
+      
+      // 提取服务详情ID列表
+      final serviceDetailIds = serviceDetails.map((detail) => detail.id).toList();
+      
+      // 批量预加载
+      await UnifiedCartController.preloadMultipleServices(
+        [serviceId], // 服务ID列表
+        serviceDetailIds, // 服务详情ID列表
+      );
+      
+      AppLogger.info('[ServiceDetailPage] ✅ 预加载完成 - 服务: $serviceId, 详情数量: ${serviceDetailIds.length}');
+    } catch (e) {
+      AppLogger.warning('[ServiceDetailPage] ⚠️ 预加载失败: $e');
     }
   }
 
@@ -317,8 +345,11 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
 
           // Global cart icon
           Obx(() {
+            final stopwatch = Stopwatch()..start();
             final cartCount = _cartController.cartItems.length;
-            return Stack(
+            AppLogger.info('[UI] 🎨 AppBar购物车图标开始重建 - 商品数: $cartCount');
+            
+            final widget = Stack(
               children: [
                 IconButton(
                   icon: const Icon(Icons.shopping_cart_outlined),
@@ -352,6 +383,16 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
                   ),
               ],
             );
+            
+            stopwatch.stop();
+            AppLogger.info('[UI] 🎨 AppBar购物车图标重建完成 - 耗时: ${stopwatch.elapsedMilliseconds}ms');
+            
+            // 添加下一帧回调监控
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              AppLogger.info('[UI] 🎨 AppBar购物车图标PostFrame完成');
+            });
+            
+            return widget;
           }),
           const SizedBox(width: 4),
         ],
@@ -419,7 +460,7 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
   List<core_services.ServiceDetail> _createTestServiceDetails() {
     return [
       core_services.ServiceDetail(
-        id: 'test-detail-1',
+        id: '550e8400-e29b-41d4-a716-446655440201',
         serviceId: widget.serviceId,
         name: {'en': 'Main Service', 'zh': '主要服务'},
         price: 25.00,
@@ -435,7 +476,7 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
         updatedAt: DateTime.now(),
       ),
       core_services.ServiceDetail(
-        id: 'test-detail-2',
+        id: '550e8400-e29b-41d4-a716-446655440202',
         serviceId: widget.serviceId,
         name: {'en': 'Premium Service', 'zh': '优质服务'},
         price: 35.00,
@@ -742,7 +783,7 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
                   ),
                 );
               },
-              errorBuilder: (context, error) {
+              errorBuilder: (context, error, stackTrace) {
                 // 尝试使用备用图片源
                 return FutureBuilder<Widget>(
                   future: _buildFallbackImage(imageUrl, error),
@@ -1456,7 +1497,7 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
               Text(
-                  item.itemNameSnapshot['zh'] ?? item.itemNameSnapshot['en'] ?? '服务项目',
+                  _getItemDisplayName(item),
             style: const TextStyle(
                     fontSize: 14,
                   fontWeight: FontWeight.bold,
@@ -1500,6 +1541,19 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
   }
 
   */
+
+  String _getItemDisplayName(CartItem item) {
+    try {
+      if (item.itemNameSnapshot != null && item.itemNameSnapshot.isNotEmpty) {
+        return item.itemNameSnapshot['zh'] ?? 
+               item.itemNameSnapshot['en'] ?? 
+               '服务项目';
+      }
+      return '服务项目';
+    } catch (e) {
+      return '服务项目';
+    }
+  }
 
   /// 计算购物车总价
 
@@ -1752,7 +1806,7 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
           fit: BoxFit.cover,
           width: double.infinity,
           height: double.infinity,
-          errorBuilder: (context, error) => _buildDefaultPlaceholder(),
+          errorBuilder: (context, error, stackTrace) => _buildDefaultPlaceholder(),
         );
       } catch (e) {
         // Continue trying next fallback URL

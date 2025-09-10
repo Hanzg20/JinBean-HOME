@@ -1,4 +1,5 @@
 import '../../features/customer/domain/entities/service.dart';
+import '../models/base_models.dart';
 import '../models/cart_models.dart';
 import '../utils/app_logger.dart';
 
@@ -32,21 +33,21 @@ class ServiceBookingTypeResolver {
       if (_isEmergencyService(service) || _isInstantService(service)) {
         AppLogger.debug(
             '[BookingTypeResolver] Emergency/Instant service detected -> DirectOnly');
-        return ServiceBookingType.directOnly;
+        return ServiceBookingType.directBooking;
       }
 
       // 3. 咨询类服务直接下单
       if (_isConsultationService(service)) {
         AppLogger.debug(
             '[BookingTypeResolver] Consultation service detected -> DirectOnly');
-        return ServiceBookingType.directOnly;
+        return ServiceBookingType.directBooking;
       }
 
       // 4. 预约类服务提供双选项
       if (_isAppointmentService(service)) {
         AppLogger.debug(
             '[BookingTypeResolver] Appointment service detected -> Both');
-        return ServiceBookingType.both;
+        return ServiceBookingType.hybrid;
       }
 
       // 5. 默认情况：根据分类判断
@@ -57,7 +58,7 @@ class ServiceBookingTypeResolver {
     } catch (e) {
       AppLogger.error('[BookingTypeResolver] Error resolving booking type: $e');
       // 发生错误时返回直接下单模式
-      return ServiceBookingType.directOnly;
+      return ServiceBookingType.directBooking;
     }
   }
 
@@ -133,7 +134,7 @@ class ServiceBookingTypeResolver {
 
   /// 根据分类获取默认预订类型
   static ServiceBookingType _getDefaultTypeByCategory(String? categoryId) {
-    if (categoryId == null) return ServiceBookingType.directOnly;
+    if (categoryId == null) return ServiceBookingType.directBooking;
 
     // 确保categoryId是字符串格式
     final categoryStr = categoryId.toString();
@@ -148,25 +149,32 @@ class ServiceBookingTypeResolver {
       case '1070000': // 美容美发
       case '1080000': // 健康医疗
       case '1090000': // 维修服务
-        return ServiceBookingType.both;
+        return ServiceBookingType.hybrid;
 
       case '1030000': // 交通出行
       case '1040000': // 配送服务
-        return ServiceBookingType.directOnly;
+        return ServiceBookingType.directBooking;
 
       default:
-        return ServiceBookingType.directOnly;
+        return ServiceBookingType.directBooking;
     }
   }
 
   /// 获取UI提示文本
   static String getBookingModeDescription(ServiceBookingType type) {
-    return type.description;
+    return type.displayName;
   }
 
   /// 获取默认建议操作
   static String getRecommendedAction(ServiceBookingType type) {
-    return type.recommendedAction;
+    switch (type) {
+      case ServiceBookingType.cartOnly:
+        return '添加到购物车';
+      case ServiceBookingType.directBooking:
+        return '立即预订';
+      case ServiceBookingType.hybrid:
+        return '选择预订方式';
+    }
   }
 
   /// 获取详细的预订说明
@@ -175,7 +183,7 @@ class ServiceBookingTypeResolver {
     final serviceType = _getServiceTypeDescription(service);
 
     switch (type) {
-      case ServiceBookingType.directOnly:
+      case ServiceBookingType.directBooking:
         if (_isEmergencyService(service)) {
           return '这是紧急服务，建议立即预订以获得最快响应';
         } else if (_isConsultationService(service)) {
@@ -187,7 +195,7 @@ class ServiceBookingTypeResolver {
       case ServiceBookingType.cartOnly:
         return '餐饮服务需要先选择具体菜品，请在Menu菜单中添加到购物车';
 
-      case ServiceBookingType.both:
+      case ServiceBookingType.hybrid:
         return '${serviceType}服务支持立即预订或加入购物车对比。立即预订可快速完成，购物车可对比多个服务';
     }
   }
@@ -336,9 +344,9 @@ class BookingTypeUtils {
   static Map<ServiceBookingType, int> getTypeStatistics(
       List<Service> services) {
     final stats = <ServiceBookingType, int>{
-      ServiceBookingType.directOnly: 0,
+      ServiceBookingType.directBooking: 0,
       ServiceBookingType.cartOnly: 0,
-      ServiceBookingType.both: 0,
+      ServiceBookingType.hybrid: 0,
     };
 
     for (final service in services) {
@@ -365,7 +373,7 @@ class BookingTypeUtils {
     final type = ServiceBookingTypeResolver.resolve(service);
 
     switch (type) {
-      case ServiceBookingType.directOnly:
+      case ServiceBookingType.directBooking:
         return [
           '查看服务详情',
           '确认价格和时间',
@@ -385,7 +393,7 @@ class BookingTypeUtils {
           '完成支付',
         ];
 
-      case ServiceBookingType.both:
+      case ServiceBookingType.hybrid:
         return [
           '选择预订方式',
           '方式1: 立即预订 → 快速完成',

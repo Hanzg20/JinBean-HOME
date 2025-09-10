@@ -8,6 +8,10 @@ import '../../domain/entities/similar_service.dart';
 import '../../domain/entities/provider_profile.dart';
 import '../services/service_detail_api_service.dart' as api;
 import '../../../../core/services/services.dart' as core_services;
+import '../../../../core/services/intelligent_routing_engine.dart';
+import '../../../../core/services/service_booking_type_resolver.dart';
+import '../../../../core/models/base_models.dart';
+import '../../../../core/services/cart_service.dart';
 
 class ServiceDetailController extends GetxController {
   // 服务数据
@@ -62,11 +66,24 @@ class ServiceDetailController extends GetxController {
   core_services.IServiceQueryService? _serviceQueryService;
   core_services.IServiceDetailService? _serviceDetailService;
 
+  // 智能操作按钮相关
+  late final ContextManager _contextManager;
+  late final CartService _cartService;
+  final Rx<ServiceBookingType?> bookingType = Rx<ServiceBookingType?>(null);
+  final RxBool canAddToCart = false.obs;
+  final RxBool canDirectBook = false.obs;
+  final RxString primaryActionText = '加载中...'.obs;
+  final RxString secondaryActionText = ''.obs;
+  final RxBool showSecondaryAction = false.obs;
+
   @override
   void onInit() {
     super.onInit();
     AppLogger.info('ServiceDetailController initialized',
         tag: 'ServiceDetailController');
+
+    // 初始化智能操作按钮
+    _initializeIntelligentActions();
 
     // 初始化新的服务查询服务
     _initializeNewServices();
@@ -80,8 +97,8 @@ class ServiceDetailController extends GetxController {
       // 加载相似服务推荐
       loadSimilarServices(serviceId);
 
-      // 加载提供商信息
-      loadProviderProfile(serviceId);
+      // 注意：不在这里加载Provider信息，因为此时还没有providerId
+      // loadProviderProfile会在loadServiceDetail完成后调用
 
       // 加载评价
       loadReviews(serviceId);
@@ -208,68 +225,22 @@ class ServiceDetailController extends GetxController {
         loadSimilarServices(serviceId),
         loadProviderProfile(service.value?.providerId ?? ''),
       ]);
+
+      // 分析服务并更新智能操作按钮
+      _analyzeServiceAndUpdateActions();
     } catch (e) {
       errorMessage.value = 'Failed to load service detail: $e';
       AppLogger.error('Error loading service detail: $e',
           tag: 'ServiceDetailController');
-
-      // 如果真实数据加载失败，使用Mock数据作为备用
-      _loadMockData(serviceId);
+      
+      // 直接抛出错误，不使用Mock数据
+      rethrow;
     } finally {
       isLoading.value = false;
     }
   }
 
-  /// 加载Mock数据作为备用
-  void _loadMockData(String serviceId) {
-    AppLogger.info('Loading mock data as fallback for service: $serviceId');
 
-    final mockService = Service(
-      id: serviceId,
-      title: '专业清洁服务',
-      description: '提供高质量的家庭清洁服务，包括深度清洁、定期维护等。我们的专业团队使用环保清洁产品，确保您的家居环境既清洁又健康。',
-      price: 120.0,
-      currency: 'USD',
-      pricingType: 'fixed',
-      categoryId: '1020000',
-      categoryLevel2Id: '1020100',
-      providerId: 'provider_123',
-      serviceDeliveryMethod: 'on_site',
-      createdAt: DateTime.now().subtract(const Duration(days: 30)),
-      images: [
-        'https://picsum.photos/seed/service1/400/300',
-        'https://picsum.photos/seed/service2/400/300',
-        'https://picsum.photos/seed/service3/400/300',
-      ],
-      rating: 4.8,
-      reviewCount: 156,
-      isActive: true,
-      latitude: 43.6532,
-      longitude: -79.3832,
-    );
-
-    final mockServiceDetail = ServiceDetail(
-      id: 'detail_123',
-      serviceId: serviceId,
-      name: {'en': 'Professional Cleaning Service', 'zh': '专业清洁服务'},
-      category: 'main',
-      pricingType: 'fixed',
-      price: 120.0,
-      currency: 'USD',
-      negotiationDetails: '价格可根据服务范围和频率进行调整',
-      durationType: 'hours',
-      duration: 3,
-      images: [
-        'https://picsum.photos/seed/detail1/400/300',
-        'https://picsum.photos/seed/detail2/400/300',
-      ],
-      tags: ['深度清洁', '环保产品', '专业团队', '定期维护'],
-      serviceAreaCodes: ['M5V', 'M5X', 'M6G', 'M6J'],
-    );
-
-    service.value = mockService;
-    serviceDetail.value = mockServiceDetail;
-  }
 
   /// 加载评价列表
   Future<void> loadReviews(String serviceId, {bool refresh = false}) async {
@@ -339,7 +310,15 @@ class ServiceDetailController extends GetxController {
   Future<void> loadProviderProfile(String providerId) async {
     if (providerId.isEmpty) return;
 
+    // 防止重复调用
+    if (isLoadingProvider.value) {
+      AppLogger.info('[Provider] ⚠️ Provider正在加载中，跳过重复请求 - ID: $providerId');
+      return;
+    }
+
+    AppLogger.info('[Provider] 🚀 开始加载Provider信息 - ID: $providerId');
     isLoadingProvider.value = true;
+    AppLogger.info('[Provider] ⏳ isLoadingProvider设置为true，当前值: ${isLoadingProvider.value}');
 
     try {
       AppLogger.info('Loading provider profile for ID: $providerId',
@@ -349,15 +328,28 @@ class ServiceDetailController extends GetxController {
       final providerData =
           await api.ServiceDetailApiService.getProviderProfile(providerId);
       providerProfile.value = providerData;
+      AppLogger.info('[Provider] ✅ Provider数据加载成功，设置到providerProfile');
 
       AppLogger.info('Provider profile loaded successfully',
           tag: 'ServiceDetailController');
     } catch (e, stack) {
       AppLogger.error('Failed to load provider profile',
           error: e, stackTrace: stack, tag: 'ServiceDetailController');
+      AppLogger.info('[Provider] ❌ Provider加载失败，但继续执行finally');
       // 不设置错误状态，因为提供商信息不是必需的
     } finally {
+      AppLogger.info('[Provider] 🔄 进入finally块，准备重置loading状态');
+      AppLogger.info('[Provider] 🔄 当前isLoadingProvider值: ${isLoadingProvider.value}');
       isLoadingProvider.value = false;
+      AppLogger.info('[Provider] ✅ isLoadingProvider设置为false，当前值: ${isLoadingProvider.value}');
+      
+      // 延迟检查，确保UI有时间响应
+      Future.delayed(Duration(milliseconds: 100), () {
+        AppLogger.info('[Provider] 🔍 100ms后检查 - isLoadingProvider: ${isLoadingProvider.value}');
+      });
+      Future.delayed(Duration(milliseconds: 500), () {
+        AppLogger.info('[Provider] 🔍 500ms后检查 - isLoadingProvider: ${isLoadingProvider.value}');
+      });
     }
   }
 
@@ -551,5 +543,326 @@ class ServiceDetailController extends GetxController {
     AppLogger.debug('[ServiceDetailController] calculateRouteToProvider called',
         tag: 'ServiceDetailController');
     // TODO: 实现路线计算逻辑
+  }
+
+  // ========================================
+  // 智能操作按钮功能
+  // ========================================
+
+  /// 初始化智能操作按钮
+  void _initializeIntelligentActions() {
+    try {
+      // 获取或创建ContextManager实例
+      try {
+        _contextManager = Get.find<ContextManager>();
+      } catch (e) {
+        _contextManager = Get.put(ContextManager());
+      }
+
+      // 获取或创建CartService实例
+      try {
+        _cartService = Get.find<CartService>();
+      } catch (e) {
+        _cartService = Get.put(CartService());
+      }
+
+      AppLogger.info('服务详情页智能操作按钮初始化成功');
+    } catch (e) {
+      AppLogger.error('服务详情页智能操作按钮初始化失败: $e');
+    }
+  }
+
+  /// 分析服务并更新智能操作按钮
+  void _analyzeServiceAndUpdateActions() {
+    final currentService = service.value;
+    if (currentService == null) return;
+
+    try {
+      AppLogger.info('🔍 分析服务并更新智能操作按钮: ${currentService.title}');
+
+      // 使用ServiceBookingTypeResolver分析服务类型
+      final serviceBookingType = ServiceBookingTypeResolver.resolve(currentService);
+      bookingType.value = serviceBookingType;
+
+      // 更新操作能力
+      canAddToCart.value = serviceBookingType.supportsCart;
+      canDirectBook.value = serviceBookingType.supportsDirectBooking;
+
+      // 更新按钮文本和显示逻辑
+      _updateActionButtonsText(serviceBookingType);
+
+      AppLogger.info('🔍 服务分析完成:');
+      AppLogger.info('   预订类型: ${serviceBookingType.displayName}');
+      AppLogger.info('   支持购物车: ${canAddToCart.value}');
+      AppLogger.info('   支持直接预订: ${canDirectBook.value}');
+
+    } catch (e) {
+      AppLogger.error('🔍 服务分析失败: $e');
+      _setDefaultActions();
+    }
+  }
+
+  /// 更新操作按钮文本
+  void _updateActionButtonsText(ServiceBookingType type) {
+    switch (type) {
+      case ServiceBookingType.cartOnly:
+        primaryActionText.value = '添加到购物车';
+        secondaryActionText.value = '';
+        showSecondaryAction.value = false;
+        break;
+
+      case ServiceBookingType.directBooking:
+        primaryActionText.value = '立即预订';
+        secondaryActionText.value = '';
+        showSecondaryAction.value = false;
+        break;
+
+      case ServiceBookingType.hybrid:
+        primaryActionText.value = '立即预订';
+        secondaryActionText.value = '添加到购物车';
+        showSecondaryAction.value = true;
+        break;
+    }
+  }
+
+  /// 设置默认操作
+  void _setDefaultActions() {
+    primaryActionText.value = '立即预订';
+    secondaryActionText.value = '添加到购物车';
+    showSecondaryAction.value = true;
+    canAddToCart.value = true;
+    canDirectBook.value = true;
+  }
+
+  /// 主要操作按钮点击处理
+  Future<void> onPrimaryActionTap() async {
+    final currentService = service.value;
+    if (currentService == null) {
+      _showError('服务信息未加载');
+      return;
+    }
+
+    try {
+      AppLogger.info('🎯 主要操作按钮点击: ${primaryActionText.value}');
+
+      switch (bookingType.value) {
+        case ServiceBookingType.cartOnly:
+          await _addToCart();
+          break;
+
+        case ServiceBookingType.directBooking:
+        case ServiceBookingType.hybrid:
+          await _directBooking();
+          break;
+
+        default:
+          await _directBooking(); // 默认行为
+      }
+
+    } catch (e) {
+      AppLogger.error('🎯 主要操作失败: $e');
+      _showError('操作失败，请稍后重试');
+    }
+  }
+
+  /// 次要操作按钮点击处理
+  Future<void> onSecondaryActionTap() async {
+    final currentService = service.value;
+    if (currentService == null) {
+      _showError('服务信息未加载');
+      return;
+    }
+
+    try {
+      AppLogger.info('🎯 次要操作按钮点击: ${secondaryActionText.value}');
+
+      // 次要操作通常是添加到购物车
+      await _addToCart();
+
+    } catch (e) {
+      AppLogger.error('🎯 次要操作失败: $e');
+      _showError('操作失败，请稍后重试');
+    }
+  }
+
+  /// 添加到购物车
+  Future<void> _addToCart() async {
+    final currentService = service.value;
+    if (currentService == null) return;
+
+    try {
+      AppLogger.info('🛒 添加到购物车: ${currentService.title}');
+
+      // 保存操作上下文
+      _contextManager.saveNavigationContext(
+        sourcePageId: 'service_detail',
+        searchFilters: {
+          'serviceId': currentService.id,
+          'action': 'add_to_cart',
+        },
+      );
+
+      // 使用CartService添加到购物车
+      await _cartService.addServiceToCart(
+        serviceId: currentService.id,
+        serviceDetailId: serviceDetail.value?.id ?? 'main_service',
+        quantity: 1,
+        customizations: {},
+        specialInstructions: null,
+      );
+
+      _showSuccess('已添加到购物车');
+
+    } catch (e) {
+      AppLogger.error('🛒 添加到购物车失败: $e');
+      _showError('添加到购物车失败');
+    }
+  }
+
+  /// 直接预订
+  Future<void> _directBooking() async {
+    final currentService = service.value;
+    if (currentService == null) return;
+
+    try {
+      AppLogger.info('📅 直接预订: ${currentService.title}');
+
+      // 保存操作上下文
+      _contextManager.saveNavigationContext(
+        sourcePageId: 'service_detail',
+        searchFilters: {
+          'serviceId': currentService.id,
+          'action': 'direct_booking',
+        },
+      );
+
+      // 识别行业类型并导航到相应页面
+      final industry = IndustryIdentifier.identifyFromService(currentService);
+      
+      switch (industry) {
+        case IndustryType.food:
+          // 餐饮行业 - 导航到FoodOrderPage
+          AppLogger.info('🍽️ 导航到餐饮订单页面');
+          Get.toNamed('/food_order', parameters: {
+            'serviceId': currentService.id,
+            'source': 'service_detail_direct_booking',
+          });
+          break;
+
+        default:
+          // 其他行业 - 显示预订表单或导航到通用预订页面
+          AppLogger.info('📋 显示通用预订表单');
+          _showBookingForm();
+      }
+
+    } catch (e) {
+      AppLogger.error('📅 直接预订失败: $e');
+      _showError('预订失败，请稍后重试');
+    }
+  }
+
+  /// 显示预订表单
+  void _showBookingForm() {
+    // TODO: 实现预订表单弹窗
+    Get.snackbar(
+      '预订功能',
+      '预订表单正在开发中，敬请期待！',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.blue.withOpacity(0.1),
+      colorText: Colors.blue,
+      duration: const Duration(seconds: 3),
+    );
+  }
+
+  /// 智能价格计算
+  Future<void> calculateIntelligentPrice({
+    int quantity = 1,
+    Map<String, dynamic>? customizations,
+    DateTime? scheduledTime,
+  }) async {
+    final currentService = service.value;
+    if (currentService == null) return;
+
+    try {
+      AppLogger.info('💰 智能价格计算开始');
+
+      // TODO: 集成PricingEngine进行动态价格计算
+      // final pricingResult = await _pricingEngine.calculatePrice(
+      //   service: currentService,
+      //   quantity: quantity,
+      //   customizations: customizations,
+      //   scheduledTime: scheduledTime,
+      // );
+
+      // 暂时使用模拟价格计算
+      final basePrice = serviceDetail.value?.price ?? 0.0;
+      final totalPrice = basePrice * quantity;
+
+      AppLogger.info('💰 价格计算完成: \$${totalPrice.toStringAsFixed(2)}');
+
+      // 更新UI显示价格
+      // TODO: 添加价格显示相关的响应式变量
+
+    } catch (e) {
+      AppLogger.error('💰 价格计算失败: $e');
+    }
+  }
+
+  /// 显示成功消息
+  void _showSuccess(String message) {
+    Get.snackbar(
+      '成功',
+      message,
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.green.withOpacity(0.1),
+      colorText: Colors.green,
+      icon: const Icon(Icons.check_circle, color: Colors.green),
+      duration: const Duration(seconds: 2),
+    );
+  }
+
+  /// 显示错误消息
+  void _showError(String message) {
+    Get.snackbar(
+      '错误',
+      message,
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.red.withOpacity(0.1),
+      colorText: Colors.red,
+      icon: const Icon(Icons.error, color: Colors.red),
+      duration: const Duration(seconds: 3),
+    );
+  }
+
+  /// 获取推荐操作文本
+  String getRecommendedActionText() {
+    final type = bookingType.value;
+    if (type == null) return '立即预订';
+    
+    return ServiceBookingTypeResolver.getRecommendedAction(type);
+  }
+
+  /// 检查是否可以执行某个操作
+  bool canPerformAction(String action) {
+    switch (action.toLowerCase()) {
+      case 'add_to_cart':
+        return canAddToCart.value;
+      case 'direct_booking':
+        return canDirectBook.value;
+      default:
+        return false;
+    }
+  }
+
+  /// 获取操作按钮配置
+  Map<String, dynamic> getActionButtonConfig() {
+    return {
+      'primaryText': primaryActionText.value,
+      'secondaryText': secondaryActionText.value,
+      'showSecondary': showSecondaryAction.value,
+      'canAddToCart': canAddToCart.value,
+      'canDirectBook': canDirectBook.value,
+      'bookingType': bookingType.value?.displayName ?? '未知',
+    };
   }
 }

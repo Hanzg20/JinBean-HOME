@@ -64,11 +64,10 @@ class RobOrderHallController extends GetxController {
               category_level1_id,
               category_level2_id
             ),
-            customer:user_profiles!orders_customer_id_fkey(
+            customer:user_profiles!orders_user_id_fkey(
               id,
-              full_name,
+              display_name,
               avatar_url,
-              rating,
               order_count
             )
           ''')
@@ -89,11 +88,10 @@ class RobOrderHallController extends GetxController {
                 category_level1_id,
                 category_level2_id
               ),
-              customer:user_profiles!orders_customer_id_fkey(
+              customer:user_profiles!orders_user_id_fkey(
                 id,
-                full_name,
+                display_name,
                 avatar_url,
-                rating,
                 order_count
               )
             ''')

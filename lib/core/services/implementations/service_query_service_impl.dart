@@ -42,7 +42,7 @@ class ServiceQueryService implements IServiceQueryService {
               review_count
             )
           ''')
-          .eq('is_active', true)
+          .eq('status', 'active')
           .order('rating', ascending: false)
           .limit(limit);
 
@@ -79,7 +79,7 @@ class ServiceQueryService implements IServiceQueryService {
               review_count
             )
           ''')
-          .eq('is_active', true)
+          .eq('status', 'active')
           .eq('category_id', categoryId)
           .order('rating', ascending: false)
           .limit(limit);
@@ -114,7 +114,7 @@ class ServiceQueryService implements IServiceQueryService {
               rating,
               review_count
             )
-          ''').eq('is_active', true);
+          ''').eq('status', 'active');
 
       // 应用查询参数
       if (params.categoryId != null) {
@@ -157,7 +157,7 @@ class ServiceQueryService implements IServiceQueryService {
 
       // 获取总数（简化版本）
       final totalResponse =
-          await _supabase.from('services').select('id').eq('is_active', true);
+          await _supabase.from('services').select('id').eq('status', 'active');
 
       final totalCount = totalResponse.length;
       final currentPage = (offset ~/ limit) + 1;
@@ -198,7 +198,7 @@ class ServiceQueryService implements IServiceQueryService {
               rating,
               review_count
             )
-          ''').eq('id', serviceId).eq('is_active', true).single();
+          ''').eq('id', serviceId).eq('status', 'active').single();
 
       final service = Service.fromJson(response);
 
@@ -233,7 +233,7 @@ class ServiceQueryService implements IServiceQueryService {
               review_count
             )
           ''')
-          .eq('is_active', true)
+          .eq('status', 'active')
           .eq('provider_id', providerId)
           .order('created_at', ascending: false)
           .limit(limit);
@@ -270,7 +270,7 @@ class ServiceQueryService implements IServiceQueryService {
               review_count
             )
           ''')
-          .eq('is_active', true)
+          .eq('status', 'active')
           .order('rating', ascending: false)
           .limit(limit);
 
@@ -339,7 +339,7 @@ class ServiceQueryService implements IServiceQueryService {
               review_count
             )
           ''')
-          .eq('is_active', true)
+          .eq('status', 'active')
           .neq('id', serviceId) // 排除当前服务
           .or('category_level1_id.eq.$categoryLevel1Id,category_level2_id.eq.$categoryLevel2Id')
           .order('rating', ascending: false)
@@ -368,12 +368,12 @@ class ServiceQueryService implements IServiceQueryService {
       final totalServices = await _supabase.from('services').select('id');
 
       final activeServices =
-          await _supabase.from('services').select('id').eq('is_active', true);
+          await _supabase.from('services').select('id').eq('status', 'active');
 
       final avgRating = await _supabase
           .from('services')
           .select('rating')
-          .eq('is_active', true);
+          .eq('status', 'active');
 
       final totalCount = totalServices.length;
       final activeCount = activeServices.length;

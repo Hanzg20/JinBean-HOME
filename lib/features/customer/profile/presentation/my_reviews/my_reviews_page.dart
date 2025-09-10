@@ -56,7 +56,7 @@ class MyReviewsPage extends GetView<MyReviewsController> {
                           children: [
                             Expanded(
                               child: Text(
-                                review.serviceName ?? 'Service',
+                                review.serviceTitle ?? 'Service',
                                 style: theme.textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.w600,
                                   color: colorScheme.onSurface,
@@ -68,7 +68,7 @@ class MyReviewsPage extends GetView<MyReviewsController> {
                                 Icon(Icons.star, color: Colors.amber, size: 16),
                                 const SizedBox(width: 4),
                                 Text(
-                                  '${review.rating}',
+                                  '${review.overallRating}',
                                   style: theme.textTheme.bodyMedium?.copyWith(
                                     fontWeight: FontWeight.w600,
                                     color: colorScheme.onSurface,
@@ -82,7 +82,7 @@ class MyReviewsPage extends GetView<MyReviewsController> {
 
                         // 评价内容
                         Text(
-                          review.comment,
+                          review.getLocalizedContent('en'),
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: colorScheme.onSurface,
                           ),
@@ -91,7 +91,7 @@ class MyReviewsPage extends GetView<MyReviewsController> {
 
                         // 评价时间
                         Text(
-                          'Reviewed on ${review.date}',
+                          'Reviewed on ${_formatDate(review.createdAt)}',
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: colorScheme.onSurfaceVariant,
                           ),
@@ -104,7 +104,11 @@ class MyReviewsPage extends GetView<MyReviewsController> {
             },
           ),
         );
-      }),
+      }      ),
     );
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
   }
 }

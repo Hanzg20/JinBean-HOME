@@ -8,6 +8,8 @@ import '../../../../core/services/unified_query_service.dart';
 import '../../../../core/plugin_management/plugin_manager.dart';
 import '../../../../app/shell_app_controller.dart';
 import '../../../service_booking/presentation/service_booking_controller.dart';
+import '../../../../core/services/intelligent_routing_engine.dart';
+import '../../../../core/models/base_models.dart';
 
 // Carousel Item Model
 class CarouselItem {
@@ -141,6 +143,9 @@ class HomeController extends GetxController {
   // 新增：集成统一查询服务
   final UnifiedQueryService _unifiedQueryService = UnifiedQueryService();
 
+  // 智能路由相关
+  late final ContextManager _contextManager;
+
   // New states for Carousel
   late PageController pageController;
   final RxInt currentCarouselIndex = 0.obs;
@@ -169,6 +174,9 @@ class HomeController extends GetxController {
     // 减少日志输出 - AppLogger.info('=== HomeController onInit ===');
     pageController = PageController();
 
+    // 初始化智能路由
+    _initializeIntelligentRouting();
+
     // 初始化统一查询服务
     _initializeUnifiedService();
 
@@ -183,6 +191,22 @@ class HomeController extends GetxController {
     // }).catchError((e) {
     //   // 减少日志输出 - AppLogger.info('[HomeController] 获取 provider 角色状态时出错: $e');
     // });
+  }
+
+  // 新增：初始化智能路由
+  void _initializeIntelligentRouting() {
+    try {
+      // 获取或创建ContextManager实例
+      try {
+        _contextManager = Get.find<ContextManager>();
+      } catch (e) {
+        _contextManager = Get.put(ContextManager());
+      }
+      
+      AppLogger.info('首页智能路由服务初始化成功');
+    } catch (e) {
+      AppLogger.error('首页智能路由服务初始化失败: $e');
+    }
   }
 
   // 新增：初始化统一查询服务
@@ -631,6 +655,267 @@ class HomeController extends GetxController {
             );
         }
       }
+    }
+  }
+
+  // ========================================
+  // 智能导航功能
+  // ========================================
+
+  /// 智能导航到服务分类
+  Future<void> navigateToServiceCategory(HomeServiceItem service) async {
+    try {
+      AppLogger.info('🏠 首页智能导航: ${service.name} (ID: ${service.id})');
+      
+      if (service.typeCode == 'SERVICE_TYPE') {
+        // 保存导航上下文
+        _contextManager.saveNavigationContext(
+          sourcePageId: 'home',
+          searchFilters: {
+            'categoryId': service.id.toString(),
+            'categoryName': service.name,
+          },
+          userLocation: {}, // TODO: 从LocationController获取
+          userPreferences: {}, // TODO: 从用户偏好获取
+        );
+        
+        // 使用智能路由引擎进行路由决策
+        final decision = IntelligentRoutingEngine.makeRoutingDecision(
+          categoryId: service.id.toString(),
+          context: {
+            'source': 'home_category_grid',
+            'categoryName': service.name,
+          },
+        );
+        
+        AppLogger.info('🏠 路由决策: $decision');
+        
+        // 检查是否可以使用智能路由
+        if (IntelligentRoutingEngine.isRouteAvailable(decision.targetRoute)) {
+          AppLogger.info('🏠 使用智能路由: ${decision.targetRoute}');
+          await _navigateToIndustryPage(decision);
+        } else {
+          AppLogger.info('🏠 智能路由不可用，使用传统导航');
+          await _navigateToServiceBooking(service);
+        }
+      } else {
+        // 处理功能类型的导航
+        await _handleFunctionNavigation(service);
+      }
+      
+    } catch (e) {
+      AppLogger.error('🏠 智能导航失败: $e');
+      // 发生错误时使用传统导航
+      await _navigateToServiceBooking(service);
+    }
+  }
+
+  /// 导航到行业特定页面
+  Future<void> _navigateToIndustryPage(RouteDecision decision) async {
+    switch (decision.industry) {
+      case IndustryType.food:
+        // 餐饮行业 - 直接导航到FoodOrderPage
+        AppLogger.info('🍽️ 导航到餐饮订单页面');
+        Get.toNamed('/food_order', parameters: {
+          'categoryId': decision.parameters['categoryId']?.toString() ?? '',
+          'source': 'home_intelligent_routing',
+        });
+        break;
+        
+      case IndustryType.home:
+        // 家居服务 - 已实现
+        AppLogger.info('🏠 导航到家居服务页面');
+        Get.toNamed('/home_service', parameters: {
+          'categoryId': decision.parameters['categoryId']?.toString() ?? '',
+          'initialFilters': decision.parameters['initialFilters']?.toString() ?? '{}',
+        });
+        break;
+        
+      case IndustryType.transport:
+        // 出行交通 - 待实现
+        AppLogger.info('🚗 出行交通页面待实现，使用ServiceBooking');
+        await _navigateToServiceBookingWithIntelligence(decision);
+        break;
+        
+      case IndustryType.rental:
+        // 租赁共享 - 待实现
+        AppLogger.info('📦 租赁共享页面待实现，使用ServiceBooking');
+        await _navigateToServiceBookingWithIntelligence(decision);
+        break;
+        
+      case IndustryType.learning:
+        // 学习成长 - 待实现
+        AppLogger.info('📚 学习成长页面待实现，使用ServiceBooking');
+        await _navigateToServiceBookingWithIntelligence(decision);
+        break;
+        
+      case IndustryType.professional:
+        // 专业速帮 - 待实现
+        AppLogger.info('💼 专业速帮页面待实现，使用ServiceBooking');
+        await _navigateToServiceBookingWithIntelligence(decision);
+        break;
+    }
+  }
+
+  /// 使用智能路由导航到ServiceBooking
+  Future<void> _navigateToServiceBookingWithIntelligence(RouteDecision decision) async {
+    final shellController = Get.find<ShellAppController>();
+    final serviceBookingIndex = _pluginManager
+        .enabledTabPluginsForCurrentRole
+        .indexWhere((plugin) => plugin.id == 'service_booking');
+
+    if (serviceBookingIndex != -1) {
+      // 切换到service_booking标签页
+      shellController.changeTab(serviceBookingIndex);
+
+      // 延迟调用智能路由
+      Future.delayed(const Duration(milliseconds: 300), () {
+        try {
+          final serviceBookingController = Get.find<ServiceBookingController>();
+          
+          // 使用智能路由功能
+          serviceBookingController.navigateToSpecificIndustryPage(
+            categoryId: decision.parameters['categoryId']?.toString() ?? '',
+            filters: decision.parameters['initialFilters'],
+          );
+          
+        } catch (e) {
+          AppLogger.error('🏠 ServiceBooking智能路由调用失败: $e');
+        }
+      });
+    }
+  }
+
+  /// 传统导航到ServiceBooking（备用方案）
+  Future<void> _navigateToServiceBooking(HomeServiceItem service) async {
+    final shellController = Get.find<ShellAppController>();
+    final serviceBookingIndex = _pluginManager
+        .enabledTabPluginsForCurrentRole
+        .indexWhere((plugin) => plugin.id == 'service_booking');
+
+    if (serviceBookingIndex != -1) {
+      // 切换到service_booking标签页
+      shellController.changeTab(serviceBookingIndex);
+
+      // 延迟传递参数，确保页面已经加载
+      Future.delayed(const Duration(milliseconds: 300), () {
+        try {
+          final serviceBookingController = Get.find<ServiceBookingController>();
+          // 使用传统的分类选择
+          serviceBookingController.selectLevel1Category(service.id);
+          serviceBookingController.updateNewStructureFlag(true, service.id);
+        } catch (e) {
+          AppLogger.error('🏠 传统导航失败: $e');
+        }
+      });
+    }
+  }
+
+  /// 处理功能类型的导航
+  Future<void> _handleFunctionNavigation(HomeServiceItem service) async {
+    switch (service.id) {
+      case -1: // 求助
+        AppLogger.info('🏠 导航到求助功能');
+        Get.snackbar(
+          '求助功能',
+          '求助功能正在开发中',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        break;
+        
+      case -2: // 服务地图
+        AppLogger.info('🏠 导航到服务地图');
+        final serviceMapRoute = getServiceMapRoute();
+        Get.toNamed(serviceMapRoute);
+        break;
+        
+      default:
+        AppLogger.warning('🏠 未知功能类型: ${service.id}');
+    }
+  }
+
+  /// 智能搜索功能
+  Future<void> performIntelligentSearch(String query) async {
+    if (query.trim().isEmpty) return;
+
+    AppLogger.info('🏠 首页智能搜索: $query');
+    
+    try {
+      // 保存搜索上下文
+      _contextManager.saveNavigationContext(
+        sourcePageId: 'home_search',
+        searchFilters: {
+          'query': query,
+          'searchType': 'intelligent',
+        },
+      );
+
+      // 导航到ServiceBooking并执行智能搜索
+      final shellController = Get.find<ShellAppController>();
+      final serviceBookingIndex = _pluginManager
+          .enabledTabPluginsForCurrentRole
+          .indexWhere((plugin) => plugin.id == 'service_booking');
+
+      if (serviceBookingIndex != -1) {
+        // 切换到service_booking标签页
+        shellController.changeTab(serviceBookingIndex);
+
+        // 延迟执行搜索
+        Future.delayed(const Duration(milliseconds: 300), () {
+          try {
+            final serviceBookingController = Get.find<ServiceBookingController>();
+            
+            // 使用跨行业通用搜索
+            serviceBookingController.performUniversalSearch(query);
+            
+            // 更新搜索框内容
+            serviceBookingController.searchController.text = query;
+            serviceBookingController.searchQuery.value = query;
+            
+          } catch (e) {
+            AppLogger.error('🏠 智能搜索调用失败: $e');
+          }
+        });
+      }
+      
+    } catch (e) {
+      AppLogger.error('🏠 智能搜索失败: $e');
+      Get.snackbar(
+        '搜索失败',
+        '搜索功能暂时不可用，请稍后重试',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+
+  /// 智能推荐点击处理
+  void onRecommendationTap(ServiceRecommendation recommendation) {
+    AppLogger.info('🏠 推荐服务点击: ${getSafeLocalizedText(recommendation.name)}');
+    
+    try {
+      // 保存推荐上下文
+      _contextManager.saveNavigationContext(
+        sourcePageId: 'home_recommendation',
+        searchFilters: {
+          'serviceId': recommendation.id,
+          'serviceName': getSafeLocalizedText(recommendation.name),
+          'recommendationReason': recommendation.recommendationReason,
+        },
+      );
+
+      // 导航到服务详情页
+      Get.toNamed('/service_detail', arguments: {
+        'serviceId': recommendation.id,
+        'source': 'home_recommendation',
+      });
+      
+    } catch (e) {
+      AppLogger.error('🏠 推荐服务导航失败: $e');
+      Get.snackbar(
+        '导航失败',
+        '无法打开服务详情，请稍后重试',
+        snackPosition: SnackPosition.BOTTOM,
+      );
     }
   }
 }

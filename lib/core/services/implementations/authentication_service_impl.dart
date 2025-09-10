@@ -233,8 +233,16 @@ class AuthenticationService implements IAuthenticationService {
       email: supabaseUser.email ?? '',
       name: supabaseUser.userMetadata?['name'] as String?,
       avatarUrl: supabaseUser.userMetadata?['avatar_url'] as String?,
-      createdAt: supabaseUser.createdAt ?? DateTime.now(),
-      updatedAt: supabaseUser.updatedAt ?? DateTime.now(),
+      createdAt: supabaseUser.createdAt != null 
+          ? (supabaseUser.createdAt is String 
+              ? DateTime.parse(supabaseUser.createdAt)
+              : supabaseUser.createdAt as DateTime)
+          : DateTime.now(),
+      updatedAt: supabaseUser.updatedAt != null 
+          ? (supabaseUser.updatedAt is String 
+              ? DateTime.parse(supabaseUser.updatedAt)
+              : supabaseUser.updatedAt as DateTime)
+          : DateTime.now(),
     );
   }
 

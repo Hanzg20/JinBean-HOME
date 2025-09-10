@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jinbeanpod_83904710/core/models/base_models.dart';
 import './my_addresses_controller.dart';
 
 class MyAddressesPage extends GetView<MyAddressesController> {
@@ -12,6 +13,11 @@ class MyAddressesPage extends GetView<MyAddressesController> {
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.white,
+        automaticallyImplyLeading: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          onPressed: () => Get.back(),
+        ),
         title: const Text(
           'My Addresses',
           style: TextStyle(
@@ -160,7 +166,7 @@ class MyAddressesPage extends GetView<MyAddressesController> {
                         Row(
                           children: [
                             Text(
-                              address.alias ?? 'Address',
+                              address.addressType.displayName,
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
@@ -240,22 +246,7 @@ class MyAddressesPage extends GetView<MyAddressesController> {
                   ),
                 ],
               ),
-              if (address.phone != null) ...[
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Icon(Icons.phone, size: 16, color: Colors.grey[600]),
-                    const SizedBox(width: 8),
-                    Text(
-                      address.phone!,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+              // Phone field removed - not available in Address model
             ],
           ),
         ),
@@ -266,7 +257,6 @@ class MyAddressesPage extends GetView<MyAddressesController> {
   void _showAddAddressDialog() {
     final labelController = TextEditingController();
     final addressController = TextEditingController();
-    final phoneController = TextEditingController();
 
     Get.dialog(
       AlertDialog(
@@ -292,16 +282,7 @@ class MyAddressesPage extends GetView<MyAddressesController> {
                 border: OutlineInputBorder(),
               ),
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: phoneController,
-              decoration: const InputDecoration(
-                labelText: 'Phone Number (Optional)',
-                hintText: 'For delivery contact',
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.phone,
-            ),
+            // Phone field removed - not available in Address model
           ],
         ),
         actions: [
@@ -315,8 +296,10 @@ class MyAddressesPage extends GetView<MyAddressesController> {
                   addressController.text.isNotEmpty) {
                 controller.addAddress(Address(
                   id: DateTime.now().millisecondsSinceEpoch.toString(),
-                  alias: labelController.text,
-                  fullAddress: addressController.text,
+                  createdAt: DateTime.now(),
+                  updatedAt: DateTime.now(),
+                  streetName: addressController.text,
+                  addressType: AddressType.home,
                 ));
                 Get.back();
               }
@@ -329,9 +312,8 @@ class MyAddressesPage extends GetView<MyAddressesController> {
   }
 
   void _showEditAddressDialog(dynamic address) {
-    final labelController = TextEditingController(text: address.label);
-    final addressController = TextEditingController(text: address.fullAddress);
-    final phoneController = TextEditingController(text: address.phone);
+    final labelController = TextEditingController(text: address.addressType.displayName);
+    final addressController = TextEditingController(text: '${address.streetNumber ?? ''} ${address.streetName ?? ''} ${address.city ?? ''}'.trim());
 
     Get.dialog(
       AlertDialog(
@@ -355,15 +337,7 @@ class MyAddressesPage extends GetView<MyAddressesController> {
                 border: OutlineInputBorder(),
               ),
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: phoneController,
-              decoration: const InputDecoration(
-                labelText: 'Phone Number',
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.phone,
-            ),
+            // Phone field removed - not available in Address model
           ],
         ),
         actions: [

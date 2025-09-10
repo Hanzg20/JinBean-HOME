@@ -239,9 +239,8 @@ class PluginManager extends GetxController {
       // 注册所有启用插件的路由
       final List<GetPage> appRoutes = [];
       for (var plugin in _registeredPlugins) {
-        // Only add routes for standalone pages, as bottom tabs are handled by ShellApp
-        if (plugin.metadata.type == PluginType.standalonePage &&
-            _enabledPluginsMetadata
+        // 添加所有类型的路由，包括bottomTab和standalonePage
+        if (_enabledPluginsMetadata
                 .any((meta) => meta.id == plugin.metadata.id)) {
           appRoutes.addAll(plugin.getRoutes());
         }

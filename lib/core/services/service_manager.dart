@@ -18,13 +18,13 @@ class ServiceManager {
   ServiceManager._internal();
 
   // 服务实例
-  late final IAuthenticationService authService;
-  late final IServiceQueryService serviceQueryService;
-  late final IServiceDetailService serviceDetailService;
-  late final IProviderService providerService;
+  IAuthenticationService? authService;
+  IServiceQueryService? serviceQueryService;
+  IServiceDetailService? serviceDetailService;
+  IProviderService? providerService;
 
   // 动态Tab配置服务
-  late final DynamicTabConfigService dynamicTabConfigService;
+  DynamicTabConfigService? dynamicTabConfigService;
 
   // 状态管理
   bool _isInitialized = false;
@@ -119,7 +119,7 @@ class ServiceManager {
       }
 
       authService = AuthenticationService();
-      await authService.initialize();
+      await authService!.initialize();
       print('ServiceManager: 认证服务初始化完成 ✅');
     } catch (e) {
       throw Exception('认证服务初始化失败: $e');
@@ -136,7 +136,7 @@ class ServiceManager {
       }
 
       serviceQueryService = ServiceQueryService();
-      await serviceQueryService.initialize();
+      await serviceQueryService!.initialize();
       print('ServiceManager: 服务查询服务初始化完成 ✅');
     } catch (e) {
       throw Exception('服务查询服务初始化失败: $e');
@@ -155,7 +155,7 @@ class ServiceManager {
       }
 
       serviceDetailService = ServiceDetailService();
-      await serviceDetailService.initialize();
+      await serviceDetailService!.initialize();
       print('ServiceManager: 服务详情服务初始化完成 ✅');
     } catch (e) {
       print('ServiceManager: 服务详情服务初始化失败 ❌ - $e');
@@ -173,7 +173,7 @@ class ServiceManager {
       }
 
       providerService = ProviderService();
-      await providerService.initialize();
+      await providerService!.initialize();
       print('ServiceManager: 服务商服务初始化完成 ✅');
     } catch (e) {
       throw Exception('服务商服务初始化失败: $e');

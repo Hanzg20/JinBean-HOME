@@ -180,7 +180,7 @@ class EnhancedCartPage extends StatelessWidget {
       children: [
         // 商品名称
         Text(
-          item.itemNameSnapshot['zh'] ?? item.itemNameSnapshot['en'] ?? '未知商品',
+                          item.itemNameSnapshot?['zh'] ?? item.itemNameSnapshot?['en'] ?? '未知商品',
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -446,7 +446,7 @@ class EnhancedCartPage extends StatelessWidget {
       builder: (context) => AlertDialog(
         title: const Text('确认删除'),
         content: Text(
-            '确定要删除 "${item.itemNameSnapshot['zh'] ?? item.itemNameSnapshot['en'] ?? '该商品'}" 吗？'),
+            '确定要删除 "${item.itemNameSnapshot?['zh'] ?? item.itemNameSnapshot?['en'] ?? '该商品'}" 吗？'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -513,14 +513,59 @@ class EnhancedCartPage extends StatelessWidget {
 
   /// 处理结算
   void _handleCheckout(BuildContext context, UnifiedCartController controller) {
-    // TODO: 实现结算逻辑
-    Get.snackbar(
-      '功能开发中',
-      '结算功能正在开发中，敬请期待！',
-      snackPosition: SnackPosition.TOP,
-      backgroundColor: Colors.orange,
-      colorText: Colors.white,
-      duration: const Duration(seconds: 3),
+    if (controller.cartItems.isEmpty) {
+      Get.snackbar(
+        '购物车为空',
+        '请先添加商品到购物车',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    // 检查购物车数据完整性
+    bool hasInvalidItems = controller.cartItems.any((item) => 
+        item.itemNameSnapshot.isEmpty || 
+        item.unitPrice <= 0 ||
+        item.quantity <= 0
     );
+
+    if (hasInvalidItems) {
+      Get.snackbar(
+        '数据异常',
+        '购物车中存在异常数据，请重新添加商品',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    // 导航到结算页面
+    try {
+      // 计算小计和税费
+      final subtotal = controller.totalAmount.value;
+      final taxRate = 0.13; // 13% HST (Ontario)
+      final taxAmount = subtotal * taxRate;
+      final finalTotal = subtotal + taxAmount;
+      
+      Get.toNamed('/checkout', arguments: {
+        'cartItems': controller.cartItems.toList(),
+        'totalAmount': finalTotal,
+        'subtotal': subtotal,
+        'taxAmount': taxAmount,
+      });
+    } catch (e) {
+      // 如果结算页面不存在，显示开发中提示
+      Get.snackbar(
+        '功能开发中',
+        '结算功能正在开发中，敬请期待！\n\n购物车数据：\n- 商品数量：${controller.cartItems.length}\n- 总金额：\$${controller.totalAmount.value.toStringAsFixed(2)}',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 5),
+      );
+    }
   }
 }

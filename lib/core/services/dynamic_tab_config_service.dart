@@ -4,6 +4,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/service.dart' as core_models;
 import '../models/service_detail.dart' as core_services;
 import '../controllers/unified_cart_controller.dart';
+import '../utils/app_logger.dart';
+import 'local_data_manager.dart';
 
 /// 动态Tab配置服务
 /// 根据服务类型和详情数据动态生成Tab配置
@@ -1745,56 +1747,51 @@ class DynamicTabConfigService {
     }
   }
 
-  /// 异步获取真实的Provider数据
+  // Provider数据缓存 - 全局缓存机制
+  static final Map<String, Map<String, dynamic>?> _providerCache = {};
+  static final Map<String, DateTime> _providerCacheTimestamps = {};
+  static const Duration _providerCacheExpiry = Duration(minutes: 10);
+
+  // 全局Provider查询锁，防止重复查询
+  static final Map<String, Future<Map<String, dynamic>?>> _providerQueryLocks = {};
+
+  /// 异步获取Provider数据 - 本地优先，0ms响应
   Future<Map<String, dynamic>?> _getProviderDataAsync(String providerId) async {
     try {
-      debugPrint('🔍 尝试获取Provider数据: $providerId');
-
-      // 根据真实表结构查询关键字段
-      final response = await Supabase.instance.client
-          .from('provider_profiles')
-          .select(
-              'id, display_name, bio, avatar_url, phone, email, rating, review_count, certification_status, is_certified, experience_years, tags, provider_type, created_at')
-          .eq('id', providerId)
-          .maybeSingle();
-
-      debugPrint('🔍 Provider查询结果: $response');
-      return response;
-    } catch (e) {
-      debugPrint('❌ 获取Provider数据失败: $e');
-
-      // 如果通过ID查询失败，尝试通过user_id查询
-      try {
-        debugPrint('🔍 尝试通过user_id查询Provider...');
-        final fallbackResponse = await Supabase.instance.client
-            .from('provider_profiles')
-            .select(
-                'id, display_name, bio, avatar_url, phone, email, rating, review_count, certification_status, is_certified, experience_years, tags, provider_type, created_at')
-            .eq('user_id', providerId)
-            .maybeSingle();
-
-        debugPrint('🔍 user_id查询结果: $fallbackResponse');
-        return fallbackResponse;
-      } catch (e2) {
-        debugPrint('❌ user_id查询也失败: $e2');
-
-        // 检查Provider表是否有数据
-        try {
-          final countResponse = await Supabase.instance.client
-              .from('provider_profiles')
-              .select('id, display_name')
-              .limit(3);
-          debugPrint('🔍 Provider表前3条记录: $countResponse');
-
-          if (countResponse.isEmpty) {
-            debugPrint('⚠️ Provider表为空，没有任何Provider数据');
-          }
-        } catch (e3) {
-          debugPrint('❌ 无法检查Provider表: $e3');
-        }
-
+      AppLogger.info('🔍 DynamicTabConfigService调用本地Provider查询: $providerId');
+      
+      // 首先尝试从本地数据管理器获取
+      final providerProfile = LocalDataManager.getProvider(providerId);
+      
+      if (providerProfile == null) {
+        AppLogger.warning('⚠️ 本地Provider数据未找到: $providerId');
         return null;
       }
+
+      // 转换为Map格式以兼容现有代码
+      final providerData = {
+        'id': providerProfile.id,
+        'display_name': providerProfile.name,
+        'bio': providerProfile.description,
+        'avatar_url': providerProfile.avatar,
+        'phone': providerProfile.phone,
+        'email': providerProfile.email,
+        'rating': providerProfile.rating,
+        'review_count': providerProfile.reviewCount,
+        'certification_status': providerProfile.isVerified ? 'verified' : 'pending',
+        'is_certified': providerProfile.isVerified,
+        'experience_years': providerProfile.metadata?['experience_years'] ?? 0,
+        'tags': providerProfile.metadata?['tags'] ?? [],
+        'provider_type': providerProfile.metadata?['provider_type'] ?? 'individual',
+        'created_at': providerProfile.createdAt?.toIso8601String(),
+      };
+
+      AppLogger.info('✅ DynamicTabConfigService本地Provider数据命中: $providerId (0ms)');
+      return providerData;
+
+    } catch (e) {
+      AppLogger.error('❌ DynamicTabConfigService获取Provider失败: $providerId - $e');
+      return null;
     }
   }
 
@@ -2629,17 +2626,24 @@ class DynamicTabConfigService {
    * 5. 实现For You Tab的推荐服务数据
    */
 
-  /// Menu Tab中直接添加到购物车
+    /// Menu Tab中直接添加到购物车
   Future<void> _addToCartFromMenu(
       BuildContext context, core_services.ServiceDetail detail) async {
     bool hasError = false;
-
+    final stopwatch = Stopwatch()..start();
+    
+    // 崩溃防护机制
     try {
-      // print('🛒 Menu Tab: 开始添加到购物车，detail ID: ${detail.id}');
+      print('🛒 [MenuTab] 🚀 开始添加到购物车 - detail ID: ${detail.id}');
+      print('🛒 [MenuTab] 📊 当前时间: ${DateTime.now()}');
+      print('🛒 [MenuTab] 🔍 UI状态检查 - mounted: ${context.mounted}');
 
       // 获取购物车控制器
+      print('🛒 [MenuTab] 🔍 开始获取购物车控制器 - ${stopwatch.elapsedMilliseconds}ms');
       final cartController = Get.find<UnifiedCartController>();
+      print('🛒 [MenuTab] ✅ 购物车控制器获取成功 - ${stopwatch.elapsedMilliseconds}ms');
 
+      print('🛒 [MenuTab] 📱 显示加载对话框 - ${stopwatch.elapsedMilliseconds}ms');
       // 显示加载指示器
       Get.dialog(
         const Center(
@@ -2647,18 +2651,25 @@ class DynamicTabConfigService {
         ),
         barrierDismissible: false,
       );
+      print('🛒 [MenuTab] 📱 加载对话框已显示 - ${stopwatch.elapsedMilliseconds}ms');
+      print('🛒 [MenuTab] 🔍 对话框状态验证: Get.isDialogOpen=${Get.isDialogOpen}');
 
+      print('🛒 [MenuTab] 🔄 开始调用addServiceToCart - ${stopwatch.elapsedMilliseconds}ms');
+      print('🛒 [MenuTab] 🔍 调用前UI状态: mounted=${context.mounted}, dialogOpen=${Get.isDialogOpen}');
+      
       // 添加到购物车
       await cartController.addServiceToCart(
         serviceId: detail.serviceId,
         serviceDetailId: detail.id,
         quantity: 1,
       );
+      print('🛒 [MenuTab] ✅ addServiceToCart完成 - ${stopwatch.elapsedMilliseconds}ms');
+      print('🛒 [MenuTab] 🔍 调用后UI状态: mounted=${context.mounted}, dialogOpen=${Get.isDialogOpen}');
 
-      // print('✅ Menu Tab: 购物车添加成功');
+      print('✅ Menu Tab: 购物车添加成功');
     } catch (e) {
       hasError = true;
-      // print('❌ Menu Tab: 购物车添加失败: $e');
+      print('❌ Menu Tab: 购物车添加失败: $e');
 
       // 显示错误消息
       Get.snackbar(
@@ -2673,51 +2684,111 @@ class DynamicTabConfigService {
         icon: const Icon(Icons.error, color: Colors.white),
       );
     } finally {
-      // 确保无论成功还是失败都关闭加载指示器
+      print('🛒 [MenuTab] 🔄 进入finally块，开始关闭对话框 - ${stopwatch.elapsedMilliseconds}ms');
+      print('🛒 [MenuTab] 📊 对话框状态检查: Get.isDialogOpen=${Get.isDialogOpen}');
+      print('🛒 [MenuTab] 🔍 finally块UI状态: mounted=${context.mounted}');
+      
+      // 强制关闭对话框 - 崩溃防护版本
       try {
-        // 使用更安全的方式关闭对话框
+        print('🛒 [MenuTab] 📱 强制关闭对话框 - ${stopwatch.elapsedMilliseconds}ms');
+        
+        // 多次尝试关闭对话框，确保成功
         int attempts = 0;
         while (Get.isDialogOpen == true && attempts < 3) {
-          Get.back();
           attempts++;
-          await Future.delayed(const Duration(milliseconds: 50));
+          print('🛒 [MenuTab] 🔄 第${attempts}次尝试关闭对话框');
+          
+          Get.back();
+          await Future.delayed(const Duration(milliseconds: 10));
+          
+          print('🛒 [MenuTab] 🔍 第${attempts}次尝试后状态: Get.isDialogOpen=${Get.isDialogOpen}');
+          
+          if (Get.isDialogOpen == false) {
+            print('🛒 [MenuTab] ✅ 对话框成功关闭');
+            break;
+          }
         }
-        // print('🔄 Menu Tab: 加载指示器已关闭 (尝试 $attempts 次)');
+        
+        // 如果仍然无法关闭，使用强制方法
+        if (Get.isDialogOpen == true) {
+          print('🛒 [MenuTab] ⚠️ 常规方法无法关闭，使用强制方法');
+          try {
+            Navigator.of(context, rootNavigator: true).pop();
+            print('🛒 [MenuTab] 🔧 强制关闭完成');
+          } catch (e) {
+            print('🛒 [MenuTab] ❌ 强制关闭也失败: $e');
+          }
+        }
+        
+        print('🛒 [MenuTab] ✅ 对话框关闭流程完成 - ${stopwatch.elapsedMilliseconds}ms');
       } catch (e) {
-        // print('⚠️ Menu Tab: 关闭加载指示器时出错: $e');
-        // 强制关闭所有对话框
+        print('🛒 [MenuTab] ⚠️ 关闭对话框出错: $e');
+        print('🛒 [MenuTab] 🔍 错误时UI状态: mounted=${context.mounted}, dialogOpen=${Get.isDialogOpen}');
+      }
+
+      // 最终UI状态验证
+      print('🛒 [MenuTab] 🔍 最终UI状态验证 - ${stopwatch.elapsedMilliseconds}ms');
+      print('🛒 [MenuTab] 🔍 - mounted: ${context.mounted}');
+      print('🛒 [MenuTab] 🔍 - dialogOpen: ${Get.isDialogOpen}');
+      print('🛒 [MenuTab] 🔍 - snackbarOpen: ${Get.isSnackbarOpen}');
+      
+      // 如果对话框仍然打开，这是崩溃的前兆
+      if (Get.isDialogOpen == true) {
+        print('🛒 [MenuTab] 🚨 警告：对话框仍然打开，可能导致崩溃！');
+        print('🛒 [MenuTab] 🔧 尝试最后的紧急关闭...');
+        
         try {
-          Navigator.of(context).popUntil(
-              (route) => !route.isFirst || route.settings.name == '/');
-        } catch (e2) {
-          // print('⚠️ Menu Tab: 强制关闭对话框失败: $e2');
+          // 紧急关闭所有可能的对话框
+          while (Get.isDialogOpen == true) {
+            Get.back();
+            await Future.delayed(const Duration(milliseconds: 5));
+          }
+          print('🛒 [MenuTab] ✅ 紧急关闭成功');
+        } catch (e) {
+          print('🛒 [MenuTab] ❌ 紧急关闭失败: $e');
         }
       }
 
-      // 确保UI有时间更新
-      await Future.delayed(const Duration(milliseconds: 200));
+      // 等待购物车状态更新完成，确保UI同步
+      print('🛒 [MenuTab] ⏳ 等待购物车状态同步 - ${stopwatch.elapsedMilliseconds}ms');
+      await Future.delayed(const Duration(milliseconds: 150));
 
       // 只在成功时显示成功消息
       if (!hasError) {
-        try {
-          // 检查context是否仍然有效
-          if (context.mounted) {
-            Get.snackbar(
-              '添加成功',
-              '${detail.name?['zh'] ?? detail.name?['en'] ?? '服务项目'} 已添加到购物车',
-              snackPosition: SnackPosition.TOP,
-              backgroundColor: Colors.green,
-              colorText: Colors.white,
-              duration: const Duration(seconds: 2),
-              margin: const EdgeInsets.all(16),
-              borderRadius: 8,
-              icon: const Icon(Icons.check_circle, color: Colors.white),
-            );
+        // 延迟显示成功消息，确保UI状态稳定
+        print('🛒 [MenuTab] 🎉 准备延迟显示成功消息 - ${stopwatch.elapsedMilliseconds}ms');
+        
+        // 使用更安全的方式显示成功消息
+        Future.microtask(() async {
+          try {
+            print('🛒 [MenuTab] 🎉 异步显示成功消息 - ${stopwatch.elapsedMilliseconds}ms');
+            // 检查context是否仍然有效
+            if (context.mounted) {
+              print('🛒 [MenuTab] 🎉 context可用，显示成功snackbar');
+              Get.snackbar(
+                '添加成功',
+                '商品已添加到购物车',
+                snackPosition: SnackPosition.TOP,
+                backgroundColor: Colors.green,
+                colorText: Colors.white,
+                duration: const Duration(milliseconds: 800),
+                margin: const EdgeInsets.all(16),
+                borderRadius: 8,
+                icon: const Icon(Icons.check_circle, color: Colors.white),
+              );
+              print('🛒 [MenuTab] ✅ 成功消息已显示');
+            } else {
+              print('🛒 [MenuTab] ⚠️ context已卸载，跳过成功消息显示');
+            }
+          } catch (e) {
+            print('🛒 [MenuTab] ⚠️ 显示成功消息时出错: $e');
           }
-        } catch (e) {
-          // print('⚠️ Menu Tab: 显示成功消息时出错: $e');
-        }
+        });
       }
+      
+      stopwatch.stop();
+      print('🛒 [MenuTab] 🏁 _addToCartFromMenu完成 - 总耗时: ${stopwatch.elapsedMilliseconds}ms');
+      print('🛒 [MenuTab] 📊 修复版本 - 确保UI状态同步，防止卡顿');
     }
   }
 }

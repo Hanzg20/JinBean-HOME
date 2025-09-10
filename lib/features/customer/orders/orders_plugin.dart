@@ -15,7 +15,7 @@ class OrdersPlugin extends AppPlugin {
         icon: Icons.shopping_bag,
         enabled: true,
         order: 5,
-        type: PluginType.standalonePage,
+        type: PluginType.standalonePage, // 保持为独立页面，不在底部导航
         routeName: '/orders',
         role: 'customer',
       );

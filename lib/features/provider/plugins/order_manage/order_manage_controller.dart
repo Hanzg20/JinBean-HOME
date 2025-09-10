@@ -65,9 +65,9 @@ class OrderManageController extends GetxController {
           .from('orders')
           .select('''
             *,
-            customer:users!orders_customer_id_fkey(
+            customer:user_profiles!orders_user_id_fkey(
               id,
-              full_name,
+              display_name,
               email,
               phone
             ),
@@ -89,9 +89,9 @@ class OrderManageController extends GetxController {
             .from('orders')
             .select('''
               *,
-              customer:users!orders_customer_id_fkey(
+              customer:user_profiles!orders_user_id_fkey(
                 id,
-                full_name,
+                display_name,
                 email,
                 phone
               ),
@@ -115,9 +115,9 @@ class OrderManageController extends GetxController {
             .from('orders')
             .select('''
               *,
-              customer:users!orders_customer_id_fkey(
+              customer:user_profiles!orders_user_id_fkey(
                 id,
-                full_name,
+                display_name,
                 email,
                 phone
               ),

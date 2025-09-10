@@ -1,52 +1,21 @@
 import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
 import 'package:get/get.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-
-class Order {
-  final String id;
-  final String orderNumber;
-  final String serviceName;
-  final double totalPrice;
-  final String orderStatus;
-  final String paymentStatus;
-  final DateTime createdAt;
-  final DateTime? scheduledStartTime;
-  final String? providerName;
-
-  Order({
-    required this.id,
-    required this.orderNumber,
-    required this.serviceName,
-    required this.totalPrice,
-    required this.orderStatus,
-    required this.paymentStatus,
-    required this.createdAt,
-    this.scheduledStartTime,
-    this.providerName,
-  });
-
-  factory Order.fromJson(Map<String, dynamic> json) {
-    return Order(
-      id: json['id'],
-      orderNumber: json['order_number'],
-      serviceName: json['service_name_snapshot'] ?? 'Unknown Service',
-      totalPrice: (json['total_price'] ?? 0).toDouble(),
-      orderStatus: json['order_status'],
-      paymentStatus: json['payment_status'],
-      createdAt: DateTime.parse(json['created_at']),
-      scheduledStartTime: json['scheduled_start_time'] != null
-          ? DateTime.parse(json['scheduled_start_time'])
-          : null,
-      providerName: json['provider_name'],
-    );
-  }
-}
+import 'package:jinbeanpod_83904710/core/controllers/universal_order_controller.dart';
+import 'package:jinbeanpod_83904710/core/models/order_models.dart';
+import 'package:jinbeanpod_83904710/core/models/base_models.dart';
 
 class OrdersController extends GetxController {
-  final RxList<Order> orders = <Order>[].obs;
+  // 集成UniversalOrderController
+  late final UniversalOrderController _universalOrderController;
+  
   final RxBool isLoading = false.obs;
   final RxString errorMessage = ''.obs;
   final RxString selectedStatus = 'All'.obs;
+
+  // 使用统一的Order模型
+  RxList<Order> get orders => _universalOrderController.orders;
+  bool get hasError => _universalOrderController.hasError;
+  String get error => _universalOrderController.errorMessage.value;
 
   final List<String> statusFilters = [
     'All',
@@ -60,81 +29,68 @@ class OrdersController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    
+    // 获取或创建UniversalOrderController实例
+    try {
+      _universalOrderController = Get.find<UniversalOrderController>();
+    } catch (e) {
+      _universalOrderController = Get.put(UniversalOrderController());
+    }
+    
+    // 监听加载状态
+    ever(_universalOrderController.isLoading, (loading) {
+      isLoading.value = loading;
+    });
+    
+    // 监听错误消息
+    ever(_universalOrderController.errorMessage, (error) {
+      errorMessage.value = error;
+    });
+    
     loadOrders();
   }
 
   Future<void> loadOrders() async {
     try {
-      isLoading.value = true;
-      errorMessage.value = '';
-
-      final user = Supabase.instance.client.auth.currentUser;
-      if (user == null) {
-        errorMessage.value = 'User not authenticated';
-        return;
-      }
-
-      // Build the query with proper chaining
-      var query = Supabase.instance.client.from('orders').select('''
-            id,
-            order_number,
-            order_status,
-            payment_status,
-            total_price,
-            currency,
-            scheduled_start_time,
-            created_at,
-            order_items(
-              service_name_snapshot
-            )
-          ''').eq('user_id', user.id);
-
-      // Apply status filter if not 'All'
-      if (selectedStatus.value != 'All') {
-        query = query.eq('order_status', selectedStatus.value);
-      }
-
-      final response = await query.order('created_at', ascending: false);
-
-      final List<Order> orderList = [];
-
-      for (final orderData in response) {
-        // Extract service name from order_items
-        String serviceName = 'Unknown Service';
-        if (orderData['order_items'] != null &&
-            orderData['order_items'] is List &&
-            orderData['order_items'].isNotEmpty) {
-          serviceName = orderData['order_items'][0]['service_name_snapshot'] ??
-              'Unknown Service';
-        }
-
-        orderList.add(Order(
-          id: orderData['id'],
-          orderNumber: orderData['order_number'],
-          serviceName: serviceName,
-          totalPrice: (orderData['total_price'] ?? 0).toDouble(),
-          orderStatus: orderData['order_status'],
-          paymentStatus: orderData['payment_status'],
-          createdAt: DateTime.parse(orderData['created_at']),
-          scheduledStartTime: orderData['scheduled_start_time'] != null
-              ? DateTime.parse(orderData['scheduled_start_time'])
-              : null,
-        ));
-      }
-
-      orders.value = orderList;
-      AppLogger.info('Loaded ${orderList.length} orders');
+      AppLogger.info('OrdersController: loadOrders called');
+      
+      // 使用UniversalOrderController加载订单
+      await _universalOrderController.loadOrders(refresh: true);
+      
+      AppLogger.info('OrdersController: Orders loaded successfully, count: ${orders.length}');
+      
     } catch (e) {
-      AppLogger.info('Error loading orders: $e');
+      AppLogger.info('OrdersController: Error loading orders: $e');
       errorMessage.value = 'Failed to load orders: $e';
-    } finally {
-      isLoading.value = false;
     }
   }
 
   void filterByStatus(String status) {
     selectedStatus.value = status;
-    loadOrders();
+    
+    // 将字符串状态转换为OrderStatus枚举
+    OrderStatus? orderStatus;
+    switch (status) {
+      case 'PendingAcceptance':
+        orderStatus = OrderStatus.pending;
+        break;
+      case 'Accepted':
+        orderStatus = OrderStatus.accepted;
+        break;
+      case 'InProgress':
+        orderStatus = OrderStatus.inProgress;
+        break;
+      case 'Completed':
+        orderStatus = OrderStatus.completed;
+        break;
+      case 'Canceled':
+        orderStatus = OrderStatus.cancelled;
+        break;
+      default:
+        orderStatus = null; // All
+    }
+    
+    _universalOrderController.setStatusFilter(orderStatus);
   }
 
   String getStatusColor(String status) {
@@ -194,11 +150,13 @@ class OrdersController extends GetxController {
 
   Future<void> cancelOrder(String orderId) async {
     try {
-      await Supabase.instance.client.from('orders').update({
-        'order_status': 'Canceled',
-        'cancellation_reason': 'Cancelled by user',
-        'updated_at': DateTime.now().toIso8601String(),
-      }).eq('id', orderId);
+      AppLogger.info('OrdersController: cancelOrder called for $orderId');
+      
+      // 使用UniversalOrderController取消订单
+      await _universalOrderController.cancelOrder(
+        orderId: orderId, 
+        reason: 'Cancelled by user'
+      );
 
       Get.snackbar(
         'Success',
@@ -206,10 +164,8 @@ class OrdersController extends GetxController {
         snackPosition: SnackPosition.BOTTOM,
       );
 
-      // Reload orders
-      loadOrders();
     } catch (e) {
-      AppLogger.info('Error cancelling order: $e');
+      AppLogger.info('OrdersController: Error cancelling order: $e');
       Get.snackbar(
         'Error',
         'Failed to cancel order',
@@ -217,4 +173,38 @@ class OrdersController extends GetxController {
       );
     }
   }
+  
+  // 获取订单详情
+  Future<void> getOrderDetails(String orderId) async {
+    AppLogger.info('OrdersController: getOrderDetails called for $orderId');
+    await _universalOrderController.getOrderDetails(orderId);
+  }
+  
+  // 更新订单状态
+  Future<void> updateOrderStatus(String orderId, OrderStatus newStatus, {String? reason}) async {
+    AppLogger.info('OrdersController: updateOrderStatus called for $orderId to ${newStatus.label}');
+    await _universalOrderController.updateOrderStatus(
+      orderId: orderId, 
+      newStatus: newStatus,
+      reason: reason,
+    );
+  }
+  
+  // 清除过滤条件
+  void clearFilters() {
+    selectedStatus.value = 'All';
+    _universalOrderController.clearFilters();
+  }
+  
+  // 获取活跃订单
+  List<Order> get activeOrders => _universalOrderController.activeOrders;
+  
+  // 获取已完成订单
+  List<Order> get completedOrders => _universalOrderController.completedOrders;
+  
+  // 获取已取消订单
+  List<Order> get cancelledOrders => _universalOrderController.cancelledOrders;
+  
+  // 获取订单统计
+  Map<String, int> get orderStatistics => _universalOrderController.orderStatistics;
 }

@@ -13,30 +13,14 @@ class ShellApp extends GetView<ShellAppController> {
     final theme = Theme.of(context);
 
     return Obx(() {
-      AppLogger.info('[ShellApp] Obx build triggered.');
+      // 移除所有阻塞性日志输出，只保留关键信息
       try {
         final role = pluginManager.currentRole.value;
-        AppLogger.info(
-            '[ShellApp] PluginManager hash: ${pluginManager.hashCode}');
-        final enabledTabPluginsRx =
-            pluginManager.enabledTabPluginsForCurrentRole;
+        final enabledTabPluginsRx = pluginManager.enabledTabPluginsForCurrentRole;
         final enabledTabPlugins = enabledTabPluginsRx.toList(); // 强制触发响应式
-        final rxHash = enabledTabPluginsRx.hashCode;
-        final len = enabledTabPluginsRx.length;
-        AppLogger.info(
-            '[ShellApp] Obx build, enabledTabPluginsRx.hashCode: $rxHash, .length: $len, ids: ${enabledTabPlugins.map((e) => e.id).join(',')}');
-        AppLogger.info('[ShellApp] 当前role: $role');
-        AppLogger.info(
-            '[ShellApp] enabledTabPlugins.length: ${enabledTabPlugins.length}');
-        for (var meta in enabledTabPlugins) {
-          AppLogger.info(
-              '[ShellApp] enabledTabPlugin: id=${meta.id}, route=${meta.routeName ?? 'null'}, role=${meta.role ?? 'null'}');
-        }
 
         // 优化：只在数据准备好时渲染底部导航栏，否则显示 loading
         if (!pluginManager.isInitialized || enabledTabPlugins.isEmpty) {
-          AppLogger.info(
-              '[ShellApp] PluginManager not initialized or no enabledTabPlugins, showing loading.');
           return const Scaffold(
             body: Center(
               child: CircularProgressIndicator(), // Display a loading indicator
@@ -58,8 +42,7 @@ class ShellApp extends GetView<ShellAppController> {
           return plugin.buildEntryWidget();
         }).toList();
 
-        AppLogger.info(
-            '[ShellApp] BottomNavigationBar build, items: ${bottomNavItems.map((e) => e.label).join(',')}');
+        // 移除阻塞性日志输出
         final colorScheme = theme.colorScheme;
         return Scaffold(
           backgroundColor: Colors.white,
@@ -114,8 +97,8 @@ class ShellApp extends GetView<ShellAppController> {
           ),
         );
       } catch (e, stackTrace) {
-        AppLogger.info('[ShellApp] Error in build: $e');
-        AppLogger.info('[ShellApp] Stack trace: $stackTrace');
+        // 只在真正发生错误时才输出日志
+        AppLogger.error('[ShellApp] Error in build: $e', error: e, stackTrace: stackTrace);
         return const Scaffold(
           body: Center(
             child: Text('Error loading app'),

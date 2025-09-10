@@ -299,6 +299,13 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               _buildDivider(),
               _buildMenuItem(
+                icon: Icons.shopping_cart_outlined,
+                title: 'Cart Test',
+                subtitle: 'Test shopping cart functionality',
+                onTap: () => Get.toNamed('/cart_test'),
+              ),
+              _buildDivider(),
+              _buildMenuItem(
                 icon: Icons.favorite_outline,
                 title: 'Saved Services',
                 subtitle: 'View your favorite services',
@@ -325,7 +332,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 icon: Icons.receipt_long_outlined,
                 title: 'My Orders',
                 subtitle: 'View and manage your orders',
-                onTap: () => Get.toNamed('/orders'),
+                onTap: () => Get.toNamed('/my_orders'),
               ),
               _buildDivider(),
               _buildMenuItem(

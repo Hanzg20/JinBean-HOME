@@ -4,9 +4,7 @@ import 'package:get/get.dart';
 import 'home_controller.dart';
 // Import AppColors
 import 'package:jinbeanpod_83904710/core/controllers/location_controller.dart';
-import 'package:jinbeanpod_83904710/app/shell_app_controller.dart';
-import 'package:jinbeanpod_83904710/core/plugin_management/plugin_manager.dart';
-import 'package:jinbeanpod_83904710/features/service_booking/presentation/service_booking_controller.dart';
+
 import 'package:jinbeanpod_83904710/core/ui/components/customer_theme_components.dart';
 
 class HomePage extends GetView<HomeController> {
@@ -734,59 +732,8 @@ class HomePage extends GetView<HomeController> {
       title: service.name,
       icon: service.icon,
       onTap: () {
-        if (service.typeCode == 'SERVICE_TYPE') {
-          // 切换到service_booking标签页并传递参数
-          final shellController = Get.find<ShellAppController>();
-          final pluginManager = Get.find<PluginManager>();
-
-          // 找到service_booking标签页的索引
-          final serviceBookingIndex = pluginManager
-              .enabledTabPluginsForCurrentRole
-              .indexWhere((plugin) => plugin.id == 'service_booking');
-
-          if (serviceBookingIndex != -1) {
-            // 切换到service_booking标签页
-            shellController.changeTab(serviceBookingIndex);
-
-            // 延迟传递参数，确保页面已经加载
-            Future.delayed(const Duration(milliseconds: 300), () {
-              try {
-                final serviceBookingController =
-                    Get.find<ServiceBookingController>();
-                // 使用新的分类体系
-                serviceBookingController.selectLevel1Category(service.id);
-                // 标记使用新结构
-                serviceBookingController.updateNewStructureFlag(
-                    true, service.id);
-              } catch (e) {
-                AppLogger.info('Error selecting category: $e');
-              }
-            });
-          }
-        } else if (service.typeCode == 'FUNCTION') {
-          switch (service.name) {
-            case '求助':
-              break;
-            case '服务地图':
-              try {
-                final route = controller.getServiceMapRoute();
-                AppLogger.info('Navigating to service map route: $route');
-                Get.toNamed(route);
-              } catch (e) {
-                AppLogger.info('Error navigating to service map: $e');
-                // 备用方案：显示提示信息
-                Get.snackbar(
-                  '功能开发中',
-                  '服务地图功能正在开发中，敬请期待！',
-                  snackPosition: SnackPosition.BOTTOM,
-                  backgroundColor: Colors.blue.withValues(alpha: 0.1),
-                  colorText: Colors.blue,
-                  duration: const Duration(seconds: 2),
-                );
-              }
-              break;
-          }
-        }
+        // 使用智能导航
+        controller.navigateToServiceCategory(service);
       },
     );
   }

@@ -9,68 +9,68 @@ import 'package:flutter/material.dart';
 class Review {
   final String id;
   final String serviceId;
-  final String userId;
-  final String providerId;
-  final String? orderId;
+  final String reviewerId; // 评价者ID
+  final String revieweeId; // 被评价者ID (服务商)
+  final String orderId;
 
   // 评分和内容
-  final double overallRating;
-  final Map<String, String> content; // 多语言内容
-  final bool isAnonymous;
+  final int overallRating; // 数据库中是integer类型
+  final String? title; // 评价标题
+  final String? content; // 评价内容
 
   // 详细评分维度
-  final double? qualityRating;
-  final double? punctualityRating;
-  final double? communicationRating;
-  final double? valueRating;
+  final int? qualityRating;
+  final int? timelinessRating; // 数据库中是timeliness_rating
+  final int? communicationRating;
+  final int? valueRating;
 
-  // 标签和图片
-  final List<String> tags;
+  // 图片
   final List<String> images;
 
   // 状态和统计
   final String status;
+  final bool isVerified;
   final int helpfulCount;
-  final int reportCount;
+  final int totalVotes;
+
+  // 服务商回复
+  final String? providerResponse;
+  final DateTime? providerResponseAt;
 
   // 时间戳
   final DateTime createdAt;
   final DateTime updatedAt;
 
   // 关联数据
-  final String? serviceTitle;
-  final String? providerName;
-  final String? userEmail;
-  final Map<String, dynamic>? userMetadata;
-
-  // 用户投票状态
-  final bool? userVotedHelpful;
+  final Map<String, dynamic>? reviewer; // 评价者信息
+  final String? serviceTitle; // 服务标题
+  final String? providerName; // 服务商名称
 
   Review({
     required this.id,
     required this.serviceId,
-    required this.userId,
-    required this.providerId,
-    this.orderId,
+    required this.reviewerId,
+    required this.revieweeId,
+    required this.orderId,
     required this.overallRating,
-    required this.content,
-    this.isAnonymous = false,
+    this.title,
+    this.content,
     this.qualityRating,
-    this.punctualityRating,
+    this.timelinessRating,
     this.communicationRating,
     this.valueRating,
-    this.tags = const [],
     this.images = const [],
-    this.status = 'active',
+    this.status = 'published',
+    this.isVerified = false,
     this.helpfulCount = 0,
-    this.reportCount = 0,
+    this.totalVotes = 0,
+    this.providerResponse,
+    this.providerResponseAt,
     required this.createdAt,
     required this.updatedAt,
+    this.reviewer,
     this.serviceTitle,
     this.providerName,
-    this.userEmail,
-    this.userMetadata,
-    this.userVotedHelpful,
   });
 
   // 从JSON创建Review对象
@@ -78,37 +78,30 @@ class Review {
     return Review(
       id: json['id'],
       serviceId: json['service_id'],
-      userId: json['user_id'],
-      providerId: json['provider_id'],
+      reviewerId: json['reviewer_id'],
+      revieweeId: json['reviewee_id'],
       orderId: json['order_id'],
-      overallRating: (json['overall_rating'] as num).toDouble(),
-      content: Map<String, String>.from(json['content'] ?? {}),
-      isAnonymous: json['is_anonymous'] ?? false,
-      qualityRating: json['quality_rating'] != null
-          ? (json['quality_rating'] as num).toDouble()
-          : null,
-      punctualityRating: json['punctuality_rating'] != null
-          ? (json['punctuality_rating'] as num).toDouble()
-          : null,
-      communicationRating: json['communication_rating'] != null
-          ? (json['communication_rating'] as num).toDouble()
-          : null,
-      valueRating: json['value_rating'] != null
-          ? (json['value_rating'] as num).toDouble()
-          : null,
-      tags: List<String>.from(json['tags'] ?? []),
+      overallRating: json['overall_rating'],
+      title: json['title'],
+      content: json['content'],
+      qualityRating: json['quality_rating'],
+      timelinessRating: json['timeliness_rating'],
+      communicationRating: json['communication_rating'],
+      valueRating: json['value_rating'],
       images: List<String>.from(json['images'] ?? []),
-      status: json['status'] ?? 'active',
+      status: json['status'] ?? 'published',
+      isVerified: json['is_verified'] ?? false,
       helpfulCount: json['helpful_count'] ?? 0,
-      reportCount: json['report_count'] ?? 0,
+      totalVotes: json['total_votes'] ?? 0,
+      providerResponse: json['provider_response'],
+      providerResponseAt: json['provider_response_at'] != null
+          ? DateTime.parse(json['provider_response_at'])
+          : null,
       createdAt: DateTime.parse(json['created_at']),
       updatedAt: DateTime.parse(json['updated_at']),
-      serviceTitle:
-          json['service_title']?['en'] ?? json['service_title']?['zh'],
+      reviewer: json['reviewer'],
+      serviceTitle: json['service_title'],
       providerName: json['provider_name'],
-      userEmail: json['user_email'],
-      userMetadata: json['user_metadata'],
-      userVotedHelpful: json['user_voted_helpful'],
     );
   }
 
@@ -117,91 +110,111 @@ class Review {
     return {
       'id': id,
       'service_id': serviceId,
-      'user_id': userId,
-      'provider_id': providerId,
+      'reviewer_id': reviewerId,
+      'reviewee_id': revieweeId,
       'order_id': orderId,
       'overall_rating': overallRating,
+      'title': title,
       'content': content,
-      'is_anonymous': isAnonymous,
       'quality_rating': qualityRating,
-      'punctuality_rating': punctualityRating,
+      'timeliness_rating': timelinessRating,
       'communication_rating': communicationRating,
       'value_rating': valueRating,
-      'tags': tags,
       'images': images,
       'status': status,
+      'is_verified': isVerified,
       'helpful_count': helpfulCount,
-      'report_count': reportCount,
+      'total_votes': totalVotes,
+      'provider_response': providerResponse,
+      'provider_response_at': providerResponseAt?.toIso8601String(),
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
+      'service_title': serviceTitle,
+      'provider_name': providerName,
     };
-  }
-
-  // 获取本地化内容
-  String getLocalizedContent(String languageCode) {
-    return content[languageCode] ?? content['en'] ?? content['zh'] ?? '';
   }
 
   // 获取显示名称
   String getDisplayName() {
-    if (isAnonymous) {
-      return 'Anonymous User';
+    if (reviewer != null) {
+      return reviewer!['display_name'] ?? 'User';
     }
-    return userEmail?.split('@').first ?? 'User';
+    return 'Anonymous User';
+  }
+
+  // 获取评价者头像
+  String? getAvatarUrl() {
+    return reviewer?['avatar_url'];
+  }
+
+  // 获取本地化内容
+  String getLocalizedContent(String language) {
+    // 如果content是字符串，直接返回
+    if (content is String) {
+      return content ?? '';
+    }
+    
+    // 如果content是Map，尝试获取指定语言的内容
+    if (content is Map<String, dynamic>) {
+      final contentMap = content as Map<String, dynamic>;
+      return contentMap[language] ?? contentMap['en'] ?? contentMap['zh'] ?? '';
+    }
+    
+    return '';
   }
 
   // 复制并更新
   Review copyWith({
     String? id,
     String? serviceId,
-    String? userId,
-    String? providerId,
+    String? reviewerId,
+    String? revieweeId,
     String? orderId,
-    double? overallRating,
-    Map<String, String>? content,
-    bool? isAnonymous,
-    double? qualityRating,
-    double? punctualityRating,
-    double? communicationRating,
-    double? valueRating,
-    List<String>? tags,
+    int? overallRating,
+    String? title,
+    String? content,
+    int? qualityRating,
+    int? timelinessRating,
+    int? communicationRating,
+    int? valueRating,
     List<String>? images,
     String? status,
+    bool? isVerified,
     int? helpfulCount,
-    int? reportCount,
+    int? totalVotes,
+    String? providerResponse,
+    DateTime? providerResponseAt,
     DateTime? createdAt,
     DateTime? updatedAt,
+    Map<String, dynamic>? reviewer,
     String? serviceTitle,
     String? providerName,
-    String? userEmail,
-    Map<String, dynamic>? userMetadata,
-    bool? userVotedHelpful,
   }) {
     return Review(
       id: id ?? this.id,
       serviceId: serviceId ?? this.serviceId,
-      userId: userId ?? this.userId,
-      providerId: providerId ?? this.providerId,
+      reviewerId: reviewerId ?? this.reviewerId,
+      revieweeId: revieweeId ?? this.revieweeId,
       orderId: orderId ?? this.orderId,
       overallRating: overallRating ?? this.overallRating,
+      title: title ?? this.title,
       content: content ?? this.content,
-      isAnonymous: isAnonymous ?? this.isAnonymous,
       qualityRating: qualityRating ?? this.qualityRating,
-      punctualityRating: punctualityRating ?? this.punctualityRating,
+      timelinessRating: timelinessRating ?? this.timelinessRating,
       communicationRating: communicationRating ?? this.communicationRating,
       valueRating: valueRating ?? this.valueRating,
-      tags: tags ?? this.tags,
       images: images ?? this.images,
       status: status ?? this.status,
+      isVerified: isVerified ?? this.isVerified,
       helpfulCount: helpfulCount ?? this.helpfulCount,
-      reportCount: reportCount ?? this.reportCount,
+      totalVotes: totalVotes ?? this.totalVotes,
+      providerResponse: providerResponse ?? this.providerResponse,
+      providerResponseAt: providerResponseAt ?? this.providerResponseAt,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      reviewer: reviewer ?? this.reviewer,
       serviceTitle: serviceTitle ?? this.serviceTitle,
       providerName: providerName ?? this.providerName,
-      userEmail: userEmail ?? this.userEmail,
-      userMetadata: userMetadata ?? this.userMetadata,
-      userVotedHelpful: userVotedHelpful ?? this.userVotedHelpful,
     );
   }
 }

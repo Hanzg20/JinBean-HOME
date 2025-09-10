@@ -53,9 +53,9 @@ class ClientController extends GetxController {
           .from('client_relationships')
           .select('''
             *,
-            client:users!client_relationships_client_id_fkey(
+            client:user_profiles!client_relationships_client_id_fkey(
               id,
-              full_name,
+              display_name,
               email,
               phone,
               avatar_url
@@ -78,9 +78,9 @@ class ClientController extends GetxController {
             .from('client_relationships')
             .select('''
               *,
-              client:users!client_relationships_client_id_fkey(
+              client:user_profiles!client_relationships_client_id_fkey(
                 id,
-                full_name,
+                display_name,
                 email,
                 phone,
                 avatar_url
@@ -105,9 +105,9 @@ class ClientController extends GetxController {
             .from('client_relationships')
             .select('''
               *,
-              client:users!client_relationships_client_id_fkey(
+              client:user_profiles!client_relationships_client_id_fkey(
                 id,
-                full_name,
+                display_name,
                 email,
                 phone,
                 avatar_url

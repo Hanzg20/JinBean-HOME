@@ -9,14 +9,12 @@ class SimilarServicesApiService {
     double minSimilarityScore = 0.7,
   }) async {
     try {
-      // 模拟网络延迟
-      await Future.delayed(Duration(milliseconds: 500));
-
-      // 返回模拟数据
-      return _getMockSimilarServices(serviceId, limit);
+      // TODO: 实现真实的API调用
+      throw UnimplementedError('Similar services API not implemented yet');
     } catch (e) {
-      // 如果API调用失败，返回模拟数据
-      return _getMockSimilarServices(serviceId, limit);
+      AppLogger.error('Error fetching similar services: $e');
+      // 直接抛出错误，不返回Mock数据
+      rethrow;
     }
   }
 
@@ -29,14 +27,12 @@ class SimilarServicesApiService {
     int limit = 10,
   }) async {
     try {
-      // 模拟网络延迟
-      await Future.delayed(Duration(milliseconds: 500));
-
-      // 返回模拟数据
-      return _getMockSimilarServicesByCategory(categoryId, limit);
+      // TODO: 实现真实的API调用
+      throw UnimplementedError('Similar services by category API not implemented yet');
     } catch (e) {
-      // 如果API调用失败，返回模拟数据
-      return _getMockSimilarServicesByCategory(categoryId, limit);
+      AppLogger.error('Error fetching similar services by category: $e');
+      // 直接抛出错误，不返回Mock数据
+      rethrow;
     }
   }
 

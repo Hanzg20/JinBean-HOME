@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../service_detail_controller.dart';
+import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
 
 /// Tab配置模型
 class TabConfiguration {
@@ -359,14 +360,19 @@ class TabConfigurationFactory {
     return Obx(() {
       final provider = controller.providerProfile.value;
       final isLoading = controller.isLoadingProvider.value;
+      
+      // 减少日志输出频率，避免UI重建时的日志噪音
+      // AppLogger.info('[ProviderUI] 🔄 UI状态检查 - isLoading: $isLoading, provider: ${provider != null ? 'exists' : 'null'}');
 
       if (isLoading) {
+        // AppLogger.info('[ProviderUI] 🔄 显示loading状态 - CircularProgressIndicator');
         return const Center(
           child: CircularProgressIndicator(),
         );
       }
 
       if (provider == null) {
+        // AppLogger.info('[ProviderUI] ❌ Provider为null，显示无数据状态');
         return Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -388,6 +394,7 @@ class TabConfigurationFactory {
         );
       }
 
+      // AppLogger.info('[ProviderUI] ✅ Provider数据存在，显示详细信息 - Provider ID: ${provider.id}');
       return SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(

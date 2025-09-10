@@ -72,7 +72,7 @@ class MyOrdersPage extends GetView<MyOrdersController> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Order #${order.id}',
+                            'Order #${order.orderNumber}',
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -84,11 +84,11 @@ class MyOrdersPage extends GetView<MyOrdersController> {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: _getStatusColor(order.status),
+                              color: _getStatusColor(order.status.value),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
-                              order.status,
+                              order.status.displayName,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,
@@ -99,7 +99,7 @@ class MyOrdersPage extends GetView<MyOrdersController> {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        order.serviceName,
+                        'Order #${order.orderNumber}',
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
@@ -107,7 +107,7 @@ class MyOrdersPage extends GetView<MyOrdersController> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Date: ${order.date}',
+                        'Date: ${order.createdAt.toString().split(' ')[0]}',
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.grey[600],
@@ -115,7 +115,7 @@ class MyOrdersPage extends GetView<MyOrdersController> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Total: \$${order.total.toStringAsFixed(2)}',
+                        'Total: ${order.totalAmount.currency} \$${order.totalAmount.amount.toStringAsFixed(2)}',
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,

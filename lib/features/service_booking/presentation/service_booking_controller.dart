@@ -5,6 +5,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:jinbeanpod_83904710/core/services/services.dart'
     as core_services;
+import '../../../core/services/intelligent_routing_engine.dart';
+import '../../../core/models/base_models.dart';
 
 // New model for Level 1 Service Categories
 class ServiceCategoryLevel1 {
@@ -171,6 +173,9 @@ class ServiceBookingController extends GetxController {
   // 新增：集成新的服务查询服务
   core_services.IServiceQueryService? _serviceQueryService;
   core_services.IServiceDetailService? _serviceDetailService;
+  
+  // 智能路由相关
+  late final ContextManager _contextManager;
 
   // New states for service categorization
   final RxList<ServiceCategoryLevel1> level1Categories =
@@ -231,6 +236,9 @@ class ServiceBookingController extends GetxController {
     super.onInit();
     AppLogger.info('=== ServiceBookingController onInit ===');
 
+    // 初始化智能路由相关服务
+    _initializeIntelligentRouting();
+
     // 初始化新的服务查询服务
     _initializeNewServices();
 
@@ -268,6 +276,22 @@ class ServiceBookingController extends GetxController {
     fetchLevel1Categories();
     // 同时获取推荐服务
     fetchRecommendedServices();
+  }
+
+  // 新增：初始化智能路由相关服务
+  void _initializeIntelligentRouting() {
+    try {
+      // 获取或创建ContextManager实例
+      try {
+        _contextManager = Get.find<ContextManager>();
+      } catch (e) {
+        _contextManager = Get.put(ContextManager());
+      }
+      
+      AppLogger.info('智能路由服务初始化成功');
+    } catch (e) {
+      AppLogger.error('智能路由服务初始化失败: $e');
+    }
   }
 
   // 新增：初始化新的服务查询服务
@@ -837,5 +861,255 @@ class ServiceBookingController extends GetxController {
     searchController.text = query;
     searchQuery.value = query;
     performSearch(query);
+  }
+
+  // ========================================
+  // 智能路由功能
+  // ========================================
+
+  /// 智能导航到特定行业页面
+  Future<void> navigateToSpecificIndustryPage({
+    required String categoryId,
+    String? subCategoryId,
+    Map<String, dynamic>? filters,
+  }) async {
+    try {
+      AppLogger.info('🧭 开始智能路由导航: categoryId=$categoryId, subCategoryId=$subCategoryId');
+      
+      // 保存导航上下文
+      _contextManager.saveNavigationContext(
+        sourcePageId: 'service_booking',
+        searchFilters: filters ?? {},
+        userLocation: {}, // TODO: 从LocationController获取
+        userPreferences: {}, // TODO: 从用户偏好获取
+      );
+      
+      // 进行路由决策
+      final decision = IntelligentRoutingEngine.makeRoutingDecision(
+        categoryId: categoryId,
+        subCategoryId: subCategoryId,
+        context: filters,
+        userPreferences: {}, // TODO: 从用户偏好获取
+      );
+      
+      AppLogger.info('🧭 路由决策结果: $decision');
+      
+      // 检查目标路由是否可用
+      if (IntelligentRoutingEngine.isRouteAvailable(decision.targetRoute)) {
+        AppLogger.info('🧭 使用智能路由: ${decision.targetRoute}');
+        await _navigateToIndustryPage(decision);
+      } else {
+        AppLogger.info('🧭 智能路由不可用，使用备用路由');
+        await _navigateToFallbackPage(categoryId, subCategoryId, filters);
+      }
+      
+    } catch (e) {
+      AppLogger.error('🧭 智能路由导航失败: $e');
+      // 发生错误时使用备用路由
+      await _navigateToFallbackPage(categoryId, subCategoryId, filters);
+    }
+  }
+
+  /// 导航到行业特定页面
+  Future<void> _navigateToIndustryPage(RouteDecision decision) async {
+    switch (decision.industry) {
+      case IndustryType.food:
+        // 餐饮行业 - 已实现
+        Get.toNamed('/food_order', parameters: {
+          'categoryId': decision.parameters['categoryId']?.toString() ?? '',
+          'initialFilters': decision.parameters['initialFilters']?.toString() ?? '{}',
+        });
+        break;
+        
+      case IndustryType.home:
+        // 家居服务 - 已实现
+        AppLogger.info('🏠 导航到家居服务页面');
+        Get.toNamed('/home_service', parameters: {
+          'categoryId': decision.parameters['categoryId']?.toString() ?? '',
+          'initialFilters': decision.parameters['initialFilters']?.toString() ?? '{}',
+        });
+        break;
+        
+      case IndustryType.transport:
+        // 出行交通 - 待实现
+        AppLogger.info('🚗 出行交通页面待实现，显示服务列表');
+        _showCategoryServices(decision.parameters['categoryId']);
+        break;
+        
+      case IndustryType.rental:
+        // 租赁共享 - 待实现
+        AppLogger.info('📦 租赁共享页面待实现，显示服务列表');
+        _showCategoryServices(decision.parameters['categoryId']);
+        break;
+        
+      case IndustryType.learning:
+        // 学习成长 - 待实现
+        AppLogger.info('📚 学习成长页面待实现，显示服务列表');
+        _showCategoryServices(decision.parameters['categoryId']);
+        break;
+        
+      case IndustryType.professional:
+        // 专业速帮 - 待实现
+        AppLogger.info('💼 专业速帮页面待实现，使用通用服务详情页');
+        _navigateToServiceDetail(decision.parameters['categoryId']);
+        break;
+    }
+  }
+
+  /// 备用导航方法
+  Future<void> _navigateToFallbackPage(
+    String categoryId, 
+    String? subCategoryId, 
+    Map<String, dynamic>? filters
+  ) async {
+    AppLogger.info('🔄 使用备用导航方法');
+    
+    // 使用现有的服务详情页作为备用
+    if (subCategoryId != null) {
+      _navigateToServiceDetail(subCategoryId);
+    } else {
+      // 如果没有子分类，显示分类列表
+      final categoryIdInt = int.tryParse(categoryId);
+      if (categoryIdInt != null) {
+        selectLevel1Category(categoryIdInt);
+      }
+    }
+  }
+
+  /// 导航到服务详情页
+  void _navigateToServiceDetail(String? serviceId) {
+    if (serviceId != null && serviceId.isNotEmpty) {
+      Get.toNamed('/service_detail', arguments: {'serviceId': serviceId});
+    } else {
+      AppLogger.warning('🔄 服务ID为空，无法导航到服务详情页');
+    }
+  }
+
+  /// 跨行业通用搜索
+  Future<void> performUniversalSearch(String query) async {
+    if (query.trim().isEmpty) return;
+
+    AppLogger.info('🔍 执行跨行业通用搜索: $query');
+    isLoadingSearch.value = true;
+
+    try {
+      // 搜索所有行业的服务
+      final searchResults = await Supabase.instance.client
+          .from('services')
+          .select('''
+            id, title, description, price_range, 
+            category_level1_id, category_level2_id,
+            service_details, images, average_rating, review_count
+          ''')
+          .or('title->>en.ilike.%$query%,title->>zh.ilike.%$query%,description->>en.ilike.%$query%,description->>zh.ilike.%$query%')
+          .eq('status', 'active')
+          .limit(50);
+
+      AppLogger.info('🔍 跨行业搜索结果: ${searchResults.length} 个服务');
+
+      // 按行业分组显示结果
+      _groupAndDisplayResults(searchResults, query);
+
+    } catch (e) {
+      AppLogger.error('🔍 跨行业搜索失败: $e');
+      Get.snackbar(
+        '搜索失败',
+        '搜索服务时出现错误，请稍后重试',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red[100],
+        colorText: Colors.red[800],
+      );
+    } finally {
+      isLoadingSearch.value = false;
+    }
+  }
+
+  /// 按行业分组并显示搜索结果
+  void _groupAndDisplayResults(List<dynamic> results, String query) {
+    final groupedResults = <IndustryType, List<ServiceItem>>{};
+    
+    for (final result in results) {
+      final categoryId = result['category_level1_id']?.toString() ?? '';
+      final industry = IntelligentRoutingEngine.identifyIndustry(categoryId);
+      
+      final serviceItem = ServiceItem(
+        id: result['id'],
+        parentId: result['category_level2_id'] ?? 0,
+        name: result['title'] ?? {'en': 'Service', 'zh': '服务'},
+        description: result['description'] ?? {'en': 'Description', 'zh': '描述'},
+        price: result['price_range']?['min']?.toString() ?? '0',
+        imageUrl: (result['images'] as List?)?.isNotEmpty == true
+            ? result['images'][0]
+            : 'https://picsum.photos/seed/booking${result['id']}/80/80',
+        rating: parseDouble(result['average_rating']),
+        reviews: parseInt(result['review_count']),
+      );
+      
+      groupedResults.putIfAbsent(industry, () => []).add(serviceItem);
+    }
+    
+    // 更新服务列表（显示所有结果）
+    final allResults = groupedResults.values.expand((list) => list).toList();
+    services.assignAll(allResults);
+    
+    // 显示搜索结果摘要
+    _showSearchResultsSummary(groupedResults, query);
+  }
+
+  /// 显示搜索结果摘要
+  void _showSearchResultsSummary(Map<IndustryType, List<ServiceItem>> groupedResults, String query) {
+    final totalResults = groupedResults.values.fold(0, (sum, list) => sum + list.length);
+    
+    if (totalResults == 0) {
+      Get.snackbar(
+        '未找到结果',
+        '没有找到与 "$query" 相关的服务',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.orange[100],
+        colorText: Colors.orange[800],
+      );
+      return;
+    }
+    
+    final industryCount = groupedResults.length;
+    final summaryText = '在 $industryCount 个行业中找到 $totalResults 个服务';
+    
+    Get.snackbar(
+      '搜索结果',
+      summaryText,
+      snackPosition: SnackPosition.BOTTOM,
+      duration: const Duration(seconds: 3),
+    );
+    
+    AppLogger.info('🔍 搜索结果摘要: $summaryText');
+    for (final entry in groupedResults.entries) {
+      AppLogger.info('   ${entry.key.displayName}: ${entry.value.length} 个服务');
+    }
+  }
+
+  /// 获取启用的行业列表
+  List<IndustryType> _getEnabledIndustries() {
+    // 返回所有支持的行业类型
+    return IndustryType.values;
+  }
+  
+  /// 显示指定分类的服务列表（用于未实现专门页面的行业）
+  void _showCategoryServices(String? categoryId) {
+    if (categoryId != null && categoryId.isNotEmpty) {
+      AppLogger.info('🔍 显示分类服务列表: categoryId=$categoryId');
+      // 尝试解析categoryId为int并选择对应分类
+      try {
+        final categoryIdInt = int.parse(categoryId);
+        selectLevel1Category(categoryIdInt);
+      } catch (e) {
+        AppLogger.error('🔍 无法解析categoryId: $categoryId, 错误: $e');
+        // 如果解析失败，显示推荐服务
+        showAllRecommendedServices();
+      }
+    } else {
+      AppLogger.info('🔍 显示所有推荐服务');
+      // 显示所有推荐服务
+      showAllRecommendedServices();
+    }
   }
 }

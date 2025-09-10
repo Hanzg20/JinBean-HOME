@@ -4,6 +4,7 @@ import 'package:jinbeanpod_83904710/features/customer/domain/entities/service.da
 import 'package:jinbeanpod_83904710/features/customer/domain/entities/service_detail.dart';
 import 'package:jinbeanpod_83904710/features/customer/domain/entities/provider_profile.dart';
 import 'package:jinbeanpod_83904710/features/customer/domain/entities/review.dart';
+import '../../../../core/services/provider_query_manager.dart';
 
 class ServiceDetailApiService {
   static final SupabaseClient _supabase = Supabase.instance.client;
@@ -23,21 +24,8 @@ class ServiceDetailApiService {
       return Service.fromJson(response);
     } catch (e) {
       AppLogger.error('Error fetching service: $e');
-      // 返回Mock数据
-      return Service(
-        id: serviceId,
-        title: 'Professional Home Cleaning Service',
-        description:
-            'Comprehensive home cleaning service including kitchen, bathroom, living areas, and bedrooms.',
-        rating: 4.8,
-        reviewCount: 127,
-        providerId: 'provider_456',
-        categoryId: '1020000',
-        categoryLevel2Id: '1020100',
-        isActive: true,
-        serviceDeliveryMethod: 'on_site',
-        createdAt: DateTime.now(),
-      );
+      // 直接抛出错误，不返回Mock数据
+      rethrow;
     }
   }
 
@@ -58,37 +46,8 @@ class ServiceDetailApiService {
       return ServiceDetail.fromJson(response);
     } catch (e) {
       AppLogger.error('Error fetching service detail: $e');
-      // 返回Mock数据
-      return ServiceDetail(
-        id: 'detail_$serviceId',
-        serviceId: serviceId,
-        name: {'en': 'Professional Cleaning Service', 'zh': '专业清洁服务'},
-        category: 'main',
-        pricingType: 'hourly',
-        price: 45.0,
-        currency: 'USD',
-        negotiationDetails:
-            'Price may vary based on home size and specific requirements',
-        durationType: 'fixed',
-        duration: 3,
-        images: [
-          'https://picsum.photos/400/300?random=1',
-          'https://picsum.photos/400/300?random=2',
-          'https://picsum.photos/400/300?random=3',
-        ],
-        tags: ['cleaning', 'professional', 'eco-friendly', 'residential'],
-        serviceAreaCodes: ['10001', '10002', '10003'],
-        serviceDetailsJson: {
-          'equipment': ['vacuum', 'mop', 'cleaning supplies'],
-          'materials': ['eco-friendly', 'non-toxic'],
-          'included_services': [
-            'dusting',
-            'vacuuming',
-            'mopping',
-            'bathroom cleaning'
-          ],
-        },
-      );
+      // 直接抛出错误，不返回Mock数据
+      rethrow;
     }
   }
 
@@ -166,86 +125,74 @@ class ServiceDetailApiService {
     }
   }
 
-  /// 获取提供商资料
+  /// 获取提供商资料 - 使用全局ProviderQueryManager
   static Future<ProviderProfile> getProviderProfile(String providerId) async {
-    try {
-      final response = await _supabase.from('provider_profiles').select('''
-            *,
-            addresses!provider_profiles_address_id_fkey(*)
-          ''').eq('id', providerId).single();
-
-      return ProviderProfile.fromJson(response);
-    } catch (e) {
-      AppLogger.info('Error fetching provider profile: $e');
-      // 返回Mock数据
-      return ProviderProfile(
-        id: providerId,
-        name: 'Professional Service Provider',
-        description:
-            'Experienced and reliable service provider with excellent customer reviews.',
-        avatar: 'https://picsum.photos/200/200?random=1',
-        phone: '+1-555-0123',
-        email: 'provider@example.com',
-        rating: 4.8,
-        reviewCount: 127,
-        businessLicense: 'CA123456789',
-        isVerified: true,
-        createdAt: DateTime.now(),
-        metadata: {
-          'providerType': 'individual',
-          'isCertified': true,
-          'experienceYears': 5,
-          'tags': ['professional', 'reliable', 'experienced'],
-        },
-      );
+    AppLogger.info('🔍 ServiceDetailApiService调用全局Provider查询: $providerId');
+    
+    final providerProfile = await ProviderQueryManager.getProviderProfile(providerId);
+    
+    if (providerProfile == null) {
+      throw Exception('Provider not found: $providerId');
     }
+    
+    AppLogger.info('✅ ServiceDetailApiService获取Provider成功: $providerId');
+    return providerProfile;
   }
 
   /// 获取服务评价
   static Future<List<Review>> getServiceReviews(String serviceId) async {
     try {
+      AppLogger.info('🔍 开始获取服务评价 - serviceId: $serviceId');
+      
       final response = await _supabase
           .from('reviews')
           .select('''
-            *,
-            user_profiles!reviews_user_id_fkey(
+            id,
+            order_id,
+            reviewer_id,
+            reviewee_id,
+            service_id,
+            overall_rating,
+            quality_rating,
+            communication_rating,
+            timeliness_rating,
+            value_rating,
+            title,
+            content,
+            images,
+            status,
+            is_verified,
+            helpful_count,
+            total_votes,
+            provider_response,
+            provider_response_at,
+            created_at,
+            updated_at,
+            reviewer:user_profiles!reviews_reviewer_id_fkey(
               id,
               display_name,
               avatar_url
             )
           ''')
           .eq('service_id', serviceId)
-          .order('created_at', ascending: false)
-          .limit(10);
+          .eq('status', 'published')
+          .order('created_at', ascending: false);
 
-      return response.map((json) => Review.fromJson(json)).toList();
+      AppLogger.info('📊 评价查询结果: ${response.length} 条记录');
+      
+      if (response.isEmpty) {
+        AppLogger.info('📝 该服务暂无评价');
+        return [];
+      }
+
+      final reviews = response.map((json) => Review.fromJson(json)).toList();
+      AppLogger.info('✅ 成功获取 ${reviews.length} 条评价');
+      return reviews;
+      
     } catch (e) {
-      AppLogger.info('Error fetching service reviews: $e');
-      // 返回Mock数据
-      return [
-        Review(
-          id: 'review_1',
-          serviceId: serviceId,
-          userId: 'user_1',
-          userName: 'John Doe',
-          userAvatar: 'https://picsum.photos/50/50?random=1',
-          rating: 5.0,
-          comment: 'Excellent service! Very professional and thorough.',
-          createdAt: DateTime.now().subtract(const Duration(days: 2)),
-          isVerified: true,
-        ),
-        Review(
-          id: 'review_2',
-          serviceId: serviceId,
-          userId: 'user_2',
-          userName: 'Jane Smith',
-          userAvatar: 'https://picsum.photos/50/50?random=2',
-          rating: 4.0,
-          comment: 'Good service, would recommend to others.',
-          createdAt: DateTime.now().subtract(const Duration(days: 5)),
-          isVerified: true,
-        ),
-      ];
+      AppLogger.error('❌ 获取服务评价失败: $e');
+      // 返回空列表而不是抛出错误，因为评价不是必需的
+      return [];
     }
   }
 

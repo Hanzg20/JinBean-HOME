@@ -19,6 +19,7 @@ import 'features/demo/address_input_demo_page.dart';
 import 'package:jinbeanpod_83904710/features/customer/splash/presentation/splash_page.dart';
 import 'package:jinbeanpod_83904710/features/customer/splash/presentation/splash_binding.dart';
 import 'package:jinbeanpod_83904710/features/provider/settings/settings_page.dart';
+import 'core/services/local_data_manager.dart';
 // New imports for Settings sub-pages
 
 // New imports for provider pages
@@ -41,6 +42,24 @@ import 'package:jinbeanpod_83904710/features/customer/services/presentation/serv
 import 'package:jinbeanpod_83904710/features/customer/services/presentation/service_detail_binding.dart';
 import 'package:jinbeanpod_83904710/app/provider_shell_app.dart';
 import 'package:jinbeanpod_83904710/core/services/service_manager.dart';
+import 'package:jinbeanpod_83904710/core/services/service_registry.dart';
+import 'package:jinbeanpod_83904710/features/customer/food/presentation/food_order_page.dart';
+import 'package:jinbeanpod_83904710/features/customer/home_services/presentation/home_service_page.dart';
+import 'package:jinbeanpod_83904710/core/config/stripe_config.dart';
+// Profile子页面导入
+import 'package:jinbeanpod_83904710/features/customer/profile/presentation/my_orders/my_orders_page.dart';
+import 'package:jinbeanpod_83904710/features/customer/profile/presentation/my_orders/my_orders_binding.dart';
+import 'package:jinbeanpod_83904710/features/customer/profile/presentation/my_addresses/my_addresses_page.dart';
+import 'package:jinbeanpod_83904710/features/customer/profile/presentation/my_addresses/my_addresses_binding.dart';
+import 'package:jinbeanpod_83904710/features/customer/profile/presentation/my_reviews/my_reviews_page.dart';
+import 'package:jinbeanpod_83904710/features/customer/profile/presentation/my_reviews/my_reviews_binding.dart';
+import 'package:jinbeanpod_83904710/features/customer/profile/presentation/saved_services/saved_services_page.dart';
+import 'package:jinbeanpod_83904710/features/customer/profile/presentation/saved_services/saved_services_binding.dart';
+import 'package:jinbeanpod_83904710/features/customer/profile/presentation/payment_methods/payment_methods_page.dart';
+import 'package:jinbeanpod_83904710/features/customer/profile/presentation/payment_methods/payment_methods_binding.dart';
+import 'package:jinbeanpod_83904710/features/customer/cart/presentation/cart_test_page.dart';
+import 'package:jinbeanpod_83904710/features/customer/cart/presentation/enhanced_cart_page.dart';
+import 'package:jinbeanpod_83904710/features/customer/checkout/presentation/checkout_page.dart';
 
 void main() async {
   AppLogger.info('[main] App starting...');
@@ -74,6 +93,35 @@ void main() async {
   // 注入 ServiceManagerState，确保 ServiceManager 能够正确初始化
   Get.put(ServiceManagerState(), permanent: true);
   AppLogger.info('[main] ServiceManagerState put.');
+
+  // 初始化Stripe支付系统
+  try {
+    await StripeConfig.initialize();
+    AppLogger.info('[main] Stripe payment system initialized.');
+  } catch (e) {
+    AppLogger.error('[main] Failed to initialize Stripe: $e');
+  }
+
+  // 初始化通用服务系统
+  try {
+    await ServiceRegistry.initialize();
+    AppLogger.info('[main] Universal service system initialized.');
+  } catch (e) {
+    AppLogger.error('[main] Failed to initialize universal service system: $e');
+  }
+
+                            // 初始化本地数据管理器 - 本地优先架构
+              try {
+                AppLogger.info('[main] 🚀 开始初始化本地数据管理器...');
+                await LocalDataManager.initializeLocalData();
+                AppLogger.info('[main] ✅ 本地数据管理器初始化完成');
+                
+                // 测试本地数据状态
+                LocalDataManager.testLocalDataStatus();
+              } catch (e) {
+                AppLogger.error('[main] ❌ 本地数据管理器初始化失败: $e');
+                // 不要阻止应用启动，但记录错误
+              }
 
   final box = GetStorage();
   final user = Supabase.instance.client.auth.currentUser;
@@ -218,7 +266,48 @@ void main() async {
             GetPage(
                 name: '/provider_home',
                 page: () => ProviderHomePage(onNavigateToTab: (index) {})),
-          ],
+            // 餐饮订单页面
+            GetPage(
+                name: '/food_order',
+                page: () => FoodOrderPage(
+                    serviceId: Get.parameters['serviceId'] ?? '',
+                    providerId: Get.parameters['providerId'] ?? '')),
+            // 行业特定页面路由
+            GetPage(
+                name: '/home_service',
+                page: () => const HomeServicePage()),
+            // Profile子页面路由
+            GetPage(
+                name: '/my_orders',
+                page: () => const MyOrdersPage(),
+                binding: MyOrdersBinding()),
+            GetPage(
+                name: '/my_addresses',
+                page: () => const MyAddressesPage(),
+                binding: MyAddressesBinding()),
+            GetPage(
+                name: '/my_reviews',
+                page: () => const MyReviewsPage(),
+                binding: MyReviewsBinding()),
+            GetPage(
+                name: '/saved_services',
+                page: () => const SavedServicesPage(),
+                binding: SavedServicesBinding()),
+                              GetPage(
+                      name: '/payment_methods',
+                      page: () => const PaymentMethodsPage(),
+                      binding: PaymentMethodsBinding()),
+                  // 购物车测试和管理页面
+                  GetPage(
+                      name: '/cart_test',
+                      page: () => CartTestPage()),
+                  GetPage(
+                      name: '/enhanced_cart',
+                      page: () => const EnhancedCartPage()),
+                  GetPage(
+                      name: '/checkout',
+                      page: () => const CheckoutPage()),
+                ],
         );
       }),
     ),
