@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
+import '../../../../core/utils/image_parser.dart';
 
 /// 服务详情实体类 - 支持多子服务场景
 class ServiceDetail {
@@ -89,11 +91,17 @@ class ServiceDetail {
       duration: json['duration'] is String
           ? int.tryParse(json['duration'])
           : json['duration'],
-      images: json['images_url'] != null
-          ? List<String>.from(json['images_url'])
-          : json['images'] != null
-              ? List<String>.from(json['images'])
-              : null,
+      images: (() {
+        // 使用ImageParser解析并验证图片URL
+        final imagesList = ImageParser.parseImagesUrl(json['images_url'])
+            ?? ImageParser.parseImagesUrl(json['images']);
+
+        if (kDebugMode && imagesList != null) {
+          debugPrint('✓ ServiceDetail[${json['id']}] loaded with ${imagesList.length} images');
+        }
+
+        return imagesList;
+      })(),
       tags: json['tags'] != null ? List<String>.from(json['tags']) : null,
       serviceAreaCodes: json['service_area_codes'] != null
           ? List<String>.from(json['service_area_codes'])

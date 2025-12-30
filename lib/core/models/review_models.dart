@@ -1,37 +1,60 @@
 // 点评系统数据模型
 // 支持多语言、评分、标签、匿名、回复等功能
+// 支持非订单评价 (Yelp模式)
 
 import 'package:flutter/material.dart';
 
 // ========================================
-// 1. 点评模型 (Review)
+// 1. 评价类型枚举
+// ========================================
+enum ReviewType {
+  orderBased,        // 基于订单的评价
+  visitBased,        // 基于到店体验的评价
+  consultation,      // 基于咨询体验的评价
+  onlineInteraction, // 基于在线互动的评价
+  environmental     // 基于环境感知的评价
+}
+
+// ========================================
+// 2. 点评模型 (Review)
 // ========================================
 class Review {
   final String id;
   final String serviceId;
   final String reviewerId; // 评价者ID
   final String revieweeId; // 被评价者ID (服务商)
-  final String orderId;
+  final String? orderId; // 可选，支持非订单评价
+
+  // 评价类型和来源
+  final ReviewType reviewType;
+  final String? sourceDescription; // 评价来源详细描述
 
   // 评分和内容
   final int overallRating; // 数据库中是integer类型
   final String? title; // 评价标题
   final String? content; // 评价内容
 
-  // 详细评分维度
+  // 详细评分维度 (Yelp风格)
   final int? qualityRating;
-  final int? timelinessRating; // 数据库中是timeliness_rating
-  final int? communicationRating;
-  final int? valueRating;
+  final int? serviceRating; // 服务评分
+  final int? valueRating; // 性价比评分
+  final int? atmosphereRating; // 环境评分
 
-  // 图片
+  // 多媒体内容
   final List<String> images;
+  final List<String> videos;
+
+  // 标签系统
+  final List<String> tags; // 评价标签
+  final List<String> categories; // 分类标签
 
   // 状态和统计
   final String status;
+  final bool isAnonymous; // 匿名评价
   final bool isVerified;
   final int helpfulCount;
   final int totalVotes;
+  final int reportCount; // 举报次数
 
   // 服务商回复
   final String? providerResponse;
@@ -40,6 +63,7 @@ class Review {
   // 时间戳
   final DateTime createdAt;
   final DateTime updatedAt;
+  final DateTime? publishedAt; // 发布时间
 
   // 关联数据
   final Map<String, dynamic>? reviewer; // 评价者信息
@@ -51,23 +75,31 @@ class Review {
     required this.serviceId,
     required this.reviewerId,
     required this.revieweeId,
-    required this.orderId,
+    this.orderId, // 可选，支持非订单评价
+    this.reviewType = ReviewType.orderBased,
+    this.sourceDescription,
     required this.overallRating,
     this.title,
     this.content,
     this.qualityRating,
-    this.timelinessRating,
-    this.communicationRating,
+    this.serviceRating,
     this.valueRating,
+    this.atmosphereRating,
     this.images = const [],
+    this.videos = const [],
+    this.tags = const [],
+    this.categories = const [],
     this.status = 'published',
+    this.isAnonymous = false,
     this.isVerified = false,
     this.helpfulCount = 0,
     this.totalVotes = 0,
+    this.reportCount = 0,
     this.providerResponse,
     this.providerResponseAt,
     required this.createdAt,
     required this.updatedAt,
+    this.publishedAt,
     this.reviewer,
     this.serviceTitle,
     this.providerName,
@@ -80,29 +112,56 @@ class Review {
       serviceId: json['service_id'],
       reviewerId: json['reviewer_id'],
       revieweeId: json['reviewee_id'],
-      orderId: json['order_id'],
+      orderId: json['order_id'], // 可选
+      reviewType: _parseReviewType(json['review_type']),
+      sourceDescription: json['source_description'],
       overallRating: json['overall_rating'],
       title: json['title'],
       content: json['content'],
       qualityRating: json['quality_rating'],
-      timelinessRating: json['timeliness_rating'],
-      communicationRating: json['communication_rating'],
+      serviceRating: json['service_rating'],
       valueRating: json['value_rating'],
+      atmosphereRating: json['atmosphere_rating'],
       images: List<String>.from(json['images'] ?? []),
+      videos: List<String>.from(json['videos'] ?? []),
+      tags: List<String>.from(json['tags'] ?? []),
+      categories: List<String>.from(json['categories'] ?? []),
       status: json['status'] ?? 'published',
+      isAnonymous: json['is_anonymous'] ?? false,
       isVerified: json['is_verified'] ?? false,
       helpfulCount: json['helpful_count'] ?? 0,
       totalVotes: json['total_votes'] ?? 0,
+      reportCount: json['report_count'] ?? 0,
       providerResponse: json['provider_response'],
       providerResponseAt: json['provider_response_at'] != null
           ? DateTime.parse(json['provider_response_at'])
           : null,
       createdAt: DateTime.parse(json['created_at']),
       updatedAt: DateTime.parse(json['updated_at']),
+      publishedAt: json['published_at'] != null
+          ? DateTime.parse(json['published_at'])
+          : null,
       reviewer: json['reviewer'],
       serviceTitle: json['service_title'],
       providerName: json['provider_name'],
     );
+  }
+
+  // 解析评价类型
+  static ReviewType _parseReviewType(String? type) {
+    switch (type) {
+      case 'visit_based':
+        return ReviewType.visitBased;
+      case 'consultation':
+        return ReviewType.consultation;
+      case 'online_interaction':
+        return ReviewType.onlineInteraction;
+      case 'environmental':
+        return ReviewType.environmental;
+      case 'order_based':
+      default:
+        return ReviewType.orderBased;
+    }
   }
 
   // 转换为JSON
@@ -113,25 +172,49 @@ class Review {
       'reviewer_id': reviewerId,
       'reviewee_id': revieweeId,
       'order_id': orderId,
+      'review_type': _reviewTypeToString(reviewType),
+      'source_description': sourceDescription,
       'overall_rating': overallRating,
       'title': title,
       'content': content,
       'quality_rating': qualityRating,
-      'timeliness_rating': timelinessRating,
-      'communication_rating': communicationRating,
+      'service_rating': serviceRating,
       'value_rating': valueRating,
+      'atmosphere_rating': atmosphereRating,
       'images': images,
+      'videos': videos,
+      'tags': tags,
+      'categories': categories,
       'status': status,
+      'is_anonymous': isAnonymous,
       'is_verified': isVerified,
       'helpful_count': helpfulCount,
       'total_votes': totalVotes,
+      'report_count': reportCount,
       'provider_response': providerResponse,
       'provider_response_at': providerResponseAt?.toIso8601String(),
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
+      'published_at': publishedAt?.toIso8601String(),
       'service_title': serviceTitle,
       'provider_name': providerName,
     };
+  }
+
+  // 评价类型转字符串
+  String _reviewTypeToString(ReviewType type) {
+    switch (type) {
+      case ReviewType.visitBased:
+        return 'visit_based';
+      case ReviewType.consultation:
+        return 'consultation';
+      case ReviewType.onlineInteraction:
+        return 'consultation'; // 映射到数据库允许的值
+      case ReviewType.environmental:
+        return 'environmental';
+      case ReviewType.orderBased:
+        return 'order_based';
+    }
   }
 
   // 获取显示名称
@@ -174,9 +257,9 @@ class Review {
     String? title,
     String? content,
     int? qualityRating,
-    int? timelinessRating,
-    int? communicationRating,
+    int? serviceRating,
     int? valueRating,
+    int? atmosphereRating,
     List<String>? images,
     String? status,
     bool? isVerified,
@@ -200,9 +283,9 @@ class Review {
       title: title ?? this.title,
       content: content ?? this.content,
       qualityRating: qualityRating ?? this.qualityRating,
-      timelinessRating: timelinessRating ?? this.timelinessRating,
-      communicationRating: communicationRating ?? this.communicationRating,
+      serviceRating: serviceRating ?? this.serviceRating,
       valueRating: valueRating ?? this.valueRating,
+      atmosphereRating: atmosphereRating ?? this.atmosphereRating,
       images: images ?? this.images,
       status: status ?? this.status,
       isVerified: isVerified ?? this.isVerified,
@@ -392,48 +475,87 @@ class ReviewTag {
 // ========================================
 class CreateReviewRequest {
   final String serviceId;
-  final String providerId;
-  final String? orderId;
-  final double overallRating;
-  final Map<String, String> content;
-  final bool isAnonymous;
-  final double? qualityRating;
-  final double? punctualityRating;
-  final double? communicationRating;
-  final double? valueRating;
-  final List<String> tags;
+  final String revieweeId; // 被评价者ID (服务商)
+  final String? orderId; // 可选，支持非订单评价
+  final ReviewType reviewType; // 评价类型
+  final String? sourceDescription; // 评价来源描述
+  final int overallRating; // 数据库中是integer类型
+  final String? title;
+  final String? content;
+  final int? qualityRating;
+  final int? serviceRating; // 服务评分
+  final int? valueRating; // 性价比评分
+  final int? atmosphereRating; // 环境评分
   final List<String> images;
+  final List<String> videos;
+  final List<String> tags; // 评价标签
+  final List<String> categories; // 分类标签
+  final bool isAnonymous; // 是否匿名
 
   CreateReviewRequest({
     required this.serviceId,
-    required this.providerId,
+    required this.revieweeId,
     this.orderId,
+    this.reviewType = ReviewType.orderBased,
+    this.sourceDescription,
     required this.overallRating,
-    required this.content,
-    this.isAnonymous = false,
+    this.title,
+    this.content,
     this.qualityRating,
-    this.punctualityRating,
-    this.communicationRating,
+    this.serviceRating,
     this.valueRating,
-    this.tags = const [],
+    this.atmosphereRating,
     this.images = const [],
+    this.videos = const [],
+    this.tags = const [],
+    this.categories = const [],
+    this.isAnonymous = false,
   });
 
   Map<String, dynamic> toJson() {
-    return {
+    final json = <String, dynamic>{
       'service_id': serviceId,
-      'provider_id': providerId,
+      'reviewee_id': revieweeId,
       'order_id': orderId,
+      'review_type': _reviewTypeToString(reviewType),
       'overall_rating': overallRating,
+      'title': title,
       'content': content,
-      'is_anonymous': isAnonymous,
-      'quality_rating': qualityRating,
-      'punctuality_rating': punctualityRating,
-      'communication_rating': communicationRating,
-      'value_rating': valueRating,
-      'tags': tags,
       'images': images,
+      'videos': videos,
+      'tags': tags,
+      'categories': categories,
+      'is_anonymous': isAnonymous,
     };
+    
+    // 只添加非null且数据库表中存在的字段
+    if (qualityRating != null) json['quality_rating'] = qualityRating;
+    if (serviceRating != null) json['service_rating'] = serviceRating;
+    if (valueRating != null) json['value_rating'] = valueRating;
+    if (atmosphereRating != null) json['atmosphere_rating'] = atmosphereRating;
+    
+    // 添加其他可选字段
+    if (sourceDescription != null && sourceDescription!.isNotEmpty) {
+      json['source_description'] = sourceDescription;
+    }
+    
+    return json;
+  }
+
+  // 评价类型转字符串
+  String _reviewTypeToString(ReviewType type) {
+    switch (type) {
+      case ReviewType.visitBased:
+        return 'visit_based';
+      case ReviewType.consultation:
+        return 'consultation';
+      case ReviewType.onlineInteraction:
+        return 'consultation'; // 映射到数据库允许的值
+      case ReviewType.environmental:
+        return 'environmental';
+      case ReviewType.orderBased:
+        return 'order_based';
+    }
   }
 }
 

@@ -26,9 +26,9 @@ class _ServiceMapPageState extends State<ServiceMapPage> {
     final userLocation = LocationController.instance.selectedLocation.value;
     if (userLocation == null) {
       return Scaffold(
-        appBar: AppBar(title: Text(AppLocalizations.of(context)!.serviceMap)),
+        appBar: AppBar(title: Text(AppLocalizations.of(context)?.serviceMap ?? '服务地图')),
         body:
-            Center(child: Text(AppLocalizations.of(context)!.locationMissing)),
+            Center(child: Text(AppLocalizations.of(context)?.locationMissing ?? '位置信息缺失')),
       );
     }
     return Scaffold(

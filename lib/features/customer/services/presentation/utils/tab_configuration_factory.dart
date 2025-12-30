@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../service_detail_controller.dart';
 import 'package:jinbeanpod_83904710/core/utils/app_logger.dart';
+import 'package:jinbeanpod_83904710/core/models/review_models.dart';
 
 /// Tab配置模型
 class TabConfiguration {
@@ -75,8 +76,11 @@ class TabConfigurationFactory {
 
   /// 根据服务类别获取行业特定Tab（替换Details）
   static TabConfiguration _getIndustrySpecificTab(String categoryId) {
+    debugPrint('🏷️  [TabFactory] _getIndustrySpecificTab called with categoryId: "$categoryId"');
+
     switch (categoryId) {
       case '1010000': // 餐饮服务
+        debugPrint('✅ [TabFactory] Matched Food category (1010000) - returning Menu tab');
         return TabConfiguration(
           key: 'menu',
           label: 'Menu',
@@ -87,6 +91,7 @@ class TabConfigurationFactory {
         );
 
       case '1020000': // 家政服务
+        debugPrint('✅ [TabFactory] Matched Home Services category (1020000) - returning Services tab');
         return TabConfiguration(
           key: 'services',
           label: 'Services',
@@ -97,6 +102,7 @@ class TabConfigurationFactory {
         );
 
       case '1040000': // 共享租赁
+        debugPrint('✅ [TabFactory] Matched Rental category (1040000) - returning Inventory tab');
         return TabConfiguration(
           key: 'inventory',
           label: 'Inventory',
@@ -107,6 +113,7 @@ class TabConfigurationFactory {
         );
 
       case '1050000': // 教育培训
+        debugPrint('✅ [TabFactory] Matched Education category (1050000) - returning Courses tab');
         return TabConfiguration(
           key: 'courses',
           label: 'Courses',
@@ -117,6 +124,7 @@ class TabConfigurationFactory {
         );
 
       case '1060000': // 健康医疗
+        debugPrint('✅ [TabFactory] Matched Health category (1060000) - returning Treatments tab');
         return TabConfiguration(
           key: 'treatments',
           label: 'Treatments',
@@ -127,6 +135,7 @@ class TabConfigurationFactory {
         );
 
       default: // 通用服务 - 保持Details tab
+        debugPrint('⚠️  [TabFactory] No match found for categoryId "$categoryId" - using default Details tab');
         return TabConfiguration(
           key: 'details',
           label: 'Details',
@@ -612,13 +621,28 @@ class TabConfigurationFactory {
   static Widget _buildReviewsTab(BuildContext context, dynamic service) {
     final controller = Get.find<ServiceDetailController>();
 
+    // 确保加载评价数据
+    if (service?.id != null && controller.reviews.isEmpty && !controller.isLoadingReviews.value) {
+      AppLogger.info('Reviews标签页: 开始加载评价数据 - Service ID: ${service.id}');
+      controller.loadReviews(service.id);
+    }
+
     return Obx(() {
       final reviews = controller.reviews;
       final isLoading = controller.isLoadingReviews.value;
 
+      AppLogger.info('Reviews标签页: 状态更新 - 加载中: $isLoading, 评价数量: ${reviews.length}');
+
       if (isLoading) {
         return const Center(
-          child: CircularProgressIndicator(),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 16),
+              Text('Loading reviews...'),
+            ],
+          ),
         );
       }
 
@@ -778,6 +802,37 @@ class TabConfigurationFactory {
                               color: Colors.grey[500],
                             ),
                       ),
+                      const SizedBox(height: 16),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          if (service?.id != null) {
+                            controller.loadReviews(service.id, refresh: true);
+                          }
+                        },
+                        icon: const Icon(Icons.refresh),
+                        label: const Text('Refresh'),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Service ID: ${service?.id ?? 'Unknown'}',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Colors.grey[400],
+                            ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Reviews Count: ${reviews.length}',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Colors.grey[400],
+                            ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Loading: ${isLoading}',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Colors.grey[400],
+                            ),
+                      ),
                     ],
                   ),
                 ),
@@ -799,9 +854,9 @@ class TabConfigurationFactory {
                       ),
                       const SizedBox(height: 16),
                       ...reviews.take(5).map((review) => _buildReviewItem(
-                            review.userName ?? 'Anonymous',
-                            review.rating.toInt(),
-                            review.comment,
+                            review.getDisplayName(),
+                            review.overallRating,
+                            review.content ?? '',
                             review.createdAt,
                           )),
                     ],
@@ -924,216 +979,642 @@ class TabConfigurationFactory {
 
   // 餐饮服务 - Menu Tab
   static Widget _buildMenuTab(BuildContext context, dynamic service) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Restaurant Menu',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-          ),
-          const SizedBox(height: 16),
-          Card(
-            elevation: 2,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Available Menu Items',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  const SizedBox(height: 16),
-                  _buildMenuItem(
-                      context, 'Appetizer', 'Fresh Spring Rolls', 'CAD 8.99'),
-                  _buildMenuItem(
-                      context, 'Main Course', 'Beef Noodle Soup', 'CAD 15.99'),
-                  _buildMenuItem(
-                      context, 'Dessert', 'Mango Sticky Rice', 'CAD 6.99'),
-                ],
-              ),
+    // 获取Controller实例
+    final controller = Get.find<ServiceDetailController>();
+
+    // 首次加载数据
+    if (controller.menuItems.isEmpty && !controller.isLoadingMenuItems.value) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        controller.loadMenuItems(service.id);
+      });
+    }
+
+    return Obx(() {
+      // 加载状态
+      if (controller.isLoadingMenuItems.value) {
+        return const Center(
+          child: Padding(
+            padding: EdgeInsets.all(32.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Loading menu items...'),
+              ],
             ),
           ),
-        ],
-      ),
-    );
+        );
+      }
+
+      // 空状态
+      if (controller.menuItems.isEmpty) {
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.restaurant_menu,
+                    size: 64, color: Colors.grey[400]),
+                const SizedBox(height: 16),
+                Text(
+                  'No menu items available',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Colors.grey[600],
+                      ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'This restaurant hasn\'t added any menu items yet',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.grey[500],
+                      ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+
+      // 数据展示
+      return SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Restaurant Menu',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '${controller.menuItems.length} items available',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.grey[600],
+                  ),
+            ),
+            const SizedBox(height: 16),
+            Card(
+              elevation: 2,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Available Menu Items',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                    const SizedBox(height: 16),
+                    // 动态生成菜单项
+                    ...controller.menuItems.map((item) {
+                      // 获取名称（优先英文，否则取第一个可用语言）
+                      final itemName = item.name['en'] ??
+                          item.name['zh'] ??
+                          item.name.values.firstOrNull ??
+                          'Unnamed Item';
+
+                      // 获取分类（使用sub_category）
+                      final category = item.subCategory ?? 'General';
+
+                      // 格式化价格
+                      final priceText =
+                          '${item.currency ?? 'CAD'} ${item.price?.toStringAsFixed(2) ?? '0.00'}';
+
+                      return _buildMenuItem(
+                        context,
+                        category,
+                        itemName,
+                        priceText,
+                      );
+                    }),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   // 家政服务 - Services Tab
   static Widget _buildServicesTab(BuildContext context, dynamic service) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Cleaning Services',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-          ),
-          const SizedBox(height: 16),
-          Card(
-            elevation: 2,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Available Services',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  const SizedBox(height: 16),
-                  _buildServiceItem(
-                      context, 'Deep Cleaning', 'CAD 120', '3-4 hours'),
-                  _buildServiceItem(
-                      context, 'Regular Cleaning', 'CAD 80', '2-3 hours'),
-                  _buildServiceItem(
-                      context, 'Window Cleaning', 'CAD 60', '1-2 hours'),
-                ],
-              ),
+    // 获取Controller实例
+    final controller = Get.find<ServiceDetailController>();
+
+    // 首次加载数据
+    if (controller.servicePackages.isEmpty &&
+        !controller.isLoadingServicePackages.value) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        controller.loadServicePackages(service.id);
+      });
+    }
+
+    return Obx(() {
+      // 加载状态
+      if (controller.isLoadingServicePackages.value) {
+        return const Center(
+          child: Padding(
+            padding: EdgeInsets.all(32.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Loading service packages...'),
+              ],
             ),
           ),
-        ],
-      ),
-    );
+        );
+      }
+
+      // 空状态
+      if (controller.servicePackages.isEmpty) {
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.cleaning_services,
+                    size: 64, color: Colors.grey[400]),
+                const SizedBox(height: 16),
+                Text(
+                  'No service packages available',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Colors.grey[600],
+                      ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'This provider hasn\'t added any service packages yet',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.grey[500],
+                      ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+
+      // 数据展示
+      return SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Service Packages',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '${controller.servicePackages.length} packages available',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.grey[600],
+                  ),
+            ),
+            const SizedBox(height: 16),
+            Card(
+              elevation: 2,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Available Services',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                    const SizedBox(height: 16),
+                    // 动态生成服务套餐
+                    ...controller.servicePackages.map((item) {
+                      // 获取名称
+                      final itemName = item.name['en'] ??
+                          item.name['zh'] ??
+                          item.name.values.firstOrNull ??
+                          'Unnamed Service';
+
+                      // 格式化价格
+                      final priceText =
+                          '${item.currency ?? 'CAD'} ${item.price?.toStringAsFixed(2) ?? '0.00'}';
+
+                      // 获取时长
+                      final duration = item.duration?.toString() ?? 'Duration not specified';
+
+                      return _buildServiceItem(
+                        context,
+                        itemName,
+                        priceText,
+                        duration,
+                      );
+                    }),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   // 共享租赁 - Inventory Tab
   static Widget _buildInventoryTab(BuildContext context, dynamic service) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Rental Inventory',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-          ),
-          const SizedBox(height: 16),
-          Card(
-            elevation: 2,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Available Items',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  const SizedBox(height: 16),
-                  _buildInventoryItem(
-                      context, 'Power Drill', 'Available', 'CAD 25/day'),
-                  _buildInventoryItem(
-                      context, 'Ladder', 'Available', 'CAD 15/day'),
-                  _buildInventoryItem(
-                      context, 'Tool Set', 'Available', 'CAD 40/day'),
-                ],
-              ),
+    // 获取Controller实例
+    final controller = Get.find<ServiceDetailController>();
+
+    // 首次加载数据
+    if (controller.inventoryItems.isEmpty &&
+        !controller.isLoadingInventoryItems.value) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        controller.loadInventoryItems(service.id);
+      });
+    }
+
+    return Obx(() {
+      // 加载状态
+      if (controller.isLoadingInventoryItems.value) {
+        return const Center(
+          child: Padding(
+            padding: EdgeInsets.all(32.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Loading inventory...'),
+              ],
             ),
           ),
-        ],
-      ),
-    );
+        );
+      }
+
+      // 空状态
+      if (controller.inventoryItems.isEmpty) {
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.inventory, size: 64, color: Colors.grey[400]),
+                const SizedBox(height: 16),
+                Text(
+                  'No rental items available',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Colors.grey[600],
+                      ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'This provider hasn\'t added any rental items yet',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.grey[500],
+                      ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+
+      // 数据展示
+      return SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Rental Inventory',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '${controller.inventoryItems.length} items available',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.grey[600],
+                  ),
+            ),
+            const SizedBox(height: 16),
+            Card(
+              elevation: 2,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Available Items',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                    const SizedBox(height: 16),
+                    // 动态生成库存项
+                    ...controller.inventoryItems.map((item) {
+                      // 获取名称
+                      final itemName = item.name['en'] ??
+                          item.name['zh'] ??
+                          item.name.values.firstOrNull ??
+                          'Unnamed Item';
+
+                      // 确定库存状态
+                      final currentStock = item.currentStock ?? 0;
+                      final status =
+                          currentStock > 0 ? 'Available ($currentStock)' : 'Rented Out';
+
+                      // 格式化价格
+                      final priceText =
+                          '${item.currency ?? 'CAD'} ${item.price?.toStringAsFixed(2) ?? '0.00'}/day';
+
+                      return _buildInventoryItem(
+                        context,
+                        itemName,
+                        status,
+                        priceText,
+                      );
+                    }),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   // 教育培训 - Courses Tab
   static Widget _buildCoursesTab(BuildContext context, dynamic service) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Learning Courses',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-          ),
-          const SizedBox(height: 16),
-          Card(
-            elevation: 2,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Available Courses',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  const SizedBox(height: 16),
-                  _buildCourseItem(
-                      context, 'Beginner Level', 'Basic Skills', 'CAD 200'),
-                  _buildCourseItem(context, 'Intermediate Level',
-                      'Advanced Skills', 'CAD 350'),
-                  _buildCourseItem(context, 'Advanced Level',
-                      'Professional Skills', 'CAD 500'),
-                ],
-              ),
+    // 获取Controller实例
+    final controller = Get.find<ServiceDetailController>();
+
+    // 首次加载数据
+    if (controller.courses.isEmpty && !controller.isLoadingCourses.value) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        controller.loadCourses(service.id);
+      });
+    }
+
+    return Obx(() {
+      // 加载状态
+      if (controller.isLoadingCourses.value) {
+        return const Center(
+          child: Padding(
+            padding: EdgeInsets.all(32.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Loading courses...'),
+              ],
             ),
           ),
-        ],
-      ),
-    );
+        );
+      }
+
+      // 空状态
+      if (controller.courses.isEmpty) {
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.school, size: 64, color: Colors.grey[400]),
+                const SizedBox(height: 16),
+                Text(
+                  'No courses available',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Colors.grey[600],
+                      ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'This provider hasn\'t added any courses yet',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.grey[500],
+                      ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+
+      // 数据展示
+      return SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Learning Courses',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '${controller.courses.length} courses available',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.grey[600],
+                  ),
+            ),
+            const SizedBox(height: 16),
+            Card(
+              elevation: 2,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Available Courses',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                    const SizedBox(height: 16),
+                    // 动态生成课程
+                    ...controller.courses.map((item) {
+                      // 获取课程名称
+                      final courseName = item.name['en'] ??
+                          item.name['zh'] ??
+                          item.name.values.firstOrNull ??
+                          'Unnamed Course';
+
+                      // 获取课程级别（使用sub_category）
+                      final level = item.subCategory ?? 'General Level';
+
+                      // 获取课程描述（使用duration）
+                      final description = item.duration?.toString() ?? 'Duration not specified';
+
+                      // 格式化价格
+                      final priceText =
+                          '${item.currency ?? 'CAD'} ${item.price?.toStringAsFixed(2) ?? '0.00'}';
+
+                      return _buildCourseItem(
+                        context,
+                        '$level - $courseName',
+                        description,
+                        priceText,
+                      );
+                    }),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   // 健康医疗 - Treatments Tab
   static Widget _buildTreatmentsTab(BuildContext context, dynamic service) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Medical Treatments',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-          ),
-          const SizedBox(height: 16),
-          Card(
-            elevation: 2,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Available Treatments',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  const SizedBox(height: 16),
-                  _buildTreatmentItem(
-                      context, 'Consultation', 'CAD 80', '30 min'),
-                  _buildTreatmentItem(
-                      context, 'Therapy Session', 'CAD 120', '60 min'),
-                  _buildTreatmentItem(context, 'Follow-up', 'CAD 60', '20 min'),
-                ],
-              ),
+    // 获取Controller实例
+    final controller = Get.find<ServiceDetailController>();
+
+    // 首次加载数据
+    if (controller.treatments.isEmpty && !controller.isLoadingTreatments.value) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        controller.loadTreatments(service.id);
+      });
+    }
+
+    return Obx(() {
+      // 加载状态
+      if (controller.isLoadingTreatments.value) {
+        return const Center(
+          child: Padding(
+            padding: EdgeInsets.all(32.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Loading treatments...'),
+              ],
             ),
           ),
-        ],
-      ),
-    );
+        );
+      }
+
+      // 空状态
+      if (controller.treatments.isEmpty) {
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.medical_services,
+                    size: 64, color: Colors.grey[400]),
+                const SizedBox(height: 16),
+                Text(
+                  'No treatments available',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Colors.grey[600],
+                      ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'This provider hasn\'t added any treatments yet',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.grey[500],
+                      ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+
+      // 数据展示
+      return SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Medical Treatments',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '${controller.treatments.length} treatments available',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.grey[600],
+                  ),
+            ),
+            const SizedBox(height: 16),
+            Card(
+              elevation: 2,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Available Treatments',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                    const SizedBox(height: 16),
+                    // 动态生成治疗项目
+                    ...controller.treatments.map((item) {
+                      // 获取治疗项目名称
+                      final treatmentName = item.name['en'] ??
+                          item.name['zh'] ??
+                          item.name.values.firstOrNull ??
+                          'Unnamed Treatment';
+
+                      // 格式化价格
+                      final priceText =
+                          '${item.currency ?? 'CAD'} ${item.price?.toStringAsFixed(2) ?? '0.00'}';
+
+                      // 获取时长
+                      final duration = item.duration?.toString() ?? 'Duration not specified';
+
+                      return _buildTreatmentItem(
+                        context,
+                        treatmentName,
+                        priceText,
+                        duration,
+                      );
+                    }),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   // 辅助方法

@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import '../../models/service_detail.dart';
+import '../../../features/customer/domain/entities/service_detail.dart';
 
 // 服务详情查询参数
 class ServiceDetailQueryParams {

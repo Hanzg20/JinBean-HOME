@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import '../models/service.dart' as core_models;
-import '../models/service_detail.dart' as core_services;
+import '../../features/customer/domain/entities/service.dart';
+import '../../features/customer/domain/entities/service_detail.dart';
 import '../controllers/unified_cart_controller.dart';
 import '../utils/app_logger.dart';
 import 'local_data_manager.dart';
+import '../../features/customer/services/presentation/service_detail_controller.dart';
+import '../../features/customer/services/presentation/sections/service_reviews_section.dart';
 
 /// 动态Tab配置服务
 /// 根据服务类型和详情数据动态生成Tab配置
@@ -16,15 +17,16 @@ class DynamicTabConfigService {
   DynamicTabConfigService._internal();
 
   // 当前服务引用
-  core_models.Service? _currentService;
+  Service? _currentService;
 
   /// 获取Tab配置
   List<Map<String, dynamic>> getTabConfig(
-      core_models.Service service, List<core_services.ServiceDetail> details) {
+      Service service, List<ServiceDetail> details) {
     // 更新当前服务引用
     _currentService = service;
 
-    // print('🔧 getTabConfig: 服务ID=${service.id}, 大类=${service.categoryLevel1Id}, 详情数量=${details.length}');
+    print('🚨 [DynamicTabConfig] getTabConfig CALLED - Service: ${service.title}, ID: ${service.id}');
+    print('🚨 [DynamicTabConfig] categoryLevel1Id: ${service.categoryLevel1Id}, Details: ${details.length}');
 
     // 基础Tab配置
     final List<Map<String, dynamic>> tabs = [];
@@ -88,16 +90,22 @@ class DynamicTabConfigService {
 
   /// 生成动态Tab配置
   List<Map<String, dynamic>> _generateDynamicTabs(
-      List<core_services.ServiceDetail> details) {
+      List<ServiceDetail> details) {
     final List<Map<String, dynamic>> dynamicTabs = [];
 
-    // print('🔧 _generateDynamicTabs: 开始生成，详情数量: ${details.length}');
+    print('🔧 [DynamicTabConfig] _generateDynamicTabs: 开始生成，详情数量: ${details.length}');
+    print('🔧 [DynamicTabConfig] Service categoryLevel1Id: ${_currentService?.categoryLevel1Id}');
+    if (details.isNotEmpty) {
+      print('🔧 [DynamicTabConfig] First detail category: ${details.first.category}');
+    }
 
     // 检查是否应该显示Menu Tab
     bool shouldShowMenu = _shouldShowMenuTab();
+    print('🔧 [DynamicTabConfig] shouldShowMenu: $shouldShowMenu');
 
     if (shouldShowMenu) {
       // 如果应该显示Menu，创建一个强化的Menu Tab
+      print('✅ [DynamicTabConfig] 生成强化Menu Tab (Food服务)');
       dynamicTabs.add({
         'id': 'menu',
         'title': '🍽️ Menu',
@@ -111,25 +119,31 @@ class DynamicTabConfigService {
         'description': '选择菜品并加入购物车',
         'isOperational': true, // 标记为操作性Tab
       });
-      // print('✅ 生成强化Menu Tab，显示所有 ${details.length} 项数据');
     } else {
       // 如果不显示Menu，按category分组生成其他动态Tab
+      print('✅ [DynamicTabConfig] 生成非Food服务的Tab');
       if (details.isNotEmpty) {
-        final grouped = <String, List<core_services.ServiceDetail>>{};
+        final grouped = <String, List<ServiceDetail>>{};
         for (final detail in details) {
-          final category = detail.category ?? 'unknown';
+          final category = detail.category;
           grouped.putIfAbsent(category, () => []).add(detail);
         }
+
+        print('📋 [DynamicTabConfig] Category分组结果: ${grouped.keys.toList()}');
 
         for (final entry in grouped.entries) {
           final category = entry.key;
           final categoryDetails = entry.value;
+          final title = _getCategoryTitle(category);
+          final icon = _getCategoryIcon(category);
+
+          print('📌 [DynamicTabConfig] 创建Tab - category: $category, title: $title, itemCount: ${categoryDetails.length}');
 
           dynamicTabs.add({
             'id': 'menu_$category',
-            'title': _getCategoryTitle(category),
+            'title': title,
             'title_zh': _getCategoryTitleZh(category),
-            'icon': _getCategoryIcon(category),
+            'icon': icon,
             'color': _getCategoryColor(category),
             'category': category,
             'isDynamic': true,
@@ -140,7 +154,10 @@ class DynamicTabConfigService {
       }
     }
 
-    // print('DynamicTabConfigService: 生成完成，共 ${dynamicTabs.length} 个动态Tab ✅');
+    print('✅ [DynamicTabConfig] 生成完成，共 ${dynamicTabs.length} 个动态Tab');
+    for (var tab in dynamicTabs) {
+      print('  - ${tab['title']} (id: ${tab['id']}, category: ${tab['category']})');
+    }
     return dynamicTabs;
   }
 
@@ -150,22 +167,25 @@ class DynamicTabConfigService {
     // 餐饮相关的一级分类ID: 1010000 (美食天地)
     if (_currentService != null) {
       final categoryId = _currentService!.categoryLevel1Id;
-      // print('🔍 检查服务大类: $categoryId');
+      print('🔍 [DynamicTabConfig] _shouldShowMenuTab - categoryLevel1Id: $categoryId');
 
       // 如果是一级分类1010000 (美食天地)，就显示Menu
       if (categoryId == '1010000') {
-        // print('✅ 服务属于美食天地大类，显示Menu Tab');
+        print('✅ [DynamicTabConfig] 服务属于美食天地大类 (1010000)，显示Menu Tab');
         return true;
+      } else {
+        print('❌ [DynamicTabConfig] 服务不属于美食天地大类，categoryId=$categoryId');
       }
+    } else {
+      print('⚠️  [DynamicTabConfig] _currentService is null!');
     }
 
-    // print('❌ 服务不属于美食天地大类，不显示Menu Tab');
     return false;
   }
 
   /// 获取Tab内容构建器
   Widget Function(BuildContext, int) getTabContentBuilder(
-      core_models.Service service, List<core_services.ServiceDetail> details) {
+      Service service, List<ServiceDetail> details) {
     return (context, index) {
       // print('🔧 getTabContentBuilder: 构建Tab $index，详情数量: ${details.length}');
 
@@ -206,9 +226,9 @@ class DynamicTabConfigService {
 
   /// 构建动态Tab
   Widget _buildDynamicTab(BuildContext context, Map<String, dynamic> tab,
-      List<core_services.ServiceDetail> details) {
+      List<ServiceDetail> details) {
     final category = tab['category']?.toString() ?? 'unknown';
-    List<core_services.ServiceDetail> categoryDetails;
+    List<ServiceDetail> categoryDetails;
 
     // print('🎯 _buildDynamicTab: 开始构建，分类: $category，总详情数量: ${details.length}');
 
@@ -219,11 +239,11 @@ class DynamicTabConfigService {
     } else {
       // 按category过滤
       categoryDetails =
-          details.where((d) => (d.category ?? 'unknown') == category).toList();
+          details.where((d) => d.category == category).toList();
       // print('🔍 分类Tab $category，过滤后显示 ${categoryDetails.length} 项数据');
 
       // 打印所有详情的分类信息
-      // print('📊 所有详情的分类: ${details.map((d) => d.category ?? 'unknown').toList()}');
+      // print('📊 所有详情的分类: ${details.map((d) => d.category).toList()}');
     }
 
     // print('🎨 准备构建UI，categoryDetails数量: ${categoryDetails.length}');
@@ -413,7 +433,7 @@ class DynamicTabConfigService {
 
   /// 构建增强的服务详情卡片
   Widget _buildEnhancedServiceDetailCard(
-      BuildContext context, core_services.ServiceDetail detail) {
+      BuildContext context, ServiceDetail detail) {
     return GestureDetector(
       onTap: () {
         _showServiceDetailModal(context, detail);
@@ -611,7 +631,7 @@ class DynamicTabConfigService {
   }
 
   /// 构建概览Tab
-  Widget _buildOverviewTab(BuildContext context, core_models.Service service) {
+  Widget _buildOverviewTab(BuildContext context, Service service) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -645,14 +665,14 @@ class DynamicTabConfigService {
   }
 
   Widget _buildServiceHeader(
-      BuildContext context, core_models.Service service) {
+      BuildContext context, Service service) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // 服务标题
         Text(
           service.title.isNotEmpty
-              ? service.title['zh'] ?? service.title['en'] ?? '服务详情'
+              ? service.title
               : '服务详情',
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
@@ -698,7 +718,7 @@ class DynamicTabConfigService {
     );
   }
 
-  Widget _buildPriceSection(BuildContext context, core_models.Service service) {
+  Widget _buildPriceSection(BuildContext context, Service service) {
     // 检查是否为真实数据
     final isRealData = _isPriceDataReal(service);
 
@@ -776,9 +796,9 @@ class DynamicTabConfigService {
   }
 
   Widget _buildDescriptionSection(
-      BuildContext context, core_models.Service service) {
+      BuildContext context, Service service) {
     final description = service.description.isNotEmpty
-        ? service.description['zh'] ?? service.description['en'] ?? '暂无描述'
+        ? service.description
         : '暂无描述';
 
     // 检查是否为真实数据
@@ -833,7 +853,7 @@ class DynamicTabConfigService {
   }
 
   Widget _buildFeaturesSection(
-      BuildContext context, core_models.Service service) {
+      BuildContext context, Service service) {
     // 根据服务类型生成特色标签
     final features = _getServiceFeatures(service);
 
@@ -901,7 +921,7 @@ class DynamicTabConfigService {
   }
 
   Widget _buildServiceDetails(
-      BuildContext context, core_models.Service service) {
+      BuildContext context, Service service) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -954,7 +974,7 @@ class DynamicTabConfigService {
   }
 
   Widget _buildActionButtons(
-      BuildContext context, core_models.Service service) {
+      BuildContext context, Service service) {
     return Column(
       children: [
         // 主要操作按钮
@@ -1056,12 +1076,12 @@ class DynamicTabConfigService {
   }
 
   // 辅助方法
-  List<String> _getServiceFeatures(core_models.Service service) {
+  List<String> _getServiceFeatures(Service service) {
     return _getRealServiceFeatures(service);
   }
 
   /// 检查服务特色数据是否为真实数据
-  bool _isFeaturesDataReal(core_models.Service service) {
+  bool _isFeaturesDataReal(Service service) {
     // 如果service有真实的tags，则认为是真实数据
     return service.tags != null && service.tags!.isNotEmpty;
   }
@@ -1079,7 +1099,7 @@ class DynamicTabConfigService {
     }
   }
 
-  String _getServiceArea(core_models.Service service) {
+  String _getServiceArea(Service service) {
     if (service.latitude != null && service.longitude != null) {
       return '渥太华及周边地区';
     }
@@ -1092,7 +1112,7 @@ class DynamicTabConfigService {
   }
 
   /// 构建服务商Tab
-  Widget _buildProviderTab(BuildContext context, core_models.Service service) {
+  Widget _buildProviderTab(BuildContext context, Service service) {
     // 如果有providerId，尝试获取真实数据
     if (service.providerId != null && service.providerId!.isNotEmpty) {
       return FutureBuilder<Map<String, dynamic>?>(
@@ -1142,7 +1162,7 @@ class DynamicTabConfigService {
   }
 
   Widget _buildProviderContent(BuildContext context,
-      core_models.Service service, Map<String, dynamic>? providerData) {
+      Service service, Map<String, dynamic>? providerData) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -1168,77 +1188,13 @@ class DynamicTabConfigService {
   }
 
   /// 构建评价Tab
-  Widget _buildReviewsTab(BuildContext context, core_models.Service service) {
-    // 检查是否为真实数据
-    final isRealData = _isRealDataHelper(service.id ?? '');
-
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          // 数据源标识
-          Row(
-            children: [
-              Text(
-                '用户评价',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: isRealData ? Colors.green[100] : Colors.orange[100],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  isRealData ? '🟢 真实数据' : '🟠 模拟数据',
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: isRealData ? Colors.green[700] : Colors.orange[700],
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Expanded(
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.rate_review_outlined,
-                    size: 64,
-                    color: Colors.grey[400],
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    '评价信息开发中...',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: Colors.grey[600],
-                        ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '即将为您呈现用户评价和反馈',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.grey[500],
-                        ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+  Widget _buildReviewsTab(BuildContext context, Service service) {
+    // 使用真正的Reviews功能
+    return ServiceReviewsSection(controller: Get.find<ServiceDetailController>());
   }
 
   /// 构建推荐Tab
-  Widget _buildForYouTab(BuildContext context, core_models.Service service) {
+  Widget _buildForYouTab(BuildContext context, Service service) {
     // 检查是否为真实数据
     final isRealData = _isRealDataHelper(service.id ?? '');
 
@@ -1310,12 +1266,32 @@ class DynamicTabConfigService {
   // 辅助方法
   String _getCategoryTitle(String category) {
     switch (category) {
+      // Food subcategories
       case 'chinese':
         return 'Chinese Cuisine';
       case 'japanese':
         return 'Japanese Cuisine';
       case 'western':
         return 'Western Cuisine';
+      case 'menu_item':
+        return 'Menu';
+
+      // Home Services
+      case 'service_package':
+        return 'Services';
+
+      // Rental
+      case 'rental_item':
+        return 'Inventory';
+
+      // Education
+      case 'course':
+        return 'Courses';
+
+      // Health & Beauty
+      case 'treatment':
+        return 'Treatments';
+
       default:
         return category;
     }
@@ -1323,12 +1299,32 @@ class DynamicTabConfigService {
 
   String _getCategoryTitleZh(String category) {
     switch (category) {
+      // Food subcategories
       case 'chinese':
         return '中餐';
       case 'japanese':
         return '日料';
       case 'western':
         return '西餐';
+      case 'menu_item':
+        return '菜单';
+
+      // Home Services
+      case 'service_package':
+        return '服务项目';
+
+      // Rental
+      case 'rental_item':
+        return '库存';
+
+      // Education
+      case 'course':
+        return '课程';
+
+      // Health & Beauty
+      case 'treatment':
+        return '疗程';
+
       default:
         return category;
     }
@@ -1336,12 +1332,32 @@ class DynamicTabConfigService {
 
   IconData _getCategoryIcon(String category) {
     switch (category) {
+      // Food subcategories
       case 'chinese':
         return Icons.restaurant;
       case 'japanese':
         return Icons.set_meal;
       case 'western':
         return Icons.local_dining;
+      case 'menu_item':
+        return Icons.restaurant_menu;
+
+      // Home Services
+      case 'service_package':
+        return Icons.cleaning_services;
+
+      // Rental
+      case 'rental_item':
+        return Icons.inventory;
+
+      // Education
+      case 'course':
+        return Icons.school;
+
+      // Health & Beauty
+      case 'treatment':
+        return Icons.medical_services;
+
       default:
         return Icons.fastfood;
     }
@@ -1349,19 +1365,39 @@ class DynamicTabConfigService {
 
   Color _getCategoryColor(String category) {
     switch (category) {
+      // Food subcategories
       case 'chinese':
         return Colors.red;
       case 'japanese':
         return Colors.orange;
       case 'western':
         return Colors.blue;
+      case 'menu_item':
+        return Colors.green;
+
+      // Home Services
+      case 'service_package':
+        return Colors.teal;
+
+      // Rental
+      case 'rental_item':
+        return Colors.purple;
+
+      // Education
+      case 'course':
+        return Colors.indigo;
+
+      // Health & Beauty
+      case 'treatment':
+        return Colors.pink;
+
       default:
         return Colors.grey;
     }
   }
 
   // Provider Tab 辅助方法
-  Widget _buildProviderHeader(BuildContext context, core_models.Service service,
+  Widget _buildProviderHeader(BuildContext context, Service service,
       [Map<String, dynamic>? providerData]) {
     return Container(
       width: double.infinity,
@@ -1484,7 +1520,7 @@ class DynamicTabConfigService {
   }
 
   Widget _buildProviderCertifications(
-      BuildContext context, core_models.Service service,
+      BuildContext context, Service service,
       [Map<String, dynamic>? providerData]) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1558,7 +1594,7 @@ class DynamicTabConfigService {
     );
   }
 
-  Widget _buildProviderStats(BuildContext context, core_models.Service service,
+  Widget _buildProviderStats(BuildContext context, Service service,
       [Map<String, dynamic>? providerData]) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1640,7 +1676,7 @@ class DynamicTabConfigService {
   }
 
   Widget _buildProviderContact(
-      BuildContext context, core_models.Service service,
+      BuildContext context, Service service,
       [Map<String, dynamic>? providerData]) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1715,10 +1751,10 @@ class DynamicTabConfigService {
     );
   }
 
-  String _getProviderName(core_models.Service service) {
+  String _getProviderName(Service service) {
     // 如果有providerId，尝试获取真实数据（这里需要异步调用，暂时显示ID）
     if (service.providerId != null && service.providerId!.isNotEmpty) {
-      return 'Provider #${service.providerId.substring(0, 8)}...';
+      return 'Provider #${service.providerId!.substring(0, 8)}...';
     }
 
     // 默认mock数据
@@ -1731,7 +1767,7 @@ class DynamicTabConfigService {
     }
   }
 
-  String _getProviderDescription(core_models.Service service) {
+  String _getProviderDescription(Service service) {
     // 如果有providerId，显示加载提示
     if (service.providerId != null && service.providerId!.isNotEmpty) {
       return '正在加载服务商信息... Provider ID: ${service.providerId}';
@@ -1796,7 +1832,7 @@ class DynamicTabConfigService {
   }
 
   /// 检查Provider数据是否为真实数据
-  bool _isProviderDataReal(core_models.Service service) {
+  bool _isProviderDataReal(Service service) {
     // 如果service有真实的providerId，我们应该从数据库获取provider信息
     // 目前没有实现，所以返回false
     // TODO: 实现从provider_profiles表获取数据
@@ -1867,7 +1903,7 @@ class DynamicTabConfigService {
   }
 
   /// 获取真实的服务特色标签
-  List<String> _getRealServiceFeatures(core_models.Service service) {
+  List<String> _getRealServiceFeatures(Service service) {
     // TODO: 从service表的tags字段或其他地方获取真实的特色标签
     // 目前使用service的tags字段，如果存在的话
     final features = <String>[];
@@ -1885,7 +1921,7 @@ class DynamicTabConfigService {
   }
 
   /// 获取mock的服务特色标签
-  List<String> _getMockServiceFeatures(core_models.Service service) {
+  List<String> _getMockServiceFeatures(Service service) {
     final features = <String>[];
 
     if (service.categoryLevel1Id == '1010000') {
@@ -1904,7 +1940,7 @@ class DynamicTabConfigService {
 
   /// 显示服务详情弹窗
   void _showServiceDetailModal(
-      BuildContext context, core_services.ServiceDetail detail) {
+      BuildContext context, ServiceDetail detail) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -1972,7 +2008,7 @@ class DynamicTabConfigService {
 
   /// 构建服务详情内容
   Widget _buildServiceDetailContent(
-      BuildContext context, core_services.ServiceDetail detail) {
+      BuildContext context, ServiceDetail detail) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1998,7 +2034,7 @@ class DynamicTabConfigService {
         const SizedBox(height: 20),
 
         // 服务属性
-        if (detail.attributes != null && detail.attributes!.isNotEmpty)
+        if (detail.industryAttributes != null && detail.industryAttributes!.isNotEmpty)
           _buildDetailAttributes(context, detail),
 
         const SizedBox(height: 20),
@@ -2054,7 +2090,7 @@ class DynamicTabConfigService {
 
   /// 构建详情标题
   Widget _buildDetailHeader(
-      BuildContext context, core_services.ServiceDetail detail) {
+      BuildContext context, ServiceDetail detail) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -2116,13 +2152,13 @@ class DynamicTabConfigService {
 
   /// 构建服务描述
   Widget _buildDetailDescription(
-      BuildContext context, core_services.ServiceDetail detail) {
+      BuildContext context, ServiceDetail detail) {
     // 使用真实的描述数据，如果没有则生成默认描述
     String description;
 
-    // 尝试从extraData中获取描述信息
-    if (detail.extraData != null && detail.extraData!.isNotEmpty) {
-      final extraData = detail.extraData!;
+    // 尝试从serviceDetailsJson中获取描述信息
+    if (detail.serviceDetailsJson != null && detail.serviceDetailsJson!.isNotEmpty) {
+      final extraData = detail.serviceDetailsJson!;
       if (extraData['description'] != null) {
         // 如果extraData中有description
         if (extraData['description'] is Map) {
@@ -2195,7 +2231,7 @@ class DynamicTabConfigService {
 
   /// 构建服务规格
   Widget _buildDetailSpecifications(
-      BuildContext context, core_services.ServiceDetail detail) {
+      BuildContext context, ServiceDetail detail) {
     // 检查是否为真实数据
     final isRealData = _isRealDataHelper(detail.id ?? '');
 
@@ -2231,7 +2267,7 @@ class DynamicTabConfigService {
         const SizedBox(height: 12),
         _buildSpecItem(
             context, '服务时长', _getFormattedDuration(detail), Icons.access_time),
-        _buildSpecItem(context, '计价单位', detail.unit ?? '份', Icons.straighten),
+        _buildSpecItem(context, '计价单位', detail.durationType ?? '份', Icons.straighten),
         _buildSpecItem(context, '服务类型', _getFormattedPricingType(detail),
             Icons.price_check),
         if (detail.currency != null)
@@ -2270,8 +2306,8 @@ class DynamicTabConfigService {
 
   /// 构建服务属性
   Widget _buildDetailAttributes(
-      BuildContext context, core_services.ServiceDetail detail) {
-    final attributes = detail.attributes as Map<String, dynamic>?;
+      BuildContext context, ServiceDetail detail) {
+    final attributes = detail.industryAttributes as Map<String, dynamic>?;
     if (attributes == null || attributes.isEmpty)
       return const SizedBox.shrink();
 
@@ -2334,7 +2370,7 @@ class DynamicTabConfigService {
 
   /// 构建库存信息
   Widget _buildStockInfo(
-      BuildContext context, core_services.ServiceDetail detail) {
+      BuildContext context, ServiceDetail detail) {
     final currentStock = detail.currentStock ?? 0;
     final maxStock = detail.maxStock ?? 0;
     final stockPercentage = maxStock > 0 ? currentStock / maxStock : 0.0;
@@ -2412,7 +2448,7 @@ class DynamicTabConfigService {
 
   /// 构建操作按钮
   Widget _buildDetailActions(
-      BuildContext context, core_services.ServiceDetail detail) {
+      BuildContext context, ServiceDetail detail) {
     return Column(
       children: [
         // 主要操作
@@ -2482,7 +2518,7 @@ class DynamicTabConfigService {
   }
 
   /// 生成服务描述
-  String _generateServiceDescription(core_services.ServiceDetail detail) {
+  String _generateServiceDescription(ServiceDetail detail) {
     final name = detail.name?['zh'] ?? detail.name?['en'] ?? '服务';
     final category = detail.category ?? '通用';
 
@@ -2505,7 +2541,7 @@ class DynamicTabConfigService {
   }
 
   /// 格式化服务时长
-  String _getFormattedDuration(core_services.ServiceDetail detail) {
+  String _getFormattedDuration(ServiceDetail detail) {
     if (detail.duration != null) {
       final duration = detail.duration.toString();
       if (duration.isNotEmpty && duration != 'null') {
@@ -2548,7 +2584,7 @@ class DynamicTabConfigService {
   }
 
   /// 格式化定价类型
-  String _getFormattedPricingType(core_services.ServiceDetail detail) {
+  String _getFormattedPricingType(ServiceDetail detail) {
     final pricingType = detail.pricingType ?? 'fixed_price';
     switch (pricingType.toLowerCase()) {
       case 'fixed_price':
@@ -2567,7 +2603,7 @@ class DynamicTabConfigService {
   }
 
   /// 获取服务起始价格
-  String _getServiceStartingPrice(core_models.Service service) {
+  String _getServiceStartingPrice(Service service) {
     // 如果Service有price字段且不为空，使用真实价格
     if (service.price != null && service.price! > 0) {
       return '¥ ${service.price!.toStringAsFixed(2)}';
@@ -2585,7 +2621,7 @@ class DynamicTabConfigService {
   }
 
   /// 获取价格描述
-  String _getPriceDescription(core_models.Service service) {
+  String _getPriceDescription(Service service) {
     // 如果有真实价格，显示更详细的描述
     if (service.price != null && service.price! > 0) {
       return '基础服务价格，具体费用根据实际需求确定。支持在线咨询和预约服务。';
@@ -2602,7 +2638,7 @@ class DynamicTabConfigService {
   }
 
   /// 检查价格数据是否为真实数据
-  bool _isPriceDataReal(core_models.Service service) {
+  bool _isPriceDataReal(Service service) {
     return service.price != null && service.price! > 0;
   }
 
@@ -2628,7 +2664,7 @@ class DynamicTabConfigService {
 
     /// Menu Tab中直接添加到购物车
   Future<void> _addToCartFromMenu(
-      BuildContext context, core_services.ServiceDetail detail) async {
+      BuildContext context, ServiceDetail detail) async {
     bool hasError = false;
     final stopwatch = Stopwatch()..start();
     

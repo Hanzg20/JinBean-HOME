@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import './after_sales_page.dart';
 
 class OrderDetailPage extends GetView {
   const OrderDetailPage({super.key});
@@ -40,6 +41,17 @@ class OrderDetailPage extends GetView {
               style: TextStyle(
                 color: Colors.grey,
                 fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton.icon(
+              onPressed: () {
+                Get.to(() => AfterSalesPage(orderId: orderId ?? ''));
+              },
+              icon: Icon(Icons.support_agent),
+              label: Text('申请售后'),
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
               ),
             ),
           ],

@@ -3,9 +3,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/models/review_models.dart';
 import '../../../../core/services/review_service.dart';
 import '../../../../core/utils/app_logger.dart';
+import './widgets/provider_reply_dialog.dart';
 
 class ReviewsController extends GetxController {
   final ReviewService _reviewService = Get.find<ReviewService>();
@@ -223,25 +225,20 @@ class ReviewsController extends GetxController {
     try {
       final request = CreateReviewRequest(
         serviceId: currentServiceId.value,
-        providerId: '', // TODO: 从服务详情获取
-        overallRating: overallRating.value,
-        content: {
-          'en': reviewContentController.text,
-          'zh': reviewContentController.text,
-        },
-        isAnonymous: isAnonymous.value,
-        qualityRating: qualityRating.value > 0 ? qualityRating.value : null,
-        punctualityRating:
-            punctualityRating.value > 0 ? punctualityRating.value : null,
-        communicationRating:
-            communicationRating.value > 0 ? communicationRating.value : null,
-        valueRating: valueRating.value > 0 ? valueRating.value : null,
-        tags: selectedTags.toList(),
+        revieweeId: '', // TODO: 从服务详情获取
+        overallRating: overallRating.value.round(),
+        title: reviewContentController.text.isNotEmpty ? reviewContentController.text.substring(0, reviewContentController.text.length > 50 ? 50 : reviewContentController.text.length) : null,
+        content: reviewContentController.text,
+        qualityRating: qualityRating.value > 0 ? qualityRating.value.round() : null,
+        serviceRating: punctualityRating.value > 0 ? punctualityRating.value.round() : null,
+        valueRating: valueRating.value > 0 ? valueRating.value.round() : null,
         images: reviewImages.toList(),
       );
 
       final newReview = await _reviewService.createReview(request);
       reviews.insert(0, newReview);
+      reviews.refresh(); // 强制刷新UI
+      update(); // 触发GetBuilder更新
 
       // 更新评分统计
       await loadRatingStats(currentServiceId.value);
@@ -349,7 +346,6 @@ class ReviewsController extends GetxController {
 
         reviews[reviewIndex] = review.copyWith(
           helpfulCount: newHelpfulCount,
-          userVotedHelpful: isHelpful,
         );
       }
     } catch (e) {

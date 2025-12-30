@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../domain/entities/review.dart';
+import 'package:jinbeanpod_83904710/core/models/review_models.dart';
 import '../service_detail_controller.dart';
 
 /// 服务评价组件
@@ -32,9 +32,55 @@ class ServiceReviewsSection extends StatelessWidget {
                   ),
                 ),
                 const Spacer(),
-                TextButton(
-                  onPressed: () => _showAllReviews(),
-                  child: const Text('查看全部'),
+                PopupMenuButton<String>(
+                  onSelected: (value) {
+                    if (value == 'order_review') {
+                      // 订单评价
+                      Get.snackbar('提示', '订单评价功能开发中...');
+                    } else if (value == 'non_order_review') {
+                      // 非订单评价
+                      _openNonOrderReview(context);
+                    } else if (value == 'view_all') {
+                      _showAllReviews();
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    const PopupMenuItem(
+                      value: 'non_order_review',
+                      child: Row(
+                        children: [
+                          Icon(Icons.rate_review, size: 20),
+                          SizedBox(width: 8),
+                          Text('写评价'),
+                        ],
+                      ),
+                    ),
+                    const PopupMenuItem(
+                      value: 'order_review',
+                      child: Row(
+                        children: [
+                          Icon(Icons.receipt, size: 20),
+                          SizedBox(width: 8),
+                          Text('基于订单评价'),
+                        ],
+                      ),
+                    ),
+                    const PopupMenuItem(
+                      value: 'view_all',
+                      child: Row(
+                        children: [
+                          Icon(Icons.list, size: 20),
+                          SizedBox(width: 8),
+                          Text('查看全部'),
+                        ],
+                      ),
+                    ),
+                  ],
+                  child: TextButton.icon(
+                    onPressed: null, // 由PopupMenuButton处理
+                    icon: const Icon(Icons.edit),
+                    label: const Text('评价'),
+                  ),
                 ),
               ],
             ),
@@ -156,12 +202,12 @@ class ServiceReviewsSection extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundImage: review.userAvatar != null
-                    ? NetworkImage(review.userAvatar!)
+                backgroundImage: review.getAvatarUrl() != null
+                    ? NetworkImage(review.getAvatarUrl()!)
                     : null,
-                child: review.userAvatar == null
+                child: review.getAvatarUrl() == null
                     ? Text(
-                        review.userName?.substring(0, 1).toUpperCase() ?? 'U')
+                        review.getDisplayName().substring(0, 1).toUpperCase())
                     : null,
               ),
               const SizedBox(width: 12),
@@ -170,7 +216,7 @@ class ServiceReviewsSection extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      review.userName ?? '匿名用户',
+                      review.getDisplayName(),
                       style: const TextStyle(
                         fontWeight: FontWeight.w500,
                       ),
@@ -180,7 +226,7 @@ class ServiceReviewsSection extends StatelessWidget {
                         ...List.generate(
                             5,
                             (index) => Icon(
-                                  index < review.rating
+                                  index < review.overallRating
                                       ? Icons.star
                                       : Icons.star_border,
                                   color: Colors.amber,
@@ -204,8 +250,8 @@ class ServiceReviewsSection extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          Text(review.comment),
-          if (review.images != null && review.images!.isNotEmpty)
+          Text(review.content ?? ''),
+          if (review.images.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: SizedBox(
@@ -256,15 +302,14 @@ class ServiceReviewsSection extends StatelessWidget {
                 final review = reviews[index];
                 return ListTile(
                   leading: CircleAvatar(
-                    backgroundImage: review.userAvatar != null
-                        ? NetworkImage(review.userAvatar!)
+                    backgroundImage: review.getAvatarUrl() != null
+                        ? NetworkImage(review.getAvatarUrl()!)
                         : null,
-                    child: review.userAvatar == null
-                        ? Text(review.userName?.substring(0, 1).toUpperCase() ??
-                            'U')
+                    child: review.getAvatarUrl() == null
+                        ? Text(review.getDisplayName().substring(0, 1).toUpperCase())
                         : null,
                   ),
-                  title: Text(review.userName ?? '匿名用户'),
+                  title: Text(review.getDisplayName()),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -273,7 +318,7 @@ class ServiceReviewsSection extends StatelessWidget {
                           ...List.generate(
                               5,
                               (index) => Icon(
-                                    index < review.rating
+                                    index < review.overallRating
                                         ? Icons.star
                                         : Icons.star_border,
                                     color: Colors.amber,
@@ -288,7 +333,7 @@ class ServiceReviewsSection extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        review.comment,
+                        review.content ?? '',
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -310,5 +355,17 @@ class ServiceReviewsSection extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  /// 打开非订单评价页面
+  void _openNonOrderReview(BuildContext context) {
+    final service = controller.service.value;
+    if (service == null) return;
+
+    Get.toNamed('/non-order-review', arguments: {
+      'serviceId': service.id,
+      'serviceName': service.title,
+      'providerId': service.providerId,
+    });
   }
 }

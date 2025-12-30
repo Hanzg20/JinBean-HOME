@@ -1,7 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
 import '../interfaces/i_service_detail_service.dart';
-import '../../models/service_detail.dart';
+import '../../../features/customer/domain/entities/service_detail.dart';
 
 // 服务详情服务实现
 class ServiceDetailService implements IServiceDetailService {
@@ -460,7 +460,7 @@ class ServiceDetailService implements IServiceDetailService {
       final category = detail.category;
       if (!config.containsKey(category)) {
         config[category] = {
-          'title': detail.getLocalizedName('en'),
+          'title': detail.name['en'] ?? detail.name['zh'] ?? category,
           'icon': _getCategoryIcon(category),
           'color': _getCategoryColor(category),
           'details': <ServiceDetail>[],

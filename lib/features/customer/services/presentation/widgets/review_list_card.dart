@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 // import '../../../../core/utils/app_logger.dart';
-import '../../../domain/entities/review.dart';
+import '../../../../core/models/review_models.dart';
 import 'service_detail_card.dart';
 
 class ReviewListCard extends StatelessWidget {
@@ -141,7 +141,7 @@ class ReviewListCard extends StatelessWidget {
 
     final totalReviews = reviews.length;
     final averageRating =
-        reviews.fold(0.0, (sum, review) => sum + review.rating) / totalReviews;
+        reviews.fold(0.0, (sum, review) => sum + review.overallRating) / totalReviews;
     final ratingDistribution = _calculateRatingDistribution();
 
     return Row(

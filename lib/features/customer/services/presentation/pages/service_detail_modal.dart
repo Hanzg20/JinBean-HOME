@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../domain/entities/service_detail.dart';
+import '../service_detail_controller.dart';
+import '../sections/service_reviews_section.dart';
 
 /// 服务详情详情页面
 /// 展示完整的服务详情信息，包含预订、咨询等功能
@@ -455,21 +457,8 @@ class _ServiceDetailModalState extends State<ServiceDetailModal>
   }
 
   Widget _buildReviewsTab() {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.star, size: 64, color: Colors.orange),
-          SizedBox(height: 16),
-          Text(
-            '用户评价',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 8),
-          Text('评价功能开发中...'),
-        ],
-      ),
-    );
+    // 使用真正的Reviews功能
+    return ServiceReviewsSection(controller: Get.find<ServiceDetailController>());
   }
 
   Widget _buildBottomActionBar() {

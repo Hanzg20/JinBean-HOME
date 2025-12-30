@@ -703,17 +703,250 @@ class _OrdersPageState extends State<OrdersPage> {
 
       return RefreshIndicator(
         onRefresh: () async {
-          await _loadOrdersData();
+          await controller.loadOrders(refresh: true);
         },
-        child: ListView.builder(
-          padding: const EdgeInsets.all(16.0),
-          itemCount: controller.orders.length,
-          itemBuilder: (context, index) {
-            final order = controller.orders[index];
-            return _buildOrderCard(order, index);
+        child: NotificationListener<ScrollNotification>(
+          onNotification: (ScrollNotification scrollInfo) {
+            // 懒加载：当滚动到底部80%时加载更多
+            if (!controller.isLoadingMore.value &&
+                controller.hasMore.value &&
+                scrollInfo.metrics.pixels >
+                    scrollInfo.metrics.maxScrollExtent * 0.8) {
+              controller.loadMoreOrders();
+            }
+            return false;
           },
+          child: ListView.builder(
+            padding: const EdgeInsets.all(16.0),
+            itemCount: controller.orders.length +
+                (controller.hasMore.value ? 1 : 0), // 添加加载更多指示器
+            itemExtent: null, // 移除固定高度，让卡片自适应
+            cacheExtent: 800.0, // 增加缓存范围
+            addAutomaticKeepAlives: false, // 减少内存占用
+            addRepaintBoundaries: true, // 添加重绘边界优化
+            itemBuilder: (context, index) {
+              // 加载更多指示器
+              if (index == controller.orders.length) {
+                return Obx(() => controller.isLoadingMore.value
+                    ? const Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      )
+                    : const SizedBox.shrink());
+              }
+
+              final order = controller.orders[index];
+              // 使用key优化列表项性能
+              return _OrderCardItem(
+                key: ValueKey(order.id),
+                order: order,
+                onTap: () => _showOrderDetails(order),
+                onCancel: () => _cancelOrder(order),
+                onReview: () => _reviewService(order),
+              );
+            },
+          ),
         ),
       );
     });
+  }
+}
+
+/// 独立的订单卡片组件（优化版本）
+class _OrderCardItem extends StatelessWidget {
+  final dynamic order;
+  final VoidCallback onTap;
+  final VoidCallback onCancel;
+  final VoidCallback onReview;
+
+  const _OrderCardItem({
+    super.key,
+    required this.order,
+    required this.onTap,
+    required this.onCancel,
+    required this.onReview,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return CustomerCard(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // 订单头部信息
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        order.serviceName ?? 'Service Name',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: colorScheme.onSurface,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Order #${order.orderNumber}',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                _buildStatusBadge(order.status, colorScheme),
+              ],
+            ),
+            const SizedBox(height: 12),
+
+            // 订单详情
+            Row(
+              children: [
+                Icon(Icons.calendar_today,
+                    size: 16, color: colorScheme.onSurfaceVariant),
+                const SizedBox(width: 8),
+                Text(
+                  order.scheduledDate ?? 'Date not set',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+                const Spacer(),
+                Icon(Icons.access_time,
+                    size: 16, color: colorScheme.onSurfaceVariant),
+                const SizedBox(width: 8),
+                Text(
+                  order.scheduledTime ?? 'Time not set',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+
+            Row(
+              children: [
+                Icon(Icons.location_on,
+                    size: 16, color: colorScheme.onSurfaceVariant),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    order.address ?? 'Address not set',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurface,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+
+            // 价格和操作按钮
+            Row(
+              children: [
+                Text(
+                  '\$${order.totalAmount?.toStringAsFixed(2) ?? '0.00'}',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.primary,
+                  ),
+                ),
+                const Spacer(),
+                if (order.status == 'pending')
+                  OutlinedButton(
+                    onPressed: onCancel,
+                    style: OutlinedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      side: BorderSide(color: colorScheme.error),
+                    ),
+                    child: Text(
+                      'Cancel',
+                      style: TextStyle(color: colorScheme.error),
+                    ),
+                  ),
+                if (order.status == 'completed')
+                  ElevatedButton(
+                    onPressed: onReview,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: colorScheme.primary,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: Text(
+                      'Review',
+                      style: TextStyle(color: colorScheme.onPrimary),
+                    ),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatusBadge(String status, ColorScheme colorScheme) {
+    Color badgeColor;
+    Color textColor;
+
+    switch (status.toLowerCase()) {
+      case 'pending':
+        badgeColor = Colors.orange;
+        textColor = Colors.white;
+        break;
+      case 'confirmed':
+        badgeColor = Colors.blue;
+        textColor = Colors.white;
+        break;
+      case 'in_progress':
+        badgeColor = Colors.purple;
+        textColor = Colors.white;
+        break;
+      case 'completed':
+        badgeColor = Colors.green;
+        textColor = Colors.white;
+        break;
+      case 'cancelled':
+        badgeColor = Colors.red;
+        textColor = Colors.white;
+        break;
+      default:
+        badgeColor = colorScheme.surfaceContainerHighest;
+        textColor = colorScheme.onSurfaceVariant;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: badgeColor,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        status.toUpperCase(),
+        style: TextStyle(
+          color: textColor,
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
   }
 }

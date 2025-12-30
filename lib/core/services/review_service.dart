@@ -4,27 +4,198 @@ import 'package:jinbeanpod_83904710/core/utils/app_logger.dart'; // 点评系统
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/review_models.dart';
+import 'content_moderation_service.dart';
 
 class ReviewService extends GetxService {
   final SupabaseClient _supabase = Supabase.instance.client;
+  late final ContentModerationService _moderationService;
+
+  @override
+  void onInit() {
+    super.onInit();
+    _moderationService = Get.find<ContentModerationService>();
+  }
 
   // ========================================
   // 1. 点评CRUD操作
   // ========================================
 
   /// 创建点评
+  /// 创建点评 (支持非订单评价)
   Future<Review> createReview(CreateReviewRequest request) async {
     try {
+      // 获取当前用户ID
+      final currentUser = _supabase.auth.currentUser;
+      if (currentUser == null) {
+        throw Exception('User not authenticated');
+      }
+
+      // ========== 内容审核 ==========
+      final moderationResult = await _moderationService.moderateReviewContent(
+        title: request.title,
+        content: request.content,
+        overallRating: request.overallRating,
+        serviceRating: request.serviceRating,
+        valueRating: request.valueRating,
+        atmosphereRating: request.atmosphereRating,
+      );
+
+      // 如果审核不通过，抛出异常
+      if (!moderationResult.isApproved) {
+        AppLogger.info('Review moderation failed: ${moderationResult.details}');
+        throw Exception(moderationResult.details ?? '评价内容不符合规范');
+      }
+
+      // 检查是否已经评价过该服务
+      final existingReview = await _supabase
+          .from('reviews')
+          .select('id')
+          .eq('reviewer_id', currentUser.id)
+          .eq('service_id', request.serviceId)
+          .maybeSingle();
+
+      if (existingReview != null) {
+        throw Exception('您已经评价过该服务，无法重复评价');
+      }
+
+      // 准备插入数据
+      final reviewData = request.toJson();
+      reviewData['reviewer_id'] = currentUser.id;
+
+      // 设置发布时间
+      reviewData['published_at'] = DateTime.now().toIso8601String();
+
+      // 如果需要人工审核，设置状态为pending
+      if (moderationResult.requiresManualReview) {
+        reviewData['status'] = 'pending';
+        reviewData['moderation_status'] = 'pending_manual_review';
+      } else {
+        reviewData['status'] = 'published';
+        reviewData['moderation_status'] = 'approved';
+      }
+
+      // 如果是非订单评价，设置is_verified为false
+      if (request.orderId == null) {
+        reviewData['is_verified'] = false;
+      }
+
       final response = await _supabase
           .from('reviews')
-          .insert(request.toJson())
+          .insert(reviewData)
           .select()
           .single();
 
-      return Review.fromJson(response);
+      final review = Review.fromJson(response);
+
+      // 记录审核日志
+      await _moderationService.logModerationResult(
+        contentType: 'review',
+        contentId: review.id,
+        result: moderationResult,
+        userId: currentUser.id,
+      );
+
+      return review;
     } catch (e) {
       AppLogger.info('Error creating review: $e');
       throw Exception('Failed to create review: $e');
+    }
+  }
+
+  /// 创建非订单评价 (便捷方法)
+  Future<Review> createNonOrderReview({
+    required String serviceId,
+    required String providerId,
+    required ReviewType reviewType,
+    required int overallRating,
+    String? title,
+    String? content,
+    String? sourceDescription,
+    int? serviceRating,
+    int? valueRating,
+    int? atmosphereRating,
+    List<String> tags = const [],
+    bool isAnonymous = false,
+  }) async {
+    final request = CreateReviewRequest(
+      serviceId: serviceId,
+      revieweeId: providerId,
+      orderId: null, // 非订单评价
+      reviewType: reviewType,
+      sourceDescription: sourceDescription,
+      overallRating: overallRating,
+      title: title,
+      content: content,
+      serviceRating: serviceRating,
+      valueRating: valueRating,
+      atmosphereRating: atmosphereRating,
+      tags: tags,
+      isAnonymous: isAnonymous,
+    );
+    
+    return await createReview(request);
+  }
+
+  /// 服务商回复评价
+  Future<void> replyToReview(String reviewId, String replyContent) async {
+    try {
+      final currentUser = _supabase.auth.currentUser;
+      if (currentUser == null) {
+        throw Exception('User not authenticated');
+      }
+
+      // ========== 回复内容审核 ==========
+      final moderationResult = await _moderationService.moderateReplyContent(replyContent);
+
+      if (!moderationResult.isApproved) {
+        AppLogger.info('Reply moderation failed: ${moderationResult.details}');
+        throw Exception(moderationResult.details ?? '回复内容不符合规范');
+      }
+
+      // 验证是否为服务商
+      final review = await _supabase
+          .from('reviews')
+          .select('reviewee_id, service_id')
+          .eq('id', reviewId)
+          .single();
+
+      if (review['reviewee_id'] != currentUser.id) {
+        // 检查是否为该服务的提供者
+        final service = await _supabase
+            .from('services')
+            .select('provider_id')
+            .eq('id', review['service_id'])
+            .single();
+
+        if (service['provider_id'] != currentUser.id) {
+          throw Exception('只有服务商可以回复评价');
+        }
+      }
+
+      // 更新评价的回复
+      await _supabase
+          .from('reviews')
+          .update({
+            'provider_response': replyContent,
+            'provider_response_at': DateTime.now().toIso8601String(),
+            'provider_response_status': moderationResult.requiresManualReview
+                ? 'pending_review'
+                : 'published',
+          })
+          .eq('id', reviewId);
+
+      // 记录审核日志
+      await _moderationService.logModerationResult(
+        contentType: 'reply',
+        contentId: reviewId,
+        result: moderationResult,
+        userId: currentUser.id,
+      );
+
+      AppLogger.info('Successfully replied to review: $reviewId');
+    } catch (e) {
+      AppLogger.info('Error replying to review: $e');
+      throw Exception('Failed to reply to review: $e');
     }
   }
 
@@ -37,10 +208,10 @@ class ReviewService extends GetxService {
   }) async {
     try {
       dynamic query = _supabase
-          .from('user_reviews_view')
+          .from('reviews')
           .select('*')
           .eq('service_id', serviceId)
-          .eq('status', 'active');
+          .eq('status', 'published');
 
       // 应用筛选条件
       if (filterOptions != null) {

@@ -464,7 +464,7 @@ class ServiceBookingController extends GetxController {
       final data = await Supabase.instance.client
           .from('services')
           .select(
-              'id, title, description, average_rating, review_count, category_level2_id, status, latitude, longitude')
+              'id, title, description, average_rating, review_count, category_level1_id, category_level2_id, status, latitude, longitude')
           .eq('category_level2_id', level2Id)
           .eq('status', 'active');
 
@@ -586,7 +586,7 @@ class ServiceBookingController extends GetxController {
       final data = await Supabase.instance.client
           .from('services')
           .select(
-              'id, title, description, average_rating, review_count, status, latitude, longitude')
+              'id, title, description, average_rating, review_count, category_level1_id, category_level2_id, status, latitude, longitude')
           .eq('status', 'active')
           .order('created_at', ascending: false)
           .limit(5);

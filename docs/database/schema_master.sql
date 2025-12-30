@@ -1,6 +1,6 @@
 -- =====================================================
 -- JinBean Platform - 完整版数据库表结构主入口文件
--- 版本: v3.1.0
+-- 版本: v3.1.1
 -- 创建日期: 2025-01-08
 -- 描述: 完整的数据库架构，包含所有必要的系统表
 -- 新增: 购物车、通知、日志、文件存储、系统配置等
@@ -557,29 +557,51 @@ CREATE TABLE public.coupon_usages (
 -- 8.1 reviews 表
 DROP TABLE IF EXISTS public.reviews CASCADE;
 CREATE TABLE public.reviews (
+    -- 主键和基础信息
     id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-    order_id uuid NOT NULL REFERENCES public.orders(id),
-    reviewer_id uuid NOT NULL REFERENCES auth.users(id),
-    reviewee_id uuid NOT NULL REFERENCES public.provider_profiles(id),
-    service_id uuid NOT NULL REFERENCES public.services(id),
+    order_id uuid REFERENCES public.orders(id) ON DELETE CASCADE,
+    reviewer_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    reviewee_id uuid NOT NULL REFERENCES public.provider_profiles(id) ON DELETE CASCADE,
+    service_id uuid NOT NULL REFERENCES public.services(id) ON DELETE CASCADE,
+    
+    -- 评分信息
     overall_rating integer NOT NULL CHECK (overall_rating >= 1 AND overall_rating <= 5),
     quality_rating integer CHECK (quality_rating >= 1 AND quality_rating <= 5),
     communication_rating integer CHECK (communication_rating >= 1 AND communication_rating <= 5),
     timeliness_rating integer CHECK (timeliness_rating >= 1 AND timeliness_rating <= 5),
     value_rating integer CHECK (value_rating >= 1 AND value_rating <= 5),
+    
+    -- 内容信息
     title text,
     content text,
     images text[] DEFAULT '{}',
-    status text DEFAULT 'published',
+    
+    -- 状态和统计
+    status text DEFAULT 'published' CHECK (status IN ('draft', 'published', 'hidden', 'reported')),
     is_verified boolean DEFAULT false,
     helpful_count integer DEFAULT 0,
     total_votes integer DEFAULT 0,
+    
+    -- 服务商回复
     provider_response text,
     provider_response_at timestamptz,
+    
+    -- 时间戳
     created_at timestamptz NOT NULL DEFAULT now(),
     updated_at timestamptz NOT NULL DEFAULT now(),
+    
+    -- 约束
+    CONSTRAINT reviews_overall_rating_check CHECK (overall_rating >= 1 AND overall_rating <= 5),
+    CONSTRAINT reviews_quality_rating_check CHECK (quality_rating IS NULL OR (quality_rating >= 1 AND quality_rating <= 5)),
+    CONSTRAINT reviews_communication_rating_check CHECK (communication_rating IS NULL OR (communication_rating >= 1 AND communication_rating <= 5)),
+    CONSTRAINT reviews_timeliness_rating_check CHECK (timeliness_rating IS NULL OR (timeliness_rating >= 1 AND timeliness_rating <= 5)),
+    CONSTRAINT reviews_value_rating_check CHECK (value_rating IS NULL OR (value_rating >= 1 AND value_rating <= 5)),
     CONSTRAINT reviews_status_check CHECK (status IN ('draft', 'published', 'hidden', 'reported')),
-    UNIQUE(order_id, reviewer_id)
+    CONSTRAINT reviews_helpful_count_check CHECK (helpful_count >= 0),
+    CONSTRAINT reviews_total_votes_check CHECK (total_votes >= 0),
+    
+    -- 唯一约束：每个用户对每个服务只能评价一次（如果有订单则基于订单，否则基于服务）
+    UNIQUE(reviewer_id, service_id)
 );
 
 -- =====================================================
@@ -1044,7 +1066,18 @@ CREATE INDEX idx_coupons_code ON coupons (code);
 CREATE INDEX idx_coupon_usages_coupon_id ON coupon_usages (coupon_id);
 
 -- 评价和消息索引
+-- Reviews表索引
 CREATE INDEX idx_reviews_service_id ON reviews (service_id);
+CREATE INDEX idx_reviews_reviewer_id ON reviews (reviewer_id);
+CREATE INDEX idx_reviews_reviewee_id ON reviews (reviewee_id);
+CREATE INDEX idx_reviews_order_id ON reviews (order_id);
+CREATE INDEX idx_reviews_status ON reviews (status) WHERE status = 'published';
+CREATE INDEX idx_reviews_overall_rating ON reviews (overall_rating);
+CREATE INDEX idx_reviews_created_at ON reviews (created_at DESC);
+CREATE INDEX idx_reviews_service_status ON reviews (service_id, status) WHERE status = 'published';
+CREATE INDEX idx_reviews_reviewee_status ON reviews (reviewee_id, status) WHERE status = 'published';
+
+-- 消息系统索引
 CREATE INDEX idx_conversations_customer_id ON conversations (customer_id);
 CREATE INDEX idx_messages_conversation_id ON messages (conversation_id);
 
@@ -1121,6 +1154,17 @@ CREATE POLICY "Users can manage their own profile" ON user_profiles FOR ALL TO a
 CREATE POLICY "Users can manage their own carts" ON shopping_carts FOR ALL TO authenticated USING (user_id = auth.uid());
 CREATE POLICY "Users can view own orders" ON orders FOR SELECT TO authenticated 
 USING (user_id = auth.uid() OR provider_id IN (SELECT id FROM provider_profiles WHERE user_id = auth.uid()));
+
+-- Reviews表策略
+CREATE POLICY "Users can view published reviews" ON reviews FOR SELECT TO authenticated USING (status = 'published');
+CREATE POLICY "Users can view own reviews" ON reviews FOR SELECT TO authenticated USING (reviewer_id = auth.uid());
+CREATE POLICY "Users can create reviews" ON reviews FOR INSERT TO authenticated WITH CHECK (reviewer_id = auth.uid());
+CREATE POLICY "Users can update own reviews" ON reviews FOR UPDATE TO authenticated USING (reviewer_id = auth.uid());
+CREATE POLICY "Users can delete own reviews" ON reviews FOR DELETE TO authenticated USING (reviewer_id = auth.uid());
+CREATE POLICY "Providers can respond to reviews" ON reviews FOR UPDATE TO authenticated USING (
+    EXISTS (SELECT 1 FROM provider_profiles WHERE id = reviewee_id AND user_id = auth.uid())
+);
+
 CREATE POLICY "Users can manage own payment methods" ON payment_methods FOR ALL TO authenticated USING (user_id = auth.uid());
 CREATE POLICY "Users can view own notifications" ON notifications FOR ALL TO authenticated USING (recipient_id = auth.uid());
 CREATE POLICY "Users can manage own files" ON file_uploads FOR ALL TO authenticated USING (uploader_id = auth.uid());
@@ -1207,6 +1251,7 @@ CREATE TRIGGER update_service_details_updated_at BEFORE UPDATE ON service_detail
 CREATE TRIGGER update_shopping_carts_updated_at BEFORE UPDATE ON shopping_carts FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_cart_items_updated_at BEFORE UPDATE ON cart_items FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_orders_updated_at BEFORE UPDATE ON orders FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_reviews_updated_at BEFORE UPDATE ON reviews FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- =====================================================
 -- 20. 完成提示
@@ -1215,9 +1260,10 @@ CREATE TRIGGER update_orders_updated_at BEFORE UPDATE ON orders FOR EACH ROW EXE
 DO $$
 BEGIN
     RAISE NOTICE '✅ JinBean完整版数据库架构创建完成！';
-    RAISE NOTICE '📊 包含32个主要表，涵盖完整的多行业平台功能';
+    RAISE NOTICE '📊 包含33个主要表，涵盖完整的多行业平台功能';
     RAISE NOTICE '';
     RAISE NOTICE '🛒 购物车系统: shopping_carts + cart_items';
+    RAISE NOTICE '⭐ 评价系统: reviews (多维度评分、服务商回复)';
     RAISE NOTICE '🔔 通知系统: notifications (推送、邮件、短信)';
     RAISE NOTICE '📁 文件存储: file_uploads (支持多种文件类型)';
     RAISE NOTICE '⚙️  系统配置: system_configs + feature_flags';

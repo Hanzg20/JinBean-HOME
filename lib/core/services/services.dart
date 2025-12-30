@@ -13,6 +13,6 @@ export 'service_manager.dart';
 // 动态Tab配置服务
 export 'dynamic_tab_config_service.dart';
 
-// 数据模型
-export '../models/service.dart';
-export '../models/service_detail.dart';
+// 数据模型 - 现在使用Domain实体
+export '../../features/customer/domain/entities/service.dart';
+export '../../features/customer/domain/entities/service_detail.dart';

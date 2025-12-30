@@ -27,9 +27,25 @@ class _DynamicTabBuilderState extends State<DynamicTabBuilder> {
   }
 
   void _initializeTabs() {
+    // 使用 categoryLevel1Id 来确定行业特定的Tab
+    final categoryId = widget.service.categoryLevel1Id ??
+                       widget.service.categoryId ??
+                       '0';
+
+    debugPrint('🔍 [DynamicTabBuilder] Service ID: ${widget.service.id}');
+    debugPrint('🔍 [DynamicTabBuilder] Service Title: ${widget.service.title}');
+    debugPrint('🔍 [DynamicTabBuilder] categoryLevel1Id: ${widget.service.categoryLevel1Id}');
+    debugPrint('🔍 [DynamicTabBuilder] categoryId: ${widget.service.categoryId}');
+    debugPrint('🔍 [DynamicTabBuilder] Using categoryId for tabs: $categoryId');
+
     _tabConfigurations = TabConfigurationFactory.generateTabsForService(
-      widget.service.categoryId ?? '0',
+      categoryId,
     );
+
+    debugPrint('🔍 [DynamicTabBuilder] Generated ${_tabConfigurations.length} tabs:');
+    for (var config in _tabConfigurations) {
+      debugPrint('  - ${config.key}: ${config.label} (isIndustrySpecific: ${config.isIndustrySpecific ?? false})');
+    }
 
     // 更新外部TabController的长度，而不是创建新的
     if (widget.tabController.length != _tabConfigurations.length) {

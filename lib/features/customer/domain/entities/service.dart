@@ -1,3 +1,6 @@
+import 'package:flutter/foundation.dart';
+import '../../../../core/utils/image_parser.dart';
+
 /// 服务实体类
 class Service {
   final String id;
@@ -53,6 +56,13 @@ class Service {
   });
 
   factory Service.fromJson(Map<String, dynamic> json) {
+    // 使用ImageParser解析并验证图片URL
+    final imagesList = ImageParser.parseImagesUrl(json['images_url']);
+
+    if (kDebugMode && imagesList != null) {
+      debugPrint('✓ Service[${json['id']}] loaded with ${imagesList.length} images');
+    }
+
     return Service(
       id: json['id'] ?? '',
       title: json['title']?['en'] ?? json['title'] ?? '',
@@ -72,12 +82,8 @@ class Service {
       updatedAt: json['updated_at'] != null
           ? DateTime.parse(json['updated_at'])
           : null,
-      images: json['images_url'] != null
-          ? List<String>.from(json['images_url'])
-          : null,
-      images_url: json['images_url'] != null
-          ? List<String>.from(json['images_url'])
-          : null,
+      images: imagesList,
+      images_url: imagesList,
       rating: json['average_rating']?.toDouble(),
       reviewCount: json['review_count'],
       isActive: json['status'] == 'active',

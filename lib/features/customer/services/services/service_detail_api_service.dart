@@ -3,7 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:jinbeanpod_83904710/features/customer/domain/entities/service.dart';
 import 'package:jinbeanpod_83904710/features/customer/domain/entities/service_detail.dart';
 import 'package:jinbeanpod_83904710/features/customer/domain/entities/provider_profile.dart';
-import 'package:jinbeanpod_83904710/features/customer/domain/entities/review.dart';
+import 'package:jinbeanpod_83904710/core/models/review_models.dart';
 import '../../../../core/services/provider_query_manager.dart';
 
 class ServiceDetailApiService {
@@ -152,27 +152,30 @@ class ServiceDetailApiService {
             reviewer_id,
             reviewee_id,
             service_id,
+            review_type,
+            source_description,
             overall_rating,
             quality_rating,
-            communication_rating,
-            timeliness_rating,
+            service_rating,
             value_rating,
+            atmosphere_rating,
             title,
             content,
             images,
+            videos,
+            tags,
+            categories,
             status,
+            is_anonymous,
             is_verified,
             helpful_count,
             total_votes,
+            report_count,
             provider_response,
             provider_response_at,
             created_at,
             updated_at,
-            reviewer:user_profiles!reviews_reviewer_id_fkey(
-              id,
-              display_name,
-              avatar_url
-            )
+            published_at
           ''')
           .eq('service_id', serviceId)
           .eq('status', 'published')
@@ -185,7 +188,43 @@ class ServiceDetailApiService {
         return [];
       }
 
-      final reviews = response.map((json) => Review.fromJson(json)).toList();
+      // 为每个review获取reviewer信息
+      final reviews = <Review>[];
+      for (final json in response) {
+        try {
+          // 获取reviewer信息 - reviewer_id引用的是auth.users表
+          final reviewerId = json['reviewer_id'];
+          Map<String, dynamic>? reviewerResponse;
+          
+          try {
+            // 先尝试从user_profiles表获取信息
+            reviewerResponse = await _supabase
+                .from('user_profiles')
+                .select('display_name, avatar_url')
+                .eq('id', reviewerId)
+                .maybeSingle();
+          } catch (e) {
+            AppLogger.warning('从user_profiles获取reviewer信息失败: $e');
+            // 如果失败，使用默认信息
+            reviewerResponse = {
+              'display_name': 'Anonymous User',
+              'avatar_url': null,
+            };
+          }
+          
+          // 将reviewer信息添加到json中
+          json['reviewer'] = reviewerResponse;
+          
+          final review = Review.fromJson(json);
+          reviews.add(review);
+        } catch (e) {
+          AppLogger.error('获取reviewer信息失败: $e');
+          // 即使获取reviewer信息失败，也创建review对象
+          final review = Review.fromJson(json);
+          reviews.add(review);
+        }
+      }
+      
       AppLogger.info('✅ 成功获取 ${reviews.length} 条评价');
       return reviews;
       
@@ -270,6 +309,80 @@ class ServiceDetailApiService {
         'averageRating': 0.0,
         'categories': [],
       };
+    }
+  }
+
+  /// 根据category获取服务详情（通用方法）
+  /// 用于获取特定类别的服务详情，如菜单项、服务套餐、库存项等
+  static Future<List<ServiceDetail>> fetchServiceDetailsByCategory({
+    required String serviceId,
+    required String category,
+  }) async {
+    try {
+      AppLogger.info('🔄 开始获取服务详情 - serviceId: $serviceId, category: $category');
+
+      final response = await _supabase
+          .from('service_details')
+          .select('''
+            id,
+            service_id,
+            category,
+            sub_category,
+            name,
+            price,
+            currency,
+            pricing_type,
+            duration,
+            is_available,
+            sort_order,
+            current_stock,
+            max_stock,
+            images_url,
+            videos_url,
+            tags,
+            service_area_codes,
+            attributes,
+            business_rules,
+            platform_service_fee_rate,
+            min_platform_service_fee,
+            extra_data,
+            promotion_start,
+            promotion_end,
+            view_count,
+            favorite_count,
+            order_count,
+            verification_status,
+            verification_documents,
+            created_at,
+            updated_at
+          ''')
+          .eq('service_id', serviceId)
+          .eq('category', category)
+          .eq('is_available', true)
+          .order('sort_order', ascending: true);
+
+      AppLogger.info('✅ 成功获取 ${response.length} 个 $category 数据');
+
+      if (response.isEmpty) {
+        AppLogger.warning('⚠️  没有找到 category=$category 的数据');
+        return [];
+      }
+
+      // 记录前3条数据的详情
+      for (var item in response.take(3)) {
+        AppLogger.info(
+            '📋 详情: ${item['name']} - ${item['price']} ${item['currency']}');
+      }
+      if (response.length > 3) {
+        AppLogger.info('... 还有 ${response.length - 3} 条数据');
+      }
+
+      return response.map((json) => ServiceDetail.fromJson(json)).toList();
+
+    } catch (e) {
+      AppLogger.error('❌ 获取服务详情失败 - category: $category, error: $e');
+      // 返回空列表而不是抛出错误，让UI显示"暂无数据"
+      return [];
     }
   }
 }

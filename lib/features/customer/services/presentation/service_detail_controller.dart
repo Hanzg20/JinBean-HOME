@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../domain/entities/service.dart';
 import '../../domain/entities/service_detail.dart';
-import '../../domain/entities/review.dart';
+import '../../../../core/models/review_models.dart';
 import '../../domain/entities/similar_service.dart';
 import '../../domain/entities/provider_profile.dart';
 import '../services/service_detail_api_service.dart' as api;
@@ -55,6 +55,30 @@ class ServiceDetailController extends GetxController {
 
   // 服务提供商信息
   final Rx<ProviderProfile?> providerProfile = Rx<ProviderProfile?>(null);
+
+  // ========================================
+  // 行业特定数据 (Industry-Specific Data)
+  // ========================================
+
+  // 菜单项 (Food - 1010000)
+  final RxList<ServiceDetail> menuItems = <ServiceDetail>[].obs;
+  final RxBool isLoadingMenuItems = false.obs;
+
+  // 服务套餐 (Home Services - 1020000)
+  final RxList<ServiceDetail> servicePackages = <ServiceDetail>[].obs;
+  final RxBool isLoadingServicePackages = false.obs;
+
+  // 库存项 (Rental - 1040000)
+  final RxList<ServiceDetail> inventoryItems = <ServiceDetail>[].obs;
+  final RxBool isLoadingInventoryItems = false.obs;
+
+  // 课程 (Education - 1050000)
+  final RxList<ServiceDetail> courses = <ServiceDetail>[].obs;
+  final RxBool isLoadingCourses = false.obs;
+
+  // 治疗项目 (Life Help - 1060000)
+  final RxList<ServiceDetail> treatments = <ServiceDetail>[].obs;
+  final RxBool isLoadingTreatments = false.obs;
 
   // 报价相关
   final RxMap<String, dynamic> quoteDetails = <String, dynamic>{}.obs;
@@ -143,63 +167,18 @@ class ServiceDetailController extends GetxController {
         final serviceData =
             await _serviceQueryService!.getServiceById(serviceId);
         if (serviceData != null) {
-          // 转换为旧版本Service对象
-          final legacyService = Service(
-            id: serviceData.id,
-            title: serviceData.title is String
-                ? serviceData.title
-                : (serviceData.title as Map<String, dynamic>?)?['en'] ??
-                    'Service',
-            description: serviceData.description is String
-                ? serviceData.description
-                : (serviceData.description as Map<String, dynamic>?)?['en'] ??
-                    'Service description',
-            price: serviceData.price ?? 0.0,
-            currency: serviceData.currency ?? 'USD',
-            pricingType: serviceData.pricingType ?? 'fixed',
-            categoryId: serviceData.categoryId?.toString() ?? '',
-            categoryLevel2Id: serviceData.categoryLevel2Id?.toString() ?? '',
-            providerId: serviceData.providerId ?? '',
-            serviceDeliveryMethod:
-                serviceData.serviceDeliveryMethod ?? 'on_site',
-            createdAt: serviceData.createdAt ?? DateTime.now(),
-            images: serviceData.images ?? [],
-            rating: serviceData.rating ?? 0.0,
-            reviewCount: serviceData.reviewCount ?? 0,
-            isActive: serviceData.isActive ?? true,
-            latitude: serviceData.latitude,
-            longitude: serviceData.longitude,
-          );
-          service.value = legacyService;
+          // ServiceQueryService now returns Domain entity directly - no conversion needed!
+          service.value = serviceData;
 
           // 获取服务详情
           final serviceDetails =
               await _serviceDetailService!.getServiceDetails(serviceId);
           if (serviceDetails.isNotEmpty) {
-            final mainDetail = serviceDetails.firstWhere(
+            // ServiceDetailService now returns Domain entity directly - no conversion needed!
+            serviceDetail.value = serviceDetails.firstWhere(
               (detail) => detail.category == 'main',
               orElse: () => serviceDetails.first,
             );
-
-            // 转换为旧版本ServiceDetail对象
-            final legacyServiceDetail = ServiceDetail(
-              id: mainDetail.id,
-              serviceId: mainDetail.serviceId,
-              name: mainDetail.name,
-              category: mainDetail.category,
-              pricingType: mainDetail.pricingType,
-              price: mainDetail.price,
-              currency: mainDetail.currency,
-              negotiationDetails: null, // core_services.ServiceDetail没有此字段
-              durationType: null, // core_services.ServiceDetail没有此字段
-              duration: mainDetail.duration != null
-                  ? int.tryParse(mainDetail.duration!)
-                  : null,
-              images: mainDetail.images,
-              tags: mainDetail.tags,
-              serviceAreaCodes: mainDetail.serviceAreaCodes,
-            );
-            serviceDetail.value = legacyServiceDetail;
           }
 
           AppLogger.info('使用新服务获取服务详情成功');
@@ -261,9 +240,9 @@ class ServiceDetailController extends GetxController {
           await api.ServiceDetailApiService.getServiceReviews(serviceId);
 
       if (refresh) {
-        reviews.value = reviewsData.cast<Review>();
+        reviews.value = reviewsData;
       } else {
-        reviews.addAll(reviewsData.cast<Review>());
+        reviews.addAll(reviewsData);
       }
 
       AppLogger.info('Reviews loaded successfully: ${reviewsData.length}',
@@ -864,5 +843,134 @@ class ServiceDetailController extends GetxController {
       'canDirectBook': canDirectBook.value,
       'bookingType': bookingType.value?.displayName ?? '未知',
     };
+  }
+
+  // ========================================
+  // 行业特定数据加载方法
+  // ========================================
+
+  /// 加载菜单项 (Food - 1010000)
+  Future<void> loadMenuItems(String serviceId) async {
+    if (serviceId.isEmpty) return;
+
+    isLoadingMenuItems.value = true;
+
+    try {
+      AppLogger.info('[MenuItems] 开始加载菜单项 - Service ID: $serviceId');
+
+      final items = await api.ServiceDetailApiService.fetchServiceDetailsByCategory(
+        serviceId: serviceId,
+        category: 'menu_item',
+      );
+
+      menuItems.value = items;
+      AppLogger.info('[MenuItems] 菜单项加载成功 - 数量: ${items.length}');
+
+    } catch (e) {
+      AppLogger.error('[MenuItems] 菜单项加载失败: $e');
+      Get.snackbar('Error', 'Failed to load menu items');
+    } finally {
+      isLoadingMenuItems.value = false;
+    }
+  }
+
+  /// 加载服务套餐 (Home Services - 1020000)
+  Future<void> loadServicePackages(String serviceId) async {
+    if (serviceId.isEmpty) return;
+
+    isLoadingServicePackages.value = true;
+
+    try {
+      AppLogger.info('[ServicePackages] 开始加载服务套餐 - Service ID: $serviceId');
+
+      final packages = await api.ServiceDetailApiService.fetchServiceDetailsByCategory(
+        serviceId: serviceId,
+        category: 'service_package',
+      );
+
+      servicePackages.value = packages;
+      AppLogger.info('[ServicePackages] 服务套餐加载成功 - 数量: ${packages.length}');
+
+    } catch (e) {
+      AppLogger.error('[ServicePackages] 服务套餐加载失败: $e');
+      Get.snackbar('Error', 'Failed to load service packages');
+    } finally {
+      isLoadingServicePackages.value = false;
+    }
+  }
+
+  /// 加载库存项 (Rental - 1040000)
+  Future<void> loadInventoryItems(String serviceId) async {
+    if (serviceId.isEmpty) return;
+
+    isLoadingInventoryItems.value = true;
+
+    try {
+      AppLogger.info('[Inventory] 开始加载库存项 - Service ID: $serviceId');
+
+      final items = await api.ServiceDetailApiService.fetchServiceDetailsByCategory(
+        serviceId: serviceId,
+        category: 'rental_item',
+      );
+
+      inventoryItems.value = items;
+      AppLogger.info('[Inventory] 库存项加载成功 - 数量: ${items.length}');
+
+    } catch (e) {
+      AppLogger.error('[Inventory] 库存项加载失败: $e');
+      Get.snackbar('Error', 'Failed to load inventory items');
+    } finally {
+      isLoadingInventoryItems.value = false;
+    }
+  }
+
+  /// 加载课程 (Education - 1050000)
+  Future<void> loadCourses(String serviceId) async {
+    if (serviceId.isEmpty) return;
+
+    isLoadingCourses.value = true;
+
+    try {
+      AppLogger.info('[Courses] 开始加载课程 - Service ID: $serviceId');
+
+      final items = await api.ServiceDetailApiService.fetchServiceDetailsByCategory(
+        serviceId: serviceId,
+        category: 'course',
+      );
+
+      courses.value = items;
+      AppLogger.info('[Courses] 课程加载成功 - 数量: ${items.length}');
+
+    } catch (e) {
+      AppLogger.error('[Courses] 课程加载失败: $e');
+      Get.snackbar('Error', 'Failed to load courses');
+    } finally {
+      isLoadingCourses.value = false;
+    }
+  }
+
+  /// 加载治疗项目 (Life Help - 1060000)
+  Future<void> loadTreatments(String serviceId) async {
+    if (serviceId.isEmpty) return;
+
+    isLoadingTreatments.value = true;
+
+    try {
+      AppLogger.info('[Treatments] 开始加载治疗项目 - Service ID: $serviceId');
+
+      final items = await api.ServiceDetailApiService.fetchServiceDetailsByCategory(
+        serviceId: serviceId,
+        category: 'treatment',
+      );
+
+      treatments.value = items;
+      AppLogger.info('[Treatments] 治疗项目加载成功 - 数量: ${items.length}');
+
+    } catch (e) {
+      AppLogger.error('[Treatments] 治疗项目加载失败: $e');
+      Get.snackbar('Error', 'Failed to load treatments');
+    } finally {
+      isLoadingTreatments.value = false;
+    }
   }
 }

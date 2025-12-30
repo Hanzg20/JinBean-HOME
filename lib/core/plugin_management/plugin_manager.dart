@@ -300,24 +300,46 @@ class PluginManager extends GetxController {
     // _isInitialized.value = true; // 只在 _fetchPluginsConfiguration 结尾赋值
   }
 
-  void setRole(String role) {
+  Future<void> setRole(String role) async {
     if (currentRole.value != role) {
       AppLogger.info('[PluginManager] setRole called, switching to $role');
       currentRole.value = role;
+
       // 切换角色时重置 tab index，防止 IndexedStack 越界
       try {
-        Get.find<ShellAppController>().changeTab(0);
+        // 先重置tab index为0，避免在重新加载插件时出现越界
+        final controller = Get.find<ShellAppController>();
+        controller.setTabSafe(0, 0); // 暂时设置为0
+        AppLogger.info('[PluginManager] Pre-reset tab index to 0 before reloading plugins');
       } catch (e) {
-        AppLogger.info(
-            'PluginManager: ShellAppController not found or error: $e');
+        AppLogger.info('[PluginManager] ShellAppController not found: $e');
       }
-      reloadPlugins();
+
+      // 等待插件重新加载完成
+      await reloadPlugins();
+
+      // 重新加载后，再次更新tab插件列表
       _updateEnabledTabPluginsForCurrentRole();
-      // === 新增：切换 per-role 主题 ===
-      final themeService = Get.find<AppThemeService>();
-      final themeName = themeService.getThemeForRole(role) ??
-          (role == 'provider' ? 'golden' : 'dark_teal');
-      themeService.setThemeByName(themeName);
+
+      // 最后设置正确的tab index
+      try {
+        final controller = Get.find<ShellAppController>();
+        final maxTabs = enabledTabPluginsForCurrentRole.length;
+        controller.setTabSafe(0, maxTabs);
+        AppLogger.info('[PluginManager] Reset tab index after role switch (maxTabs: $maxTabs)');
+      } catch (e) {
+        AppLogger.info('[PluginManager] ShellAppController not found or error: $e');
+      }
+
+      // === 切换 per-role 主题 ===
+      try {
+        final themeService = Get.find<AppThemeService>();
+        final themeName = themeService.getThemeForRole(role) ??
+            (role == 'provider' ? 'golden' : 'dark_teal');
+        themeService.setThemeByName(themeName);
+      } catch (e) {
+        AppLogger.info('[PluginManager] Error switching theme: $e');
+      }
     }
   }
 }

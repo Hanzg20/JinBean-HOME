@@ -412,14 +412,14 @@ class HomeController extends GetxController {
             serviceIcon: 'restaurant', // 默认图标
             recommendationReason: '为您推荐',
             name: service.title,
-            imageUrl: service.imagesUrl?.isNotEmpty == true
-                ? service.imagesUrl![0]
+            imageUrl: service.images_url?.isNotEmpty == true
+                ? service.images_url![0]
                 : null,
             providerName: 'Service Provider', // 需要从provider_profiles获取
             rating: service.rating,
             price: '50', // 需要从service_details获取
             distance: '2.5 km',
-            isPopular: service.reviewCount > 100,
+            isPopular: (service.reviewCount ?? 0) > 100,
             isNearby: true,
             subCategory: null, // 需要从service_details获取
             isAvailable: true,

@@ -44,6 +44,10 @@ class ShellApp extends GetView<ShellAppController> {
 
         // 移除阻塞性日志输出
         final colorScheme = theme.colorScheme;
+
+        // 安全获取tab index，防止越界
+        final safeIndex = controller.currentIndex.clamp(0, pluginWidgets.length - 1);
+
         return Scaffold(
           backgroundColor: Colors.white,
           resizeToAvoidBottomInset: true,
@@ -52,7 +56,7 @@ class ShellApp extends GetView<ShellAppController> {
             child: Padding(
               padding: const EdgeInsets.only(bottom: 80),
               child: IndexedStack(
-                index: controller.currentIndex,
+                index: safeIndex,
                 children: pluginWidgets,
               ),
             ),

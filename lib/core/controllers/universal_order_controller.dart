@@ -5,7 +5,7 @@ import '../models/order_models.dart';
 import '../models/payment_models.dart';
 import '../services/universal_order_service.dart';
 import '../services/universal_payment_service.dart';
-import '../services/pricing_engine.dart';
+import '../services/notification_service.dart';
 
 /// 通用订单控制器
 /// 
@@ -209,6 +209,18 @@ class UniversalOrderController extends GetxController {
 
       successMessage.value = '订单状态已更新';
       print('✅ 订单状态更新成功');
+
+      // 发送通知
+      try {
+        final notificationService = Get.find<NotificationService>();
+        await notificationService.showOrderNotification(
+          '订单状态更新',
+          '您的订单已更新为：${newStatus.label}',
+          orderId,
+        );
+      } catch (e) {
+        print('通知发送失败: $e');
+      }
 
     } catch (e) {
       print('❌ 更新订单状态失败: $e');

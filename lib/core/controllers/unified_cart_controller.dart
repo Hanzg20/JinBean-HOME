@@ -20,7 +20,8 @@ class UnifiedCartController extends GetxController {
   static final Map<String, Service> _serviceCache = {};
   static final Map<String, ServiceDetail> _serviceDetailCache = {};
   static final Map<String, DateTime> _cacheTimestamps = {};
-  static const Duration _cacheExpiry = Duration(minutes: 5);
+  // Cache expiry duration - currently not enforced but reserved for future implementation
+  // static const Duration _cacheExpiry = Duration(minutes: 5);
 
   // 预加载缓存 - 新增
   static final Map<String, Future<Service>> _servicePreloadCache = {};
@@ -241,7 +242,7 @@ class UnifiedCartController extends GetxController {
           AppLogger.info('[Cart] 🧹 执行内存清理检查');
         });
         
-        _showAddToCartFeedback(_getServiceTitle(service));
+        _showAddToCartFeedback('Service Added'); // Temporarily hardcoded
 
         // 后台异步持久化到数据库（不阻塞UI）
         _persistCartItemAsync(cartItem, cartType.value);
@@ -543,11 +544,11 @@ class UnifiedCartController extends GetxController {
       'total_amount': totalAmount.value,
       'unique_services': groupedItems.length,
       'restaurant_items':
-          cartItems.where((item) => item.itemType == 'menu_item').length,
+          cartItems.where((item) => item.itemType == CartItemType.menuItem).length,
       'appointment_items':
-          cartItems.where((item) => item.itemType == 'appointment').length,
+          cartItems.where((item) => item.itemType == CartItemType.appointment).length,
       'package_items':
-          cartItems.where((item) => item.itemType == 'package').length,
+          cartItems.where((item) => item.itemType == CartItemType.package).length,
     };
 
     return stats;
@@ -648,18 +649,6 @@ class UnifiedCartController extends GetxController {
   }
 
   // _determineCartType method moved to end of file with proper CartType return type
-
-  /// 获取商品类型
-  String _getItemType(Service service) {
-    final categoryId = service.categoryLevel1Id;
-
-    switch (categoryId) {
-      case '1010000': // 美食天地
-        return 'menu_item';
-      default:
-        return 'appointment';
-    }
-  }
 
   /// 查找已存在的商品
   int _findExistingItem(
@@ -821,10 +810,6 @@ class UnifiedCartController extends GetxController {
 
         // 获取或创建购物车
         final cartId = await _getOrCreateCart(cartType);
-        if (cartId == null) {
-          AppLogger.error('[Cart] ❌ 无法获取购物车ID');
-          return;
-        }
 
         // 检查是否已存在相同商品
         final existingItem = await _supabase
@@ -868,39 +853,8 @@ class UnifiedCartController extends GetxController {
     });
   }
 
-  /// 持久化购物车项目
-  Future<void> _persistCartItem(CartItem item, String cartType) async {
-    try {
-      if (currentUserId == null) return;
-
-      // 获取或创建购物车
-      final cartId = await _getOrCreateCart(cartType);
-
-      // 插入购物车项目
-      await _supabase.from('cart_items').insert({
-        'id': item.id,
-        'cart_id': cartId,
-        'service_id': item.serviceId,
-        'service_detail_id': item.serviceDetailId,
-        'item_type': item.itemType.value,
-        'quantity': item.quantity,
-        'unit_price': item.unitPrice,
-        'scheduled_start_time': item.scheduledStartTime?.toIso8601String(),
-        'scheduled_end_time': item.scheduledEndTime?.toIso8601String(),
-        'customizations': item.customizations,
-        'special_instructions': item.specialInstructions,
-        'item_name_snapshot': item.itemNameSnapshot,
-        'item_description_snapshot': item.itemDescriptionSnapshot,
-        'item_image_snapshot': item.itemImageSnapshot,
-        'provider_name_snapshot': item.providerNameSnapshot,
-        'added_at': item.addedAt.toIso8601String(),
-        'updated_at': item.updatedAt?.toIso8601String(),
-      });
-    } catch (e) {
-      AppLogger.error('[Cart] Failed to persist cart item: $e');
-      rethrow;
-    }
-  }
+  // Note: _persistCartItem method removed as it's unused
+  // Cart items are now persisted through _persistCart method
 
   /// 获取或创建购物车（改进并发处理）
   Future<String> _getOrCreateCart(String cartType) async {
@@ -966,7 +920,7 @@ class UnifiedCartController extends GetxController {
         'quantity': item.quantity,
         'customizations': item.customizations,
         'special_instructions': item.specialInstructions,
-        'updated_at': item.updatedAt?.toIso8601String(),
+        'updated_at': item.updatedAt.toIso8601String(),
       }).eq('id', item.id);
     } catch (e) {
       AppLogger.error('[Cart] Failed to update cart item in database: $e');
@@ -1178,58 +1132,10 @@ class UnifiedCartController extends GetxController {
     }
   }
 
-  /// 获取服务商名称
-  Future<String?> _getProviderName(String? providerId) async {
-    if (providerId == null) return null;
-
-    try {
-      final response = await _supabase
-          .from('provider_profiles')
-          .select('display_name')
-          .eq('id', providerId)
-          .maybeSingle();
-
-      if (response != null && response['display_name'] != null) {
-        final displayName = response['display_name'] as Map<String, dynamic>;
-        return displayName['zh'] ?? displayName['en'] ?? 'Unknown Provider';
-      }
-    } catch (e) {
-      AppLogger.warning('[Cart] Failed to get provider name: $e');
-    }
-
-    return null;
-  }
-
   /// 获取服务详情名称
-  Map<String, String> _getServiceDetailName(ServiceDetail detail) {
-    if (detail.name is Map) {
-      final nameMap = detail.name as Map<String, dynamic>;
-      return nameMap.map((key, value) => MapEntry(key, value.toString()));
-    } else if (detail.name is String) {
-      return {'zh': detail.name as String};
-    } else {
-      return {'zh': 'Unknown Service'};
-    }
-  }
-
-  /// 获取服务详情图片
-  String? _getServiceDetailImage(ServiceDetail detail) {
-    if (detail.images?.isNotEmpty == true) {
-      return detail.images!.first;
-    }
-    return null;
-  }
-
-  /// 获取服务标题
-  String _getServiceTitle(Service service) {
-    if (service.title is Map) {
-      final titleMap = service.title as Map<String, dynamic>;
-      return titleMap['zh'] ?? titleMap['en'] ?? 'Unknown Service';
-    } else if (service.title is String) {
-      return service.title as String;
-    } else {
-      return 'Unknown Service';
-    }
+  Map<String, dynamic> _getServiceDetailName(ServiceDetail detail) {
+    // detail.name is Map<String, String> - convert to dynamic for compatibility
+    return Map<String, dynamic>.from(detail.name);
   }
 
   /// 获取商品显示名称
@@ -1474,8 +1380,6 @@ class UnifiedCartController extends GetxController {
         return CartType.appointment;
       case IndustryType.transport:
       case IndustryType.rental:
-        return CartType.mixed;
-      default:
         return CartType.mixed;
     }
   }

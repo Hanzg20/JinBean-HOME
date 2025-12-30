@@ -35,8 +35,22 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>GMSApiKey</key>
+	<string>AIzaSyAGBCvgRmGevm8qitcqRE-3FFptDrkOJKU</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>JinBean needs access to the camera to take photos</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>JinBean needs to access your location information to provide you with nearby service recommendations and distance calculation functions.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>JinBean需要访问您的位置信息来为您提供附近的服务推荐和距离计算功能。</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>JinBean needs to access your location information to provide you with nearby service recommendations and distance calculation functions.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>JinBean needs to save the picture to the album</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>JinBean needs to access the album to select pictures for uploading reviews.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
@@ -60,13 +74,5 @@
 	<array>
 		<string>Default</string>
 	</array>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>JinBean需要访问您的位置信息来为您提供附近的服务推荐和距离计算功能。</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>JinBean需要访问您的位置信息来为您提供附近的服务推荐和距离计算功能。</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>JinBean需要访问您的位置信息来为您提供附近的服务推荐和距离计算功能。</string>
-	<key>GMSApiKey</key>
-	<string>AIzaSyAGBCvgRmGevm8qitcqRE-3FFptDrkOJKU</string>
 </dict>
 </plist>

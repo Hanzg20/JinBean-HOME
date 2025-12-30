@@ -1,7 +1,7 @@
 name: jinbeanpod_83904710
 description: A new Flutter project.
 publish_to: none
-version: 0.0.3+3
+version: 1.1.0+5
 environment:
   sdk: ">=3.3.3 <4.0.0"
 dependencies:
@@ -36,6 +36,7 @@ dependencies:
   photo_view: ^0.14.0
   share_plus: ^7.2.1
   flutter_stripe: ^11.5.0
+  flutter_local_notifications: ^17.0.0
   table_calendar: ^3.2.0
 dev_dependencies:
   flutter_test:

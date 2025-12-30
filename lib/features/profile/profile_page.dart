@@ -34,9 +34,14 @@ class _ProfilePageState extends State<ProfilePage> {
               if (status == ProviderStatus.approved) {
                 AppLogger.info('[ProfilePage] 显示"切换到服务商"按钮');
                 return ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     AppLogger.info('[ProfilePage] 用户点击"切换到服务商"');
-                    Get.find<PluginManager>().setRole('provider');
+                    try {
+                      await Get.find<PluginManager>().setRole('provider');
+                      AppLogger.info('[ProfilePage] Role switched to provider successfully');
+                    } catch (e) {
+                      AppLogger.error('[ProfilePage] Error switching role: $e');
+                    }
                     // 修复：切换角色后重置tab index，防止IndexedStack越界
                     try {
                       Get.find<ShellAppController>().changeTab(0);
@@ -45,7 +50,9 @@ class _ProfilePageState extends State<ProfilePage> {
                           '[ProfilePage] ShellAppController not found or error: $e');
                     }
                     // 热重启App，彻底切换到provider端
-                    Phoenix.rebirth(context);
+                    if (context.mounted) {
+                      Phoenix.rebirth(context);
+                    }
                   },
                   child: Text(l10n?.switchToProvider ?? 'Switch to Provider'),
                 );

@@ -4,6 +4,7 @@ import 'package:jinbeanpod_83904710/l10n/app_localizations.dart';
 
 import '../../../../core/services/services.dart' as core_services;
 import '../../../../core/utils/app_logger.dart';
+import '../../../../core/utils/image_parser.dart';
 import '../../../../core/controllers/unified_cart_controller.dart';
 import '../../../../core/models/cart_models.dart';
 import '../../../../core/services/service_booking_type_resolver.dart';
@@ -216,65 +217,20 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
   }
 
   void _updateTabControllerLength() {
-    // debugPrint('🔄 _updateTabControllerLength: 开始更新Tab长度');
-    // debugPrint('🔍 _isNewServiceInitialized: $_isNewServiceInitialized');
-    // debugPrint('🔍 _serviceDetails长度: ${_serviceDetails.length}');
+    debugPrint('🔄 _updateTabControllerLength: 开始更新Tab长度');
+    debugPrint('🔍 _isNewServiceInitialized: $_isNewServiceInitialized');
+    debugPrint('🔍 _serviceDetails长度: ${_serviceDetails.length}');
 
     if (_isNewServiceInitialized && _serviceDetails.isNotEmpty) {
       final service = controller.service.value;
-      // debugPrint('🔍 controller.service.value: ${service != null ? '存在' : 'null'}');
+      debugPrint('🔍 controller.service.value: ${service != null ? '存在' : 'null'}');
 
       if (service != null) {
-        // debugPrint('🔧 开始转换Service到core_services.Service...');
-        // Convert Service to core_services.Service
-        final coreService = _convertToCoreService(service);
-        // debugPrint('✅ Service转换完成: ID=${coreService.id}, 大类=${coreService.categoryLevel1Id}');
-
-        // debugPrint('🔧 开始转换_serviceDetails到core_services.ServiceDetail...');
-        // Convert _serviceDetails to correct type
-        final coreServiceDetails = _serviceDetails
-            .map((detail) => core_services.ServiceDetail(
-                  id: detail.id,
-                  serviceId: detail.serviceId,
-                  category: detail.category,
-                  name: detail.name,
-                  subCategory: detail.subCategory,
-                  isAvailable: detail.isAvailable,
-                  sortOrder: detail.sortOrder ?? 0,
-                  currentStock: detail.currentStock,
-                  maxStock: detail.maxStock,
-                  attributes: detail.attributes,
-                  businessRules: detail.businessRules,
-                  pricingType: detail.pricingType,
-                  price: detail.price,
-                  currency: detail.currency,
-                  duration: detail.duration,
-                  unit: detail.unit,
-                  images: detail.images,
-                  videos: detail.videos,
-                  tags: detail.tags,
-                  serviceAreaCodes: detail.serviceAreaCodes,
-                  platformServiceFeeRate: detail.platformServiceFeeRate,
-                  minPlatformServiceFee: detail.minPlatformServiceFee,
-                  extraData: detail.extraData,
-                  promotionStart: detail.promotionStart,
-                  promotionEnd: detail.promotionEnd,
-                  viewCount: detail.viewCount,
-                  favoriteCount: detail.favoriteCount,
-                  orderCount: detail.orderCount,
-                  verificationStatus: detail.verificationStatus,
-                  documents: detail.documents,
-                  type: detail.type,
-                  createdAt: detail.createdAt,
-                  updatedAt: detail.updatedAt,
-                ))
-            .toList();
-        // debugPrint('✅ ServiceDetail转换完成: ${coreServiceDetails.length} 条记录');
-
-        // debugPrint('🔧 调用_dynamicTabService.getTabConfig...');
+        // No conversion needed - core_services now exports Domain entities directly
+        debugPrint('🔧 调用_dynamicTabService.getTabConfig...');
         final tabConfig =
-            _dynamicTabService.getTabConfig(coreService, coreServiceDetails);
-        // debugPrint('📋 Tab配置生成完成: ${tabConfig.length} 个Tab');
+            _dynamicTabService.getTabConfig(service, _serviceDetails);
+        debugPrint('📋 Tab配置生成完成: ${tabConfig.length} 个Tab');
 
         if (tabConfig.length != _tabController.length) {
           // debugPrint('🔄 需要更新TabController长度: ${_tabController.length} -> ${tabConfig.length}');
@@ -294,35 +250,6 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
     } else {
       // debugPrint('⚠️ 条件不满足: _isNewServiceInitialized=$_isNewServiceInitialized, _serviceDetails长度=${_serviceDetails.length}');
     }
-  }
-
-  core_services.Service _convertToCoreService(Service service) {
-    return core_services.Service(
-      id: service.id,
-      title: {'en': service.title, 'zh': service.title},
-      description: {'en': service.description, 'zh': service.description},
-      price: service.price ?? 0.0,
-      currency: service.currency ?? 'USD',
-      pricingType: service.pricingType ?? 'fixed',
-      categoryId: '1010000', // Force set to food category
-      categoryLevel1Id: '1010000', // Food World
-      categoryLevel2Id: '1010100', // Community Food
-      providerId: service.providerId ?? '',
-      serviceDeliveryMethod: service.serviceDeliveryMethod ?? 'on_site',
-      status: service.status ?? 'active',
-      createdAt: service.createdAt ?? DateTime.now(),
-      updatedAt: service.updatedAt ?? DateTime.now(),
-      images: service.images ?? [],
-      imagesUrl: service.images_url ?? [],
-      rating: service.rating ?? 0.0,
-      reviewCount: service.reviewCount ?? 0,
-      isActive: service.isActive ?? true,
-      serviceDetailsJson: service.serviceDetailsJson ?? {},
-      latitude: service.latitude,
-      longitude: service.longitude,
-      serviceAreaCodes: service.serviceAreaCodes ?? [],
-      tags: service.tags ?? [],
-    );
   }
 
   @override
@@ -457,9 +384,9 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
   }
 
   /// 创建测试服务详情数据
-  List<core_services.ServiceDetail> _createTestServiceDetails() {
+  List<domain_models.ServiceDetail> _createTestServiceDetails() {
     return [
-      core_services.ServiceDetail(
+      domain_models.ServiceDetail(
         id: '550e8400-e29b-41d4-a716-446655440201',
         serviceId: widget.serviceId,
         name: {'en': 'Main Service', 'zh': '主要服务'},
@@ -467,15 +394,12 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
         category: 'main',
         isAvailable: true,
         sortOrder: 1,
-        attributes: {},
-        businessRules: {},
-        duration: '60',
-        unit: 'minutes',
+        industryAttributes: {},
+        duration: 60,
+        durationType: 'minutes',
         currency: 'CAD',
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
       ),
-      core_services.ServiceDetail(
+      domain_models.ServiceDetail(
         id: '550e8400-e29b-41d4-a716-446655440202',
         serviceId: widget.serviceId,
         name: {'en': 'Premium Service', 'zh': '优质服务'},
@@ -483,13 +407,10 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
         category: 'premium',
         isAvailable: true,
         sortOrder: 2,
-        attributes: {},
-        businessRules: {},
-        duration: '90',
-        unit: 'minutes',
+        industryAttributes: {},
+        duration: 90,
+        durationType: 'minutes',
         currency: 'CAD',
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
       ),
     ];
   }
@@ -518,11 +439,10 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
 
     // debugPrint('✅ 使用新的动态Tab系统');
 
-    // Use new dynamic tab configuration service
-    final coreService = _convertToCoreService(service);
+    // No conversion needed - core_services now exports Domain entities directly
 
     // Prefer real data, create test data if none available
-    List<core_services.ServiceDetail> testServiceDetails = _serviceDetails;
+    List<domain_models.ServiceDetail> testServiceDetails = _serviceDetails;
     if (testServiceDetails.isEmpty) {
       // debugPrint('🔴 没有真实数据，尝试从API加载');
       // Try to load real data from API
@@ -533,10 +453,8 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
         // debugPrint('📊 API返回数据: ${realServiceDetails.length} 个服务详情');
 
         if (realServiceDetails.isNotEmpty) {
-          // Convert to core_services.ServiceDetail format
-          testServiceDetails = realServiceDetails
-              .map((detail) => _convertToCoreServiceDetail(detail))
-              .toList();
+          // No conversion needed - already Domain entities
+          testServiceDetails = realServiceDetails;
           // 🔧 重要修复：更新全局的_serviceDetails变量！
           _serviceDetails.assignAll(testServiceDetails);
           // debugPrint('✅ 从API加载到 ${testServiceDetails.length} 个真实服务详情');
@@ -578,7 +496,7 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
 
     // debugPrint('🎯 准备生成Tab配置，服务详情数量: ${testServiceDetails.length}');
     final tabConfig =
-        _dynamicTabService.getTabConfig(coreService, testServiceDetails);
+        _dynamicTabService.getTabConfig(service, testServiceDetails);
     // debugPrint('📋 生成的Tab配置: ${tabConfig.map((t) => '${t['title']}(${t['category']})').toList()}');
 
     // 创建新的TabController以匹配动态Tab数量
@@ -609,7 +527,7 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
 
         // 使用DynamicTabConfigService的内容构建器
         final contentBuilder = _dynamicTabService.getTabContentBuilder(
-            coreService, testServiceDetails);
+            service, testServiceDetails);
         return contentBuilder(context, index);
       }).toList(),
     );
@@ -640,27 +558,9 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
 
   /// Check if Service has real images
   bool _hasRealImages(Service service) {
-    // Prioritize checking images_url field
-    if (service.images_url != null && service.images_url!.isNotEmpty) {
-      return service.images_url!.any((url) =>
-          url.isNotEmpty &&
-          !url.contains('via.placeholder.com') &&
-          !url.contains('example.com') &&
-          !url.contains('test') &&
-          url.startsWith('http'));
-    }
-
-    // 检查images字段
-    if (service.images != null && service.images!.isNotEmpty) {
-      return service.images!.any((url) =>
-          url.isNotEmpty &&
-          !url.contains('via.placeholder.com') &&
-          !url.contains('example.com') &&
-          !url.contains('test') &&
-          url.startsWith('http'));
-    }
-
-    return false;
+    // Use ImageParser to validate images
+    return ImageParser.hasValidImages(service.images_url) ||
+           ImageParser.hasValidImages(service.images);
   }
 
   /// 构建占位图片
@@ -860,51 +760,6 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
 
   // Helper methods
 
-  /// 转换domain.ServiceDetail到core_services.ServiceDetail
-  core_services.ServiceDetail _convertToCoreServiceDetail(
-      domain_models.ServiceDetail domainDetail) {
-    return core_services.ServiceDetail(
-      id: domainDetail.id,
-      serviceId: domainDetail.serviceId,
-      category: domainDetail.category,
-      name: domainDetail.name is Map<String, dynamic>
-          ? Map<String, String>.from(domainDetail.name as Map<String, dynamic>)
-          : {
-              'en': domainDetail.name?.toString() ?? 'Service',
-              'zh': domainDetail.name?.toString() ?? '服务'
-            },
-      subCategory: domainDetail.subCategory,
-      isAvailable: domainDetail.isAvailable,
-      sortOrder: domainDetail.sortOrder,
-      currentStock: domainDetail.currentStock,
-      maxStock: domainDetail.maxStock,
-      attributes: domainDetail.industryAttributes ?? {},
-      businessRules: {},
-      pricingType: domainDetail.pricingType,
-      price: domainDetail.price,
-      currency: domainDetail.currency,
-      duration: domainDetail.duration?.toString(),
-      unit: 'minutes',
-      images: domainDetail.images,
-      videos: [],
-      tags: domainDetail.tags,
-      serviceAreaCodes: domainDetail.serviceAreaCodes,
-      platformServiceFeeRate: 0.1,
-      minPlatformServiceFee: 2.0,
-      extraData: domainDetail.serviceDetailsJson,
-      promotionStart: null,
-      promotionEnd: null,
-      viewCount: 0,
-      favoriteCount: 0,
-      orderCount: 0,
-      verificationStatus: 'pending',
-      documents: [],
-      type: null,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    );
-  }
-
   // ===== 新增的订单生成UI方法 =====
 
   /// 构建底部操作区域
@@ -1034,9 +889,8 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
         final realServiceDetails =
             await api.ServiceDetailApiService.getAllServiceDetails(service.id);
         if (realServiceDetails.isNotEmpty) {
-          _serviceDetails.assignAll(realServiceDetails
-              .map((detail) => _convertToCoreServiceDetail(detail))
-              .toList());
+          // No conversion needed - already Domain entities
+          _serviceDetails.assignAll(realServiceDetails);
           // debugPrint('🔧 紧急更新_serviceDetails变量，长度: ${_serviceDetails.length}');
         }
       } catch (e) {
@@ -1140,11 +994,11 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
             if (detail.price != null)
               Text(
                   '\$${detail.price!.toStringAsFixed(2)} ${detail.currency ?? 'CAD'}'),
-            if (detail.attributes.containsKey('description'))
+            if (detail.industryAttributes?.containsKey('description') ?? false)
               Text(
-                (detail.attributes['description']
+                (detail.industryAttributes!['description']
                         as Map<String, dynamic>?)?['zh'] ??
-                    (detail.attributes['description']
+                    (detail.industryAttributes!['description']
                         as Map<String, dynamic>?)?['en'] ??
                     '',
                 maxLines: 2,
@@ -1162,7 +1016,7 @@ class _ServiceDetailPageNewState extends State<ServiceDetailPageNew>
             minimumSize: Size(60, 32),
           ),
         ),
-        isThreeLine: detail.attributes.containsKey('description'),
+        isThreeLine: detail.industryAttributes?.containsKey('description') ?? false,
       ),
     );
   }

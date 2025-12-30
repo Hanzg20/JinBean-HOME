@@ -1,6 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../interfaces/i_service_query_service.dart';
-import '../../models/service.dart';
+import '../../../features/customer/domain/entities/service.dart';
 
 // 服务查询服务实现
 class ServiceQueryService implements IServiceQueryService {

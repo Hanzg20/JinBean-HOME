@@ -7,13 +7,25 @@ import 'package:jinbeanpod_83904710/core/models/base_models.dart';
 class OrdersController extends GetxController {
   // 集成UniversalOrderController
   late final UniversalOrderController _universalOrderController;
-  
+
   final RxBool isLoading = false.obs;
   final RxString errorMessage = ''.obs;
   final RxString selectedStatus = 'All'.obs;
 
+  // 分页相关
+  final RxInt currentPage = 1.obs;
+  final RxBool hasMore = true.obs;
+  final RxBool isLoadingMore = false.obs;
+  static const int pageSize = 20; // 每页加载20条
+
+  // 过滤后的订单列表（缓存）
+  final RxList<Order> _filteredOrders = <Order>[].obs;
+
   // 使用统一的Order模型
-  RxList<Order> get orders => _universalOrderController.orders;
+  RxList<Order> get orders => selectedStatus.value == 'All'
+      ? _universalOrderController.orders
+      : _filteredOrders;
+
   bool get hasError => _universalOrderController.hasError;
   String get error => _universalOrderController.errorMessage.value;
 
@@ -29,68 +41,118 @@ class OrdersController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    
+
     // 获取或创建UniversalOrderController实例
     try {
       _universalOrderController = Get.find<UniversalOrderController>();
     } catch (e) {
       _universalOrderController = Get.put(UniversalOrderController());
     }
-    
+
     // 监听加载状态
     ever(_universalOrderController.isLoading, (loading) {
       isLoading.value = loading;
     });
-    
+
     // 监听错误消息
     ever(_universalOrderController.errorMessage, (error) {
       errorMessage.value = error;
     });
-    
+
     loadOrders();
   }
 
-  Future<void> loadOrders() async {
+  Future<void> loadOrders({bool refresh = false}) async {
     try {
-      AppLogger.info('OrdersController: loadOrders called');
-      
+      if (refresh) {
+        currentPage.value = 1;
+        hasMore.value = true;
+      }
+
+      AppLogger.info('OrdersController: loadOrders called (page: ${currentPage.value})');
+
       // 使用UniversalOrderController加载订单
-      await _universalOrderController.loadOrders(refresh: true);
-      
+      await _universalOrderController.loadOrders(refresh: refresh);
+
+      // 应用当前过滤
+      _applyCurrentFilter();
+
       AppLogger.info('OrdersController: Orders loaded successfully, count: ${orders.length}');
-      
+
     } catch (e) {
       AppLogger.info('OrdersController: Error loading orders: $e');
       errorMessage.value = 'Failed to load orders: $e';
     }
   }
 
+  /// 加载更多订单（分页）
+  Future<void> loadMoreOrders() async {
+    if (isLoadingMore.value || !hasMore.value) return;
+
+    try {
+      isLoadingMore.value = true;
+      currentPage.value++;
+
+      // TODO: 实现真正的分页加载
+      // 目前先模拟分页效果
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      // 如果已经加载所有订单，设置hasMore为false
+      if (orders.length >= _universalOrderController.orders.length) {
+        hasMore.value = false;
+      }
+
+    } catch (e) {
+      AppLogger.error('Error loading more orders: $e');
+    } finally {
+      isLoadingMore.value = false;
+    }
+  }
+
+  /// 应用过滤（优化版本，使用缓存）
   void filterByStatus(String status) {
+    if (selectedStatus.value == status) return; // 避免重复过滤
+
     selectedStatus.value = status;
-    
+    _applyCurrentFilter();
+  }
+
+  /// 应用当前过滤条件
+  void _applyCurrentFilter() {
+    if (selectedStatus.value == 'All') {
+      // 如果是'All'，直接使用原始列表，不需要过滤
+      return;
+    }
+
     // 将字符串状态转换为OrderStatus枚举
-    OrderStatus? orderStatus;
+    OrderStatus? orderStatus = _getOrderStatusFromString(selectedStatus.value);
+
+    if (orderStatus == null) {
+      _filteredOrders.value = _universalOrderController.orders.toList();
+    } else {
+      // 过滤订单
+      _filteredOrders.value = _universalOrderController.orders
+          .where((order) => order.status == orderStatus)
+          .toList();
+    }
+  }
+
+  /// 字符串转OrderStatus枚举（提取为独立方法）
+  OrderStatus? _getOrderStatusFromString(String status) {
     switch (status) {
       case 'PendingAcceptance':
-        orderStatus = OrderStatus.pending;
-        break;
+        return OrderStatus.pending;
       case 'Accepted':
-        orderStatus = OrderStatus.accepted;
-        break;
+        return OrderStatus.accepted;
       case 'InProgress':
-        orderStatus = OrderStatus.inProgress;
-        break;
+        return OrderStatus.inProgress;
       case 'Completed':
-        orderStatus = OrderStatus.completed;
-        break;
+        return OrderStatus.completed;
       case 'Canceled':
-        orderStatus = OrderStatus.cancelled;
-        break;
+        return OrderStatus.cancelled;
       default:
-        orderStatus = null; // All
+        return null; // All
     }
-    
-    _universalOrderController.setStatusFilter(orderStatus);
   }
 
   String getStatusColor(String status) {

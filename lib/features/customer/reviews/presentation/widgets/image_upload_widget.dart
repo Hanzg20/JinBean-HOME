@@ -2,6 +2,9 @@ import 'package:jinbeanpod_83904710/core/utils/app_logger.dart'; // 图片上传
 // 支持多图片选择、预览、删除等功能
 
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:jinbeanpod_83904710/core/services/image_upload_service.dart';
+import 'package:get/get.dart';
 
 class ImageUploadWidget extends StatelessWidget {
   final List<String> images;
@@ -234,15 +237,105 @@ class ImageUploadWidget extends StatelessWidget {
     );
   }
 
-  void _pickImageFromCamera() {
-    // TODO: 实现相机拍照功能
-    // 这里应该调用相机API，获取图片后调用onImageAdded
-    AppLogger.info('Camera functionality to be implemented');
+  Future<void> _pickImageFromCamera() async {
+    try {
+      final imageService = ImageUploadService();
+      final XFile? image = await imageService.pickSingleImage(
+        source: ImageSource.camera,
+        maxSize: 1024,
+        quality: 85,
+      );
+
+      if (image != null) {
+        // Upload the image to storage (reviews folder)
+        final String imageUrl = await imageService.uploadSingleImage(
+          imageFile: image,
+          storagePath: 'reviews',
+          maxSize: 1024,
+          quality: 85,
+        );
+
+        // Call the callback with the uploaded URL
+        onImageAdded(imageUrl);
+
+        AppLogger.info('[ImageUploadWidget] Image uploaded from camera: $imageUrl');
+        Get.snackbar(
+          'Success',
+          'Photo added successfully',
+          snackPosition: SnackPosition.BOTTOM,
+          duration: const Duration(seconds: 2),
+        );
+      }
+    } on ImageUploadException catch (e) {
+      AppLogger.error('[ImageUploadWidget] Error picking from camera: $e');
+      Get.snackbar(
+        'Error',
+        e.message,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.withValues(alpha: 0.8),
+        colorText: Colors.white,
+        duration: const Duration(seconds: 3),
+      );
+    } catch (e) {
+      AppLogger.error('[ImageUploadWidget] Unexpected error: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to add photo. Please try again.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.withValues(alpha: 0.8),
+        colorText: Colors.white,
+      );
+    }
   }
 
-  void _pickImageFromGallery() {
-    // TODO: 实现相册选择功能
-    // 这里应该调用相册API，获取图片后调用onImageAdded
-    AppLogger.info('Gallery functionality to be implemented');
+  Future<void> _pickImageFromGallery() async {
+    try {
+      final imageService = ImageUploadService();
+      final XFile? image = await imageService.pickSingleImage(
+        source: ImageSource.gallery,
+        maxSize: 1024,
+        quality: 85,
+      );
+
+      if (image != null) {
+        // Upload the image to storage (reviews folder)
+        final String imageUrl = await imageService.uploadSingleImage(
+          imageFile: image,
+          storagePath: 'reviews',
+          maxSize: 1024,
+          quality: 85,
+        );
+
+        // Call the callback with the uploaded URL
+        onImageAdded(imageUrl);
+
+        AppLogger.info('[ImageUploadWidget] Image uploaded from gallery: $imageUrl');
+        Get.snackbar(
+          'Success',
+          'Photo added successfully',
+          snackPosition: SnackPosition.BOTTOM,
+          duration: const Duration(seconds: 2),
+        );
+      }
+    } on ImageUploadException catch (e) {
+      AppLogger.error('[ImageUploadWidget] Error picking from gallery: $e');
+      Get.snackbar(
+        'Error',
+        e.message,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.withValues(alpha: 0.8),
+        colorText: Colors.white,
+        duration: const Duration(seconds: 3),
+      );
+    } catch (e) {
+      AppLogger.error('[ImageUploadWidget] Unexpected error: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to add photo. Please try again.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.withValues(alpha: 0.8),
+        colorText: Colors.white,
+      );
+    }
   }
 }

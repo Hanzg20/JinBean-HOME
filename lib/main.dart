@@ -18,8 +18,12 @@ import 'core/controllers/location_controller.dart';
 import 'features/demo/address_input_demo_page.dart';
 import 'package:jinbeanpod_83904710/features/customer/splash/presentation/splash_page.dart';
 import 'package:jinbeanpod_83904710/features/customer/splash/presentation/splash_binding.dart';
+import 'package:jinbeanpod_83904710/core/services/review_service.dart';
+import 'package:jinbeanpod_83904710/core/services/content_moderation_service.dart';
+import 'package:jinbeanpod_83904710/core/services/notification_service.dart';
 import 'package:jinbeanpod_83904710/features/provider/settings/settings_page.dart';
 import 'core/services/local_data_manager.dart';
+import 'core/services/review_data_creation_test.dart';
 // New imports for Settings sub-pages
 
 // New imports for provider pages
@@ -46,6 +50,7 @@ import 'package:jinbeanpod_83904710/core/services/service_registry.dart';
 import 'package:jinbeanpod_83904710/features/customer/food/presentation/food_order_page.dart';
 import 'package:jinbeanpod_83904710/features/customer/home_services/presentation/home_service_page.dart';
 import 'package:jinbeanpod_83904710/core/config/stripe_config.dart';
+import 'package:jinbeanpod_83904710/features/customer/reviews/presentation/pages/non_order_review_page.dart';
 // Profile子页面导入
 import 'package:jinbeanpod_83904710/features/customer/profile/presentation/my_orders/my_orders_page.dart';
 import 'package:jinbeanpod_83904710/features/customer/profile/presentation/my_orders/my_orders_binding.dart';
@@ -94,6 +99,20 @@ void main() async {
   Get.put(ServiceManagerState(), permanent: true);
   AppLogger.info('[main] ServiceManagerState put.');
 
+  // 注入 ContentModerationService，确保内容审核功能可用
+  Get.put(ContentModerationService(), permanent: true);
+  AppLogger.info('[main] ContentModerationService put.');
+
+  // 注入 ReviewService，确保评价功能可用
+  Get.put(ReviewService(), permanent: true);
+  AppLogger.info('[main] ReviewService put.');
+
+  // 注入 NotificationService，初始化通知系统
+  final notificationService = NotificationService();
+  await notificationService.init();
+  Get.put(notificationService, permanent: true);
+  AppLogger.info('[main] NotificationService initialized.');
+
   // 初始化Stripe支付系统
   try {
     await StripeConfig.initialize();
@@ -120,6 +139,15 @@ void main() async {
                 LocalDataManager.testLocalDataStatus();
               } catch (e) {
                 AppLogger.error('[main] ❌ 本地数据管理器初始化失败: $e');
+                // 不要阻止应用启动，但记录错误
+              }
+
+              // 执行评价数据创建测试（可选）
+              try {
+                AppLogger.info('[main] 🚀 开始执行评价数据创建测试...');
+                ReviewDataCreationTest.runOnStartup();
+              } catch (e) {
+                AppLogger.error('[main] ❌ 评价数据创建测试失败: $e');
                 // 不要阻止应用启动，但记录错误
               }
 
@@ -276,6 +304,14 @@ void main() async {
             GetPage(
                 name: '/home_service',
                 page: () => const HomeServicePage()),
+            // 非订单评价页面
+            GetPage(
+                name: '/non-order-review',
+                page: () => NonOrderReviewPage(
+                  serviceId: Get.arguments['serviceId'] ?? '',
+                  serviceName: Get.arguments['serviceName'] ?? '',
+                  providerId: Get.arguments['providerId'] ?? '',
+                )),
             // Profile子页面路由
             GetPage(
                 name: '/my_orders',

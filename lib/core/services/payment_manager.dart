@@ -283,9 +283,9 @@ class PaymentManager extends GetxController {
         _stateManager = stateManager;
 
   /// 处理支付
-  Future<PaymentResult> processPayment(PaymentRequest request) async {
+  Future<PaymentResult> processPayment(PaymentRequest request, {int retryCount = 0}) async {
     try {
-      AppLogger.info('[PaymentManager] Processing payment for order: ${request.orderId}');
+      AppLogger.info('[PaymentManager] Processing payment for order: ${request.orderId} (retry: $retryCount)');
 
       // 1. 风险评估
       final riskAssessment = await _riskController.assessRisk(request);
@@ -379,6 +379,13 @@ class PaymentManager extends GetxController {
 
     } catch (e) {
       AppLogger.error('[PaymentManager] Payment processing failed: $e');
+
+      // 支付重试机制
+      if (retryCount < 3 && e.toString().contains('network')) {
+        await Future.delayed(Duration(seconds: retryCount + 1));
+        return processPayment(request, retryCount: retryCount + 1);
+      }
+
       if (e is PaymentException) {
         rethrow;
       }

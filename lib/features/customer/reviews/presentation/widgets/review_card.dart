@@ -144,6 +144,60 @@ class ReviewCard extends StatelessWidget {
               const SizedBox(height: 12),
             ],
 
+            // 服务商回复
+            if (review.providerResponse != null && review.providerResponse!.isNotEmpty) ...[
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey[200]!),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.blue[600],
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: const Text(
+                            '商家回复',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        if (review.providerResponseAt != null)
+                          Text(
+                            _formatDate(review.providerResponseAt!),
+                            style: TextStyle(
+                              color: Colors.grey[500],
+                              fontSize: 12,
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      review.providerResponse!,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
+
             // 图片
             if (review.images.isNotEmpty) ...[
               SizedBox(
@@ -180,7 +234,7 @@ class ReviewCard extends StatelessWidget {
                       icon: Icons.thumb_up,
                       label: 'Helpful',
                       count: review.helpfulCount,
-                      isVoted: review.userVotedHelpful == true,
+                      isVoted: false, // TODO: 实现用户投票状态
                       onTap: () => onVote(true),
                     ),
                     const SizedBox(width: 16),
@@ -188,7 +242,7 @@ class ReviewCard extends StatelessWidget {
                       icon: Icons.thumb_down,
                       label: 'Not Helpful',
                       count: 0, // TODO: 实现不有用计数
-                      isVoted: review.userVotedHelpful == false,
+                      isVoted: false, // TODO: 实现用户投票状态
                       onTap: () => onVote(false),
                     ),
                   ],

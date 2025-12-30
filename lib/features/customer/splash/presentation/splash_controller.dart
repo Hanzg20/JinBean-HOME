@@ -88,7 +88,7 @@ class SplashController extends GetxController {
               // 设置PluginManager的角色为provider
               try {
                 final pluginManager = Get.find<PluginManager>();
-                pluginManager.setRole('provider');
+                await pluginManager.setRole('provider');
               } catch (e) {
                 AppLogger.error(
                     '[SplashController] Error setting provider role: $e',
@@ -102,7 +102,7 @@ class SplashController extends GetxController {
               // 设置PluginManager的角色为customer
               try {
                 final pluginManager = Get.find<PluginManager>();
-                pluginManager.setRole('customer');
+                await pluginManager.setRole('customer');
               } catch (e) {
                 AppLogger.error(
                     '[SplashController] Error setting customer role: $e',

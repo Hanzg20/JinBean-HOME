@@ -49,7 +49,7 @@ class LocalDataManager {
     try {
       final response = await Supabase.instance.client
           .from('services')
-          .select('id, title, description, category_level1_id, provider_id, status, created_at, updated_at')
+          .select('id, title, description, category_level1_id, category_level2_id, average_rating, review_count, provider_id, status, latitude, longitude, created_at, updated_at, images_url, service_delivery_method, industry_type, base_price, pricing_model')
           .limit(100); // 限制数量避免内存过大
 
       for (final data in response) {
@@ -68,7 +68,7 @@ class LocalDataManager {
     try {
       final response = await Supabase.instance.client
           .from('service_details')
-          .select('id, service_id, name, description, price, duration, is_active, created_at, updated_at, category, sub_category, current_stock, max_stock')
+          .select('id, service_id, category, name, sub_category, is_available, sort_order, current_stock, max_stock, attributes, business_rules, pricing_type, price, currency, duration, images_url, videos_url, tags, service_area_codes, platform_service_fee_rate, min_platform_service_fee, promotion_start, promotion_end, view_count, favorite_count, order_count, verification_status, verification_documents, created_at, updated_at')
           .limit(500); // 限制数量避免内存过大
 
       for (final data in response) {
@@ -87,7 +87,7 @@ class LocalDataManager {
     try {
       final response = await Supabase.instance.client
           .from('provider_profiles')
-          .select('id, display_name, description, avatar_url, is_certified, metadata, created_at, updated_at')
+          .select('id, display_name, bio, avatar_url, is_certified, rating, review_count, created_at, updated_at')
           .limit(50); // 限制数量避免内存过大
 
       for (final data in response) {
